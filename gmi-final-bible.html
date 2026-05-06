@@ -292,14 +292,152 @@ body::after{content:'';position:fixed;inset:0;
 
 <!-- TABS -->
 <div class="tabs">
-  <button class="tab active" onclick="showTab('notice',this)">📢 디스코드 공지</button>
-  <button class="tab" onclick="showTab('rules',this)">📜 완전 룰북</button>
-  <button class="tab" onclick="showTab('ops',this)">🛠️ 운영 가이드</button>
+  <button class="tab active" onclick="showTab('intro',this)">🎮 G드컵이란?</button>
+  <button class="tab" onclick="showTab('notice',this)">📢 공지문</button>
+  <button class="tab" onclick="showTab('rules',this)">📜 룰북</button>
+  <button class="tab" onclick="showTab('mc',this)">🎙️ MC 가이드</button>
+  <button class="tab" onclick="showTab('ops',this)">🛠️ 운영</button>
   <button class="tab" onclick="showTab('youtube',this)">🎬 유튜브</button>
 </div>
 
-<!-- ======== TAB 1: DISCORD NOTICE ======== -->
-<div id="tab-notice" class="section active">
+<!-- ======== TAB 0: INTRO ======== -->
+<div id="tab-intro" class="section active">
+
+  <!-- 한 줄 설명 -->
+  <div style="text-align:center;padding:28px 0 8px">
+    <div style="display:inline-block;padding:12px 28px;border-radius:50px;background:linear-gradient(135deg,rgba(191,0,255,0.15),rgba(0,200,255,0.1));border:1px solid rgba(191,0,255,0.4);font-family:'Black Han Sans',sans-serif;font-size:18px">
+      💡 팀원을 경매로 사서 배그 하는 클랜 내전
+    </div>
+  </div>
+
+  <!-- 3단계 흐름 -->
+  <div class="block cyan" style="margin-top:20px">
+    <div class="block-title">🔑 G드컵 핵심 원리 — 3단계</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:4px">
+      <div style="background:rgba(191,0,255,0.08);border:1px solid rgba(191,0,255,0.3);border-radius:14px;padding:20px;text-align:center">
+        <div style="font-size:36px;margin-bottom:10px">💰</div>
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:15px;color:#d8b4fe;margin-bottom:8px">STEP 1. 자금 배정</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7">팀장에게<br><strong style="color:#fff">가상 자금</strong>이 지급됩니다<br>(6~8억원)</div>
+      </div>
+      <div style="background:rgba(255,136,0,0.08);border:1px solid rgba(255,136,0,0.3);border-radius:14px;padding:20px;text-align:center">
+        <div style="font-size:36px;margin-bottom:10px">🔨</div>
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:15px;color:#fdba74;margin-bottom:8px">STEP 2. 경매 입찰</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7">그 돈으로<br><strong style="color:#fff">클랜원을 입찰</strong>해<br>팀을 구성합니다</div>
+      </div>
+      <div style="background:rgba(0,200,255,0.08);border:1px solid rgba(0,200,255,0.3);border-radius:14px;padding:20px;text-align:center">
+        <div style="font-size:36px;margin-bottom:10px">🔥</div>
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:15px;color:#67e8f9;margin-bottom:8px">STEP 3. 소각 → 상금</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7">쓴 돈은 <strong style="color:#fff">소각</strong>되고<br>남은 금액이<br>실제 상금이 됩니다</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 경매 예시 대화 -->
+  <div class="block purple">
+    <div class="block-title">📺 실제 경매 이런 식으로 진행돼요</div>
+    <div style="background:rgba(0,0,0,0.4);border-radius:12px;padding:20px;font-size:14px;line-height:2.2;font-family:'Noto Sans KR',sans-serif">
+      <div><span style="color:#a855f7;font-weight:700">🎙️ MC 이무리:</span> <span style="color:rgba(255,255,255,0.85)">"다음 매물! 🔴 G등급 Magyar- 선수입니다! 시작가 5,000만원!"</span></div>
+      <div style="margin-top:4px"><span style="color:#00c8ff;font-weight:700">팀장 A:</span> <span style="color:rgba(255,255,255,0.7)">"1억!"</span></div>
+      <div><span style="color:#22c55e;font-weight:700">팀장 B:</span> <span style="color:rgba(255,255,255,0.7)">"2억 5천!"</span></div>
+      <div><span style="color:#f97316;font-weight:700">팀장 C:</span> <span style="color:rgba(255,255,255,0.7)">"3억 5천만원!!"</span></div>
+      <div style="margin-top:4px"><span style="color:#a855f7;font-weight:700">🎙️ MC:</span> <span style="color:rgba(255,255,255,0.85)">"3억 5천!! 더 없습니까?! <strong style="color:#fbbf24">낙!!찰!!</strong> 🔨 Magyar-, C팀 입단!!"</span></div>
+      <div style="margin-top:8px;padding:10px 14px;background:rgba(255,136,0,0.08);border-radius:8px;border-left:3px solid var(--I);font-size:12px;color:rgba(255,255,255,0.5)">
+        💡 가상화폐라 실제 돈이 아닙니다! 경매에서 쓴 돈은 소각 → 남은 금액 = 실제 우승 상금
+      </div>
+    </div>
+  </div>
+
+  <!-- 5라운드 맵 -->
+  <div class="block orange">
+    <div class="block-title">🗺️ 오늘의 5라운드 맵 순서</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+      <div style="flex:1;min-width:120px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:2px;margin-bottom:6px">ROUND 1</div>
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:16px">에란겔</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:2px;margin-bottom:6px">ROUND 2</div>
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:16px">미라마</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:2px;margin-bottom:6px">ROUND 3</div>
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:16px">테이고</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:2px;margin-bottom:6px">ROUND 4</div>
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:16px">론도</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:rgba(255,204,0,0.08);border:2px solid rgba(255,204,0,0.4);border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:11px;color:#fbbf24;letter-spacing:2px;margin-bottom:6px">ROUND 5 🔥</div>
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:16px;color:#fbbf24">에란겔</div>
+        <div style="font-size:11px;color:#fbbf24;margin-top:4px">전점수 2배!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPER 룰 점수표 -->
+  <div class="block red">
+    <div class="block-title">🏆 점수 시스템 (SUPER 룰 기반)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px">
+      <div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:2px;margin-bottom:10px">순위 점수 (R1~R4)</div>
+        <table class="rule-table">
+          <tr><th>순위</th><th>점수</th><th>R5 (2배)</th></tr>
+          <tr><td>🥇 1위</td><td style="color:#fbbf24;font-weight:700">10점</td><td style="color:#fbbf24;font-weight:700">20점</td></tr>
+          <tr><td>🥈 2위</td><td>6점</td><td style="color:#fbbf24">12점</td></tr>
+          <tr><td>🥉 3위</td><td>5점</td><td style="color:#fbbf24">10점</td></tr>
+          <tr><td>4위</td><td>4점</td><td style="color:#fbbf24">8점</td></tr>
+          <tr><td>5위</td><td>3점</td><td style="color:#fbbf24">6점</td></tr>
+          <tr><td>6위</td><td>2점</td><td style="color:#fbbf24">4점</td></tr>
+          <tr><td>7~8위</td><td>1점</td><td style="color:#fbbf24">2점</td></tr>
+          <tr><td>9위~</td><td>0점</td><td>0점</td></tr>
+          <tr><td>💀 킬</td><td style="color:var(--G);font-weight:700">+1점</td><td style="color:var(--G);font-weight:700">+2점</td></tr>
+        </table>
+      </div>
+      <div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:2px;margin-bottom:10px">동점 타이브레이커</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px">
+            <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fbbf24;flex-shrink:0">1</div>
+            <div><div style="font-weight:700;font-size:14px">치킨 수</div><div style="font-size:11px;color:rgba(255,255,255,0.4)">5라운드 합산 1위 횟수</div></div>
+          </div>
+          <div style="background:rgba(255,37,37,0.06);border:1px solid rgba(255,37,37,0.2);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px">
+            <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--G);flex-shrink:0">2</div>
+            <div><div style="font-weight:700;font-size:14px">킬 수</div><div style="font-size:11px;color:rgba(255,255,255,0.4)">5라운드 합산 총 킬</div></div>
+          </div>
+          <div style="background:rgba(0,200,255,0.06);border:1px solid rgba(0,200,255,0.2);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px">
+            <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--cyan);flex-shrink:0">3</div>
+            <div><div style="font-weight:700;font-size:14px">마지막 라운드</div><div style="font-size:11px;color:rgba(255,255,255,0.4)">R5 에란겔 점수</div></div>
+          </div>
+        </div>
+        <div style="margin-top:14px;padding:12px;background:rgba(255,45,155,0.07);border:1px solid rgba(255,45,155,0.25);border-radius:10px;font-size:12px;color:rgba(255,200,200,0.8);line-height:1.7">
+          🤫 <strong style="color:#ff8cc8">스폰서 특권</strong><br>
+          방송 후원 1위 → 하이재킹 or 운명교체 선택
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 참가 안내 -->
+  <div class="block green">
+    <div class="block-title">✅ 참가 안내</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.25);border-radius:12px;padding:16px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px">🎮 클랜원</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8">참가비 <strong style="color:#fff">무료</strong><br>#내전-신청-접수처 등록</div>
+      </div>
+      <div style="background:rgba(249,115,22,0.07);border:1px solid rgba(249,115,22,0.25);border-radius:12px;padding:16px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px">👥 클랜원 지인 (용병)</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.8">참가비 <strong style="color:#f97316">5,000원</strong><br>준구님 DM → 입금</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;text-align:center;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;font-size:13px;color:rgba(255,255,255,0.5)">
+      📺 경매부터 게임까지 <strong style="color:#fff">이무리 SOOP · 유튜브 동시 생중계!</strong>
+    </div>
+  </div>
+
+</div>
+<div id="tab-notice" class="section">
 
   <div class="block purple">
     <div class="block-title">📢 디스코드 공지 전문 — 복붙 후 바로 사용</div>
@@ -642,6 +780,170 @@ Q. 팀 인원은 몇 명인가요?
         </div>
       </div>
     </div>
+  </div>
+
+</div>
+
+<!-- ======== TAB MC: MC 경매 가이드 ======== -->
+<div id="tab-mc" class="section">
+
+  <div class="block cyan">
+    <div class="block-title">🎙️ 경매 MC 전체 타임라인 (목표: 50분 완료)</div>
+    <div style="background:rgba(0,200,255,0.06);border:1px solid rgba(0,200,255,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:rgba(200,240,255,0.8)">
+      ⏱️ 전체 목표: <strong style="color:#fff">PM 7:00 ~ 7:50</strong> (50분) · I등급은 선수당 50초 제한 엄수!
+    </div>
+    <div class="timeline">
+
+      <!-- CHAPTER 0 -->
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-time" style="color:var(--accent)">7:00<small>5분</small></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-card">
+            <div class="tl-badge" style="background:rgba(191,0,255,0.2);color:#d8b4fe;border:1px solid rgba(191,0,255,0.4)">CHAPTER 0</div>
+            <h3>오프닝 & 공지</h3>
+            <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;margin-top:10px;font-size:13px;color:rgba(255,255,255,0.75);line-height:2;font-family:'Noto Sans KR',sans-serif">
+              🎙️ <em>"안녕하세요! GmI G드컵 시즌 1 경매 드래프트 시작합니다!"</em><br>
+              ① 오늘 참가 인원 발표 → 팀 수 확정<br>
+              ② <em>"오늘 총 상금 <strong>XX억원!</strong>"</em><br>
+              ③ <em>"팀장님들 지갑에 <strong>X억원</strong> 들어가 있습니다!"</em><br>
+              ④ 룰 30초 요약 → <em>"순위점수 + 킬 1점, R5 에란겔 전부 2배!"</em><br>
+              ⑤ <em>"50분 안에 못 사면 3스쿼드 각오하세요!"</em>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAPTER 1 -->
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-time" style="color:var(--G)">7:05<small>15분</small></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-card">
+            <div class="tl-badge" style="background:rgba(255,37,37,0.2);color:#fca5a5;border:1px solid rgba(255,37,37,0.4)">CHAPTER 1 · 🔴 G등급</div>
+            <h3>G등급 경매 — 선수당 최대 2분 30초</h3>
+            <p>4~6명 × 2.5분 = 최대 15분</p>
+            <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;margin-top:10px;font-size:13px;color:rgba(255,255,255,0.75);line-height:2;font-family:'Noto Sans KR',sans-serif">
+              🎙️ <em>"다음 매물! 🔴 G등급 <strong>[닉네임]</strong> 선수입니다!"</em><br>
+              → <strong>스탯 소개 30초</strong> (KD, 최근 시즌 성적 한 줄)<br>
+              → <em>"시작가 <strong>5,000만원!</strong> 입찰 시작!"</em><br>
+              → 최고가에서 5초 카운트 후 낙찰<br>
+              → <em>"<strong>낙!!찰!!</strong> 🔨 [닉네임], [팀장명] 팀 입단!!"</em>
+            </div>
+            <div style="margin-top:8px;padding:8px 12px;background:rgba(255,37,37,0.08);border-radius:8px;font-size:12px;color:rgba(255,150,150,0.8)">
+              ⚠️ 2분 30초 초과 시 → <em>"시간 종료! 현재 최고가로 낙찰!"</em> 강제 진행
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAPTER 2 -->
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-time" style="color:var(--m)">7:20<small>8분</small></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-card">
+            <div class="tl-badge" style="background:rgba(168,85,247,0.2);color:#d8b4fe;border:1px solid rgba(168,85,247,0.4)">CHAPTER 2 · 🟣 m등급</div>
+            <h3>m등급 경매 — 선수당 최대 2분</h3>
+            <p>3~4명 × 2분 = 최대 8분</p>
+            <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;margin-top:10px;font-size:13px;color:rgba(255,255,255,0.75);line-height:2;font-family:'Noto Sans KR',sans-serif">
+              🎙️ <em>"m등급 <strong>[닉네임]</strong>! 시작가 <strong>2,000만원!</strong>"</em><br>
+              → 스탯 소개 20초<br>
+              → 입찰 → 낙찰
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAPTER 3 -->
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-time" style="color:var(--I)">7:28<small>17분</small></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-card">
+            <div class="tl-badge" style="background:rgba(249,115,22,0.2);color:#fdba74;border:1px solid rgba(249,115,22,0.4)">CHAPTER 3 · 🟠 I등급 ⚡빠르게!</div>
+            <h3>I등급 경매 — 선수당 50초 제한 타이머!</h3>
+            <p>~20명 × 50초 = 약 17분</p>
+            <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;margin-top:10px;font-size:13px;color:rgba(255,255,255,0.75);line-height:2;font-family:'Noto Sans KR',sans-serif">
+              🎙️ <em>"I등급부터 빠르게 갑니다! 타이머 시작!"</em><br>
+              → <em>"<strong>[닉네임]!</strong> 시작가 500만원!"</em><br>
+              → 스탯 10초 (한 줄만!)<br>
+              → 입찰 없으면 → <em>"10초 후 시작가 낙찰!"</em> 바로 진행<br>
+              → 3팀 이상 입찰 시 최대 50초만 진행
+            </div>
+            <div style="margin-top:8px;padding:8px 12px;background:rgba(249,115,22,0.08);border-radius:8px;font-size:12px;color:rgba(255,180,100,0.8)">
+              💡 MC 핵심: "입찰 없으면 10초 기다리고 바로 다음 선수!" — 망설이지 말고 속도 유지!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAPTER 4 -->
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-time" style="color:var(--green)">7:45<small>3분</small></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-card">
+            <div class="tl-badge" style="background:rgba(34,197,94,0.2);color:#86efac;border:1px solid rgba(34,197,94,0.4)">CHAPTER 4 · 예비 멤버</div>
+            <h3>예비 멤버 경매 — 팀당 30초!</h3>
+            <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;margin-top:10px;font-size:13px;color:rgba(255,255,255,0.75);line-height:2;font-family:'Noto Sans KR',sans-serif">
+              🎙️ <em>"예비 멤버 경매 오픈! 원하는 팀만 입찰하세요!"</em><br>
+              → 예비 후보 명단 한 번에 공개<br>
+              → 입찰 있는 선수만 경매 진행 (30초)<br>
+              → 없으면 스킵<br>
+              → <em>"예비 없는 팀은 3스쿼드 확정입니다!"</em>
+            </div>
+            <div style="margin-top:8px;padding:8px 12px;background:rgba(34,197,94,0.06);border-radius:8px;font-size:12px;color:rgba(150,240,180,0.8)">
+              시작가: 등급 시작가 50% (G등급 예비 → 2,500만원~)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAPTER 5 -->
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-time" style="color:#fbbf24">7:48<small>7분</small></div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-card">
+            <div class="tl-badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3)">CHAPTER 5 · 마무리</div>
+            <h3>경매 마무리 & 게임 준비</h3>
+            <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;margin-top:10px;font-size:13px;color:rgba(255,255,255,0.75);line-height:2;font-family:'Noto Sans KR',sans-serif">
+              ① 팀별 최종 구성 발표 (팀장명 + 멤버 읽기)<br>
+              ② <em>"오늘 소각 금액 XX억! 최종 우승 상금 <strong>XX억원!!</strong>"</em><br>
+              ③ 동점 타이브레이커 재공지:<br>
+              &nbsp;&nbsp;&nbsp;<em>"동점 시 → 치킨 수 → 킬 수 → 마지막 라운드 순!"</em><br>
+              ④ <em>"잠시 후 <strong>PM 8:00</strong> R1 에란겔 시작합니다! 준비하세요!"</em>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 경매 중 주의사항 -->
+  <div class="block gold">
+    <div class="block-title">⚠️ MC 경매 중 주의사항</div>
+    <table class="rule-table">
+      <tr><th>상황</th><th>MC 대응</th></tr>
+      <tr><td>예산 없는 팀장이 입찰</td><td>"XX팀, 잔여 예산 XX억 확인! 입찰 가능합니까?"</td></tr>
+      <tr><td>아무도 입찰 안 함 (G등급)</td><td>"정말 아무도 안 사십니까? 10초 드립니다!"</td></tr>
+      <tr><td>의무 소진 40% 미달 팀 발생</td><td>경매 종료 전 체크 → "XX팀 의무 소진 미달! 잔여 선수 강제 입찰!"</td></tr>
+      <tr><td>시간 초과 위기</td><td>I등급 남은 인원 3명씩 묶어서 "묶음 경매" 진행 가능</td></tr>
+      <tr><td>동점 발생</td><td>치킨 수 → 킬 수 → R5 점수 순으로 판정</td></tr>
+    </table>
   </div>
 
 </div>
