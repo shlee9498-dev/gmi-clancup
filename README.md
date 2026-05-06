@@ -1,0 +1,2 @@
+# gmi-clancup
+G드
