@@ -307,7 +307,7 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
           <div class="sc-num">SEASON 01 · G드컵</div>
           <div class="sc-title">🏆 GmI G드컵 1회</div>
           <div class="sc-date">📅 2026년 5월 10일 (일)</div>
-          <div class="sc-badge badge-live">🔴 D-5</div>
+          <div class="sc-badge badge-live">🔴 D-5</div> id="mainDday"
         </div>
         <div class="sc-body">
           <div class="sc-divider"></div>
@@ -505,7 +505,7 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
 <div class="toast" id="toast"></div>
 
 <script>
-// Smooth nav highlight
+// D-Day auto counter (2026-05-10 기준)     (function(){       function upd(){         const targetDate = new Date('2026-05-10T00:00:00+09:00');          const now = new Date();                  const tDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());         const nDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());                  const diffTime = tDate - nDate;         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));                  const el = document.getElementById('mainDday');         if(!el) return;          if (diffDays > 0) {           el.textContent = `🔴 D-${diffDays}`;          } else if (diffDays === 0) {           el.textContent = '🔴 D-DAY';         } else {           el.textContent = '🔴 종료';         }       }       upd();       setInterval(upd, 3600000);      })();      // Smooth nav highlight
 const sections = document.querySelectorAll('section[id]');
 const navLinks = document.querySelectorAll('.nav-link');
 window.addEventListener('scroll', ()=>{
