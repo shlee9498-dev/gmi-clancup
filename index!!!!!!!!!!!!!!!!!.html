@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="GmI (GYMMRIacademy) 클랜 내전 공식 포털 — G드컵 경매 드래프트 내전 시즌 기록">
+<title>GmI G드컵 | GYMMRIacademy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;600;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04020c; --card:#0a0718; --card2:#100d1f;
+  --accent:#bf00ff; --cyan:#00c8ff; --pink:#ff2d9b;
+  --G:#ff2525; --m:#a855f7; --I:#f97316;
+  --gold:#fbbf24; --green:#22c55e;
+  --border:rgba(168,85,247,0.18);
+  --text:rgba(255,255,255,0.92); --muted:rgba(255,255,255,0.42);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+  word-break:keep-all
+}
+
+/* ── BG ── */
+.bg-orbs{position:fixed;inset:0;pointer-events:none;z-index:0}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.12}
+.orb1{width:600px;height:600px;background:var(--accent);top:-200px;left:-200px;animation:drift1 12s ease-in-out infinite}
+.orb2{width:500px;height:500px;background:var(--cyan);bottom:-150px;right:-150px;animation:drift2 15s ease-in-out infinite}
+.orb3{width:300px;height:300px;background:var(--pink);top:50%;left:50%;animation:drift3 10s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+@keyframes drift2{0%,100%{transform:translate(0,0)}50%{transform:translate(-50px,-30px)}}
+@keyframes drift3{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-44%,-56%)}}
+.grid-bg{position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 80px,rgba(168,85,247,0.025) 80px,rgba(168,85,247,0.025) 81px),
+  repeating-linear-gradient(90deg,transparent,transparent 80px,rgba(0,200,255,0.025) 80px,rgba(0,200,255,0.025) 81px);
+  pointer-events:none;z-index:0}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(4,2,12,0.85);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);padding:0 32px}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;height:60px;gap:32px}
+.nav-logo{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+.nav-links{display:flex;gap:24px;margin-left:auto}
+.nav-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;font-weight:600;letter-spacing:.5px}
+.nav-link:hover,.nav-link.active{color:#fff}
+.nav-cta{padding:8px 20px;border-radius:20px;border:1px solid rgba(191,0,255,0.4);
+  background:rgba(191,0,255,0.1);color:#d8b4fe;font-size:12px;font-weight:700;
+  text-decoration:none;transition:all .2s;white-space:nowrap}
+.nav-cta:hover{background:rgba(191,0,255,0.2);color:#fff}
+
+/* ── SECTIONS ── */
+section{position:relative;z-index:1}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:120px 24px 80px;text-align:center}
+.hero-eyebrow{font-size:12px;color:var(--muted);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;justify-content:center}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';height:1px;width:40px;background:var(--border)}
+.hero-logo{font-family:'Rajdhani',sans-serif;font-size:clamp(72px,14vw,160px);font-weight:700;line-height:.9;
+  background:linear-gradient(135deg,var(--accent) 0%,var(--cyan) 50%,var(--pink) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 60px rgba(191,0,255,0.3));
+  animation:logobreathe 5s ease-in-out infinite}
+@keyframes logobreathe{0%,100%{filter:drop-shadow(0 0 40px rgba(191,0,255,0.25))}50%{filter:drop-shadow(0 0 80px rgba(0,200,255,0.4))}}
+.hero-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(18px,4vw,32px);
+  margin-top:12px;color:rgba(255,255,255,.7);letter-spacing:2px}
+.hero-desc{max-width:560px;font-size:15px;color:var(--muted);line-height:1.9;margin:24px auto 0}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:36px;flex-direction:column;align-items:center}
+.btn-primary{padding:18px 40px;border-radius:50px;background:linear-gradient(135deg,var(--accent),var(--m));
+  color:#fff;font-family:'Black Han Sans',sans-serif;font-size:18px;text-decoration:none;
+  box-shadow:0 0 40px rgba(191,0,255,0.4);transition:all .25s;width:100%;max-width:420px;text-align:center}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 70px rgba(191,0,255,0.6)}
+.btn-secondary{padding:18px 40px;border-radius:50px;
+  background:linear-gradient(135deg,rgba(0,200,255,0.15),rgba(191,0,255,0.1));
+  border:2px solid rgba(0,200,255,0.5);
+  color:#fff;font-family:'Black Han Sans',sans-serif;font-size:18px;text-decoration:none;
+  transition:all .25s;width:100%;max-width:420px;text-align:center;
+  box-shadow:0 0 30px rgba(0,200,255,0.2)}
+.btn-secondary:hover{border-color:var(--cyan);box-shadow:0 0 50px rgba(0,200,255,0.4);transform:translateY(-2px)}
+.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:60px;flex-wrap:wrap}
+.hstat{text-align:center}
+.hstat-n{font-family:'Rajdhani',sans-serif;font-size:40px;font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hstat-l{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:1px}
+.scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:11px;letter-spacing:2px}
+.scroll-arrow{width:20px;height:20px;border-right:2px solid rgba(255,255,255,.2);border-bottom:2px solid rgba(255,255,255,.2);
+  transform:rotate(45deg);animation:bounce .8s ease-in-out infinite alternate}
+@keyframes bounce{from{transform:rotate(45deg) translate(-3px,-3px)}to{transform:rotate(45deg) translate(3px,3px)}}
+
+/* ── SEASONS ── */
+.seasons-section{padding:80px 24px;max-width:1200px;margin:0 auto}
+.section-header{text-align:center;margin-bottom:60px}
+.section-eyebrow{font-size:11px;color:var(--accent);letter-spacing:4px;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(24px,4vw,40px)}
+.section-title span{background:linear-gradient(90deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.seasons-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+
+/* SEASON CARD */
+.season-card{background:var(--card);border:1px solid var(--border);border-radius:20px;
+  overflow:hidden;transition:transform .25s,box-shadow .25s;text-decoration:none;color:inherit;display:block}
+.season-card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.season-card.active-card{border-color:rgba(191,0,255,.5)}
+.season-card.active-card:hover{box-shadow:0 20px 60px rgba(191,0,255,.15)}
+.season-card.upcoming{opacity:.6;cursor:default}
+.season-card.upcoming:hover{transform:none;box-shadow:none}
+.sc-top{padding:24px 24px 16px;position:relative}
+.sc-top::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sc-active::before{background:linear-gradient(90deg,var(--accent),var(--cyan),var(--pink))}
+.sc-done::before{background:linear-gradient(90deg,var(--gold),#ff8c00)}
+.sc-upcoming::before{background:var(--border)}
+.sc-num{font-family:'Rajdhani',sans-serif;font-size:13px;color:var(--muted);letter-spacing:2px;margin-bottom:8px}
+.sc-title{font-family:'Black Han Sans',sans-serif;font-size:22px}
+.sc-date{font-size:13px;color:var(--muted);margin-top:6px}
+.sc-badge{position:absolute;top:20px;right:20px;padding:4px 12px;border-radius:20px;
+  font-size:11px;font-weight:700;letter-spacing:.5px}
+.badge-live{background:rgba(255,40,40,.15);border:1px solid rgba(255,40,40,.35);color:#ff7777;animation:livepulse 1.5s ease-in-out infinite}
+@keyframes livepulse{0%,100%{opacity:1}50%{opacity:.6}}
+.badge-upcoming-tag{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--muted)}
+.badge-done{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:var(--gold)}
+.sc-body{padding:0 24px 24px}
+.sc-divider{height:1px;background:var(--border);margin-bottom:16px}
+.sc-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.sc-meta-item{background:rgba(255,255,255,.03);border-radius:10px;padding:10px 12px}
+.sc-meta-label{font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px}
+.sc-meta-val{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700}
+.sc-winner{background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(255,140,0,.05));
+  border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:12px 14px;
+  display:flex;align-items:center;gap:10px}
+.sc-winner-icon{font-size:22px}
+.sc-winner-info .label{font-size:10px;color:rgba(251,191,36,.6);letter-spacing:1px}
+.sc-winner-info .name{font-weight:700;font-size:15px;color:var(--gold)}
+.sc-action{display:flex;gap:8px;margin-top:14px}
+.sc-btn{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;
+  color:rgba(255,255,255,.6);font-size:12px;font-family:'Black Han Sans',sans-serif;
+  text-decoration:none;text-align:center;transition:all .2s;cursor:pointer}
+.sc-btn:hover{background:rgba(255,255,255,.06);color:#fff;border-color:rgba(255,255,255,.25)}
+.sc-btn.primary-btn{background:linear-gradient(135deg,rgba(191,0,255,.2),rgba(0,200,255,.1));
+  border-color:rgba(191,0,255,.4);color:#d8b4fe}
+.sc-btn.primary-btn:hover{background:linear-gradient(135deg,rgba(191,0,255,.35),rgba(0,200,255,.2));color:#fff}
+
+/* ── RULES SECTION ── */
+.rules-section{padding:80px 24px;background:rgba(255,255,255,.01);border-top:1px solid var(--border)}
+.rules-inner{max-width:1000px;margin:0 auto}
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:48px}
+.rule-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;
+  position:relative;overflow:hidden;transition:transform .2s}
+.rule-card:hover{transform:translateY(-3px)}
+.rule-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.rc1::before{background:linear-gradient(90deg,var(--G),#ff6600)}
+.rc2::before{background:linear-gradient(90deg,var(--accent),var(--m))}
+.rc3::before{background:linear-gradient(90deg,var(--I),#ffcc00)}
+.rc4::before{background:linear-gradient(90deg,var(--cyan),var(--green))}
+.rc5::before{background:linear-gradient(90deg,var(--pink),var(--accent))}
+.rc6::before{background:linear-gradient(90deg,var(--gold),var(--I))}
+.rule-icon{font-size:32px;margin-bottom:14px}
+.rule-title{font-family:'Black Han Sans',sans-serif;font-size:16px;margin-bottom:8px}
+.rule-desc{font-size:13px;color:var(--muted);line-height:1.8}
+.rule-tag{display:inline-block;margin-top:10px;padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700}
+
+/* ── GRADE SECTION ── */
+.grade-section{padding:80px 24px;max-width:1000px;margin:0 auto}
+.grade-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+@media(max-width:640px){.grade-cards{grid-template-columns:1fr}}
+.gc{border-radius:16px;padding:28px;border:1px solid;text-align:center;position:relative;overflow:hidden;transition:transform .2s}
+.gc:hover{transform:translateY(-4px)}
+.gc.G{background:rgba(255,37,37,.06);border-color:rgba(255,37,37,.3)}
+.gc.m{background:rgba(168,85,247,.06);border-color:rgba(168,85,247,.3)}
+.gc.I{background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.3)}
+.gc-letter{font-family:'Rajdhani',sans-serif;font-size:64px;font-weight:700;line-height:1}
+.gc.G .gc-letter{color:var(--G);filter:drop-shadow(0 0 20px rgba(255,37,37,.4))}
+.gc.m .gc-letter{color:var(--m);filter:drop-shadow(0 0 20px rgba(168,85,247,.4))}
+.gc.I .gc-letter{color:var(--I);filter:drop-shadow(0 0 20px rgba(249,115,22,.4))}
+.gc-name{font-family:'Black Han Sans',sans-serif;font-size:16px;margin-top:8px}
+.gc-desc{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.7}
+.gc-price{margin-top:16px;padding:10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.gc-price .label{font-size:10px;color:var(--muted);letter-spacing:1px}
+.gc-price .price{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;margin-top:2px}
+.gc.G .gc-price .price{color:var(--G)}.gc.m .gc-price .price{color:var(--m)}.gc.I .gc-price .price{color:var(--I)}
+
+/* ── MRI LINK ── */
+.mri-section{padding:60px 24px;text-align:center}
+.mri-card{max-width:600px;margin:0 auto;background:var(--card);border:1px solid rgba(191,0,255,.3);
+  border-radius:20px;padding:40px;position:relative;overflow:hidden}
+.mri-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--cyan),var(--pink))}
+.mri-logo{font-family:'Black Han Sans',sans-serif;font-size:28px;margin-bottom:8px;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.mri-desc{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:24px}
+.mri-btn{display:inline-block;padding:12px 32px;border-radius:50px;
+  background:linear-gradient(135deg,rgba(191,0,255,.15),rgba(0,200,255,.1));
+  border:1px solid rgba(191,0,255,.4);color:#d8b4fe;font-family:'Black Han Sans',sans-serif;
+  font-size:14px;text-decoration:none;transition:all .25s}
+.mri-btn:hover{background:linear-gradient(135deg,rgba(191,0,255,.3),rgba(0,200,255,.2));color:#fff}
+
+/* ── FOOTER ── */
+footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
+.footer-logo{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.footer-links{display:flex;gap:20px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.footer-link{font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s}
+.footer-link:hover{color:#fff}
+.footer-copy{font-size:11px;color:rgba(255,255,255,.15);margin-top:20px}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:#160d30;border:1px solid var(--accent);
+  border-radius:10px;padding:12px 20px;font-size:13px;color:#fff;opacity:0;
+  pointer-events:none;transition:opacity .3s;z-index:999;font-family:'Black Han Sans',sans-serif}
+.toast.show{opacity:1}
+
+/* MOBILE */
+@media(max-width:768px){
+  .nav-links{display:none}
+  .grade-cards{grid-template-columns:1fr 1fr}
+  .hero-stats{gap:24px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+<div class="grid-bg"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">GmI</a>
+    <div class="nav-links">
+      <a href="#seasons" class="nav-link">시즌</a>
+      <a href="#rules" class="nav-link">룰</a>
+      <a href="#grades" class="nav-link">등급</a>
+      <a href="./roster.html" class="nav-link" style="color:#fbbf24">👥 참가자 명단</a>
+      <a href="./gmi-auction-tool.html" class="nav-link" style="color:#bf00ff;font-weight:700">🔨 경매 운영판</a>
+      <a href="https://shlee9498-dev.github.io/mri-academy/" target="_blank" class="nav-link">MRI Academy</a>
+    </div>
+    <a href="https://discord.gg/9RjqdSKw" target="_blank" class="nav-cta">💬 디스코드 입장</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-eyebrow">GYMMRIacademy · G드컵 Season 1</div>
+  
+  <!-- 포스터 메인 비주얼 -->
+  <div style="width:100%;max-width:560px;margin:0 auto 36px;">
+    <img src="./poster.png" alt="GmI CLASS 1: THE AUCTION" 
+      style="width:100%;border-radius:20px;box-shadow:0 0 80px rgba(191,0,255,0.35),0 0 160px rgba(0,200,255,0.15);display:block;">
+  </div>
+
+  <div class="hero-btns">
+    <a href="https://discord.gg/9RjqdSKw" target="_blank" class="btn-primary">💬 클랜원 참가 신청하기</a>
+    <a href="./gmi-auction-tool.html" class="btn-primary" style="background:linear-gradient(135deg,#bf00ff,#7c00ff)">🔨 경매 운영판 입장</a>
+    <a href="./gmi-final-bible.html" class="btn-secondary">📖 완전 가이드 보기 (룰 · 공지 · 운영 전부)</a>
+  </div>
+
+  <!-- 용병 참가 버튼 -->
+  <div style="width:100%;max-width:420px;margin:16px auto 0">
+    <a href="https://discord.gg/Wwge9BTX" target="_blank"
+      style="display:flex;align-items:center;justify-content:center;gap:10px;
+        width:100%;padding:16px 28px;border-radius:50px;text-decoration:none;
+        background:linear-gradient(135deg,rgba(251,191,36,0.15),rgba(249,115,22,0.1));
+        border:2px solid rgba(251,191,36,0.5);
+        color:#fbbf24;font-family:'Black Han Sans',sans-serif;font-size:16px;
+        box-shadow:0 0 30px rgba(251,191,36,0.15);transition:all .25s"
+      onmouseover="this.style.background='linear-gradient(135deg,rgba(251,191,36,0.25),rgba(249,115,22,0.2))';this.style.boxShadow='0 0 50px rgba(251,191,36,0.3)'"
+      onmouseout="this.style.background='linear-gradient(135deg,rgba(251,191,36,0.15),rgba(249,115,22,0.1))';this.style.boxShadow='0 0 30px rgba(251,191,36,0.15)'">
+      👥 용병(지인) 참가 신청하기
+    </a>
+    <div style="text-align:center;margin-top:10px;font-size:12px;color:rgba(255,255,255,0.35);line-height:1.8">
+      참가비 5,000원 · 버튼 클릭 → 디스코드 서버 입장 → #용병-입금-리스트 확인
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-n">05.10</div><div class="hstat-l">일요일 경매 START</div></div>
+    <div class="hstat"><div class="hstat-n">PM 7</div><div class="hstat-l">경매 드래프트</div></div>
+    <div class="hstat"><div class="hstat-n">50억</div><div class="hstat-l">64명 달성 상금</div></div>
+    <div class="hstat"><div class="hstat-n">LIVE</div><div class="hstat-l">SOOP · YouTube</div></div>
+  </div>
+  <div class="scroll-hint">SCROLL<div class="scroll-arrow"></div></div>
+</section>
+
+<!-- SEASONS -->
+<section id="seasons">
+  <div class="seasons-section">
+    <div class="section-header">
+      <div class="section-eyebrow">Season Archive</div>
+      <div class="section-title"><span>GmI G드컵 시즌 기록</span></div>
+      <p style="font-size:14px;color:var(--muted);margin-top:12px">매 시즌 결과와 기록이 여기에 쌓입니다</p>
+    </div>
+    <div class="seasons-grid">
+
+      <!-- SEASON 1 - ACTIVE -->
+      <div class="season-card active-card">
+        <div class="sc-top sc-active">
+          <div class="sc-num">SEASON 01 · G드컵</div>
+          <div class="sc-title">🏆 GmI G드컵 1회</div>
+          <div class="sc-date">📅 2026년 5월 10일 (일)</div>
+          <div class="sc-badge badge-live" id="mainDday">🔴 D-?</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-divider"></div>
+          <!-- 마감 안내 -->
+          <div style="background:rgba(255,60,60,0.08);border:1px solid rgba(255,60,60,0.3);border-radius:10px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+            <div style="font-size:20px">⏰</div>
+            <div>
+              <div style="font-size:11px;color:rgba(255,100,100,0.7);letter-spacing:1px;margin-bottom:2px">참가 신청 마감</div>
+              <div style="font-family:'Black Han Sans',sans-serif;font-size:15px;color:#ff8888">5월 9일 (토) 오후 5시</div>
+            </div>
+          </div>
+          <div class="sc-meta">
+            <div class="sc-meta-item">
+              <div class="sc-meta-label">경매 시작</div>
+              <div class="sc-meta-val" style="color:var(--accent)">PM 7:00</div>
+            </div>
+            <div class="sc-meta-item">
+              <div class="sc-meta-label">게임 시작</div>
+              <div class="sc-meta-val" style="color:var(--pink)">PM 8:00</div>
+            </div>
+            <div class="sc-meta-item">
+              <div class="sc-meta-label">방식</div>
+              <div class="sc-meta-val" style="font-size:13px;color:var(--cyan)">경매 드래프트</div>
+            </div>
+            <div class="sc-meta-item">
+              <div class="sc-meta-label">최대 상금</div>
+              <div class="sc-meta-val" style="color:var(--gold)">50억원</div>
+            </div>
+          </div>
+          <div class="sc-winner" style="background:rgba(0,200,255,.06);border-color:rgba(0,200,255,.2)">
+            <div class="sc-winner-icon">📺</div>
+            <div class="sc-winner-info">
+              <div class="label" style="color:rgba(0,200,255,.6)">LIVE STREAM</div>
+              <div class="name" style="color:var(--cyan)">이무리 SOOP · YouTube 동시 생중계</div>
+            </div>
+          </div>
+          <div class="sc-action">
+            <a href="https://discord.gg/9RjqdSKw" target="_blank" class="sc-btn primary-btn">💬 클랜원 신청</a>
+            <a href="https://discord.gg/Wwge9BTX" target="_blank" class="sc-btn" style="background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.4);color:#fbbf24">👥 용병 신청</a>
+            <a href="./roster.html" class="sc-btn" style="background:rgba(0,200,255,0.08);border-color:rgba(0,200,255,0.3);color:var(--cyan)">📊 참가자</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEASON 2 - UPCOMING -->
+      <div class="season-card upcoming">
+        <div class="sc-top sc-upcoming">
+          <div class="sc-num">SEASON 02</div>
+          <div class="sc-title">🔒 2회 내전</div>
+          <div class="sc-date">📅 날짜 미정</div>
+          <div class="sc-badge badge-upcoming-tag">예정</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-divider"></div>
+          <div style="text-align:center;padding:24px 0;color:var(--muted);font-size:14px">
+            1회 내전 종료 후<br>일정이 확정됩니다
+          </div>
+        </div>
+      </div>
+
+      <!-- SEASON 3 - UPCOMING -->
+      <div class="season-card upcoming">
+        <div class="sc-top sc-upcoming">
+          <div class="sc-num">SEASON 03</div>
+          <div class="sc-title">🔒 3회 내전</div>
+          <div class="sc-date">📅 날짜 미정</div>
+          <div class="sc-badge badge-upcoming-tag">예정</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-divider"></div>
+          <div style="text-align:center;padding:24px 0;color:var(--muted);font-size:14px">
+            클랜이 성장할수록<br>더 큰 내전이 옵니다
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- RULES -->
+<section id="rules" class="rules-section">
+  <div class="rules-inner">
+    <div class="section-header">
+      <div class="section-eyebrow">How It Works</div>
+      <div class="section-title"><span>경매 드래프트 룰</span></div>
+      <p style="font-size:14px;color:var(--muted);margin-top:12px">처음 보는 분도 3분이면 이해합니다</p>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-card rc1">
+        <div class="rule-icon">🏷️</div>
+        <div class="rule-title">팀장 선착순 선발</div>
+        <div class="rule-desc">PM 7시에 디스코드에 접속하면 선착순으로 팀장 자리가 주어집니다. 팀장은 경매에서 자금을 운용해 팀원을 직접 고릅니다.</div>
+        <span class="rule-tag" style="background:rgba(255,37,37,.12);color:var(--G)">PM 7:00 선착순</span>
+      </div>
+      <div class="rule-card rc2">
+        <div class="rule-icon">💰</div>
+        <div class="rule-title">가상 자금 배정</div>
+        <div class="rule-desc">각 팀장에게 가상화폐가 지급됩니다. 이 자금으로 경매에 올라온 선수들을 입찰합니다. 입찰한 금액은 소각(증발)됩니다.</div>
+        <span class="rule-tag" style="background:rgba(168,85,247,.12);color:var(--m)">팀당 6~8억원</span>
+      </div>
+      <div class="rule-card rc3">
+        <div class="rule-icon">🔨</div>
+        <div class="rule-title">실시간 입찰 경매</div>
+        <div class="rule-desc">MC 이무리가 선수를 소개하면 팀장들이 실시간으로 입찰합니다. 최고가를 부른 팀장이 선수를 영입합니다.</div>
+        <span class="rule-tag" style="background:rgba(249,115,22,.12);color:var(--I)">의무 소진 40%</span>
+      </div>
+      <div class="rule-card rc4">
+        <div class="rule-icon">🔥</div>
+        <div class="rule-title">소각 = 상금 결정</div>
+        <div class="rule-desc">경매에서 쓴 금액이 소각되고, 남은 금액이 실제 우승 상금입니다. 경매가 치열할수록 상금이 변동됩니다.</div>
+        <span class="rule-tag" style="background:rgba(34,197,94,.12);color:var(--green)">최대 50만원</span>
+      </div>
+      <div class="rule-card rc5">
+        <div class="rule-icon">🤫</div>
+        <div class="rule-title">스폰서 특권</div>
+        <div class="rule-desc">방송 후원 1위에게 하이재킹(에이스 강제 영입) 또는 운명 교체(두 팀 멤버 맞교환) 중 하나를 선택할 권한이 주어집니다.</div>
+        <span class="rule-tag" style="background:rgba(255,45,155,.12);color:var(--pink)">후원 1위 전용</span>
+      </div>
+      <div class="rule-card rc6">
+        <div class="rule-icon">🏆</div>
+        <div class="rule-title">팀장 시상</div>
+        <div class="rule-desc">👑 가성비왕 구단주 — 적게 쓰고 우승<br>💎 숨은 진주 발굴상 — 저가 선수가 MVP<br>🤡 호구 구단주상 — 비싼 선수가 꼴찌</div>
+        <span class="rule-tag" style="background:rgba(251,191,36,.12);color:var(--gold)">원장 사비 보너스</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GRADES -->
+<section id="grades">
+  <div class="grade-section">
+    <div class="section-header">
+      <div class="section-eyebrow">Player Grades</div>
+      <div class="section-title"><span>선수 등급 시스템</span></div>
+      <p style="font-size:14px;color:var(--muted);margin-top:12px">클랜 내 전적 기반으로 사전 배정됩니다</p>
+    </div>
+    <div class="grade-cards">
+      <div class="gc G">
+        <div class="gc-letter">G</div>
+        <div class="gc-name">G 등급</div>
+        <div class="gc-desc">조에이스 · 서바이버 티어 수준<br>트레이너 포함 · 경매 최대 격전지</div>
+        <div class="gc-price"><div class="label">경매 시작가</div><div class="price">3억원~</div></div>
+      </div>
+      <div class="gc m">
+        <div class="gc-letter">m</div>
+        <div class="gc-name">m 등급</div>
+        <div class="gc-desc">준에이스 · 꾸준한 중상위권<br>가성비 픽으로 팀장들의 타깃</div>
+        <div class="gc-price"><div class="label">경매 시작가</div><div class="price">1억원~</div></div>
+      </div>
+      <div class="gc I">
+        <div class="gc-letter">I</div>
+        <div class="gc-name">I 등급</div>
+        <div class="gc-desc">실속형 · 신예 · 숨은 진주<br>가장 많은 클랜원 · 역대급 변수</div>
+        <div class="gc-price"><div class="label">경매 시작가</div><div class="price">1,000만원~</div></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:28px;padding:20px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;font-size:14px;color:var(--muted);line-height:1.9">
+      🎮 클랜원 참가비 <strong style="color:#fff">무료</strong> &nbsp;|&nbsp;
+      👥 클랜원 지인(용병) 참가비 <strong style="color:var(--I)">5,000원</strong> (전액 상금 반영) &nbsp;|&nbsp;
+      📢 지인 참가 → 재밌으면 클랜 입단 환영!
+    </div>
+  </div>
+</section>
+
+<!-- MRI ACADEMY LINK -->
+<section class="mri-section">
+  <div class="mri-card">
+    <div class="mri-logo">MRI ACADEMY</div>
+    <p class="mri-desc">
+      배틀그라운드 1:1 맞춤 코칭 서비스.<br>
+      GmI 클랜과 함께하는 MRI Academy에서<br>
+      실력을 키우고 내전에서 빛나보세요.
+    </p>
+    <a href="https://shlee9498-dev.github.io/mri-academy/" target="_blank" class="mri-btn">
+      🎓 MRI Academy 바로가기
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">GmI</div>
+  <div style="font-size:12px;color:var(--muted);margin-top:6px">GYMMRIacademy · G드컵 공식 포털</div>
+  <div class="footer-links">
+    <a href="https://discord.gg/9RjqdSKw" target="_blank" class="footer-link">💬 디스코드 (#내전-신청-접수처)</a>
+    <a href="https://www.sooplive.com/station/zmdk1373" target="_blank" class="footer-link">📺 이무리 SOOP</a>
+    <a href="https://shlee9498-dev.github.io/mri-academy/" target="_blank" class="footer-link">🎓 MRI Academy</a>
+    <a href="#seasons" class="footer-link">🏆 시즌 기록</a>
+    <a href="./gmi-final-bible.html" class="footer-link">📖 내전 바이블</a>
+  </div>
+  <div class="footer-copy">© 2026 GmI (GYMMRIacademy) · Powered by 이무리</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// D-Day auto counter
+(function(){
+  function upd(){
+    const t=new Date('2026-05-10T19:00:00+09:00'),n=new Date(),d=t-n;
+    const el=document.getElementById('mainDday');
+    if(!el)return;
+    if(d<=0){el.textContent='🔴 D-DAY';return;}
+    const days=Math.floor(d/86400000);
+    el.textContent=days>0?`🔴 D-${days}`:'🔴 D-DAY';
+  }
+  upd();setInterval(upd,60000);
+})();
+// Smooth nav highlight
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', ()=>{
+  let cur = '';
+  sections.forEach(s=>{
+    if(window.scrollY >= s.offsetTop - 100) cur = s.id;
+  });
+  navLinks.forEach(l=>{
+    l.classList.toggle('active', l.getAttribute('href') === '#'+cur);
+  });
+});
+
+// Animated counters - only run if elements exist
+const statS = document.getElementById('statSeason');
+const statM = document.getElementById('statMembers');
+function animateCount(el, target, suffix=''){
+  if(!el) return;
+  let start = 0;
+  const step = target / 40;
+  const timer = setInterval(()=>{
+    start = Math.min(start + step, target);
+    el.textContent = Math.floor(start) + suffix;
+    if(start >= target) clearInterval(timer);
+  }, 30);
+}
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      animateCount(statS, 1, '회');
+      animateCount(statM, 36, '+');
+      obs.disconnect();
+    }
+  });
+});
+const heroStats = document.querySelector('.hero-stats');
+if(heroStats) obs.observe(heroStats);
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
