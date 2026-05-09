@@ -1,359 +1,102 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GmI G드컵 참가자 현황 | 실시간</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;600;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#04020c;--card:#0a0718;--card2:#100d1f;--accent:#bf00ff;--cyan:#00c8ff;--pink:#ff2d9b;--G:#ff2525;--m:#a855f7;--I:#f97316;--gold:#fbbf24;--green:#22c55e;--border:rgba(168,85,247,0.18);--text:rgba(255,255,255,0.92);--muted:rgba(255,255,255,0.42);}
-*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(191,0,255,0.06),transparent),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(0,200,255,0.04),transparent);pointer-events:none;z-index:0}
-.wrap{max-width:1200px;margin:0 auto;padding:24px 20px;position:relative;z-index:1}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(4,2,12,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px}
-.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;height:52px;gap:16px}
-.nav-logo{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
-.nav-back{font-size:12px;color:var(--muted);text-decoration:none}
-.nav-back:hover{color:#fff}
-.dday-chip{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;padding:5px 14px;border-radius:16px;background:rgba(255,45,155,0.1);border:1px solid rgba(255,45,155,0.3);color:#ff8cc8}
-.header{padding:76px 0 24px;text-align:center}
-.dday-big{font-family:'Rajdhani',sans-serif;font-size:clamp(56px,12vw,110px);font-weight:700;line-height:1;background:linear-gradient(135deg,var(--pink),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 30px rgba(255,45,155,0.4));animation:dp 2s ease-in-out infinite}
-@keyframes dp{0%,100%{filter:drop-shadow(0 0 20px rgba(255,45,155,0.3))}50%{filter:drop-shadow(0 0 50px rgba(255,45,155,0.6))}}
-.h-date{font-size:14px;color:var(--muted);margin-top:8px;letter-spacing:1px}
-.h-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(18px,4vw,34px);background:linear-gradient(90deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-top:10px}
-.deadline{display:inline-block;margin-top:10px;padding:6px 18px;border-radius:20px;background:rgba(255,60,60,0.1);border:1px solid rgba(255,60,60,0.35);font-size:13px;color:#ff8888;font-weight:700}
-/* GOAL */
-.goal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px 28px;margin-bottom:18px;position:relative;overflow:hidden}
-.goal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--cyan),var(--pink))}
-.goal-top{display:flex;align-items:flex-end;gap:12px;margin-bottom:14px;flex-wrap:wrap}
-.goal-num{font-family:'Rajdhani',sans-serif;font-size:68px;font-weight:700;line-height:1;background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.goal-of{font-family:'Rajdhani',sans-serif;font-size:28px;color:rgba(255,255,255,0.25);margin-bottom:8px}
-.goal-need{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#ff8888;margin-left:auto;text-align:right}
-.goal-need small{display:block;font-size:11px;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-weight:400;margin-bottom:2px}
-.goal-bar-wrap{height:12px;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden;margin-bottom:14px}
-.goal-bar{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--cyan));transition:width 1.2s cubic-bezier(0.4,0,0.2,1)}
-.stages{display:flex;gap:8px;flex-wrap:wrap}
-.stg{padding:8px 12px;border-radius:8px;border:1px solid;font-size:12px;font-weight:700;text-align:center;flex:1;min-width:90px}
-.stg.done{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);color:var(--green)}
-.stg.active{background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.4);color:var(--gold);animation:sp 2s ease-in-out infinite}
-.stg.pend{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.08);color:var(--muted)}
-@keyframes sp{0%,100%{box-shadow:none}50%{box-shadow:0 0 14px rgba(251,191,36,0.3)}}
-/* PRICES */
-.price-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
-.price-card{padding:14px;border-radius:12px;border:1px solid;text-align:center}
-.price-card.G{background:rgba(255,37,37,0.06);border-color:rgba(255,37,37,0.3)}
-.price-card.m{background:rgba(168,85,247,0.06);border-color:rgba(168,85,247,0.3)}
-.price-card.I{background:rgba(249,115,22,0.06);border-color:rgba(249,115,22,0.3)}
-.pc-gl{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700}
-.price-card.G .pc-gl{color:var(--G)}.price-card.m .pc-gl{color:var(--m)}.price-card.I .pc-gl{color:var(--I)}
-.pc-name{font-size:11px;color:var(--muted);margin-bottom:5px}
-.pc-price{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff}
-.pc-sub{font-size:10px;color:var(--muted);margin-top:2px}
-/* RESERVE */
-.reserve{background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.22);border-radius:16px;padding:18px 20px;margin-bottom:18px;position:relative;overflow:hidden}
-.reserve::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--I))}
-.res-title{font-family:'Black Han Sans',sans-serif;font-size:15px;color:var(--gold);margin-bottom:12px}
-.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.res-card{background:rgba(0,0,0,0.3);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.05)}
-.res-card-t{font-size:12px;font-weight:700;margin-bottom:7px}
-.res-card-t.warn{color:#ff8888}.res-card-t.info{color:var(--cyan)}
-.res-list{list-style:none;font-size:12px;color:var(--muted);line-height:2}
-.res-list li::before{content:'• ';color:rgba(255,255,255,0.2)}
-.res-list li strong{color:#fff}
-.res-must{margin-top:10px;padding:10px 14px;background:rgba(255,60,60,0.07);border:1px solid rgba(255,60,60,0.22);border-radius:8px;font-size:12px;color:rgba(255,180,180,0.85);line-height:1.9}
-/* FILTER */
-.filter-row{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
-.fbtn{padding:6px 14px;border-radius:18px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all .2s}
-.fbtn.active{background:rgba(168,85,247,0.15);border-color:var(--m);color:#fff}
-.fbtn.g.active{background:rgba(255,37,37,0.12);border-color:var(--G);color:var(--G)}
-.fbtn.m.active{background:rgba(168,85,247,0.12);border-color:var(--m);color:var(--m)}
-.fbtn.i.active{background:rgba(249,115,22,0.12);border-color:var(--I);color:var(--I)}
-/* SECTION */
-.gsec{margin-bottom:22px}
-.shead{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:10px;margin-bottom:10px;border:1px solid}
-.shead.G{background:rgba(255,37,37,0.06);border-color:rgba(255,37,37,0.22)}
-.shead.m{background:rgba(168,85,247,0.06);border-color:rgba(168,85,247,0.22)}
-.shead.I{background:rgba(249,115,22,0.06);border-color:rgba(249,115,22,0.22)}
-.sbadge{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;flex-shrink:0}
-.sbg-G{background:rgba(255,37,37,0.12);color:var(--G)}.sbg-m{background:rgba(168,85,247,0.12);color:var(--m)}.sbg-I{background:rgba(249,115,22,0.12);color:var(--I)}
-.stitle{font-family:'Black Han Sans',sans-serif;font-size:14px}
-.shead.G .stitle{color:var(--G)}.shead.m .stitle{color:var(--m)}.shead.I .stitle{color:var(--I)}
-.sdesc{font-size:11px;color:var(--muted)}
-.scnt{margin-left:auto;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--muted)}
-/* CARDS */
-.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:9px}
-.pcard{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;transition:transform .2s;position:relative}
-.pcard:hover{transform:translateY(-2px)}
-.pcard.G{border-color:rgba(255,37,37,0.32)}.pcard.m{border-color:rgba(168,85,247,0.32)}.pcard.I{border-color:rgba(249,115,22,0.32)}
-.pcard.hasw{box-shadow:0 0 0 1px rgba(255,80,80,0.4)}
-.wbadge{position:absolute;top:9px;right:9px;padding:2px 7px;border-radius:4px;background:rgba(255,60,60,0.12);border:1px solid rgba(255,60,60,0.35);font-size:9px;font-weight:700;color:#ff8888;white-space:nowrap}
-.ptop{display:flex;align-items:center;gap:9px;padding:11px 13px;border-bottom:1px solid rgba(255,255,255,0.04)}
-.gbadge{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;flex-shrink:0}
-.gbg-G{background:rgba(255,37,37,0.12);color:var(--G);border:1px solid rgba(255,37,37,0.28)}
-.gbg-m{background:rgba(168,85,247,0.12);color:var(--m);border:1px solid rgba(168,85,247,0.28)}
-.gbg-I{background:rgba(249,115,22,0.12);color:var(--I);border:1px solid rgba(249,115,22,0.28)}
-.pname{font-size:14px;font-weight:700}
-.pgid{font-family:'Rajdhani',sans-serif;font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px}
-.mtag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.28);color:var(--gold);margin-top:2px}
-.pbody{padding:9px 13px}
-.ptier{display:flex;gap:4px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
-.tt{padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700}
-.ts{background:rgba(255,45,155,0.15);color:#ff8cc8;border:1px solid rgba(255,45,155,0.28)}
-.tm{background:rgba(191,0,255,0.15);color:#d8b4fe;border:1px solid rgba(191,0,255,0.28)}
-.tc{background:rgba(0,200,255,0.12);color:#67e8f9;border:1px solid rgba(0,200,255,0.28)}
-.td{background:rgba(96,165,250,0.12);color:#93c5fd;border:1px solid rgba(96,165,250,0.28)}
-.tp{background:rgba(34,197,94,0.1);color:#86efac;border:1px solid rgba(34,197,94,0.22)}
-.tg{background:rgba(251,191,36,0.1);color:#fde68a;border:1px solid rgba(251,191,36,0.22)}
-.tsv{background:rgba(156,163,175,0.1);color:#d1d5db;border:1px solid rgba(156,163,175,0.22)}
-.to{background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid rgba(255,255,255,0.1)}
-.tarr{font-size:9px;color:var(--muted)}
-.pstats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:7px}
-.pst{background:rgba(255,255,255,0.03);border-radius:5px;padding:5px;text-align:center}
-.sv{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700}
-.sk{font-size:9px;color:var(--muted);margin-top:1px}
-.hi{color:var(--gold)}.mi{color:var(--cyan)}
-.ppos{display:inline-block;padding:2px 6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:3px;font-size:9px;color:rgba(255,255,255,0.5)}
-.pspecial{margin-top:6px;padding:5px 8px;background:rgba(255,60,60,0.07);border:1px solid rgba(255,60,60,0.18);border-radius:5px;font-size:10px;color:#ff9999}
-/* JOIN */
-.join-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:18px;text-align:center}
-.join-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
-.jb{padding:11px 22px;border-radius:50px;text-decoration:none;font-family:'Black Han Sans',sans-serif;font-size:13px;transition:all .25s}
-.jb1{background:linear-gradient(135deg,rgba(191,0,255,0.2),rgba(0,200,255,0.1));border:1px solid rgba(191,0,255,0.4);color:#d8b4fe}
-.jb2{background:linear-gradient(135deg,rgba(251,191,36,0.15),rgba(249,115,22,0.1));border:2px solid rgba(251,191,36,0.5);color:#fbbf24}
-@media(max-width:580px){.price-row{grid-template-columns:1fr}.res-grid{grid-template-columns:1fr}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRI Academy | G드컵 실시간 명단</title>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05050a; --card: #0f0f1e; --accent: #bf00ff;
+            --t1: #ff2525; --t2: #a855f7; --t3: #00c8ff; --t4: #f97316;
+            --text: #ffffff; --muted: rgba(255,255,255,0.5);
+        }
+        body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; margin: 0; padding-bottom: 50px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        
+        /* 헤더 & 강사진 */
+        .header { text-align: center; padding: 40px 0; background: linear-gradient(to bottom, #1a1a3a, var(--bg)); border-radius: 0 0 40px 40px; }
+        .staff-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 30px; }
+        .staff-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid var(--accent); }
+        .staff-card h4 { margin: 5px 0; color: var(--accent); font-size: 14px; }
+        .staff-card p { font-size: 11px; margin: 0; color: var(--muted); }
+
+        /* 티어 섹션 */
+        .tier-filter { display: flex; gap: 10px; justify-content: center; margin: 30px 0; flex-wrap: wrap; }
+        .f-btn { padding: 8px 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2); background: none; color: #fff; cursor: pointer; font-weight: bold; }
+        .f-btn.t1 { border-color: var(--t1); color: var(--t1); }
+        .f-btn.t2 { border-color: var(--t2); color: var(--t2); }
+        .f-btn.t3 { border-color: var(--t3); color: var(--t3); }
+        .f-btn.t4 { border-color: var(--t4); color: var(--t4); }
+
+        /* 카드 그리드 */
+        .player-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .p-card { background: var(--card); border-radius: 15px; padding: 15px; position: relative; border-left: 5px solid #ccc; }
+        .p-card.tier1 { border-left-color: var(--t1); }
+        .p-card.tier2 { border-left-color: var(--t2); }
+        .p-card.tier3 { border-left-color: var(--t3); }
+        .p-card.tier4 { border-left-color: var(--t4); }
+        
+        .p-name { font-size: 18px; font-weight: 900; margin-bottom: 5px; }
+        .p-stat { display: flex; justify-content: space-between; font-size: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .p-badge { position: absolute; top: 10px; right: 10px; font-size: 10px; padding: 2px 8px; border-radius: 5px; background: rgba(255,255,255,0.1); }
+        
+        .stats-val { color: var(--accent); font-weight: bold; }
+    </style>
 </head>
 <body>
-<nav><div class="nav-inner">
-  <a href="./index.html" class="nav-back">← 메인</a>
-  <a href="./index.html" class="nav-logo">GmI</a>
-  <span style="font-family:'Black Han Sans',sans-serif;font-size:12px;color:var(--muted)">G드컵 참가자 현황</span>
-  <div class="dday-chip" id="navDday">로딩중</div>
-</div></nav>
 
-<div class="wrap">
 <div class="header">
-  <div class="dday-big" id="ddayBig">D-?</div>
-  <div class="h-date">2026년 5월 10일 (일) · PM 7:00 경매 START · PM 8:00 게임 START</div>
-  <div class="h-title">🏆 GmI G드컵 참가자 현황</div>
-  <div class="deadline">⏰ 신청 마감: 5월 9일 (토) 오후 5시</div>
-</div>
-
-<!-- GOAL -->
-<div class="goal-box">
-  <div class="goal-top">
-    <div>
-      <div class="goal-num" id="curN">28</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:1px">현재 확인된 신청 인원</div>
+    <h1 style="font-family:'Black Han Sans'; font-size: 40px; margin: 0;">G-CUP SEASON 1</h1>
+    <p style="color: var(--accent); font-weight: bold;">총 예산 6억 코인 | 64인 경매 배틀</p>
+    
+    <div class="container">
+        <div class="staff-grid">
+            <div class="staff-card"><h4>이무리</h4><p>메인 강사/총괄</p></div>
+            <div class="staff-card"><h4>트레이너 A</h4><p>피지컬/감도교정</p></div>
+            <div class="staff-card"><h4>트레이너 B</h4><p>하드웨어/반동제어</p></div>
+            <div class="staff-card"><h4>한도은</h4><p>실전 전술/오더</p></div>
+        </div>
     </div>
-    <div class="goal-of">/ 64명</div>
-    <div class="goal-need"><small>아직 더 필요해요!</small>36명</div>
-  </div>
-  <div class="goal-bar-wrap"><div class="goal-bar" style="width:43.75%"></div></div>
-  <div class="stages">
-    <div class="stg pend">⬜ 32명 → 25만원</div>
-    <div class="stg active" id="cur-stage">🔥 현재 28명</div>
-    <div class="stg pend">⬜ 48명 → 37만원</div>
-    <div class="stg pend">⬜ 64명 → 50만원 🎯</div>
-  </div>
 </div>
 
-<!-- PRICES -->
-<div class="price-row">
-  <div class="price-card G"><div class="pc-gl">G</div><div class="pc-name">조에이스</div><div class="pc-price">3억원 이상</div><div class="pc-sub">경매 최소 시작가</div></div>
-  <div class="price-card m"><div class="pc-gl">m</div><div class="pc-name">준에이스</div><div class="pc-price">1억원 이상</div><div class="pc-sub">경매 최소 시작가</div></div>
-  <div class="price-card I"><div class="pc-gl">I</div><div class="pc-name">실속·신예</div><div class="pc-price">1,000만원 이상</div><div class="pc-sub">경매 최소 시작가</div></div>
-</div>
-
-<!-- RESERVE -->
-<div class="reserve">
-  <div class="res-title">⏱️ 예비 인원 시스템 안내 (팀장 필독!)</div>
-  <div class="res-grid">
-    <div class="res-card">
-      <div class="res-card-t warn">⚠️ 이탈 예정 선수 주의</div>
-      <ul class="res-list">
-        <li>특이사항에 <strong>이탈 시간이 명시된 선수</strong> 존재</li>
-        <li>예: <strong>"23시까지만 가능"</strong> → R5 미참여 가능성</li>
-        <li>카드에 빨간 경고 표시로 확인 가능</li>
-        <li>해당 선수 낙찰 시 <strong>예비 구매 강력 권장</strong></li>
-      </ul>
+<div class="container">
+    <div class="tier-filter">
+        <button class="f-btn t1">Tier 1 (절대화력)</button>
+        <button class="f-btn t2">Tier 2 (전술핵)</button>
+        <button class="f-btn t3">Tier 3 (1인분)</button>
+        <button class="f-btn t4">Tier 4 (변수창출)</button>
     </div>
-    <div class="res-card">
-      <div class="res-card-t info">🔄 예비 선수 풀 안내</div>
-      <ul class="res-list">
-        <li>PM 9시 또는 10시부터 <strong>참여 가능 인원</strong> 별도 소집</li>
-        <li>정규 경매 후 <strong>예비 전용 경매</strong> 진행</li>
-        <li>시작가: 해당 등급의 <strong>50%</strong></li>
-        <li>투입: <strong>라운드 시작 전</strong>에만 가능</li>
-        <li>투입된 라운드부터 점수 합산</li>
-      </ul>
-    </div>
-  </div>
-  <div class="res-must">
-    🚨 <strong>예비 구매 필수 상황</strong><br>
-    ① 낙찰한 선수 특이사항에 이탈 시간이 명시된 경우<br>
-    ② 팀 내 이탈 가능성 인원이 2명 이상인 경우<br>
-    ③ 예비 없이 이탈 발생 → 남은 인원으로 그대로 진행 (보상 없음)
-  </div>
-</div>
 
-<!-- FILTER -->
-<div class="filter-row">
-  <button class="fbtn active" onclick="fc('all',this)">전체 (<span id="tc">0</span>)</button>
-  <button class="fbtn g" onclick="fc('G',this)">🔴 G (<span id="gc">0</span>)</button>
-  <button class="fbtn m" onclick="fc('m',this)">🟣 m (<span id="mc">0</span>)</button>
-  <button class="fbtn i" onclick="fc('I',this)">🟠 I (<span id="ic">0</span>)</button>
-  <button class="fbtn" style="border-color:rgba(255,60,60,0.3);color:rgba(255,100,100,0.7)" onclick="fc('warn',this)">⚠️ 이탈예정</button>
-</div>
-
-<div class="gsec" id="sec-G">
-  <div class="shead G"><div class="sbadge sbg-G">G</div><div><div class="stitle">G 등급 — 조에이스</div><div class="sdesc">서바이버·마스터 · 시작가 3억원 이상</div></div><div class="scnt" id="gcnt">-</div></div>
-  <div class="rgrid" id="grid-G"></div>
-</div>
-<div class="gsec" id="sec-m">
-  <div class="shead m"><div class="sbadge sbg-m">m</div><div><div class="stitle">m 등급 — 준에이스</div><div class="sdesc">크리스탈·다이아몬드 · 시작가 1억원 이상</div></div><div class="scnt" id="mcnt">-</div></div>
-  <div class="rgrid" id="grid-m"></div>
-</div>
-<div class="gsec" id="sec-I">
-  <div class="shead I"><div class="sbadge sbg-I">I</div><div><div class="stitle">I 등급 — 실속형·신예</div><div class="sdesc">플래티넘 이하 · 시작가 1,000만원 이상</div></div><div class="scnt" id="icnt">-</div></div>
-  <div class="rgrid" id="grid-I"></div>
-</div>
-
-<div class="join-box">
-  <div style="font-family:'Black Han Sans',sans-serif;font-size:16px">아직 신청 안 하셨나요?</div>
-  <div style="font-size:13px;color:var(--muted);margin-top:6px">마감 <strong style="color:#ff8888">5월 9일 오후 5시</strong> · 마감 후 명단 제외</div>
-  <div class="join-btns">
-    <a href="https://discord.gg/9RjqdSKw" target="_blank" class="jb jb1">💬 클랜원 신청</a>
-    <a href="https://discord.gg/Wwge9BTX" target="_blank" class="jb jb2">👥 용병 신청</a>
-  </div>
-</div>
+    <div class="player-grid" id="playerGrid">
+        </div>
 </div>
 
 <script>
-// D-DAY
-function updateD(){
-  const t=new Date('2026-05-10T19:00:00+09:00'),n=new Date(),d=t-n;
-  let big,chip;
-  if(d<=0){big='D-DAY 🔥';chip='D-DAY'}
-  else{
-    const days=Math.floor(d/86400000),h=Math.floor((d%86400000)/3600000),m=Math.floor((d%3600000)/60000);
-    big=days>0?`D-${days}`:`D-DAY`;chip=days>0?`D-${days}`:`${h}h${m}m`;
-  }
-  document.getElementById('ddayBig').textContent=big;
-  document.getElementById('navDday').textContent=chip;
-}
-updateD();setInterval(updateD,30000);
+    const players = [
+        { name: "현성", tier: 1, g: "G", kda: 2.3, dmg: 403, pos: "메인딜러", id: "Gml_Hyun" },
+        { name: "박박", tier: 1, g: "m", kda: 7.6, dmg: 842, pos: "올라운더", id: "Gml_rR" },
+        { name: "똑불", tier: 2, g: "I", kda: 1.3, dmg: 225, pos: "서브오더", id: "1ill1llll" },
+        { name: "세휘", tier: 3, g: "I", kda: 1.4, dmg: 244, pos: "엔트리", id: "Gml_bird" },
+        { name: "심플", tier: 4, g: "I", kda: 0.7, dmg: 166, pos: "서포터", id: "Gml_Simple" },
+        // ... 추가 40명 데이터 입력 가능
+    ];
 
-const P=[
-  // G
-  {g:'G',n:'현태',id:'x_HyeOn_x',c:'서바이버',b:'서바이버',k:2.7,d:460,p:'오더',w:null,m:false},
-  {g:'G',n:'준구',id:'Gml_rabbit',c:'마스터',b:'서바이버',k:2.4,d:376,p:'다가능',w:null,m:false},
-  {g:'G',n:'도은',id:'lsmGml',c:'마스터',b:'마스터',k:2.1,d:425,p:'다가능',w:null,m:false},
-  // m
-  {g:'m',n:'박박',id:'Gml_rR',c:'크리스탈',b:'마스터',k:7.67,d:842,p:'다가능',w:null,m:false},
-  {g:'m',n:'현성',id:'Gml_Hyun',c:'다이아',b:'마스터',k:2.3,d:403,p:'오더빼고',w:null,m:false},
-  {g:'m',n:'꿀맛수박',id:'mins-_-',c:'-',b:'크리스탈',k:2.72,d:384,p:'미정',w:null,m:false},
-  {g:'m',n:'빵다',id:'Dalilei',c:'크3',b:'마스터',k:1.52,d:306,p:'다가능',w:null,m:true},
-  {g:'m',n:'MR',id:'chzzk_seo_on',c:'골2',b:'다이아5',k:2.08,d:314,p:'미정',w:null,m:false},
-  {g:'m',n:'불리',id:'(미기재)',c:'크리스탈',b:'마스터',k:1.3,d:260,p:'서포터',w:null,m:false},
-  {g:'m',n:'빡이',id:'Gml_bbak',c:'플래티넘',b:'다이아',k:1.7,d:395,p:'서브딜러',w:null,m:false},
-  {g:'m',n:'근이',id:'dwvxvwb',c:'다이아',b:'다이아',k:1.0,d:234,p:'서포터',w:null,m:false},
-  {g:'m',n:'깜므',id:'(미기재)',c:'플레1',b:'크2',k:2.3,d:180,p:'미정',w:null,m:false},
-  // I
-  {g:'I',n:'심플',id:'Gml_Simple',c:'다이아',b:'다이아',k:0.7,d:166,p:'서브딜러',w:null,m:false},
-  {g:'I',n:'DADA',id:'Gml_DADA',c:'-',b:'골드',k:0.65,d:135,p:'메르시',w:null,m:false},
-  {g:'I',n:'동우',id:'Gml_D',c:'플래티넘',b:'다이아',k:0.9,d:218,p:'팀원',w:null,m:false},
-  {g:'I',n:'세휘',id:'Gml_birdwhistle',c:'플래티넘',b:'다이아',k:1.4,d:244,p:'쌈닭',w:null,m:false},
-  {g:'I',n:'청큐니',id:'Cheongkuni',c:'플래티넘',b:'플래티넘',k:0.9,d:168,p:'미정',w:null,m:false},
-  {g:'I',n:'heoppy',id:'Gml_heoppy',c:'크리스탈',b:'크리스탈',k:0.58,d:135,p:'서포터',w:null,m:false},
-  {g:'I',n:'배로',id:'Gml_brw',c:'골드',b:'플래티넘',k:0.6,d:140,p:'미정',w:null,m:false},
-  {g:'I',n:'운규',id:'MRI_UGXX94',c:'골드',b:'골드',k:0.5,d:200,p:'배낭',w:null,m:false},
-  {g:'I',n:'ddong',id:'yeopomalgo',c:'-',b:'골드',k:0.5,d:150,p:'가방',w:null,m:false},
-  {g:'I',n:'선우',id:'New_we',c:'다이아',b:'다이아',k:1.1,d:245,p:'다가능',w:null,m:false},
-  {g:'I',n:'동영',id:'Gml_young',c:'크리스탈',b:'크리스탈',k:1.0,d:198,p:'서브딜러',w:null,m:false},
-  {g:'I',n:'아이크',id:'Gml_ikejang',c:'골드',b:'플래티넘',k:0.75,d:122,p:'미정',w:null,m:false},
-  {g:'I',n:'똑불',id:'1ill1lllliii',c:'플래티넘',b:'다이아',k:1.3,d:225,p:'오더빼고',w:'23시까지만 가능',m:false},
-  {g:'I',n:'좌',id:'60_Oa_aaaaa',c:'실버',b:'실버',k:0.6,d:147.5,p:'미정',w:null,m:false},
-  {g:'I',n:'성인',id:'VIXGO',c:'플래2',b:'크3',k:0.8,d:169,p:'미정',w:null,m:false},
-  {g:'I',n:'구름',id:'K_B_D_G',c:'골드',b:'플래티넘',k:0.6,d:120,p:'미정',w:null,m:false},
-];
-
-const TC={
-  '서바이버':'ts','마스터':'tm','크리스탈':'tc','크리스탈2':'tc','크리스탈3':'tc','크2':'tc','크3':'tc',
-  '다이아몬드':'td','다이아':'td','다이아5':'td',
-  '플래티넘':'tp','플레1':'tp','플래1':'tp','플래2':'tp',
-  '골드':'tg','골드2':'tg','골드5':'tg','실버':'tsv',
-  '-':'to','골2':'tg','플래':'tp',
-};
-function tc(t){return TC[t]||'to';}
-function kc(k){return k>=3?'hi':k>=1.5?'mi':'';}
-function dc(d){return d>=400?'hi':d>=250?'mi':'';}
-
-function card(p){
-  const el=document.createElement('div');
-  el.className=`pcard ${p.g}${p.w?' hasw':''}`;
-  el.dataset.g=p.g;el.dataset.w=p.w?'1':'0';
-  el.innerHTML=`
-    ${p.w?`<div class="wbadge">⚠️ ${p.w}</div>`:''}
-    <div class="ptop">
-      <div class="gbadge gbg-${p.g}">${p.g}</div>
-      <div>
-        <div class="pname">${p.n}</div>
-        <div class="pgid">${p.id}</div>
-        ${p.m?'<span class="mtag">👥 용병</span>':''}
-      </div>
-    </div>
-    <div class="pbody">
-      <div class="ptier">
-        <span class="tt ${tc(p.c)}">현 ${p.c}</span>
-        <span class="tarr">→</span>
-        <span class="tt ${tc(p.b)}">역대 ${p.b}</span>
-      </div>
-      <div class="pstats">
-        <div class="pst"><div class="sv ${kc(p.k)}">${p.k}</div><div class="sk">KDA</div></div>
-        <div class="pst"><div class="sv ${dc(p.d)}">${p.d}</div><div class="sk">딜량</div></div>
-        <div class="pst"><div class="sv" style="font-size:11px;color:rgba(255,255,255,0.65)">${p.p}</div><div class="sk">포지션</div></div>
-      </div>
-      ${p.w?`<div class="pspecial">⏰ ${p.w}</div>`:''}
-    </div>`;
-  return el;
-}
-
-function render(){
-  ['G','m','I'].forEach(g=>{
-    const grid=document.getElementById('grid-'+g);
-    grid.innerHTML='';
-    P.filter(x=>x.g===g).forEach(x=>grid.appendChild(card(x)));
-  });
-  const gn=P.filter(x=>x.g==='G').length,mn=P.filter(x=>x.g==='m').length,in_=P.filter(x=>x.g==='I').length;
-  document.getElementById('gc').textContent=gn;
-  document.getElementById('mc').textContent=mn;
-  document.getElementById('ic').textContent=in_;
-  document.getElementById('tc').textContent=P.length;
-  document.getElementById('gcnt').textContent=gn+'명';
-  document.getElementById('mcnt').textContent=mn+'명';
-  document.getElementById('icnt').textContent=in_+'명';
-  document.getElementById('curN').textContent=P.length;
-  document.getElementById('cur-stage').textContent=`🔥 현재 ${P.length}명`;
-}
-
-function fc(f,btn){
-  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.gsec').forEach(s=>s.style.display='block');
-  document.querySelectorAll('.pcard').forEach(c=>c.style.display='');
-  if(f!=='all'&&f!=='warn'){
-    document.querySelectorAll('.gsec').forEach(s=>s.style.display=s.id==='sec-'+f?'block':'none');
-  }
-  if(f==='warn'){
-    document.querySelectorAll('.pcard').forEach(c=>c.style.display=c.dataset.w==='1'?'':'none');
-  }
-}
-
-render();
+    const grid = document.getElementById('playerGrid');
+    players.forEach(p => {
+        grid.innerHTML += `
+            <div class="p-card tier${p.tier}">
+                <div class="p-badge">Tier ${p.tier}</div>
+                <div class="p-name">${p.name} <small style="font-size:10px; color:var(--muted)">${p.id}</small></div>
+                <div style="font-size:11px; color:var(--accent)">Grade: ${p.g}</div>
+                <div class="p-stat">
+                    <span>KDA <span class="stats-val">${p.kda}</span></span>
+                    <span>AVG DMG <span class="stats-val">${p.dmg}</span></span>
+                </div>
+                <div style="font-size:10px; margin-top:5px; color:var(--muted)">포지션: ${p.pos}</div>
+            </div>
+        `;
+    });
 </script>
 </body>
 </html>
