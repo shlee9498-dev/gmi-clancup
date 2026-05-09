@@ -163,7 +163,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans KR
     <h2 id="modalName"></h2>
     <div id="modalId" style="color:var(--muted);font-size:13px;margin-bottom:12px"></div>
     <div class="m-stats">
-      <div class="m-stat"><b id="modalKDA">-</b><span>KDA</span></div>
+      <div class="m-stat"><b id="modal평균처치">-</b><span>평균처치</span></div>
       <div class="m-stat"><b id="modalDMG">-</b><span>딜량</span></div>
       <div class="m-stat"><b id="modalPos">-</b><span>포지션</span></div>
     </div>
@@ -210,7 +210,7 @@ const PLAYERS=[
   {n:'세휘',id:'Gml_birdwhistle',t:3,k:1.4,d:244,p:'쌈닭',m:false,w:null},
   {n:'근이',id:'dwvxvwb',t:3,k:1.0,d:234,p:'서포터',m:false,w:null},
   {n:'빡빡버거',id:'Gml_PackPack',t:2,k:1.6,d:230,p:'미정',m:false,w:null},
-  {n:'AkDang',id:'Unknown_Akdang',t:4,k:1.12,d:218,p:'없음',m:true,w:null},
+  {n:'A평균처치ng',id:'Unknown_A평균처치ng',t:4,k:1.12,d:218,p:'없음',m:true,w:null},
   {n:'동우',id:'Gml_D',t:3,k:0.9,d:218,p:'팀원',m:false,w:null},
   {n:'黑デルマ',id:'DRIFT_Pervert',t:3,k:1.0,d:200,p:'미정',m:true,w:null},
   {n:'운규',id:'MRI_UGXX94',t:4,k:0.5,d:200,p:'배낭',m:false,w:null},
@@ -264,7 +264,7 @@ function renderPlayers(filter){
       <div class="pc-name">${p.n}</div>
       <div class="pc-id">${p.id}</div>
       <div class="pc-stats">
-        <span>KDA <b>${p.k||'-'}</b></span>
+        <span>평균처치 <b>${p.k||'-'}</b></span>
         <span>딜 <b>${p.d||'-'}</b></span>
       </div>
       ${p.w?`<div class="pc-warn">⚠️ ${p.w}</div>`:''}
@@ -283,7 +283,7 @@ function openModal(idx){
   document.getElementById('modalTier').innerHTML=`<span style="color:${tc};font-weight:700">${TIER_NAMES[p.t]}</span>`;
   document.getElementById('modalName').textContent=p.n;
   document.getElementById('modalId').textContent=p.id;
-  document.getElementById('modalKDA').textContent=p.k||'-';
+  document.getElementById('modal평균처치').textContent=p.k||'-';
   document.getElementById('modalDMG').textContent=p.d||'-';
   document.getElementById('modalPos').textContent=p.p;
   document.getElementById('modalWarn').textContent=p.w||'';
