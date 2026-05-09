@@ -244,6 +244,7 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
       <a href="#seasons" class="nav-link">시즌</a>
       <a href="#rules" class="nav-link">룰</a>
       <a href="#grades" class="nav-link">등급</a>
+      <a href="./roster.html" class="nav-link" style="color:#fbbf24">👥 참가자 명단</a>
       <a href="https://shlee9498-dev.github.io/mri-academy/" target="_blank" class="nav-link">MRI Academy</a>
     </div>
     <a href="https://discord.gg/9RjqdSKw" target="_blank" class="nav-cta">💬 디스코드 입장</a>
@@ -307,7 +308,7 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
           <div class="sc-num">SEASON 01 · G드컵</div>
           <div class="sc-title">🏆 GmI G드컵 1회</div>
           <div class="sc-date">📅 2026년 5월 10일 (일)</div>
-          <div class="sc-badge badge-live" id="mainDday">🔴 D-1</div>
+          <div class="sc-badge badge-live" id="mainDday">🔴 D-?</div>
         </div>
         <div class="sc-body">
           <div class="sc-divider"></div>
@@ -347,7 +348,7 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
           <div class="sc-action">
             <a href="https://discord.gg/9RjqdSKw" target="_blank" class="sc-btn primary-btn">💬 클랜원 신청</a>
             <a href="https://discord.gg/Wwge9BTX" target="_blank" class="sc-btn" style="background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.4);color:#fbbf24">👥 용병 신청</a>
-            <a href="./gmi-final-bible.html" class="sc-btn">📖 가이드</a>
+            <a href="./roster.html" class="sc-btn" style="background:rgba(0,200,255,0.08);border-color:rgba(0,200,255,0.3);color:var(--cyan)">📊 참가자</a>
           </div>
         </div>
       </div>
@@ -450,19 +451,19 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
         <div class="gc-letter">G</div>
         <div class="gc-name">G 등급</div>
         <div class="gc-desc">조에이스 · 서바이버 티어 수준<br>트레이너 포함 · 경매 최대 격전지</div>
-        <div class="gc-price"><div class="label">경매 시작가</div><div class="price">5,000만원~</div></div>
+        <div class="gc-price"><div class="label">경매 시작가</div><div class="price">3억원~</div></div>
       </div>
       <div class="gc m">
         <div class="gc-letter">m</div>
         <div class="gc-name">m 등급</div>
         <div class="gc-desc">준에이스 · 꾸준한 중상위권<br>가성비 픽으로 팀장들의 타깃</div>
-        <div class="gc-price"><div class="label">경매 시작가</div><div class="price">2,000만원~</div></div>
+        <div class="gc-price"><div class="label">경매 시작가</div><div class="price">1억원~</div></div>
       </div>
       <div class="gc I">
         <div class="gc-letter">I</div>
         <div class="gc-name">I 등급</div>
         <div class="gc-desc">실속형 · 신예 · 숨은 진주<br>가장 많은 클랜원 · 역대급 변수</div>
-        <div class="gc-price"><div class="label">경매 시작가</div><div class="price">500만원~</div></div>
+        <div class="gc-price"><div class="label">경매 시작가</div><div class="price">1,000만원~</div></div>
       </div>
     </div>
     <div style="text-align:center;margin-top:28px;padding:20px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;font-size:14px;color:var(--muted);line-height:1.9">
@@ -505,7 +506,19 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
 <div class="toast" id="toast"></div>
 
 <script>
-// D-Day auto counter (2026-05-10 기준)     (function(){       function upd(){         const targetDate = new Date('2026-05-10T00:00:00+09:00');          const now = new Date();                  const tDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());         const nDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());                  const diffTime = tDate - nDate;         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));                  const el = document.getElementById('mainDday');         if(!el) return;          if (diffDays > 0) {           el.textContent = `🔴 D-${diffDays}`;          } else if (diffDays === 0) {           el.textContent = '🔴 D-DAY';         } else {           el.textContent = '🔴 종료';         }       }       upd();       setInterval(upd, 3600000);      })();      // Smooth nav highlight
+// D-Day auto counter
+(function(){
+  function upd(){
+    const t=new Date('2026-05-10T19:00:00+09:00'),n=new Date(),d=t-n;
+    const el=document.getElementById('mainDday');
+    if(!el)return;
+    if(d<=0){el.textContent='🔴 D-DAY';return;}
+    const days=Math.floor(d/86400000);
+    el.textContent=days>0?`🔴 D-${days}`:'🔴 D-DAY';
+  }
+  upd();setInterval(upd,60000);
+})();
+// Smooth nav highlight
 const sections = document.querySelectorAll('section[id]');
 const navLinks = document.querySelectorAll('.nav-link');
 window.addEventListener('scroll', ()=>{
