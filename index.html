@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="GmI (GYMMRIacademy) 클랜 내전 공식 포털 — G드컵 경매 드래프트 내전 시즌 기록">
-<title>GmI G드컵 | GYMMRIacademy</title>
+<meta name="description" content="GmI (GYMMRIacademy) 클랜 공식 포털 — G드컵 경매 드래프트 · 카지노 시즌제 · MRI 아카데미">
+<title>GmI 클랜 공식 포털 | GYMMRIacademy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;600;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
@@ -51,7 +51,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;
 .nav-logo{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;
   background:linear-gradient(135deg,var(--accent),var(--cyan));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
-.nav-links{display:flex;gap:24px;margin-left:auto}
+.nav-links{display:flex;gap:22px;margin-left:auto}
 .nav-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;font-weight:600;letter-spacing:.5px}
 .nav-link:hover,.nav-link.active{color:#fff}
 .nav-cta{padding:8px 20px;border-radius:20px;border:1px solid rgba(191,0,255,0.4);
@@ -74,26 +74,42 @@ section{position:relative;z-index:1}
   filter:drop-shadow(0 0 60px rgba(191,0,255,0.3));
   animation:logobreathe 5s ease-in-out infinite}
 @keyframes logobreathe{0%,100%{filter:drop-shadow(0 0 40px rgba(191,0,255,0.25))}50%{filter:drop-shadow(0 0 80px rgba(0,200,255,0.4))}}
-.hero-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(18px,4vw,32px);
-  margin-top:12px;color:rgba(255,255,255,.7);letter-spacing:2px}
-.hero-desc{max-width:560px;font-size:15px;color:var(--muted);line-height:1.9;margin:24px auto 0}
-.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:36px;flex-direction:column;align-items:center}
-.btn-primary{padding:18px 40px;border-radius:50px;background:linear-gradient(135deg,var(--accent),var(--m));
-  color:#fff;font-family:'Black Han Sans',sans-serif;font-size:18px;text-decoration:none;
-  box-shadow:0 0 40px rgba(191,0,255,0.4);transition:all .25s;width:100%;max-width:420px;text-align:center}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 70px rgba(191,0,255,0.6)}
-.btn-secondary{padding:18px 40px;border-radius:50px;
-  background:linear-gradient(135deg,rgba(0,200,255,0.15),rgba(191,0,255,0.1));
-  border:2px solid rgba(0,200,255,0.5);
-  color:#fff;font-family:'Black Han Sans',sans-serif;font-size:18px;text-decoration:none;
-  transition:all .25s;width:100%;max-width:420px;text-align:center;
-  box-shadow:0 0 30px rgba(0,200,255,0.2)}
-.btn-secondary:hover{border-color:var(--cyan);box-shadow:0 0 50px rgba(0,200,255,0.4);transform:translateY(-2px)}
-.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:60px;flex-wrap:wrap}
+.hero-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(20px,4vw,32px);
+  margin-top:12px;color:rgba(255,255,255,.85);letter-spacing:2px}
+.hero-desc{max-width:600px;font-size:15px;color:var(--muted);line-height:1.9;margin:20px auto 0}
+
+/* HUB CARDS - 메인 두 가지 활동 (G드컵 + 카지노) */
+.hub-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:840px;margin:40px auto 0}
+@media(max-width:680px){.hub-grid{grid-template-columns:1fr}}
+.hub-card{background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:28px 24px;text-decoration:none;color:inherit;position:relative;overflow:hidden;
+  transition:transform .25s,box-shadow .25s;text-align:left;display:block}
+.hub-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.hub-card:hover{transform:translateY(-4px)}
+.hub-card.gdcup::before{background:linear-gradient(90deg,var(--accent),var(--cyan),var(--pink))}
+.hub-card.gdcup:hover{box-shadow:0 16px 50px rgba(191,0,255,.18)}
+.hub-card.casino::before{background:linear-gradient(90deg,var(--gold),var(--pink),var(--cyan))}
+.hub-card.casino:hover{box-shadow:0 16px 50px rgba(251,191,36,.18)}
+.hub-tag{font-family:'Rajdhani',sans-serif;font-size:12px;color:var(--muted);letter-spacing:3px;margin-bottom:8px}
+.hub-card.casino .hub-tag{color:var(--gold)}
+.hub-title{font-family:'Black Han Sans',sans-serif;font-size:24px;margin-bottom:8px}
+.hub-status{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:5px;margin-bottom:12px}
+.hub-card.gdcup .hub-status{background:rgba(0,200,255,.12);color:var(--cyan)}
+.hub-card.casino .hub-status{background:rgba(251,191,36,.12);color:var(--gold)}
+.hub-status.live{background:rgba(255,40,40,.15)!important;color:#ff7777!important;animation:livepulse 1.5s ease-in-out infinite}
+.hub-desc{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px}
+.hub-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:#bbb}
+.hub-meta strong{color:#fff}
+.hub-cta{margin-top:18px;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
+.hub-card.gdcup .hub-cta{color:var(--accent)}
+.hub-card.casino .hub-cta{color:var(--gold)}
+
+.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:50px;flex-wrap:wrap}
 .hstat{text-align:center}
-.hstat-n{font-family:'Rajdhani',sans-serif;font-size:40px;font-weight:700;
+.hstat-n{font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;
   background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hstat-l{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:1px}
+.hstat-l{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:1px}
+
 .scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
   display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);font-size:11px;letter-spacing:2px}
 .scroll-arrow{width:20px;height:20px;border-right:2px solid rgba(255,255,255,.2);border-bottom:2px solid rgba(255,255,255,.2);
@@ -114,6 +130,8 @@ section{position:relative;z-index:1}
 .season-card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,.4)}
 .season-card.active-card{border-color:rgba(191,0,255,.5)}
 .season-card.active-card:hover{box-shadow:0 20px 60px rgba(191,0,255,.15)}
+.season-card.done-card{border-color:rgba(251,191,36,.35)}
+.season-card.done-card:hover{box-shadow:0 20px 60px rgba(251,191,36,.12)}
 .season-card.upcoming{opacity:.6;cursor:default}
 .season-card.upcoming:hover{transform:none;box-shadow:none}
 .sc-top{padding:24px 24px 16px;position:relative}
@@ -142,6 +160,19 @@ section{position:relative;z-index:1}
 .sc-winner-icon{font-size:22px}
 .sc-winner-info .label{font-size:10px;color:rgba(251,191,36,.6);letter-spacing:1px}
 .sc-winner-info .name{font-weight:700;font-size:15px;color:var(--gold)}
+
+/* 시즌1 결과 - 1~4등 팀 */
+.podium{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.pd-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;
+  padding:10px 12px;font-size:11px;display:flex;flex-direction:column;gap:3px}
+.pd-rank{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700}
+.pd-rank.r1{color:var(--gold)}
+.pd-rank.r2{color:#d4d4d4}
+.pd-rank.r3{color:#cd7f32}
+.pd-rank.r4{color:var(--muted)}
+.pd-team{color:#fff;font-weight:700;font-size:12px}
+.pd-prize{color:var(--muted);font-size:10px}
+
 .sc-action{display:flex;gap:8px;margin-top:14px}
 .sc-btn{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;
   color:rgba(255,255,255,.6);font-size:12px;font-family:'Black Han Sans',sans-serif;
@@ -150,6 +181,34 @@ section{position:relative;z-index:1}
 .sc-btn.primary-btn{background:linear-gradient(135deg,rgba(191,0,255,.2),rgba(0,200,255,.1));
   border-color:rgba(191,0,255,.4);color:#d8b4fe}
 .sc-btn.primary-btn:hover{background:linear-gradient(135deg,rgba(191,0,255,.35),rgba(0,200,255,.2));color:#fff}
+
+/* ── 카지노 섹션 (NEW) ── */
+.casino-section{padding:80px 24px;background:rgba(251,191,36,.015);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.casino-inner{max-width:1100px;margin:0 auto}
+.casino-hero{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;
+  background:var(--card);border:1px solid rgba(251,191,36,.25);border-radius:20px;
+  padding:40px;position:relative;overflow:hidden}
+.casino-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--pink),var(--cyan))}
+@media(max-width:768px){.casino-hero{grid-template-columns:1fr;padding:24px}}
+.casino-poster-wrap{border-radius:14px;overflow:hidden;box-shadow:0 0 40px rgba(255,45,155,.2)}
+.casino-poster-wrap img{width:100%;display:block}
+.casino-info-eye{font-family:'Rajdhani',sans-serif;font-size:13px;color:var(--gold);letter-spacing:3px;margin-bottom:10px}
+.casino-info-title{font-family:'Black Han Sans',sans-serif;font-size:30px;margin-bottom:12px;line-height:1.2}
+.casino-info-title .hl{
+  background:linear-gradient(135deg,var(--gold),var(--pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.casino-info-desc{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:18px}
+.casino-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:20px}
+.cs-item{background:rgba(255,255,255,.03);border-radius:8px;padding:10px 12px}
+.cs-label{font-size:10px;color:var(--muted);letter-spacing:1px}
+.cs-val{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-top:2px}
+.cs-val.gold{color:var(--gold)}.cs-val.cyan{color:var(--cyan)}.cs-val.pink{color:var(--pink)}
+.casino-cta{display:inline-block;padding:13px 28px;border-radius:30px;
+  background:linear-gradient(135deg,var(--gold),var(--pink));color:#000;
+  font-family:'Black Han Sans',sans-serif;font-size:15px;text-decoration:none;
+  box-shadow:0 0 30px rgba(251,191,36,.35);transition:all .2s}
+.casino-cta:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(251,191,36,.55)}
 
 /* ── RULES SECTION ── */
 .rules-section{padding:80px 24px;background:rgba(255,255,255,.01);border-top:1px solid var(--border)}
@@ -213,12 +272,6 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
 .footer-link:hover{color:#fff}
 .footer-copy{font-size:11px;color:rgba(255,255,255,.15);margin-top:20px}
 
-/* TOAST */
-.toast{position:fixed;bottom:28px;right:28px;background:#160d30;border:1px solid var(--accent);
-  border-radius:10px;padding:12px 20px;font-size:13px;color:#fff;opacity:0;
-  pointer-events:none;transition:opacity .3s;z-index:999;font-family:'Black Han Sans',sans-serif}
-.toast.show{opacity:1}
-
 /* MOBILE */
 @media(max-width:768px){
   .nav-links{display:none}
@@ -241,11 +294,11 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
   <div class="nav-inner">
     <a href="#" class="nav-logo">GmI</a>
     <div class="nav-links">
-      <a href="#seasons" class="nav-link">시즌</a>
+      <a href="#seasons" class="nav-link">G드컵</a>
+      <a href="./casino.html" class="nav-link" style="color:#fbbf24">🎰 카지노</a>
       <a href="#rules" class="nav-link">룰</a>
       <a href="#grades" class="nav-link">등급</a>
-      <a href="./roster.html" class="nav-link" style="color:#fbbf24">👥 참가자 명단</a>
-      <a href="./gmi-auction-tool.html" class="nav-link" style="color:#bf00ff;font-weight:700">🔨 경매 운영판</a>
+      <a href="./roster.html" class="nav-link">👥 명단</a>
       <a href="https://shlee9498-dev.github.io/mri-academy/" target="_blank" class="nav-link">MRI Academy</a>
     </div>
     <a href="https://discord.gg/9RjqdSKw" target="_blank" class="nav-cta">💬 디스코드 입장</a>
@@ -254,41 +307,46 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
 
 <!-- HERO -->
 <section class="hero" id="home">
-  <div class="hero-eyebrow">GYMMRIacademy · G드컵 Season 1</div>
-  
-  <!-- 포스터 메인 비주얼 -->
-  <div style="width:100%;max-width:560px;margin:0 auto 36px;">
-    <img src="./poster.png" alt="GmI CLASS 1: THE AUCTION" 
-      style="width:100%;border-radius:20px;box-shadow:0 0 80px rgba(191,0,255,0.35),0 0 160px rgba(0,200,255,0.15);display:block;">
-  </div>
+  <div class="hero-eyebrow">GmI · GYMMRIacademy · OFFICIAL PORTAL</div>
 
-  <div class="hero-btns">
-    <a href="https://discord.gg/9RjqdSKw" target="_blank" class="btn-primary">💬 클랜원 참가 신청하기</a>
-    <a href="./gmi-auction-tool.html" class="btn-primary" style="background:linear-gradient(135deg,#bf00ff,#7c00ff)">🔨 경매 운영판 입장</a>
-    <a href="./gmi-final-bible.html" class="btn-secondary">📖 완전 가이드 보기 (룰 · 공지 · 운영 전부)</a>
-  </div>
+  <div class="hero-logo">GmI</div>
+  <div class="hero-title">CLAN OFFICIAL PORTAL</div>
 
-  <!-- 용병 참가 버튼 -->
-  <div style="width:100%;max-width:420px;margin:16px auto 0">
-    <a href="https://discord.gg/Wwge9BTX" target="_blank"
-      style="display:flex;align-items:center;justify-content:center;gap:10px;
-        width:100%;padding:16px 28px;border-radius:50px;text-decoration:none;
-        background:linear-gradient(135deg,rgba(251,191,36,0.15),rgba(249,115,22,0.1));
-        border:2px solid rgba(251,191,36,0.5);
-        color:#fbbf24;font-family:'Black Han Sans',sans-serif;font-size:16px;
-        box-shadow:0 0 30px rgba(251,191,36,0.15);transition:all .25s"
-      onmouseover="this.style.background='linear-gradient(135deg,rgba(251,191,36,0.25),rgba(249,115,22,0.2))';this.style.boxShadow='0 0 50px rgba(251,191,36,0.3)'"
-      onmouseout="this.style.background='linear-gradient(135deg,rgba(251,191,36,0.15),rgba(249,115,22,0.1))';this.style.boxShadow='0 0 30px rgba(251,191,36,0.15)'">
-      👥 용병(지인) 참가 신청하기
+  <p class="hero-desc">
+    G드컵 경매 내전 · 시즌제 카지노 코인 · MRI 아카데미.<br>
+    GmI 클랜에서 진행되는 모든 활동의 공식 허브.
+  </p>
+
+  <!-- 두 가지 메인 활동 카드 -->
+  <div class="hub-grid">
+    <a href="#seasons" class="hub-card gdcup">
+      <div class="hub-tag">G-CUP</div>
+      <div class="hub-title">🏆 G드컵 경매 내전</div>
+      <div class="hub-status">시즌1 완료 · 시즌2 D-<span id="gdcup2dday">35</span></div>
+      <div class="hub-desc">팀장 선착순, 경매 드래프트, 상금 소각 방식. 시즌2는 팀 직접 구성으로 변경.</div>
+      <div class="hub-meta">
+        <span>📅 <strong>2026.06.22</strong></span>
+        <span>💰 <strong>보증금 4만/스쿼드</strong></span>
+      </div>
+      <div class="hub-cta">시즌 보기 →</div>
     </a>
-    <div style="text-align:center;margin-top:10px;font-size:12px;color:rgba(255,255,255,0.35);line-height:1.8">
-      참가비 5,000원 · 버튼 클릭 → 디스코드 서버 입장 → #용병-입금-리스트 확인
-    </div>
+
+    <a href="./casino.html" class="hub-card casino">
+      <div class="hub-tag">CASINO</div>
+      <div class="hub-title">🎰 GmI 카지노</div>
+      <div class="hub-status" id="casinoStatus">시즌1 시작 D-<span id="casinoDday">2</span></div>
+      <div class="hub-desc">매치 활동으로 코인 적립 → 기프티콘·하드웨어 교환. 시즌2부터 베팅 시스템 도입.</div>
+      <div class="hub-meta">
+        <span>📅 <strong>05.20 — 06.10</strong></span>
+        <span>🪙 <strong>누적형 코인</strong></span>
+      </div>
+      <div class="hub-cta">자세히 보기 →</div>
+    </a>
   </div>
+
   <div class="hero-stats">
-    <div class="hstat"><div class="hstat-n">05.10</div><div class="hstat-l">일요일 경매 START</div></div>
-    <div class="hstat"><div class="hstat-n">PM 7</div><div class="hstat-l">경매 드래프트</div></div>
-    <div class="hstat"><div class="hstat-n">50억</div><div class="hstat-l">64명 달성 상금</div></div>
+    <div class="hstat"><div class="hstat-n">2</div><div class="hstat-l">ACTIVE PROGRAMS</div></div>
+    <div class="hstat"><div class="hstat-n">60+</div><div class="hstat-l">CLAN MEMBERS</div></div>
     <div class="hstat"><div class="hstat-n">LIVE</div><div class="hstat-l">SOOP · YouTube</div></div>
   </div>
   <div class="scroll-hint">SCROLL<div class="scroll-arrow"></div></div>
@@ -298,75 +356,89 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
 <section id="seasons">
   <div class="seasons-section">
     <div class="section-header">
-      <div class="section-eyebrow">Season Archive</div>
-      <div class="section-title"><span>GmI G드컵 시즌 기록</span></div>
+      <div class="section-eyebrow">G-Cup Archive</div>
+      <div class="section-title"><span>G드컵 시즌 기록</span></div>
       <p style="font-size:14px;color:var(--muted);margin-top:12px">매 시즌 결과와 기록이 여기에 쌓입니다</p>
     </div>
     <div class="seasons-grid">
 
-      <!-- SEASON 1 - ACTIVE -->
-      <div class="season-card active-card">
-        <div class="sc-top sc-active">
+      <!-- SEASON 1 - COMPLETED -->
+      <div class="season-card done-card">
+        <div class="sc-top sc-done">
           <div class="sc-num">SEASON 01 · G드컵</div>
           <div class="sc-title">🏆 GmI G드컵 1회</div>
-          <div class="sc-date">📅 2026년 5월 10일 (일)</div>
-          <div class="sc-badge badge-live" id="mainDday">🔴 D-?</div>
+          <div class="sc-date">📅 2026년 5월 10일 (일) · 완료</div>
+          <div class="sc-badge badge-done">✅ COMPLETED</div>
         </div>
         <div class="sc-body">
           <div class="sc-divider"></div>
-          <!-- 마감 안내 -->
-          <div style="background:rgba(255,60,60,0.08);border:1px solid rgba(255,60,60,0.3);border-radius:10px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
-            <div style="font-size:20px">⏰</div>
-            <div>
-              <div style="font-size:11px;color:rgba(255,100,100,0.7);letter-spacing:1px;margin-bottom:2px">참가 신청 마감</div>
-              <div style="font-family:'Black Han Sans',sans-serif;font-size:15px;color:#ff8888">5월 9일 (토) 오후 5시</div>
-            </div>
-          </div>
           <div class="sc-meta">
-            <div class="sc-meta-item">
-              <div class="sc-meta-label">경매 시작</div>
-              <div class="sc-meta-val" style="color:var(--accent)">PM 7:00</div>
-            </div>
-            <div class="sc-meta-item">
-              <div class="sc-meta-label">게임 시작</div>
-              <div class="sc-meta-val" style="color:var(--pink)">PM 8:00</div>
-            </div>
             <div class="sc-meta-item">
               <div class="sc-meta-label">방식</div>
               <div class="sc-meta-val" style="font-size:13px;color:var(--cyan)">경매 드래프트</div>
             </div>
             <div class="sc-meta-item">
-              <div class="sc-meta-label">최대 상금</div>
-              <div class="sc-meta-val" style="color:var(--gold)">50억원</div>
+              <div class="sc-meta-label">최종 상금풀</div>
+              <div class="sc-meta-val" style="color:var(--gold)">468,000원</div>
             </div>
           </div>
-          <div class="sc-winner" style="background:rgba(0,200,255,.06);border-color:rgba(0,200,255,.2)">
-            <div class="sc-winner-icon">📺</div>
+
+          <div class="podium">
+            <div class="pd-item"><span class="pd-rank r1">🥇 1등</span><span class="pd-team">파워레인저</span><span class="pd-prize">인당 5만원 · 4인</span></div>
+            <div class="pd-item"><span class="pd-rank r2">🥈 2등</span><span class="pd-team">광부</span><span class="pd-prize">인당 3만원 · 4인</span></div>
+            <div class="pd-item"><span class="pd-rank r3">🥉 3등</span><span class="pd-team">세휘네치킨집</span><span class="pd-prize">인당 2.7만원 · 4인</span></div>
+            <div class="pd-item"><span class="pd-rank r4">4등</span><span class="pd-team">메르시</span><span class="pd-prize">인당 1만원 · 4인</span></div>
+          </div>
+
+          <div class="sc-winner" style="background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.2);margin-top:12px">
+            <div class="sc-winner-icon">✅</div>
             <div class="sc-winner-info">
-              <div class="label" style="color:rgba(0,200,255,.6)">LIVE STREAM</div>
-              <div class="name" style="color:var(--cyan)">이무리 SOOP · YouTube 동시 생중계</div>
+              <div class="label" style="color:rgba(34,197,94,.7)">상금 지급</div>
+              <div class="name" style="color:var(--green)">2026.05.13 전원 지급 완료</div>
             </div>
           </div>
+
           <div class="sc-action">
-            <a href="https://discord.gg/9RjqdSKw" target="_blank" class="sc-btn primary-btn">💬 클랜원 신청</a>
-            <a href="https://discord.gg/Wwge9BTX" target="_blank" class="sc-btn" style="background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.4);color:#fbbf24">👥 용병 신청</a>
-            <a href="./roster.html" class="sc-btn" style="background:rgba(0,200,255,0.08);border-color:rgba(0,200,255,0.3);color:var(--cyan)">📊 참가자</a>
+            <a href="./gmi-final-bible.html" class="sc-btn">📖 룰북</a>
+            <a href="./roster.html" class="sc-btn">📊 참가자</a>
           </div>
         </div>
       </div>
 
-      <!-- SEASON 2 - UPCOMING -->
-      <div class="season-card upcoming">
-        <div class="sc-top sc-upcoming">
-          <div class="sc-num">SEASON 02</div>
-          <div class="sc-title">🔒 2회 내전</div>
-          <div class="sc-date">📅 날짜 미정</div>
-          <div class="sc-badge badge-upcoming-tag">예정</div>
+      <!-- SEASON 2 - UPCOMING (6/22 확정) -->
+      <div class="season-card active-card">
+        <div class="sc-top sc-active">
+          <div class="sc-num">SEASON 02 · G드컵</div>
+          <div class="sc-title">🔥 GmI G드컵 2회</div>
+          <div class="sc-date">📅 2026년 6월 22일 (일)</div>
+          <div class="sc-badge badge-live" id="gdcup2Dday">🔴 D-?</div>
         </div>
         <div class="sc-body">
           <div class="sc-divider"></div>
-          <div style="text-align:center;padding:24px 0;color:var(--muted);font-size:14px">
-            1회 내전 종료 후<br>일정이 확정됩니다
+          <div class="sc-meta">
+            <div class="sc-meta-item">
+              <div class="sc-meta-label">방식</div>
+              <div class="sc-meta-val" style="font-size:13px;color:var(--accent)">팀 직접 구성</div>
+            </div>
+            <div class="sc-meta-item">
+              <div class="sc-meta-label">보증금</div>
+              <div class="sc-meta-val" style="color:var(--pink)">4만/스쿼드</div>
+            </div>
+            <div class="sc-meta-item">
+              <div class="sc-meta-label">팀당 인원</div>
+              <div class="sc-meta-val" style="color:var(--cyan)">4명 스쿼드</div>
+            </div>
+            <div class="sc-meta-item">
+              <div class="sc-meta-label">예상 상금</div>
+              <div class="sc-meta-val" style="color:var(--gold)">확정 미정</div>
+            </div>
+          </div>
+          <div style="background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:10px;padding:11px 14px;margin-bottom:12px;font-size:12px;color:#c4b5fd;line-height:1.7">
+            💡 시즌2는 <strong>경매가 아닌 자율 팀 구성</strong> 방식. 스쿼드 단위로 보증금 납부 후 참가.
+          </div>
+          <div class="sc-action">
+            <a href="https://discord.gg/9RjqdSKw" target="_blank" class="sc-btn primary-btn">💬 참가 신청</a>
+            <a href="./gmi-final-bible.html" class="sc-btn">📖 룰 확인</a>
           </div>
         </div>
       </div>
@@ -391,13 +463,61 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
   </div>
 </section>
 
+<!-- 🎰 카지노 섹션 (NEW) -->
+<section class="casino-section" id="casino">
+  <div class="casino-inner">
+    <div class="section-header">
+      <div class="section-eyebrow" style="color:var(--gold)">Casino Program</div>
+      <div class="section-title"><span style="background:linear-gradient(90deg,var(--gold),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent">🎰 GmI 카지노</span></div>
+      <p style="font-size:14px;color:var(--muted);margin-top:12px">시즌제 코인 시스템 · 기프티콘 · 하드웨어 교환</p>
+    </div>
+
+    <div class="casino-hero">
+      <div class="casino-poster-wrap">
+        <img src="./casino-poster.png" alt="GmI 카지노 시즌1 배너">
+      </div>
+      <div>
+        <div class="casino-info-eye">SEASON 01 · BETA 1.0</div>
+        <div class="casino-info-title">
+          <span class="hl">일겜이 코인</span>이<br>되는 22일
+        </div>
+        <p class="casino-info-desc">
+          경쟁전 특화 클랜에 일반게임 분위기를 더하기 위한 시즌제 보상 시스템.<br>
+          매치 결과로 코인 적립 → 카페·치킨 기프티콘 · 키보드 · 마우스로 교환.
+        </p>
+
+        <div class="casino-stats">
+          <div class="cs-item">
+            <div class="cs-label">기간</div>
+            <div class="cs-val gold">05.20 — 06.10</div>
+          </div>
+          <div class="cs-item">
+            <div class="cs-label">대상</div>
+            <div class="cs-val cyan">60명</div>
+          </div>
+          <div class="cs-item">
+            <div class="cs-label">예산</div>
+            <div class="cs-val pink">₩300,000</div>
+          </div>
+          <div class="cs-item">
+            <div class="cs-label">상태</div>
+            <div class="cs-val gold" id="casinoMainStatus">D-2</div>
+          </div>
+        </div>
+
+        <a href="./casino.html" class="casino-cta">자세히 보기 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- RULES -->
 <section id="rules" class="rules-section">
   <div class="rules-inner">
     <div class="section-header">
       <div class="section-eyebrow">How It Works</div>
       <div class="section-title"><span>경매 드래프트 룰</span></div>
-      <p style="font-size:14px;color:var(--muted);margin-top:12px">처음 보는 분도 3분이면 이해합니다</p>
+      <p style="font-size:14px;color:var(--muted);margin-top:12px">처음 보는 분도 3분이면 이해합니다 · 시즌2부터 자율 팀 구성으로 변경</p>
     </div>
     <div class="rules-grid">
       <div class="rule-card rc1">
@@ -494,32 +614,63 @@ footer{padding:40px 24px;border-top:1px solid var(--border);text-align:center}
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">GmI</div>
-  <div style="font-size:12px;color:var(--muted);margin-top:6px">GYMMRIacademy · G드컵 공식 포털</div>
+  <div style="font-size:12px;color:var(--muted);margin-top:6px">GYMMRIacademy · 클랜 공식 포털</div>
   <div class="footer-links">
-    <a href="https://discord.gg/9RjqdSKw" target="_blank" class="footer-link">💬 디스코드 (#내전-신청-접수처)</a>
+    <a href="#seasons" class="footer-link">🏆 G드컵 시즌</a>
+    <a href="./casino.html" class="footer-link">🎰 카지노</a>
+    <a href="https://discord.gg/9RjqdSKw" target="_blank" class="footer-link">💬 디스코드</a>
     <a href="https://www.sooplive.com/station/zmdk1373" target="_blank" class="footer-link">📺 이무리 SOOP</a>
     <a href="https://shlee9498-dev.github.io/mri-academy/" target="_blank" class="footer-link">🎓 MRI Academy</a>
-    <a href="#seasons" class="footer-link">🏆 시즌 기록</a>
-    <a href="./gmi-final-bible.html" class="footer-link">📖 내전 바이블</a>
+    <a href="./gmi-final-bible.html" class="footer-link">📖 G드컵 바이블</a>
   </div>
   <div class="footer-copy">© 2026 GmI (GYMMRIacademy) · Powered by 이무리</div>
 </footer>
 
-<div class="toast" id="toast"></div>
-
 <script>
-// D-Day auto counter
+// G드컵 시즌2 D-Day (6/22)
 (function(){
   function upd(){
-    const t=new Date('2026-05-10T19:00:00+09:00'),n=new Date(),d=t-n;
-    const el=document.getElementById('mainDday');
-    if(!el)return;
-    if(d<=0){el.textContent='🔴 D-DAY';return;}
+    const t=new Date('2026-06-22T19:00:00+09:00'),n=new Date(),d=t-n;
+    const el=document.getElementById('gdcup2Dday');
+    const elHub=document.getElementById('gdcup2dday');
+    if(d<=0){
+      if(el)el.textContent='🔴 D-DAY';
+      if(elHub)elHub.textContent='DAY';
+      return;
+    }
     const days=Math.floor(d/86400000);
-    el.textContent=days>0?`🔴 D-${days}`:'🔴 D-DAY';
+    if(el)el.textContent=`🔴 D-${days}`;
+    if(elHub)elHub.textContent=days;
   }
   upd();setInterval(upd,60000);
 })();
+
+// 카지노 시즌1 상태 (5/20 시작, 6/10 종료)
+(function(){
+  function upd(){
+    const start=new Date('2026-05-20T00:00:00+09:00');
+    const end=new Date('2026-06-10T23:59:59+09:00');
+    const now=new Date();
+    const hubEl=document.getElementById('casinoStatus');
+    const ddayEl=document.getElementById('casinoDday');
+    const mainEl=document.getElementById('casinoMainStatus');
+    if(now < start){
+      const d=Math.ceil((start-now)/86400000);
+      if(ddayEl)ddayEl.textContent=d;
+      if(hubEl)hubEl.innerHTML=`시즌1 시작 D-<span>${d}</span>`;
+      if(mainEl)mainEl.textContent=`D-${d}`;
+    } else if(now > end){
+      if(hubEl)hubEl.textContent='시즌1 종료';
+      if(mainEl)mainEl.textContent='ENDED';
+    } else {
+      const d=Math.ceil((end-now)/86400000);
+      if(hubEl)hubEl.innerHTML=`<span style="color:#ff7777">🔴 진행중</span> · 종료까지 D-${d}`;
+      if(mainEl)mainEl.textContent=`진행중 D-${d}`;
+    }
+  }
+  upd();setInterval(upd,60000);
+})();
+
 // Smooth nav highlight
 const sections = document.querySelectorAll('section[id]');
 const navLinks = document.querySelectorAll('.nav-link');
@@ -532,37 +683,6 @@ window.addEventListener('scroll', ()=>{
     l.classList.toggle('active', l.getAttribute('href') === '#'+cur);
   });
 });
-
-// Animated counters - only run if elements exist
-const statS = document.getElementById('statSeason');
-const statM = document.getElementById('statMembers');
-function animateCount(el, target, suffix=''){
-  if(!el) return;
-  let start = 0;
-  const step = target / 40;
-  const timer = setInterval(()=>{
-    start = Math.min(start + step, target);
-    el.textContent = Math.floor(start) + suffix;
-    if(start >= target) clearInterval(timer);
-  }, 30);
-}
-const obs = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      animateCount(statS, 1, '회');
-      animateCount(statM, 36, '+');
-      obs.disconnect();
-    }
-  });
-});
-const heroStats = document.querySelector('.hero-stats');
-if(heroStats) obs.observe(heroStats);
-
-function toast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2200);
-}
 </script>
 </body>
 </html>
