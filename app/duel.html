@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08080c">
+  <meta name="gmi-api-base" content="https://worker-production-06b8.up.railway.app">
+  <title>GmI 클랜 — 1:1 라이브 보드</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/favicon.png">
+  <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+
+<main class="container">
+
+  <div class="section-title-row">
+    <div class="section-title" id="title">1:1 인디언 포커</div>
+    <a href="index.html" style="font-size:13px">← 대시보드</a>
+  </div>
+
+  <div id="board"><div class="loading">매치 불러오는 중</div></div>
+
+  <section class="section" style="margin-top: 28px;">
+    <div class="section-title">라운드 진행</div>
+    <div class="card">
+      <table class="table" id="rounds-table">
+        <thead>
+          <tr>
+            <th>R</th>
+            <th style="text-align:center">도전자</th>
+            <th style="text-align:center">vs</th>
+            <th style="text-align:center">상대</th>
+            <th class="amount">풀</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody><tr><td colspan="6" class="empty">아직 데이터 없음</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p style="text-align: center; color: var(--text-dim); margin-top: 28px; font-size: 13px;">
+    💌 카드는 디스코드 DM으로 받으세요.<br>
+    채널에서 <code>/1대1콜</code> · <code>/1대1레이즈 amount:N</code> · <code>/1대1폴드</code>
+  </p>
+
+</main>
+
+<script src="app.js?v=4"></script>
+<script>
+const matchId = parseInt(new URLSearchParams(location.search).get("id") || "0");
+if (!matchId) {
+  document.getElementById("board").innerHTML = `<div class="empty">매치 ID가 잘못되었습니다.</div>`;
+  throw new Error("no match id");
+}
+
+const me = requireAuth();
+if (me) {
+  renderNav();
+  renderFooter();
+  document.getElementById("title").textContent = `1:1 인디언 포커 #${matchId}`;
+  startStream();
+}
+
+let evtSource = null;
+let reconnectTimer = null;
+
+function startStream() {
+  const token = getToken();
+  // SSE는 헤더 인자를 못 받아서 URL query로 전달 (다만 보안상 토큰을 URL에 두는 건 한계)
+  // 현재 백엔드는 매치 보기 자체에 auth 안 걸어둠 (관전 자유). 토큰 불필요.
+  const url = `${API_BASE}/api/duel/${matchId}/stream`;
+  evtSource = new EventSource(url);
+
+  evtSource.addEventListener("update", (e) => {
+    try {
+      const state = JSON.parse(e.data);
+      renderBoard(state);
+    } catch (err) {
+      console.error("update parse error", err);
+    }
+  });
+
+  evtSource.addEventListener("ended", (e) => {
+    console.log("match ended");
+    evtSource.close();
+  });
+
+  evtSource.addEventListener("error", (e) => {
+    console.warn("sse error", e);
+    if (evtSource.readyState === EventSource.CLOSED) {
+      // 자동 재연결
+      clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(startStream, 3000);
+    }
+  });
+
+  // 초기 1회 스냅샷 (SSE 첫 데이터 도착 전 빠른 표시)
+  api(`/api/duel/${matchId}/snapshot`)
+    .then(renderBoard)
+    .catch(e => {
+      document.getElementById("board").innerHTML = `<div class="empty">로드 실패: ${e.message}</div>`;
+    });
+}
+
+function renderBoard(state) {
+  const m = state.match;
+  const r = state.current_round;
+  const used = state.used_cards || [];
+
+  // 본인 시점인지
+  const isC = me.sub === m.challenger_id;
+  const isO = me.sub === m.opponent_id;
+  const isViewer = isC || isO;
+
+  // 카드 표시 결정
+  // - 라운드 진행 중: 자기 카드 X, 상대 카드 O (관전자는 둘 다 X)
+  // - 라운드 종료/매치 종료: 양쪽 카드 다 공개
+  // 현재는 SSE에서 진행 중 카드 다 가려서 보냄 → 클라이언트는 상대 카드 정보 받기 어려움
+  // 상대 카드는 디스코드 DM으로 봐야 함 (보안)
+  // 매치 종료 시에는 별도 API로 전체 라운드 조회
+
+  let cCard = null, oCard = null;
+  let cFolded = false, oFolded = false;
+  let roundEnded = false;
+  let pool = 0;
+  if (r) {
+    cFolded = r.c_status === "folded";
+    oFolded = r.o_status === "folded";
+    roundEnded = r.status === "ended";
+    pool = r.pool || 0;
+    if (roundEnded) {
+      cCard = r.c_card;
+      oCard = r.o_card;
+    }
+  }
+
+  const isLive = m.status === "in_progress";
+  const cName = m.challenger_name || "도전자";
+  const oName = m.opponent_name || "상대";
+
+  const html = `
+    <div class="duel-stage">
+      <div class="duel-head">
+        <div class="title">
+          <span class="status ${isLive ? 'live' : 'ended'}">
+            ${isLive ? 'LIVE' : '종료'}
+          </span>
+          &nbsp;매치 #${m.id}
+        </div>
+        <div class="round-tag">${
+          m.current_round > 0 ? `라운드 ${m.current_round} / 5` : "대기 중"
+        }</div>
+      </div>
+
+      <div class="duel-arena">
+        <div class="duel-side">
+          <div class="name">${cName}${isC ? " (나)" : ""}</div>
+          ${cardHTML(cCard, cFolded, isC && !roundEnded)}
+          <div class="coin">
+            <span class="lbl">가상 코인</span>
+            ${m.c_match_coin}
+          </div>
+        </div>
+
+        <div class="duel-vs">VS</div>
+
+        <div class="duel-side">
+          <div class="name">${oName}${isO ? " (나)" : ""}</div>
+          ${cardHTML(oCard, oFolded, isO && !roundEnded)}
+          <div class="coin">
+            <span class="lbl">가상 코인</span>
+            ${m.o_match_coin}
+          </div>
+        </div>
+      </div>
+
+      <div class="duel-pool">
+        <div class="lbl">POOL</div>
+        <div class="amt">${pool}</div>
+      </div>
+
+      <div class="deck-strip">
+        ${[1,2,3,4,5,6,7,8,9,10].map(v => {
+          const u = used.includes(v);
+          let cls = `deck-card${u ? ' used' : ''} card-${v}`;
+          return `<div class="${cls}">${v}</div>`;
+        }).join("")}
+      </div>
+
+      <div class="duel-status ${isLive ? '' : 'ended'}">
+        ${statusText(m, r, isC, isO)}
+      </div>
+    </div>
+  `;
+
+  document.getElementById("board").innerHTML = html;
+
+  // 라운드 테이블도 별도 API로 (매치 상세)
+  loadRounds();
+}
+
+function cardHTML(value, folded, isMine) {
+  if (folded) return `<div class="duel-card folded"></div>`;
+  if (value == null) {
+    // 진행 중: 자기 것이든 상대 것이든 일단 뒷면 (자기 카드는 DM)
+    return `<div class="duel-card back">?</div>`;
+  }
+  const cls = `duel-card${value === 1 ? ' card-1' : value === 10 ? ' card-10' : ''}`;
+  return `<div class="${cls}">${value}</div>`;
+}
+
+function statusText(m, r, isC, isO) {
+  if (m.status === "ended") {
+    if (m.winner_id) {
+      const winName = m.winner_id === m.challenger_id ? m.challenger_name : m.opponent_name;
+      const reasonLabel = ({
+        rounds_complete: "5라운드 완료",
+        coin_zero: "가상 코인 소진",
+        forfeit: "자유 종료",
+      })[m.end_reason] || m.end_reason;
+      return `🏆 승자: ${winName} · ${reasonLabel} · 정산 +${m.payout}, 소각 ${m.burned}`;
+    }
+    return "동률 — 코인 변동 없음";
+  }
+  if (m.status === "expired") return "도전 만료";
+  if (m.status === "declined") return "도전 거절";
+  if (m.status === "pending") return "도전 대기 중";
+
+  if (!r) return "라운드 시작 대기";
+
+  // 진행 중
+  if (r.turn) {
+    const turnName = r.turn === m.challenger_id ? m.challenger_name : m.opponent_name;
+    const isMyTurn = (isC && r.turn === m.challenger_id) || (isO && r.turn === m.opponent_id);
+    return isMyTurn
+      ? `▶ 내 차례 — 디스코드에서 /1대1콜 · /1대1레이즈 · /1대1폴드`
+      : `▶ ${turnName} 차례 (30초)`;
+  }
+  return "라운드 진행 중";
+}
+
+async function loadRounds() {
+  try {
+    const m = await api(`/api/matches/${matchId}`);
+    const rounds = m.rounds || [];
+    const tbody = document.querySelector("#rounds-table tbody");
+    if (!rounds.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty">아직 라운드 없음</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rounds.map(r => {
+      const c = r.c_card != null && r.status === "ended" ? r.c_card : "?";
+      const o = r.o_card != null && r.status === "ended" ? r.o_card : "?";
+      let result = "";
+      if (r.status === "ended") {
+        if (r.winner_role === "C") result = `${m.challenger_name} 승`;
+        else if (r.winner_role === "O") result = `${m.opponent_name} 승`;
+        else result = "동률";
+      } else {
+        result = "<span style='color:var(--warn)'>진행 중</span>";
+      }
+      return `
+        <tr>
+          <td><b>R${r.round_no}</b></td>
+          <td style="text-align:center; font-weight:700">${c}</td>
+          <td style="text-align:center; color:var(--text-dim)">vs</td>
+          <td style="text-align:center; font-weight:700">${o}</td>
+          <td class="amount">${r.pool}</td>
+          <td>${result}</td>
+        </tr>
+      `;
+    }).join("");
+  } catch (e) {
+    console.warn("rounds load:", e);
+  }
+}
+</script>
+
+</body>
+</html>

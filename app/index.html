@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08080c">
+  <meta name="gmi-api-base" content="https://worker-production-06b8.up.railway.app">
+  <title>GmI 클랜 — 내 지갑</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+
+<main class="container">
+
+  <!-- 내 지갑 -->
+  <section class="section">
+    <div class="card balance-card gold">
+      <div class="balance-label">내 코인</div>
+      <div class="balance-amount" id="my-balance">—<span class="unit">G</span></div>
+      <div class="balance-sub" id="my-name">로딩 중</div>
+    </div>
+  </section>
+
+  <!-- 진행 중 매치 (1:1 + 홀덤) -->
+  <section class="section">
+    <div class="section-title-row">
+      <div class="section-title">🎰 카지노</div>
+      <a href="crash.html" style="font-size:13px">크래시 →</a>
+    </div>
+    <a href="crash.html" class="card" id="crash-card" style="display:block; text-decoration:none; color:inherit; padding: 16px 20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size: 11px; color: var(--text-sub); letter-spacing: 1px;">현재 라운드</div>
+          <div id="crash-summary-status" style="font-size: 17px; font-weight: 700; margin-top: 2px;">로딩 중</div>
+          <div id="crash-summary-meta" style="font-size: 12px; color: var(--text-dim); margin-top: 4px;">—</div>
+        </div>
+        <div id="crash-summary-mult" style="font-size: 32px; font-weight: 900; color: var(--gold); font-variant-numeric: tabular-nums;">—</div>
+      </div>
+    </a>
+  </section>
+
+  <!-- 진행 중 매치 (1:1 + 홀덤) -->
+  <section class="section">
+    <div class="section-title-row">
+      <div class="section-title">🔴 라이브 매치</div>
+      <a href="matches.html" style="font-size:13px">전체 보기 →</a>
+    </div>
+    <div id="live-matches"><div class="loading">불러오는 중</div></div>
+    <div id="live-holdem"></div>
+  </section>
+
+  <!-- 내 최근 매치 -->
+  <section class="section">
+    <div class="section-title">내 최근 매치</div>
+    <div id="my-matches"><div class="loading">불러오는 중</div></div>
+  </section>
+
+  <!-- 클랜 순위 -->
+  <section class="section">
+    <div class="section-title">코인 순위 TOP 20</div>
+    <div class="card">
+      <table class="table" id="ranking">
+        <thead>
+          <tr>
+            <th></th>
+            <th>닉네임</th>
+            <th class="amount">코인</th>
+          </tr>
+        </thead>
+        <tbody><tr><td colspan="3" class="loading">로딩 중</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 최근 이력 -->
+  <section class="section">
+    <div class="section-title">내 코인 이력 (최근 20건)</div>
+    <div class="card">
+      <table class="table" id="ledger">
+        <thead>
+          <tr>
+            <th>시간</th>
+            <th>사유</th>
+            <th class="amount">변동</th>
+          </tr>
+        </thead>
+        <tbody><tr><td colspan="3" class="loading">로딩 중</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<script src="app.js?v=4"></script>
+<script>
+const me = requireAuth();
+if (me) {
+  renderNav("index");
+  renderFooter();
+  loadAll();
+}
+
+async function loadAll() {
+  Promise.allSettled([
+    loadMe(),
+    loadCrashSummary(),
+    loadLive(),
+    loadLiveHoldem(),
+    loadMyMatches(),
+    loadRanking(),
+    loadLedger(),
+  ]);
+  // 크래시 상태 5초마다 갱신
+  setInterval(loadCrashSummary, 5000);
+}
+
+async function loadCrashSummary() {
+  try {
+    const snap = await api("/api/crash/state");
+    const statusEl = document.getElementById("crash-summary-status");
+    const metaEl = document.getElementById("crash-summary-meta");
+    const multEl = document.getElementById("crash-summary-mult");
+    const phaseLabel = {
+      betting: "🟡 베팅 받는 중",
+      flight: "🟢 비행 중",
+      crashed: "💥 라운드 종료",
+      paused: "⏸ 휴식 (22~02 KST)",
+    }[snap.phase] || snap.phase;
+    statusEl.textContent = phaseLabel;
+    if (snap.phase === "betting") {
+      metaEl.textContent = `라운드 #${snap.round_id} · ${snap.bets.length}명 베팅 중 · ${snap.seconds_remaining?.toFixed(0) || 0}초 남음`;
+      multEl.textContent = "1.00x";
+    } else if (snap.phase === "flight") {
+      metaEl.textContent = `라운드 #${snap.round_id} · ${snap.bets.length}명 참여`;
+      multEl.textContent = `${snap.multiplier.toFixed(2)}x`;
+    } else if (snap.phase === "crashed") {
+      metaEl.textContent = `라운드 #${snap.round_id} 종료`;
+      multEl.textContent = `${(snap.crash_point || snap.multiplier).toFixed(2)}x`;
+    } else {
+      metaEl.textContent = "다음 진행: 22:00 KST";
+      multEl.textContent = "—";
+    }
+  } catch (e) {
+    console.warn("crash summary:", e);
+  }
+}
+
+async function loadMe() {
+  try {
+    const data = await api("/api/me");
+    document.getElementById("my-balance").innerHTML =
+      `${fmtCoin(data.balance)}<span class="unit">G</span>`;
+    document.getElementById("my-name").textContent = data.display_name;
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function loadLive() {
+  const el = document.getElementById("live-matches");
+  try {
+    const matches = await api("/api/matches/live");
+    if (!matches.length) {
+      el.innerHTML = `<div class="empty">진행 중인 1:1 인디언 포커 없음</div>`;
+      return;
+    }
+    el.innerHTML = `<div class="match-grid">${
+      matches.map(matchCardHTML).join("")
+    }</div>`;
+  } catch (e) {
+    el.innerHTML = `<div class="empty">불러오기 실패: ${e.message}</div>`;
+  }
+}
+
+async function loadLiveHoldem() {
+  const el = document.getElementById("live-holdem");
+  try {
+    const matches = await api("/api/holdem/live");
+    if (!matches.length) {
+      el.innerHTML = "";
+      return;
+    }
+    el.innerHTML = `
+      <div style="margin-top:14px;">
+        <div style="font-size:12px; color:var(--text-sub); margin-bottom:8px;">
+          🎴 헤즈업 홀덤
+        </div>
+        <div class="match-grid">${matches.map(holdemCardHTML).join("")}</div>
+      </div>
+    `;
+  } catch (e) {
+    console.warn("holdem live load:", e);
+  }
+}
+
+function holdemCardHTML(m) {
+  const cName = m.challenger_name || "도전자";
+  const oName = m.opponent_name || "상대";
+  return `
+    <a href="holdem.html?id=${m.id}" class="match-card">
+      <span class="status live">LIVE</span>
+      <div class="vs">
+        <span class="name">${cName}</span>
+        <span class="at">vs</span>
+        <span class="name">${oName}</span>
+      </div>
+      <div class="round">H${m.current_hand_no}</div>
+    </a>
+  `;
+}
+
+async function loadMyMatches() {
+  const el = document.getElementById("my-matches");
+  try {
+    const [duels, holdems] = await Promise.all([
+      api("/api/me/matches?limit=4").catch(() => []),
+      api("/api/me/holdem-matches?limit=4").catch(() => []),
+    ]);
+    const all = [
+      ...duels.map(m => ({ ...m, _game: "duel" })),
+      ...holdems.map(m => ({ ...m, _game: "holdem" })),
+    ].sort((a, b) => b.id - a.id).slice(0, 6);
+    if (!all.length) {
+      el.innerHTML = `<div class="empty">아직 매치 기록이 없습니다 · 디스코드에서 <code>/1대1도전</code> 또는 <code>/홀덤도전</code></div>`;
+      return;
+    }
+    el.innerHTML = `<div class="match-grid">${
+      all.map(m => m._game === "holdem"
+        ? holdemMatchCardHTML(m)
+        : matchCardHTML(m)).join("")
+    }</div>`;
+  } catch (e) {
+    el.innerHTML = `<div class="empty">불러오기 실패: ${e.message}</div>`;
+  }
+}
+
+function holdemMatchCardHTML(m) {
+  let statusClass = "ended";
+  let statusLabel = "종료";
+  if (m.status === "in_progress") { statusClass = "live"; statusLabel = "LIVE"; }
+  else if (m.status === "pending") { statusClass = "pending"; statusLabel = "대기"; }
+  const cName = m.challenger_name || "도전자";
+  const oName = m.opponent_name || "상대";
+  return `
+    <a href="holdem.html?id=${m.id}" class="match-card">
+      <span class="status ${statusClass}">${statusLabel}</span>
+      <div class="vs">
+        <span style="font-size:11px; color:var(--text-dim); margin-right:4px;">🎴</span>
+        <span class="name">${cName}</span>
+        <span class="at">vs</span>
+        <span class="name">${oName}</span>
+      </div>
+      <div class="round">${m.current_hand_no > 0 ? `H${m.current_hand_no}` : ""}</div>
+    </a>
+  `;
+}
+
+function matchCardHTML(m) {
+  let statusClass = "ended";
+  let statusLabel = "종료";
+  if (m.status === "in_progress") {
+    statusClass = "live";
+    statusLabel = "LIVE";
+  } else if (m.status === "pending") {
+    statusClass = "pending";
+    statusLabel = "대기";
+  }
+  const round = m.current_round > 0 ? `R${m.current_round}/5` : "";
+  const cName = m.challenger_name || "도전자";
+  const oName = m.opponent_name || "상대";
+  return `
+    <a href="duel.html?id=${m.id}" class="match-card">
+      <span class="status ${statusClass}">${statusLabel}</span>
+      <div class="vs">
+        <span class="name">${cName}</span>
+        <span class="at">vs</span>
+        <span class="name">${oName}</span>
+      </div>
+      <div class="round">${round}</div>
+    </a>
+  `;
+}
+
+async function loadRanking() {
+  const tbody = document.querySelector("#ranking tbody");
+  try {
+    const rows = await api("/api/ranking?limit=20");
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="3" class="empty">데이터 없음</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td class="rank ${r.rank === 1 ? 'r1' : ''}">${r.rank}</td>
+        <td>${r.display_name}</td>
+        <td class="amount">${fmtCoin(r.balance)} G</td>
+      </tr>
+    `).join("");
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="3" class="empty">로드 실패</td></tr>`;
+  }
+}
+
+async function loadLedger() {
+  const tbody = document.querySelector("#ledger tbody");
+  try {
+    const rows = await api("/api/wallet/ledger?limit=20");
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="3" class="empty">이력 없음</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td>${timeAgo(r.created_at)}</td>
+        <td>${labelReason(r.reason)}</td>
+        <td class="amount ${r.delta < 0 ? 'neg' : 'pos'}">${r.delta > 0 ? '+' : ''}${fmtCoin(r.delta)}</td>
+      </tr>
+    `).join("");
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="3" class="empty">로드 실패</td></tr>`;
+  }
+}
+</script>
+
+</body>
+</html>

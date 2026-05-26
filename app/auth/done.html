@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08080c">
+  <title>로그인 완료 중...</title>
+  <link rel="icon" href="../icons/favicon.png">
+  <link rel="stylesheet" href="../style.css?v=2">
+</head>
+<body>
+
+<main class="container" style="display:flex; align-items:center; justify-content:center; min-height: 100vh;">
+  <div style="text-align: center;">
+    <div id="status" class="loading">로그인 처리 중</div>
+    <div id="error" style="color: var(--red); margin-top: 16px;"></div>
+  </div>
+</main>
+
+<script>
+const TOKEN_KEY = "gmi_token";
+
+// fragment에서 토큰 또는 에러 추출
+const hash = location.hash.substring(1);
+const params = new URLSearchParams(hash);
+const token = params.get("token");
+const error = params.get("error");
+
+const statusEl = document.getElementById("status");
+const errorEl = document.getElementById("error");
+
+if (error) {
+  statusEl.textContent = "로그인 거절";
+  errorEl.textContent = `사유: ${error}`;
+  setTimeout(() => location.href = "../login.html", 2000);
+} else if (token) {
+  localStorage.setItem(TOKEN_KEY, token);
+  statusEl.textContent = "로그인 완료";
+  statusEl.style.color = "var(--gold)";
+  // URL fragment 정리하고 대시보드로
+  history.replaceState(null, "", location.pathname);
+  setTimeout(() => location.href = "../index.html", 500);
+} else {
+  statusEl.textContent = "토큰을 받지 못했습니다";
+  errorEl.textContent = "다시 로그인을 시도하세요.";
+  setTimeout(() => location.href = "../login.html", 2000);
+}
+</script>
+
+</body>
+</html>

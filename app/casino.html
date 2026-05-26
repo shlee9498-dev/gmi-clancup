@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08080c">
+  <meta name="gmi-api-base" content="https://worker-production-06b8.up.railway.app">
+  <title>GmI 카지노</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="casino.css?v=1">
+</head>
+<body>
+
+<main class="container">
+
+  <div class="section-title-row">
+    <div class="section-title" style="font-size:14px;">🎰 GmI 카지노</div>
+    <div id="balance-display" style="font-size:13px; color:var(--gold); font-weight:700;">— G</div>
+  </div>
+
+  <!-- 크래시 -->
+  <section class="section">
+    <a href="crash.html" class="lobby-card crash-card">
+      <div class="lobby-card-head">
+        <div class="lobby-icon">🎰</div>
+        <div>
+          <div class="lobby-title">크래시 (Aviator)</div>
+          <div class="lobby-sub">웹 전용 · 동시 멀티</div>
+        </div>
+        <div class="lobby-arrow">→</div>
+      </div>
+      <div class="lobby-meta" id="crash-meta">로딩 중</div>
+    </a>
+  </section>
+
+  <!-- 헤즈업 홀덤 -->
+  <section class="section">
+    <div class="lobby-card lobby-card-static">
+      <div class="lobby-card-head">
+        <div class="lobby-icon">🎴</div>
+        <div>
+          <div class="lobby-title">1:1 헤즈업 홀덤</div>
+          <div class="lobby-sub">디스코드 명령 기반 · Buy-in 100코인</div>
+        </div>
+      </div>
+      <div class="lobby-meta">디스코드에서 <code>/홀덤도전</code></div>
+      <div id="holdem-live" class="live-list"></div>
+    </div>
+  </section>
+
+  <!-- 멀티 홀덤 (3 테이블) -->
+  <section class="section">
+    <div class="section-title" style="font-size:11px; margin-bottom:8px;">멀티 캐시 게임 (6인)</div>
+    <div id="htables-list">
+      <div class="loading">로딩 중</div>
+    </div>
+  </section>
+
+  <!-- 1:1 인디언 포커 -->
+  <section class="section">
+    <div class="lobby-card lobby-card-static">
+      <div class="lobby-card-head">
+        <div class="lobby-icon">🎯</div>
+        <div>
+          <div class="lobby-title">1:1 인디언 포커</div>
+          <div class="lobby-sub">디스코드 명령 · 5라운드 매치</div>
+        </div>
+      </div>
+      <div class="lobby-meta">디스코드에서 <code>/1대1도전</code></div>
+      <div id="duel-live" class="live-list"></div>
+    </div>
+  </section>
+
+  <!-- G드컵 (별도 페이지로) -->
+  <section class="section">
+    <a href="https://shlee9498-dev.github.io/gmi-clancup/gdcup-s2.html" class="lobby-card">
+      <div class="lobby-card-head">
+        <div class="lobby-icon">🏆</div>
+        <div>
+          <div class="lobby-title">G드컵 시즌2</div>
+          <div class="lobby-sub">클랜 이벤트 (6/20 본 매치)</div>
+        </div>
+        <div class="lobby-arrow">→</div>
+      </div>
+    </a>
+  </section>
+
+</main>
+
+<script src="app.js?v=4"></script>
+<script>
+const me = requireAuth();
+if (me) {
+  renderNav("casino");
+  renderFooter();
+  load();
+  setInterval(load, 5000);
+}
+
+async function load() {
+  Promise.allSettled([
+    loadBalance(),
+    loadCrash(),
+    loadHtables(),
+    loadHoldemLive(),
+    loadDuelLive(),
+  ]);
+}
+
+async function loadBalance() {
+  try {
+    const d = await api("/api/me");
+    document.getElementById("balance-display").textContent = `${fmtCoin(d.balance)} G`;
+  } catch (e) {}
+}
+
+async function loadCrash() {
+  try {
+    const snap = await api("/api/crash/state");
+    const el = document.getElementById("crash-meta");
+    const phase = ({
+      betting: "🟡 베팅 중",
+      flight: "🟢 비행 중",
+      crashed: "💥 종료",
+      paused: "⏸ 휴식",
+    })[snap.phase] || snap.phase;
+    let mult = "";
+    if (snap.phase === "flight") mult = ` · ${snap.multiplier.toFixed(2)}x`;
+    else if (snap.phase === "crashed" && snap.crash_point)
+      mult = ` · 💥 ${snap.crash_point.toFixed(2)}x`;
+    el.innerHTML = `${phase}${mult} · R#${snap.round_id} · ${snap.bets.length}명`;
+  } catch (e) {
+    document.getElementById("crash-meta").textContent = "—";
+  }
+}
+
+async function loadHtables() {
+  try {
+    const list = await api("/api/htable");
+    const el = document.getElementById("htables-list");
+    if (!list.length) {
+      el.innerHTML = `<div class="empty">활성 테이블 없음</div>`;
+      return;
+    }
+    el.innerHTML = list.map(t => {
+      const phaseLabel = ({
+        waiting: "대기 중", preflop: "Pre-flop", flop: "Flop",
+        turn: "Turn", river: "River", showdown: "Showdown",
+        between_hands: "다음 핸드 준비",
+      })[t.phase] || t.phase;
+      const occupiedColor = t.occupied >= t.max_seats ? "var(--red)" :
+        (t.occupied > 0 ? "var(--gold)" : "var(--text-dim)");
+      return `
+        <a href="htable.html?id=${t.id_key}" class="lobby-card htable-card">
+          <div class="lobby-card-head">
+            <div class="lobby-icon" style="font-size:24px;">🃏</div>
+            <div style="flex:1;">
+              <div class="lobby-title">${t.name} <span style="color:var(--text-sub); font-weight:400;">(${t.stake})</span></div>
+              <div class="lobby-sub">Buy-in ${t.min_buyin}~${t.max_buyin}코인</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:13px; font-weight:700; color:${occupiedColor};">
+                ${t.occupied}/${t.max_seats}석
+              </div>
+              <div style="font-size:11px; color:var(--text-dim);">${phaseLabel}</div>
+            </div>
+          </div>
+        </a>
+      `;
+    }).join("");
+  } catch (e) {
+    document.getElementById("htables-list").innerHTML =
+      `<div class="empty">로드 실패</div>`;
+  }
+}
+
+async function loadHoldemLive() {
+  try {
+    const list = await api("/api/holdem/live");
+    const el = document.getElementById("holdem-live");
+    if (!list.length) { el.innerHTML = ""; return; }
+    el.innerHTML = list.map(m => `
+      <a href="holdem.html?id=${m.id}" class="live-pill">
+        ${m.challenger_name} vs ${m.opponent_name} · H${m.current_hand_no}
+      </a>
+    `).join("");
+  } catch (e) {}
+}
+
+async function loadDuelLive() {
+  try {
+    const list = await api("/api/matches/live");
+    const el = document.getElementById("duel-live");
+    if (!list.length) { el.innerHTML = ""; return; }
+    el.innerHTML = list.map(m => `
+      <a href="duel.html?id=${m.id}" class="live-pill">
+        ${m.challenger_name} vs ${m.opponent_name} · R${m.current_round}/5
+      </a>
+    `).join("");
+  } catch (e) {}
+}
+</script>
+
+</body>
+</html>

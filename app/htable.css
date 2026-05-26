@@ -1,0 +1,333 @@
+/* 멀티 6석 테이블 — 본인 항상 아래 */
+
+.ht-table {
+  position: relative;
+  background: linear-gradient(180deg, #1d5c33 0%, #143a22 100%);
+  border: 3px solid var(--gold);
+  border-radius: 50%;
+  margin: 80px auto;
+  width: 100%;
+  max-width: 760px;
+  aspect-ratio: 1.6 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 20px;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
+}
+
+/* 좌석 위치 — 본인이 항상 아래 중앙 (botCenter). 나머지 5명은 회전 */
+/* CSS 변수로 6개 좌석 좌표 */
+:root {
+  --seat-pos-0: 50% 100%;   /* 아래 중앙 (본인) */
+  --seat-pos-1: 88% 80%;    /* 우하 */
+  --seat-pos-2: 100% 30%;   /* 우상 */
+  --seat-pos-3: 50% 0%;     /* 위 중앙 */
+  --seat-pos-4: 0% 30%;     /* 좌상 */
+  --seat-pos-5: 12% 80%;    /* 좌하 */
+}
+
+.ht-seat {
+  position: absolute;
+  width: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transform: translate(-50%, -50%);
+}
+
+/* 위치별 클래스 (View 기준 1~6번 좌석) */
+.ht-seat.pos-0 { top: 100%; left: 50%; }
+.ht-seat.pos-1 { top: 80%; left: 92%; }
+.ht-seat.pos-2 { top: 25%; left: 100%; }
+.ht-seat.pos-3 { top: 0%; left: 50%; }
+.ht-seat.pos-4 { top: 25%; left: 0%; }
+.ht-seat.pos-5 { top: 80%; left: 8%; }
+
+.seat-info-box {
+  background: var(--panel-2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  text-align: center;
+  min-width: 110px;
+  font-size: 12px;
+}
+
+.ht-seat.empty .seat-info-box {
+  background: rgba(0,0,0,0.4);
+  border-style: dashed;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.ht-seat.me .seat-info-box {
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(212,175,55,0.3);
+}
+
+.ht-seat.turn .seat-info-box {
+  border-color: var(--warn);
+  animation: pulse-turn 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-turn {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,180,40,0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(255,180,40,0); }
+}
+
+.ht-seat.folded { opacity: 0.45; }
+.ht-seat.sitout .seat-info-box { border-color: var(--text-dim); }
+
+.seat-name-line {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.seat-name-line.me { color: var(--gold); }
+
+.seat-chips-line {
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.seat-bet-chip {
+  background: radial-gradient(circle at 30% 30%, #f4cc4d 0%, #d4af37 60%, #a08522 100%);
+  color: #1a1310;
+  font-weight: 900;
+  font-size: 11px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+.seat-hole-mini {
+  display: flex;
+  gap: 3px;
+}
+
+.seat-hole-mini .h-card {
+  width: 28px;
+  height: 40px;
+  font-size: 10px;
+}
+
+.seat-hole-mini .h-card.back {
+  font-size: 14px;
+}
+
+.dealer-button-mini {
+  background: #fafaf5;
+  color: #14141a;
+  border: 1px solid #14141a;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+}
+
+/* 액션 바 */
+.action-bar {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg);
+  padding: 12px 0 16px;
+  border-top: 1px solid var(--border);
+  z-index: 5;
+}
+
+.action-bar.hidden { display: none; }
+
+.action-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.action-row .btn-act {
+  flex: 1;
+  padding: 14px 0;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.action-row .btn-act.fold { color: var(--red); border-color: var(--red); }
+.action-row .btn-act.check { color: var(--text); }
+.action-row .btn-act.call { background: var(--gold); color: #1a1310; border-color: var(--gold); }
+.action-row .btn-act.raise { background: var(--gold-dark); color: var(--text); border-color: var(--gold); }
+.action-row .btn-act.allin { background: var(--red); color: #fff; border-color: var(--red); }
+
+.action-row .btn-act:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.raise-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 0 4px;
+}
+
+.raise-input-row input {
+  flex: 1;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.raise-quick {
+  display: flex;
+  gap: 4px;
+}
+
+.raise-quick button {
+  padding: 6px 10px;
+  font-size: 11px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.ht-pot-display {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.ht-pot-display .lbl {
+  color: rgba(255,255,255,0.5);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+}
+
+.ht-pot-display .amt {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+.ht-community {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -10%);
+  display: flex;
+  gap: 4px;
+}
+
+.ht-community .h-card {
+  width: 44px;
+  height: 62px;
+  padding: 3px 4px;
+}
+
+.ht-community .h-card .top-rank,
+.ht-community .h-card .bot-rank { font-size: 10px; }
+.ht-community .h-card .center-suit { font-size: 22px; }
+.ht-community .h-card.back, .ht-community .h-card.empty { font-size: 20px; }
+
+/* 본인 hole 카드 (큰 표시) */
+.my-hole-display {
+  position: absolute;
+  bottom: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+}
+
+.my-hole-display .h-card {
+  width: 60px;
+  height: 84px;
+}
+
+/* 우상단 모서리: sit_out 토글 */
+.sitout-toggle {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  font-size: 11px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+  padding: 6px 12px;
+  border-radius: 99px;
+  cursor: pointer;
+}
+
+.sitout-toggle.active {
+  background: var(--warn);
+  color: #000;
+  border-color: var(--warn);
+}
+
+/* 결과 토스트 */
+.hand-result {
+  background: linear-gradient(135deg, var(--panel) 0%, var(--panel-2) 100%);
+  border: 1.5px solid var(--gold);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 12px 0;
+}
+
+.hand-result-head {
+  font-size: 12px;
+  color: var(--text-sub);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.hand-result-winner {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+/* 반응형 */
+@media (max-width: 520px) {
+  .ht-table { margin: 50px auto; max-width: 100%; aspect-ratio: 1.5 / 1; }
+  .ht-seat { width: 100px; }
+  .seat-info-box { min-width: 80px; padding: 4px 6px; font-size: 10px; }
+  .seat-name-line { font-size: 11px; }
+  .seat-chips-line { font-size: 10px; }
+  .seat-hole-mini .h-card { width: 22px; height: 30px; font-size: 8px; }
+  .ht-community .h-card { width: 32px; height: 44px; }
+  .ht-community .h-card .center-suit { font-size: 16px; }
+  .my-hole-display .h-card { width: 50px; height: 70px; }
+}

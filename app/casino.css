@@ -1,0 +1,89 @@
+.lobby-card {
+  display: block;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.1s;
+}
+
+.lobby-card:hover {
+  border-color: var(--gold);
+  text-decoration: none;
+}
+
+.lobby-card-static:hover {
+  border-color: var(--border);
+  cursor: default;
+}
+
+.lobby-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lobby-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  background: var(--panel-2);
+  border-radius: 10px;
+}
+
+.lobby-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.lobby-sub {
+  font-size: 12px;
+  color: var(--text-sub);
+  margin-top: 2px;
+}
+
+.lobby-arrow {
+  color: var(--gold);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.lobby-meta {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-sub);
+  padding-left: 56px;
+}
+
+.crash-card { border-left: 3px solid var(--gold); }
+.htable-card { padding: 14px 16px; }
+
+.live-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  padding-left: 56px;
+}
+
+.live-pill {
+  background: var(--panel-2);
+  border: 1px solid var(--gold-dark);
+  color: var(--gold);
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.live-pill:hover {
+  background: rgba(212,175,55,0.1);
+  text-decoration: none;
+}

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08080c">
+  <meta name="gmi-api-base" content="https://worker-production-06b8.up.railway.app">
+  <title>GmI 멀티 홀덤</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/favicon.png">
+  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="holdem.css?v=1">
+  <link rel="stylesheet" href="htable.css?v=1">
+</head>
+<body>
+
+<main class="container">
+
+  <div class="section-title-row" style="margin-bottom: 12px;">
+    <div>
+      <div id="table-title" style="font-size: 17px; font-weight: 800;">멀티 홀덤</div>
+      <div id="table-meta" style="font-size: 11px; color: var(--text-sub); margin-top: 2px;">로딩 중</div>
+    </div>
+    <a href="casino.html" style="font-size:13px;">← 로비</a>
+  </div>
+
+  <!-- 테이블 보드 -->
+  <div id="board"><div class="loading">테이블 로드 중</div></div>
+
+  <!-- 베팅 액션 (본인 차례일 때) -->
+  <div id="action-bar" class="action-bar hidden"></div>
+
+  <!-- 좌석 선택 모달 (앉기) -->
+  <div id="sit-modal" class="modal hidden">
+    <div class="modal-bg" onclick="closeSitModal()"></div>
+    <div class="modal-box">
+      <div class="modal-head">
+        <span>🪑 좌석 선택</span>
+        <button class="modal-close" onclick="closeSitModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px; color:var(--text-sub); margin: 0 0 12px;">
+          Buy-in 입력 (현실 코인 → 가상 칩 1:10 환율)
+        </p>
+        <div style="display:flex; gap:8px; margin-bottom: 12px;">
+          <input type="number" id="buyin-amount" class="bet-input"
+                 inputmode="numeric"
+                 placeholder="Buy-in 코인">
+        </div>
+        <div id="buyin-range" style="font-size:11px; color:var(--text-dim); margin-bottom: 12px;"></div>
+        <div id="seat-options" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;"></div>
+        <button class="btn btn-action" style="width: 100%;" onclick="doSit()">앉기</button>
+        <div id="sit-error" style="color: var(--red); margin-top: 10px; font-size: 13px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 핸드 히스토리 -->
+  <section class="section" style="margin-top: 24px;">
+    <div class="section-title-row">
+      <div class="section-title">핸드 히스토리</div>
+      <a href="#" id="verify-link" style="font-size:12px;">🔐 셔플 검증</a>
+    </div>
+    <div class="card">
+      <table class="table" id="hand-history">
+        <thead>
+          <tr>
+            <th>핸드</th>
+            <th class="amount">폿</th>
+            <th class="amount">Rake</th>
+            <th>종료</th>
+          </tr>
+        </thead>
+        <tbody><tr><td colspan="4" class="empty">로딩 중</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- 검증 모달 -->
+<div id="verify-modal" class="modal hidden">
+  <div class="modal-bg" onclick="closeVerify()"></div>
+  <div class="modal-box">
+    <div class="modal-head">
+      <span>🔐 Provably-Fair 셔플 검증</span>
+      <button onclick="closeVerify()" class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px; color:var(--text-sub);">핸드 ID 입력</p>
+      <div style="display:flex; gap:8px; margin: 12px 0;">
+        <input type="number" id="verify-hid" placeholder="핸드 ID"
+               style="flex:1; background:var(--panel-2); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:8px; font-size:15px;">
+        <button onclick="doVerify()" class="btn btn-outline" style="padding:8px 14px;">검증</button>
+      </div>
+      <div id="verify-result" style="font-family: monospace; font-size: 12px; color: var(--text-sub); white-space: pre-wrap;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js?v=4"></script>
+<script src="htable.js?v=1"></script>
+
+</body>
+</html>

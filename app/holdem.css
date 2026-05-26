@@ -1,0 +1,305 @@
+/* ============================================
+   GmI 헤즈업 홀덤 라이브 보드 스타일
+   디자인 톤: 봇 시안과 일치 (다크 + 골드 + 녹색 테이블)
+   ============================================ */
+
+.holdem-stage {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.holdem-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.holdem-head .title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.holdem-head .meta {
+  color: var(--warn);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* === 테이블 (타원형 녹색) === */
+
+.holdem-table {
+  position: relative;
+  background: linear-gradient(180deg, #1d5c33 0%, #143a22 100%);
+  border: 3px solid var(--gold);
+  border-radius: 50%;
+  margin: 70px auto 70px;
+  width: 100%;
+  max-width: 800px;
+  aspect-ratio: 2 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 20px;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
+}
+
+/* === 커뮤니티 카드 === */
+
+.community {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.h-card {
+  width: 60px;
+  height: 84px;
+  border-radius: 8px;
+  background: #fafaf5;
+  border: 2px solid var(--gold);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 4px 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  position: relative;
+  font-weight: 800;
+}
+
+.h-card.red { color: #c8283c; }
+.h-card.black { color: #14141a; }
+
+.h-card .top-rank { font-size: 13px; line-height: 1; text-align: left; }
+.h-card .center-suit { font-size: 32px; line-height: 1;
+                       align-self: center; justify-self: center; }
+.h-card .bot-rank { font-size: 13px; line-height: 1;
+                    text-align: right; }
+
+.h-card.back {
+  background: linear-gradient(135deg, #2d2337 0%, #1a1325 100%);
+  color: #b496c8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 900;
+  border-color: var(--gold);
+}
+
+.h-card.folded {
+  background: #1a1414;
+  color: #4a3030;
+  border-color: #3a2424;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 900;
+}
+
+.h-card.folded::before {
+  content: "✕";
+  color: #6a3030;
+}
+
+.h-card.empty {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px dashed rgba(212, 175, 55, 0.3);
+  box-shadow: none;
+}
+
+/* 모바일에서는 좀 작게 */
+@media (max-width: 520px) {
+  .h-card { width: 44px; height: 62px; padding: 3px 4px; }
+  .h-card .top-rank, .h-card .bot-rank { font-size: 10px; }
+  .h-card .center-suit { font-size: 22px; }
+  .h-card.back, .h-card.folded { font-size: 24px; }
+}
+
+/* === 폿 표시 (테이블 위쪽) === */
+
+.pot-display {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.pot-display .lbl {
+  color: rgba(255,255,255,0.5);
+  font-size: 11px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.pot-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #f4cc4d 0%, #d4af37 60%, #a08522 100%);
+  color: #1a1310;
+  font-weight: 900;
+  font-size: 17px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5),
+              inset 0 0 0 2px rgba(160,110,20,0.5);
+}
+
+/* === 플레이어 좌석 === */
+
+.seats {
+  margin-top: 8px;
+}
+
+.seat {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.seat.top { top: -60px; left: 50%; transform: translateX(-50%); }
+.seat.bottom { bottom: -60px; left: 50%; transform: translateX(-50%); }
+
+.seat-info {
+  background: var(--panel-2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 14px;
+  text-align: center;
+  min-width: 140px;
+}
+
+.seat.me .seat-info {
+  border-color: var(--gold);
+}
+
+.seat.folded .seat-info {
+  border-color: var(--border);
+  opacity: 0.5;
+}
+
+.seat-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dealer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fafafa;
+  color: #14141a;
+  font-size: 11px;
+  font-weight: 900;
+  border: 1px solid #14141a;
+}
+
+.seat-chips {
+  font-size: 13px;
+  color: var(--gold);
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.seat-bet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #f4cc4d 0%, #d4af37 60%, #a08522 100%);
+  color: #1a1310;
+  font-weight: 900;
+  font-size: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  margin-top: 4px;
+}
+
+.seat-hole {
+  display: flex;
+  gap: 4px;
+}
+
+/* === 상태 박스 === */
+
+.holdem-status {
+  margin-top: 18px;
+  padding: 14px;
+  background: var(--panel-2);
+  border: 1.5px solid var(--warn);
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--warn);
+}
+
+.holdem-status.ended {
+  border-color: var(--border);
+  color: var(--text-sub);
+  font-weight: 500;
+}
+
+.holdem-status.my-turn {
+  border-color: var(--gold);
+  color: var(--gold);
+  animation: pulse-soft 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* === 핸드 진행 표시 (Pre-flop / Flop / Turn / River) === */
+
+.street-progress {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.street-step {
+  padding: 4px 14px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: var(--panel-2);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+
+.street-step.active {
+  background: var(--gold);
+  color: #1a1310;
+  border-color: var(--gold);
+}
+
+.street-step.done {
+  color: var(--text-sub);
+  background: rgba(212, 175, 55, 0.15);
+  border-color: var(--gold-dark);
+}
