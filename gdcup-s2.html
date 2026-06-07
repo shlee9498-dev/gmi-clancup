@@ -200,7 +200,7 @@ section { padding: 48px 0; }
 /* Key facts grid */
 .facts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-bottom: 40px;
 }
@@ -209,6 +209,7 @@ section { padding: 48px 0; }
   border: 1px solid var(--line);
   padding: 16px;
   border-radius: 8px;
+  text-align: center;
 }
 .fact-label {
   font-size: 11px;
@@ -654,6 +655,7 @@ footer a:hover { color: var(--gold); }
 .anchor { scroll-margin-top: 70px; }
 
 @media (max-width: 600px) {
+  .facts { grid-template-columns: 1fr 1fr; }
   .form-row { grid-template-columns: 1fr 1fr; }
   .form-row .form-group:last-child { grid-column: 1 / -1; }
   .hero { padding: 36px 20px 28px; }
@@ -955,7 +957,7 @@ footer a:hover { color: var(--gold); }
       <div class="course-stop"><div class="course-num">S</div><div class="course-label">출발</div><div class="course-place">스타버 (Stalber) · 북동쪽 섬</div></div>
       <div class="course-stop"><div class="course-num">1</div><div class="course-label">1차 분기</div><div class="course-place">멘션 (Mansion)</div></div>
       <div class="course-stop"><div class="course-num">2</div><div class="course-label">2차 분기</div><div class="course-place">노보 최고 송전탑 송신기</div></div>
-      <div class="course-stop"><div class="course-num">G</div><div class="course-label">골인</div><div class="course-place">노보 다리 판자옆 해우소</div></div>
+      <div class="course-stop"><div class="course-num">G</div><div class="course-label">골인</div><div class="course-place">노보 다리 판자옆 벙커</div></div>
     </div>
     <div class="callout">
       <strong>인계 방식</strong>: 송신기 옆에 드롭 → 다음 주자 픽업. 분기점마다 다음 주자가 송신기 옆에서 대기.
@@ -999,12 +1001,12 @@ footer a:hover { color: var(--gold); }
       <strong>비탈락</strong>: 이미 인계한 주자(예: 1번이 2번에게 넘긴 후) 사망은 무관
     </div>
     <div class="callout red" style="margin-top:8px;">
-      <strong>페어플레이</strong>: 아이템 없는 인원이 의도적으로 해우소를 막는 등 방해 행위 → <strong>벌금 + 클랜 + 해당 팀 대회 영구 참여 제한</strong>
+      <strong>페어플레이</strong>: 아이템 없는 인원이 의도적으로 벙커를 막는 등 방해 행위 → <strong>벌금 + 클랜 + 해당 팀 대회 영구 참여 제한</strong>
     </div>
   </div>
 
   <div class="callout blue">
-    <strong>종료 조건</strong>: 2등까지 들어오면 마감 (해우소 문 닫고 종료). 시간 제한 없음.
+    <strong>종료 조건</strong>: 2등까지 들어오면 마감 (벙커 문 닫고 종료). 시간 제한 없음.
   </div>
 </section>
 
