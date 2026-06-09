@@ -1213,6 +1213,17 @@ footer a:hover { color: var(--gold); }
   </div>
 </section>
 
+<!-- 스코어 -->
+<section class="anchor" id="scores" style="display:none;">
+  <div class="section-head">
+    <div class="section-kicker">SCORE</div>
+    <h2 class="section-title">🏆 실시간 스코어</h2>
+    <p class="section-desc">3라운드 누적 점수 × 팀 BPI 가중치 기준 · 자동 갱신</p>
+  </div>
+  <div id="scoreBoard" style="overflow-x:auto;"></div>
+  <div id="scoreTs" style="color:var(--ink-faint);font-size:11.5px;text-align:right;margin-top:6px;"></div>
+</section>
+
 <!-- 참가팀 명단 -->
 <section class="anchor" id="teams">
   <div class="section-head">
@@ -1495,6 +1506,40 @@ function copyAccount() {
   }
   if(document.readyState!=='loading')loadTeams();else document.addEventListener('DOMContentLoaded',loadTeams);
   setInterval(loadTeams, 30000);  // 30초마다 자동 갱신
+})();
+</script>
+<script>
+(function(){
+  var GAPI="https://mri-academy-production.up.railway.app";
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  function medal(i){return ["🥇","🥈","🥉"][i]||(i+1);}
+  function loadScores(){
+    fetch(GAPI+"/api/gdcup-scores").then(function(r){return r.json();}).then(function(d){
+      var sec=document.getElementById('scores'); if(!sec)return;
+      var sc=d&&d.scores;
+      if(!sc||!sc.published||!sc.ranking||!sc.ranking.length){ sec.style.display='none'; return; }
+      sec.style.display='block';
+      var rows=sc.ranking.map(function(t,i){
+        var hl = i===0 ? 'background:rgba(245,197,24,.08);' : '';
+        return '<tr style="'+hl+'border-bottom:1px solid var(--line);">'
+          +'<td style="padding:9px 8px;text-align:center;font-family:var(--display);">'+medal(i)+'</td>'
+          +'<td style="padding:9px 8px;font-weight:700;">'+esc(t.team_name)+'</td>'
+          +'<td style="padding:9px 8px;text-align:center;color:var(--ink-dim);font-size:12.5px;">'+esc(t.r1)+'/'+esc(t.r2)+'/'+esc(t.r3)+'</td>'
+          +'<td style="padding:9px 8px;text-align:center;color:var(--ink-faint);font-size:12px;">×'+esc(t.weight)+'</td>'
+          +'<td style="padding:9px 8px;text-align:right;font-weight:800;color:var(--gold);">'+esc(t.weighted)+'</td>'
+          +'</tr>';
+      }).join('');
+      document.getElementById('scoreBoard').innerHTML=
+        '<table style="width:100%;border-collapse:collapse;font-size:14px;min-width:340px;">'
+        +'<thead><tr style="color:var(--ink-dim);font-size:11.5px;border-bottom:1px solid var(--line);">'
+        +'<th style="padding:6px 8px;">순위</th><th style="padding:6px 8px;text-align:left;">팀</th>'
+        +'<th style="padding:6px 8px;">R1/R2/R3</th><th style="padding:6px 8px;">가중</th><th style="padding:6px 8px;text-align:right;">최종</th>'
+        +'</tr></thead><tbody>'+rows+'</tbody></table>';
+      if(sc.ts){var dt=new Date(sc.ts);document.getElementById('scoreTs').textContent='업데이트 '+dt.toLocaleString('ko-KR');}
+    }).catch(function(){});
+  }
+  if(document.readyState!=='loading')loadScores();else document.addEventListener('DOMContentLoaded',loadScores);
+  setInterval(loadScores, 30000);
 })();
 </script>
 </body>
