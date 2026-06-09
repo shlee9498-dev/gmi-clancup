@@ -1213,6 +1213,18 @@ footer a:hover { color: var(--gold); }
   </div>
 </section>
 
+<!-- 참가팀 명단 -->
+<section class="anchor" id="teams">
+  <div class="section-head">
+    <div class="section-kicker">TEAMS</div>
+    <h2 class="section-title">현재 신청 팀</h2>
+    <p class="section-desc">사이트·디스코드 어디서 신청해도 여기 자동으로 표시됩니다. (개인정보 제외)</p>
+  </div>
+  <div id="teamList" style="display:grid; gap:10px;">
+    <div style="color:var(--ink-dim); text-align:center; padding:18px;">불러오는 중…</div>
+  </div>
+</section>
+
 <!-- FAQ -->
 <section class="anchor">
   <div class="section-head">
@@ -1455,6 +1467,34 @@ function copyAccount() {
     };
   }
   if(document.readyState!=='loading')loadCount();else document.addEventListener('DOMContentLoaded',loadCount);
+})();
+</script>
+<script>
+(function(){
+  var GAPI="https://mri-academy-production.up.railway.app";
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  function loadTeams(){
+    fetch(GAPI+"/api/gdcup-list").then(function(r){return r.json();}).then(function(d){
+      var el=document.getElementById('teamList'); if(!el)return;
+      var teams=(d&&d.teams)||[];
+      if(!teams.length){ el.innerHTML='<div style="color:var(--ink-dim);text-align:center;padding:18px;">아직 신청한 팀이 없어요. 첫 번째 팀이 되어보세요! 🎮</div>'; return; }
+      el.innerHTML=teams.map(function(t,i){
+        var conf=t.status==='confirmed';
+        var badge=conf?'<span style="color:var(--green);font-weight:700;">✅ 확정</span>':'<span style="color:var(--ink-dim);">⏳ 신청</span>';
+        var mem=(t.members||[]).filter(function(m){return m.ign;}).map(function(m){return esc(m.ign)+(m.tier?' <span style="color:var(--ink-faint);">('+esc(m.tier)+')</span>':'');}).join(' · ');
+        return '<div style="background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:13px 15px;">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'
+          +'<span style="font-family:var(--display);font-size:15px;">'+(i+1)+'. '+esc(t.team_name)+'</span>'
+          +'<span style="font-size:12px;white-space:nowrap;">'+badge+(t.bpi!=null?' <span style="color:var(--ink-faint);">· BPI '+esc(t.bpi)+'</span>':'')+'</span>'
+          +'</div>'
+          +(t.slogan?'<div style="color:var(--ink-dim);font-size:12.5px;margin-top:3px;">“'+esc(t.slogan)+'”</div>':'')
+          +(mem?'<div style="color:var(--ink-dim);font-size:12.5px;margin-top:6px;">'+mem+'</div>':'')
+          +'</div>';
+      }).join('');
+    }).catch(function(){});
+  }
+  if(document.readyState!=='loading')loadTeams();else document.addEventListener('DOMContentLoaded',loadTeams);
+  setInterval(loadTeams, 30000);  // 30초마다 자동 갱신
 })();
 </script>
 </body>
