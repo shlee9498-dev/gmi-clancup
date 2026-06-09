@@ -1035,7 +1035,7 @@ footer a:hover { color: var(--gold); }
   <div class="section-head">
     <div class="section-kicker">APPLY</div>
     <h2 class="section-title">팀 신청</h2>
-    <p class="section-desc">아래 양식 작성 → 신청서 생성 → 디스코드 #팀-신청 채널에 붙여넣기 (참가비 무료)</p>
+    <p class="section-desc">아래 양식 작성 → 신청서 생성 → 운영진에게 자동 전달 (참가비 무료)</p>
   </div>
 
   <div class="form-section">
@@ -1187,12 +1187,12 @@ footer a:hover { color: var(--gold); }
       </div>
       <div class="generated" id="generated"></div>
       <div class="callout green">
-        <strong>다음 단계</strong><br>
-        1. 위 신청서 <strong>전체 복사</strong><br>
-        2. <a href="https://discord.gg/9RjqdSKw" target="_blank" style="color:var(--gold)">디스코드 #팀-신청 채널</a>에 붙여넣기<br>
-        3. 운영진 확인 후 등록 완료 (참가비 무료!)
+        <strong>✅ 신청 완료!</strong><br>
+        신청서 생성과 동시에 <strong>운영진에게 자동 전달</strong>됐어요.<br>
+        진행 상황은 위 "현재 신청 팀" 명단에서 확인할 수 있어요.<br>
+        📌 6/19(금) <strong>참가 확정 체크인</strong>에 꼭 응답해주세요! (참가비 무료)
       </div>
-      <a href="https://discord.gg/9RjqdSKw" target="_blank" class="btn btn-discord" style="width:100%; text-align:center; margin-top:8px;">디스코드 #팀-신청 채널로 이동 →</a>
+      <a href="https://discord.gg/9RjqdSKw" target="_blank" class="btn btn-discord" style="width:100%; text-align:center; margin-top:8px;">디스코드로 이동 →</a>
     </div>
   </div>
 </section>
@@ -1468,7 +1468,7 @@ function copyAccount() {
         _sent=true;
         if(d&&d.teams!=null)setCount(d.teams);
         var wrap=document.getElementById('generatedWrap');
-        if(wrap){var sec=wrap.querySelector('.form-section');if(sec&&!document.getElementById('gdcupAutoMsg')){var n=document.createElement('div');n.id='gdcupAutoMsg';n.className='callout green';n.innerHTML='✅ <strong>운영진에게 자동 전달됐어요.</strong> 아래 신청서를 #팀-신청에도 붙여넣으면 운영진 확인 후 확정됩니다. (참가비 무료)';sec.prepend(n);}}
+        if(wrap){var sec=wrap.querySelector('.form-section');if(sec&&!document.getElementById('gdcupAutoMsg')){var n=document.createElement('div');n.id='gdcupAutoMsg';n.className='callout green';n.innerHTML='✅ <strong>운영진에게 자동 전달됐어요.</strong> 6/19(금) 참가 확정 체크인에 응답해주세요. (참가비 무료)';sec.prepend(n);}}
       }).catch(function(){});
     }catch(e){}
   }
