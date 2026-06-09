@@ -683,6 +683,7 @@ footer a:hover { color: var(--gold); }
   <div class="hero-date">
     📅 본 매치 <strong>2026.06.20 (토) 20:00</strong> · 모집 시작 <strong>6/6</strong>
   </div>
+  <div id="gdcupCount" style="margin:2px 0 18px;font-size:14px;color:var(--ink-dim);">🔥 현재 <strong id="gdcupCountNum" style="color:var(--gold);font-family:var(--display);font-size:19px;">–</strong> <span style="opacity:.7">/ 16팀 신청 중</span></div>
   <div class="hero-cta-group">
     <a href="#apply" class="btn btn-primary">팀 신청하기</a>
     <a href="#rules" class="btn btn-secondary">룰 보기</a>
@@ -1413,5 +1414,48 @@ function copyAccount() {
 }
 </script>
 
+<script>
+(function(){
+  var GAPI="https://mri-academy-production.up.railway.app";
+  function setCount(n){var e=document.getElementById('gdcupCountNum');if(e&&n!=null)e.textContent=n;}
+  function loadCount(){fetch(GAPI+"/api/gdcup-count").then(function(r){return r.json();}).then(function(d){setCount(d.teams);}).catch(function(){});}
+  var _sent=false;
+  function autoSubmit(){
+    if(_sent)return;
+    try{
+      var teamName=((document.getElementById('teamName')||{}).value||'').trim();
+      if(!teamName)return;
+      var slogan=((document.getElementById('teamSlogan')||{}).value||'').trim();
+      var contact=((document.getElementById('leaderContact')||{}).value||'').trim();
+      var members=[];
+      for(var i=0;i<4;i++){
+        members.push({
+          name:((document.querySelector('.member-name[data-idx="'+i+'"]')||{}).value||'').trim(),
+          ign:((document.querySelector('.member-ign[data-idx="'+i+'"]')||{}).value||'').trim(),
+          tier:((document.querySelector('.member-tier[data-idx="'+i+'"]')||{}).value||'')
+        });
+      }
+      var bpi=parseInt((((document.getElementById('bpiSum')||{}).textContent)||'').replace(/[^0-9]/g,''),10)||null;
+      fetch(GAPI+"/api/gdcup-apply",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({team_name:teamName,slogan:slogan,members:members,bpi:bpi,contact:contact})})
+      .then(function(r){return r.json().catch(function(){return {};});})
+      .then(function(d){
+        _sent=true;
+        if(d&&d.teams!=null)setCount(d.teams);
+        var wrap=document.getElementById('generatedWrap');
+        if(wrap){var sec=wrap.querySelector('.form-section');if(sec&&!document.getElementById('gdcupAutoMsg')){var n=document.createElement('div');n.id='gdcupAutoMsg';n.className='callout green';n.innerHTML='✅ <strong>운영진에게 자동 전달됐어요.</strong> 아래 신청서를 #팀-신청에도 붙여넣고 보증금 입금하면 확정됩니다.';sec.prepend(n);}}
+      }).catch(function(){});
+    }catch(e){}
+  }
+  if(typeof window.generateApplication==='function'){
+    var _orig=window.generateApplication;
+    window.generateApplication=function(){
+      _orig.apply(this,arguments);
+      var gg=document.getElementById('generated'); var ww=document.getElementById('generatedWrap');
+      if(gg&&ww&&ww.style.display!=='none'&&gg.textContent.trim().length>20)autoSubmit();
+    };
+  }
+  if(document.readyState!=='loading')loadCount();else document.addEventListener('DOMContentLoaded',loadCount);
+})();
+</script>
 </body>
 </html>
