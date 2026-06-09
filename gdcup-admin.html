@@ -51,6 +51,9 @@ h1{font-size:20px;margin-bottom:4px;}
 <div class="stat" id="stat"></div>
 <div id="list"><div class="msg">키를 입력하고 불러오기를 누르세요.</div></div>
 
+<h2 style="font-size:16px;margin:22px 0 8px;">🙋 솔로 / 용병 대기</h2>
+<div id="soloAdminList"></div>
+
 <script>
 var GAPI="https://mri-academy-production.up.railway.app";
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
@@ -66,7 +69,7 @@ function loadAdmin(){
     if(r.status===401){throw new Error('unauthorized');}
     return r.json();
   })
-  .then(function(d){render((d&&d.teams)||[]);})
+  .then(function(d){render((d&&d.teams)||[]);loadSolosAdmin();})
   .catch(function(e){
     document.getElementById('list').innerHTML='';
     if(String(e.message)==='unauthorized') warn.innerHTML='<div class="warn">❌ 키가 틀렸어요. Railway의 GDCUP_ADMIN_KEY 값과 똑같이 입력하세요.</div>';
@@ -105,6 +108,38 @@ function setStatus(id,status){
   .then(function(r){return r.json();})
   .then(function(d){ if(d&&d.ok){loadAdmin();} else {alert('처리 실패: '+((d&&d.error)||''));} })
   .catch(function(){alert('네트워크 오류');});
+}
+
+function loadSolosAdmin(){
+  var k=getKey(); if(!k)return;
+  fetch(GAPI+"/api/gdcup-solo-admin",{headers:{"x-admin-key":k}})
+  .then(function(r){return r.json();}).then(function(d){renderSolos((d&&d.solos)||[]);}).catch(function(){});
+}
+function renderSolos(solos){
+  var el=document.getElementById('soloAdminList'); if(!el)return;
+  var act=solos.filter(function(s){return s.status!=='cancelled';});
+  if(!act.length){el.innerHTML='<div class="msg">솔로/용병 신청이 없어요.</div>';return;}
+  el.innerHTML=act.map(function(s){
+    var st=s.status||'waiting';
+    var badge=st==='matched'?'<span class="badge b-confirmed">✅ 매칭완료</span>':'<span class="badge b-applied">⏳ 대기</span>';
+    var kind=s.kind==='short'?'👥 자리모집':'🙋 솔로';
+    return '<div class="card '+(st==='matched'?'confirmed':'')+'">'
+      +'<div class="row1"><span class="tname">'+esc(s.ign)+' <span style="font-size:12px;color:var(--ink-faint);font-weight:400;">'+kind+'</span></span>'+badge+'</div>'
+      +(s.tier?'<div class="meta">티어: <b>'+esc(s.tier)+'</b></div>':'')
+      +(s.note?'<div class="meta">한마디: '+esc(s.note)+'</div>':'')
+      +'<div class="contact">💬 디스코드: '+esc(s.discord||'-')+'</div>'
+      +'<div class="acts">'
+      +'<button class="ok" onclick="setSolo('+s.id+',\'matched\')">✅ 매칭완료</button>'
+      +'<button class="wait" onclick="setSolo('+s.id+',\'waiting\')">↩️ 대기</button>'
+      +'<button class="del" onclick="setSolo('+s.id+',\'cancelled\')">🗑 취소</button>'
+      +'</div></div>';
+  }).join('');
+}
+function setSolo(id,status){
+  var k=getKey(); if(!k)return;
+  if(status==='cancelled' && !confirm('이 신청을 취소(명단에서 제외)할까요?'))return;
+  fetch(GAPI+"/api/gdcup-solo-status",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify({id:id,status:status})})
+  .then(function(r){return r.json();}).then(function(d){if(d&&d.ok)loadSolosAdmin();else alert('처리 실패');}).catch(function(){alert('네트워크 오류');});
 }
 
 // 세션에 저장된 키 있으면 자동 로드
