@@ -1,286 +1,237 @@
-<!DOCTYPE html><html lang="ko"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="description" content="GmI G드컵 시즌2 브리핑 — 일정·BPI·참가방법·이벤트매치·후원 한눈에.">
-<title>G드컵 시즌2 브리핑 · GmI CLANCUP</title>
-<meta property="og:title" content="GmI G드컵 시즌2">
-<meta property="og:description" content="6/20(토) 본매치 · 64명 16팀 · 총상금 59만원 · 참가비 무료">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://shlee9498-dev.github.io/gmi-clancup/poster-s2.png">
-<meta property="og:image:width" content="1024">
-<meta property="og:image:height" content="1536">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://shlee9498-dev.github.io/gmi-clancup/poster-s2.png">
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>G드컵 시즌2 브리핑 | 본매치 6/20</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-:root{--bg:#0a0a0c;--bg-elev:#15151a;--bg-card:#1a1a20;--bg-hi:#20202a;--ink:#f4f4f5;--ink-dim:#a1a1aa;--ink-faint:#71717a;--gold:#f5c518;--gold-soft:rgba(245,197,24,.3);--gold-deep:#caa00f;--red:#e63946;--green:#10b981;--blue:#5ac8fa;--purple:#a855f7;--line:#27272a;--display:'Archivo Black',sans-serif;--body:'Pretendard Variable',sans-serif}
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidden;background-image:radial-gradient(circle at 50% 0,rgba(245,197,24,.08),transparent 60%),linear-gradient(rgba(245,197,24,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(245,197,24,.02) 1px,transparent 1px);background-size:auto,38px 38px,38px 38px}
-.bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-deep));width:0;z-index:60;transition:width .35s}
-.deck{position:fixed;inset:0}
-.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:54px 20px 84px;opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .4s,transform .4s;overflow-y:auto}
-.slide.active{opacity:1;visibility:visible;transform:none}
-.inner{width:100%;max-width:780px;margin:auto 0}
-.kick{color:var(--gold);font-weight:800;font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px}
-h2{font-family:var(--display);font-size:clamp(24px,6vw,40px);line-height:1.1;margin-bottom:8px;background:linear-gradient(135deg,#fff 25%,var(--gold) 95%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.sub{color:var(--ink-dim);font-size:clamp(13px,2.6vw,15px);margin-bottom:18px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.stat{background:var(--bg-card);border:1px solid var(--line);border-radius:13px;padding:16px 10px;text-align:center}
-.stat .n{font-family:var(--display);font-size:clamp(20px,5vw,28px);color:var(--gold);line-height:1}
-.stat .l{font-size:11px;color:var(--ink-faint);margin-top:6px;font-weight:600}
-.tl{display:flex;flex-direction:column;gap:11px;text-align:left}
-.tli{display:flex;gap:13px;background:var(--bg-card);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
-.tli .d{font-family:var(--display);font-size:13px;color:var(--gold);min-width:118px}
-.tli .t{font-weight:800;font-size:14px}
-.tli .x{color:var(--ink-dim);font-size:12.5px;margin-top:3px}
-table{width:100%;border-collapse:collapse;font-size:13px;text-align:left}
-th,td{padding:9px 10px;border-bottom:1px solid var(--line)}
-th{color:var(--gold);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
-td.c,th.c{text-align:center}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left}
-.card{background:var(--bg-card);border:1px solid var(--line);border-radius:13px;padding:15px 16px}
-.card h3{font-size:14px;margin-bottom:9px;display:flex;align-items:center;gap:7px}
-.card ul{list-style:none;display:flex;flex-direction:column;gap:6px}
-.card li{font-size:12.5px;color:var(--ink-dim);padding-left:14px;position:relative}
-.card li::before{content:"·";position:absolute;left:3px;color:var(--gold)}
-.note{margin-top:14px;background:rgba(245,197,24,.07);border:1px solid var(--gold-soft);border-radius:11px;padding:12px 15px;font-size:12.5px;color:var(--ink);text-align:left}
-.note b{color:var(--gold)}
-.acct{font-family:var(--display);font-size:clamp(16px,4vw,22px);color:var(--gold);letter-spacing:.02em;margin:4px 0}
-.pill{display:inline-block;margin-top:14px;font-size:14px;font-weight:800;color:var(--gold);background:rgba(245,197,24,.08);border:1px solid var(--gold-soft);padding:8px 18px;border-radius:99px}
-.big{font-family:var(--display);font-size:clamp(18px,4.6vw,26px);margin:14px 0 4px}
-.tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#0a0a0c;background:var(--gold);padding:4px 11px;border-radius:99px;text-transform:uppercase;letter-spacing:.06em}
-.faq{text-align:left;display:flex;flex-direction:column;gap:10px}
-.faq .q{font-weight:800;font-size:13.5px;color:var(--ink)}
-.faq .a{font-size:12.5px;color:var(--ink-dim);margin-top:2px}
-.cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
-.btn{padding:13px 24px;border-radius:9px;font-weight:800;font-size:14px;text-decoration:none}
-.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#0a0a0c}
-.btn-ghost{border:1px solid var(--line);color:var(--ink);background:var(--bg-card)}
-.small{font-size:11.5px;color:var(--ink-faint)}
-/* nav */
-.nav{position:fixed;bottom:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:center;gap:16px;z-index:50;background:linear-gradient(0deg,rgba(10,10,12,.92),transparent)}
-.dots{display:flex;gap:7px}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
-.dot.on{background:var(--gold);width:20px;border-radius:99px}
-.arw{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg-card);color:var(--ink);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.arw:active{border-color:var(--gold)}
-.count{position:fixed;top:16px;right:18px;font-size:12px;color:var(--ink-faint);font-weight:700;z-index:55}
-.count b{color:var(--gold)}
-.hint{position:fixed;bottom:70px;left:0;right:0;text-align:center;font-size:11px;color:var(--ink-faint);z-index:40;pointer-events:none}
-@media(max-width:560px){.two{grid-template-columns:1fr}.tli .d{min-width:96px}.tli{flex-direction:column;gap:4px}}
-</style></head><body>
-<div class="bar" id="bar"></div>
-<div class="count"><b id="cur">1</b> / 12</div>
-<div class="deck" id="deck">
+  :root{
+    --bg:#0a0a0c; --bg-elev:#15151a; --bg-card:#1a1a20; --bg-card-hi:#20202a;
+    --ink:#f4f4f5; --ink-dim:#a1a1aa; --ink-faint:#71717a;
+    --gold:#f5c518; --gold-soft:rgba(245,197,24,.3);
+    --red:#e63946; --green:#10b981; --blue:#5ac8fa; --purple:#a855f7;
+    --line:#27272a;
+    --display:'Archivo Black','Pretendard Variable',sans-serif;
+    --body:'Pretendard Variable','Archivo',-apple-system,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.6;
+    background-image:radial-gradient(ellipse 70% 40% at 50% 0%,rgba(245,197,24,.06),transparent 60%);}
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px 64px;}
+  .nav{display:flex;gap:14px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .brand{font-family:var(--display);letter-spacing:.05em;color:var(--gold);font-size:14px;}
+  .nav a{color:var(--ink-dim);text-decoration:none;font-size:13px;}
+  .nav a:hover{color:var(--ink);}
+  .nav .sp{flex:1;}
+  .hero{padding:34px 0 10px;}
+  .kick{font-family:var(--display);letter-spacing:.3em;font-size:12px;color:var(--blue);}
+  h1{font-size:34px;font-weight:800;margin:8px 0 6px;letter-spacing:-.01em;}
+  .hero .when{color:var(--ink-dim);font-size:15px;}
+  .hero .when strong{color:var(--ink);}
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0 8px;}
+  .fact{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:14px 12px;text-align:center;}
+  .fact .v{font-family:var(--display);font-size:20px;color:var(--gold);}
+  .fact .v .s{font-size:12px;color:var(--ink-dim);font-family:var(--body);}
+  .fact .l{font-size:12px;color:var(--ink-dim);margin-top:3px;}
+  section{margin-top:34px;}
+  .sec-tag{font-family:var(--display);letter-spacing:.2em;font-size:11px;color:var(--ink-faint);}
+  h2{font-size:21px;font-weight:800;margin:4px 0 4px;}
+  .desc{color:var(--ink-dim);font-size:14px;margin-bottom:14px;}
+  .card{background:var(--bg-card);border:1px solid var(--line);border-radius:14px;padding:16px 16px;margin-bottom:12px;}
+  .card-title{font-weight:800;font-size:15px;margin-bottom:10px;}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;}
+  th{color:var(--ink-dim);font-weight:700;font-size:12px;}
+  .pill{display:inline-block;background:var(--gold);color:#1a1500;font-weight:800;border-radius:999px;padding:1px 10px;font-size:13px;}
+  .tn{font-weight:800;}
+  .T0{color:var(--red);} .T1{color:var(--gold);} .T2{color:var(--blue);} .T3{color:var(--purple);} .T4{color:var(--green);} .T5{color:var(--ink-dim);}
+  /* timeline */
+  .tl{position:relative;padding-left:22px;}
+  .tl::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--line);}
+  .tl-item{position:relative;margin-bottom:16px;}
+  .tl-item::before{content:'';position:absolute;left:-19px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px rgba(245,197,24,.15);}
+  .tl-item.live::before{background:var(--red);box-shadow:0 0 0 3px rgba(230,57,70,.2);}
+  .tl-date{font-family:var(--display);font-size:12px;color:var(--blue);}
+  .tl-title{font-weight:800;font-size:15px;margin:2px 0;}
+  .tl-desc{color:var(--ink-dim);font-size:13px;}
+  /* weight grid */
+  .wgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+  .wrow{display:flex;align-items:center;gap:10px;background:var(--bg-elev);border:1px solid var(--line);border-radius:10px;padding:9px 12px;}
+  .wrow.std{border-color:var(--gold-soft);background:rgba(245,197,24,.06);}
+  .wrow .b{font-family:var(--display);font-size:13px;min-width:42px;color:var(--ink);}
+  .wrow .m{font-family:var(--display);font-size:15px;color:var(--gold);}
+  .wrow .n{font-size:12px;color:var(--ink-dim);margin-left:auto;}
+  .combo{font-family:var(--body);font-size:14px;color:var(--ink-dim);padding:6px 0;border-bottom:1px dashed var(--line);}
+  .combo b{color:var(--ink);}
+  .rule-ok{color:var(--green);} .rule-no{color:var(--red);}
+  ul.clean{list-style:none;display:flex;flex-direction:column;gap:7px;}
+  ul.clean li{font-size:14px;color:var(--ink-dim);padding-left:20px;position:relative;}
+  ul.clean li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:800;}
+  ul.clean li.no::before{content:'✗';color:var(--red);}
+  .warn{background:rgba(230,57,70,.08);border:1px solid rgba(230,57,70,.35);border-radius:12px;padding:13px 15px;font-size:13.5px;color:var(--ink-dim);margin-top:10px;}
+  .warn b{color:var(--red);}
+  .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+  .btn{flex:1;min-width:180px;text-align:center;text-decoration:none;font-weight:800;border-radius:12px;padding:14px;font-size:15px;}
+  .btn.gold{background:var(--gold);color:#1a1500;}
+  .btn.ghost{background:var(--bg-card);color:var(--ink);border:1px solid var(--line);}
+  footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);color:var(--ink-faint);font-size:12px;text-align:center;}
+  footer a{color:var(--ink-dim);text-decoration:none;}
+  @media(max-width:520px){.facts{grid-template-columns:repeat(2,1fr);}.wgrid{grid-template-columns:1fr;}h1{font-size:28px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
 
-  <!-- 1 표지 -->
-  <section class="slide active"><div class="inner" style="text-align:center">
-    <div class="kick">GmI CLANCUP · SEASON 2</div>
-    <h2>G드컵 시즌2</h2>
-    <p class="sub">배틀그라운드 · 64명 16팀 · 사전 팀 신청제</p>
-    <div class="big">📅 본 매치 2026.06.20 (토) 20:00</div>
-    <span class="pill">모집 시작 6/6 (토)</span>
-      <img src="poster-s2.png" alt="G드컵 시즌2 포스터" loading="lazy" style="width:100%;max-width:300px;max-height:44vh;object-fit:contain;display:block;margin:18px auto 0;border-radius:12px;border:1px solid var(--line);box-shadow:0 10px 40px rgba(168,85,247,.15)">
-      <div class="cta">
-        <a class="btn btn-gold" href="gdcup-s2.html#apply">🎮 팀 신청하기 →</a>
-        <a class="btn btn-ghost" href="https://discord.gg/9RjqdSKw" target="_blank" rel="noopener">💬 디스코드</a>
-      </div>
-  </div></section>
+  <div class="nav">
+    <span class="brand">GmI CLANCUP</span>
+    <span class="sp"></span>
+    <a href="index.html">메인</a>
+    <a href="gdcup-s2.html">신청 · 상세룰</a>
+    <a href="https://discord.gg/9RjqdSKw" target="_blank" rel="noopener">디스코드</a>
+  </div>
 
-  <!-- 2 한눈에 -->
-  <section class="slide"><div class="inner" style="text-align:center">
-    <div class="kick">At a glance</div>
-    <h2>한눈에</h2>
-    <div class="grid" style="margin-top:18px">
-      <div class="stat"><div class="n">4명</div><div class="l">팀 인원</div></div>
-      <div class="stat"><div class="n">16팀</div><div class="l">최대 팀수</div></div>
-      <div class="stat"><div class="n">64명</div><div class="l">총 인원</div></div>
-      <div class="stat"><div class="n">20점</div><div class="l">정석 BPI</div></div>
-      <div class="stat"><div class="n">무료</div><div class="l">참가비</div></div>
-      <div class="stat"><div class="n">3R</div><div class="l">본 매치</div></div>
+  <div class="hero">
+    <div class="kick">G드컵 SEASON 2 · 브리핑</div>
+    <h1>G드컵 시즌2 브리핑</h1>
+    <div class="when">배틀그라운드 · 64명 16팀 · 4인 1팀 &nbsp;|&nbsp; 본 매치 <strong>2026.06.20 (토) 20:00</strong> (19:30 대기)</div>
+  </div>
+
+  <div class="facts">
+    <div class="fact"><div class="v">64<span class="s">명</span></div><div class="l">참가 인원</div></div>
+    <div class="fact"><div class="v">16<span class="s">팀</span></div><div class="l">4인 1팀</div></div>
+    <div class="fact"><div class="v">20</div><div class="l">정석 팀 BPI</div></div>
+    <div class="fact"><div class="v">3<span class="s">R</span></div><div class="l">본 매치 라운드</div></div>
+    <div class="fact"><div class="v" style="color:var(--green)">무료</div><div class="l">참가비</div></div>
+    <div class="fact"><div class="v">59<span class="s">만원</span></div><div class="l">총상금</div></div>
+  </div>
+
+  <section>
+    <div class="sec-tag">SCHEDULE</div>
+    <h2>일정</h2>
+    <div class="tl">
+      <div class="tl-item"><div class="tl-date">6/6 (토) ~ 6/12 (금)</div><div class="tl-title">1차 모집</div><div class="tl-desc">GmI 클랜 우선 · 팀 결성 (클랜 3명 + 용병 1명까지)</div></div>
+      <div class="tl-item"><div class="tl-date">6/13 (토) ~ 6/18 (목)</div><div class="tl-title">2차 모집 + 후원 OPEN</div><div class="tl-desc">용병 합류 · 솔로 매칭 · 타클랜 OK · <strong>6/18 23:59 신청 마감</strong></div></div>
+      <div class="tl-item"><div class="tl-date">6/19 (금)</div><div class="tl-title">최종 확정 · 참가 체크인</div><div class="tl-desc">변동성 정리 · 최종 16팀 확정 · 참가 확정 체크인 응답 필수</div></div>
+      <div class="tl-item live"><div class="tl-date">6/20 (토)</div><div class="tl-title">본 매치 — 19:30 대기 / 20:00 정식 시작</div><div class="tl-desc">19:30부터 방송으로 룰 설명 · 이벤트 매치 + 메인 e스포츠 모드 3라운드 · SOOP/유튜브 생중계</div></div>
     </div>
-  </div></section>
+  </section>
 
-  <!-- 3 일정 -->
-  <section class="slide"><div class="inner">
-    <div class="kick" style="text-align:center">Schedule</div>
-    <h2 style="text-align:center">일정</h2>
-    <div class="tl" style="margin-top:16px">
-      <div class="tli"><div class="d">6/6(토)~6/12(금)</div><div><div class="t">1차 모집</div><div class="x">GmI 클랜원 우선 · 팀 결성 (클랜원 3명 + 용병 1명까지)</div></div></div>
-      <div class="tli"><div class="d">6/13(토)~6/18(목)</div><div><div class="t">2차 모집 + 후원 OPEN</div><div class="x">용병 합류 · 솔로 매칭 · 타클랜 OK · 6/18 23:59 마감</div></div></div>
-      <div class="tli"><div class="d">6/19(금)</div><div><div class="t">변동성 정리 · 최종 확정</div><div class="x">참가 확정 체크인 · 솔로 매칭 마무리 · 최종 팀 확정</div></div></div>
-      <div class="tli"><div class="d">6/20(토)</div><div><div class="t">본 매치 — 19:30 대기 / 20:00 시작</div><div class="x">19:30부터 방송으로 룰 설명 · 이벤트 매치 + 메인 3라운드</div></div></div>
+  <section>
+    <div class="sec-tag">FORMAT</div>
+    <h2>대회 구성</h2>
+    <p class="desc">이벤트 매치와 본 매치는 <strong style="color:var(--gold)">완전히 격리</strong>됩니다. 이벤트 매치는 별도 상품으로 종료되며 본 매치 순위에 영향 없음.</p>
+    <div class="card">
+      <div class="card-title">🎯 본 매치 (메인)</div>
+      <p class="desc" style="margin:0">e스포츠 모드 3라운드. <strong style="color:var(--ink)">최종 순위 = 3라운드 누적 점수 × 팀 BPI 가중치.</strong> 킬 MVP는 별도 개인상.</p>
     </div>
-  </div></section>
-
-  <!-- 4 대회 구성 -->
-  <section class="slide"><div class="inner">
-    <div class="kick" style="text-align:center">Format</div>
-    <h2 style="text-align:center">대회 구성</h2>
-    <div class="two" style="margin-top:16px">
-      <div class="card"><h3>🎯 본 매치 (메인)</h3><ul>
-        <li>R1 · R2 · R3 — e스포츠 모드</li>
-        <li>최종 순위 = 3R 누적 점수 × 팀 BPI 가중치</li>
-        <li>누적 점수 = e스포츠 모드 기본 점수(순위 P + 킬 P) 자동 합산</li>
-        <li>킬 MVP는 별도 개인상 시상</li>
-      </ul></div>
-      <div class="card"><h3>🎮 이벤트 매치 (별도 상품)</h3><ul>
-        <li>🚲 자전거 레이싱 · 에란겔</li>
-        <li>🍳 후라이팬 · 카라킨</li>
-        <li>우승팀에게만 별도 상품</li>
-      </ul></div>
+    <div class="card">
+      <div class="card-title">🎮 이벤트 매치 (별도 상품)</div>
+      <p class="desc" style="margin:0">🚲 자전거 레이싱 (에란겔) · 🍳 후라이팬 매치 (카라킨). 본 매치 순위와 무관, 우승팀에게만 별도 상품.</p>
     </div>
-    <div class="note">이벤트 매치와 본 매치는 <b>완전히 격리</b>됩니다. 이벤트 매치는 별도 상품으로 종료되며 <b>본 매치 순위에 영향 없음.</b></div>
-  </div></section>
+  </section>
 
-  <!-- 5 BPI 티어 -->
-  <section class="slide"><div class="inner">
-    <div class="kick" style="text-align:center">BPI System</div>
-    <h2 style="text-align:center">티어 · BPI</h2>
-    <p class="sub" style="text-align:center">시즌1 평균 딜량 기준 티어 산정 · 팀 BPI 합계 20이 정석</p>
-    <table><thead><tr><th>티어</th><th>평균 딜</th><th class="c">BPI</th><th>역할</th></tr></thead><tbody>
-      <tr><td style="color:var(--gold);font-weight:800">T1</td><td>350+</td><td class="c">10</td><td>에이스</td></tr>
-      <tr><td style="color:var(--blue);font-weight:800">T2</td><td>300~349</td><td class="c">6</td><td>준에이스</td></tr>
-      <tr><td style="color:var(--green);font-weight:800">T3</td><td>200~299</td><td class="c">4</td><td>중위</td></tr>
-      <tr><td style="color:var(--purple);font-weight:800">T4</td><td>100~199</td><td class="c">2</td><td>받쳐주기</td></tr>
-      <tr><td style="color:var(--ink-dim);font-weight:800">T5</td><td>0~99</td><td class="c">1</td><td>신예/숨은진주</td></tr>
-    </tbody></table>
-    <div class="note">👑 <b>T1 팀장 페널티</b> — T1이 팀장이면 BPI +1 (10 → 11로 계산). 강한 팀장의 영향력을 페널티로 반영.</div>
-  </div></section>
-
-  <!-- 6 가중치 -->
-  <section class="slide"><div class="inner">
-    <div class="kick" style="text-align:center">Weight</div>
-    <h2 style="text-align:center">가중치 (계단식)</h2>
-    <table style="margin-top:8px"><thead><tr><th>팀 BPI</th><th class="c">배율</th><th>구분</th></tr></thead><tbody>
-      <tr><td>14 이하</td><td class="c" style="color:var(--green);font-weight:800">×1.3</td><td>다크호스</td></tr>
-      <tr><td>15~16</td><td class="c" style="color:var(--blue);font-weight:800">×1.2</td><td>언더독</td></tr>
-      <tr><td>17~19</td><td class="c" style="font-weight:800">×1.1</td><td>도전자</td></tr>
-      <tr><td>20</td><td class="c" style="color:var(--gold);font-weight:800">×1.0</td><td>정석</td></tr>
-      <tr><td>21~22</td><td class="c" style="font-weight:800">×0.9</td><td>강팀</td></tr>
-      <tr><td>23 이상</td><td class="c" style="color:var(--red);font-weight:800">×0.8</td><td>슈퍼팀</td></tr>
-    </tbody></table>
-    <div class="note">약팀 1등 = 1.3배 / 슈퍼팀 1등 = 0.8배. <b>강팀이라고 무조건 유리하지 않음.</b><br>정석 조합 예시: T1+T2+T4+T4 · T2+T2+T3+T3 · T1+T3+T3+T4 (모두 합 20)</div>
-  </div></section>
-
-  <!-- 7 참가비 무료 -->
-  <section class="slide"><div class="inner" style="text-align:center">
-    <div class="kick">Free Entry</div>
-    <h2>참가비 무료</h2>
-    <p class="sub">보증금·참가비 일절 없음 · 혼자 와도 OK</p>
-    <div class="big"><span style="color:var(--green)">무료</span></div>
-    <div class="note">✓ 보증금·참가비 없음 — 부담 없이 신청 · ✓ 팀 없어도 솔로/용병 신청하면 운영진이 매칭 · ✓ 당일 1명 결원 → 3인 출전 가능<br>💡 대신 <b>6/19(금) 참가 확정 체크인</b>에 꼭 응답 · 못 오면 미리 알려주기 (무단 노쇼 시 다음 시즌 우선순위 하락)</div>
-    <div class="note" style="border-color:var(--red);background:rgba(230,57,70,.08)">⚖️ <b style="color:var(--red)">공정성</b> — 본인 명의 계정만 참여 · 대리/거래계정/계정공유 금지 · 적발 시 실격·상금 회수·다음 시즌 영구 배제</div>
-  </div></section>
-
-  <!-- 8 자전거 -->
-  <section class="slide"><div class="inner">
-    <div class="kick" style="text-align:center">Event Match</div>
-    <h2 style="text-align:center">🚲 자전거 레이싱</h2>
-    <p class="sub" style="text-align:center">에란겔 · 순수 레이스 (공격 불가)</p>
-    <div class="two">
-      <div class="card"><h3>진행 룰</h3><ul>
-        <li>2페이지 진입 즉시 시작 · 파밍 3분</li>
-        <li>자전거 4명 전원 의무 · 보트 금지</li>
-        <li>공격 불가 (순수 레이스)</li>
-        <li>릴레이 순서: 고티어 → 저티어</li>
-      </ul></div>
-      <div class="card"><h3>📍 코스</h3><ul>
-        <li>S 출발 — 스타버 (북동 섬)</li>
-        <li>1 분기 — 멘션</li>
-        <li>2 분기 — 노보 송전탑 송신기</li>
-        <li>G 골인 — 밀리터리 베이스(Base) E구역 우측 벙커</li>
-      </ul></div>
+  <section>
+    <div class="sec-tag">BPI SYSTEM</div>
+    <h2>티어 · BPI</h2>
+    <p class="desc">신청서에 <strong style="color:var(--ink)">역대 최고 티어 + 시즌 최고 평균딜</strong>만 적으면 G드컵 티어·BPI가 자동 산정됩니다. 팀 BPI 합계 <strong style="color:var(--gold)">20</strong>이 정석.</p>
+    <div class="card" style="padding:6px 16px">
+      <table>
+        <tr><th>티어</th><th>기준 (최고티어 · 평균딜)</th><th>BPI</th><th>역할</th></tr>
+        <tr><td class="tn T0">T0</td><td>서바이버 · 450딜+</td><td><span class="pill">10</span></td><td>괴물</td></tr>
+        <tr><td class="tn T1">T1</td><td>350딜+ (크리스탈↑)</td><td><span class="pill">8</span></td><td>에이스</td></tr>
+        <tr><td class="tn T2">T2</td><td>마스터 경험 · 딜 무관</td><td><span class="pill">6</span></td><td>준에이스</td></tr>
+        <tr><td class="tn T3">T3</td><td>크리스탈↑ · 200~349딜</td><td><span class="pill">4</span></td><td>중위</td></tr>
+        <tr><td class="tn T4">T4</td><td>저티어 · 200~349딜</td><td><span class="pill">2</span></td><td>받쳐주기</td></tr>
+        <tr><td class="tn T5">T5</td><td>저티어 · ~199딜 / 신예</td><td><span class="pill">1</span></td><td>숨은진주</td></tr>
+      </table>
     </div>
-    <div class="note">📦 팀별 아이템을 분기점 송신기 옆에 드롭 → 다음 주자 픽업 · 최종 주자가 4개 모두 들고 골인.<br>⚠️ 탈락: 아이템 든 주자 사망 / 아이템 분실 / 자전거에서 내림 / 타팀 절도 · <b>종료: 우승팀(1등) 진입 시 마감</b></div>
-  </div></section>
-
-  <!-- 9 후라이팬 -->
-  <section class="slide"><div class="inner">
-    <div class="kick" style="text-align:center">Event Match</div>
-    <h2 style="text-align:center">🍳 후라이팬 매치</h2>
-    <p class="sub" style="text-align:center">카라킨 · 근접무기 배틀로얄</p>
-    <div class="two">
-      <div class="card"><h3>형식</h3><ul>
-        <li>맵 카라킨 · 4:4:4 배틀로얄</li>
-        <li>파밍 3분 자율 · 살리기 가능</li>
-        <li>팀 단위 불참 가능</li>
-      </ul></div>
-      <div class="card"><h3>무기 / 장비</h3><ul>
-        <li>가능: 후라이팬·낫·마체테 등 근접</li>
-        <li>가능: 연료통·수류탄·화염병</li>
-        <li>금지: 일반 총기</li>
-        <li>금지: 조끼·가방·헬멧 (스폰 차단)</li>
-      </ul></div>
+    <div class="warn" style="background:rgba(245,197,24,.06);border-color:var(--gold-soft);color:var(--ink-dim)">
+      👑 <b style="color:var(--gold)">T0 팀장 페널티</b> — T0(서바이버·450딜+) 선수가 팀장이면 BPI +1 (10 → 11). 강한 팀장의 영향력을 반영하는 룰.
     </div>
-    <div class="note">🍳 <b>후라이팬 우승팀에게만 별도 상품</b> 지급 · 본 매치와 완전 독립.</div>
-  </div></section>
+  </section>
 
-  <!-- 10 신청 -->
-  <section class="slide"><div class="inner" style="text-align:center">
-    <div class="kick">Apply</div>
-    <h2>팀 신청 방법</h2>
-    <div class="tl" style="margin-top:16px;text-align:left">
-      <div class="tli"><div class="d">STEP 1</div><div><div class="t">홈페이지에서 신청서 작성·생성</div><div class="x">팀명·멤버 4명·티어 입력 → BPI 자동 계산 → 신청서 생성</div></div></div>
-      <div class="tli"><div class="d">STEP 2</div><div><div class="t">디스코드 #팀-신청 채널에 붙여넣기</div><div class="x">생성된 신청서 전체 복사 → 붙여넣기</div></div></div>
-      <div class="tli"><div class="d">STEP 3</div><div><div class="t">운영진 확인 → 등록 완료</div><div class="x">신청서 확인 후 정식 등록 (참가비 무료)</div></div></div>
-      <div class="tli"><div class="d">STEP 4</div><div><div class="t">6/19(금) 참가 확정 체크인</div><div class="x">디스코드에서 최종 참가 확인 · 못 오면 미리 알리기</div></div></div>
+  <section>
+    <h2>⚖️ 가중치 (계단식)</h2>
+    <p class="desc">팀 BPI 합계에 따라 최종 점수에 곱하는 배수. <strong style="color:var(--ink)">약팀일수록 유리, 강팀일수록 불리</strong> — 강팀이라고 무조건 유리하지 않습니다.</p>
+    <div class="wgrid">
+      <div class="wrow"><span class="b">14↓</span><span class="m">×1.3</span><span class="n">다크호스</span></div>
+      <div class="wrow"><span class="b">15~16</span><span class="m">×1.2</span><span class="n">언더독</span></div>
+      <div class="wrow"><span class="b">17~19</span><span class="m">×1.1</span><span class="n">도전자</span></div>
+      <div class="wrow std"><span class="b">20</span><span class="m">×1.0</span><span class="n" style="color:var(--gold)">정석</span></div>
+      <div class="wrow"><span class="b">21~22</span><span class="m">×0.9</span><span class="n">강팀</span></div>
+      <div class="wrow"><span class="b">23~25</span><span class="m">×0.8</span><span class="n">슈퍼팀</span></div>
+      <div class="wrow"><span class="b">26~28</span><span class="m">×0.7</span><span class="n">괴물팀</span></div>
+      <div class="wrow"><span class="b">29↑</span><span class="m">×0.6</span><span class="n">사기팀</span></div>
     </div>
-  </div></section>
+  </section>
 
-  <!-- 11 FAQ -->
-  <section class="slide"><div class="inner">
-    <div class="kick" style="text-align:center">FAQ</div>
-    <h2 style="text-align:center">자주 묻는 질문</h2>
-    <div class="faq" style="margin-top:14px">
-      <div><div class="q">Q. 내 티어를 모르겠어요</div><div class="a">디스코드 #티어-발표에서 닉네임 검색. 신규는 #문의로 시즌1 평균 딜량 신청.</div></div>
-      <div><div class="q">Q. 친구가 없어요 (솔로 신청)</div><div class="a">솔로 OK. 운영진이 BPI 맞춰 자동 매칭 (모집 마지막 주).</div></div>
-      <div><div class="q">Q. BPI 20을 못 맞춰요</div><div class="a">17~22 권장. 그 외도 신청 가능 (가중치 적용 · 14↓ ×1.3, 23↑ ×0.8).</div></div>
-      <div><div class="q">Q. 이벤트 매치만 참가 가능?</div><div class="a">불가. 본 매치 참가팀만 이벤트 참여 가능 (후라이팬은 팀 단위 불참 OK).</div></div>
-      <div><div class="q">Q. 참가비가 있나요?</div><div class="a">아니요, 완전 무료입니다. 보증금도 없어요. 대신 6/19(금) 참가 확정 체크인에 응답해주시고, 못 오면 미리 알려주세요.</div></div>
+  <section>
+    <h2>🧮 정석 조합 예시</h2>
+    <p class="desc">모두 합계 BPI 20 — 이렇게 맞추면 가중치 ×1.0.</p>
+    <div class="card">
+      <div class="combo">T2 + T2 + T3 + T3 = 6+6+4+4 = <b>20</b> <span class="rule-ok">✓</span></div>
+      <div class="combo">T1 + T2 + T3 + T4 = 8+6+4+2 = <b>20</b> <span class="rule-ok">✓</span></div>
+      <div class="combo">T0 + T3 + T3 + T4 = 10+4+4+2 = <b>20</b> <span class="rule-ok">✓</span></div>
+      <div class="combo" style="border:none">T1 + T1 + T4 + T4 = 8+8+2+2 = <b>20</b> <span class="rule-ok">✓</span></div>
     </div>
-  </div></section>
+  </section>
 
-  <!-- 12 마무리 -->
-  <section class="slide"><div class="inner" style="text-align:center">
-    <span class="tag">6/6 모집 시작</span>
-    <h2 style="margin-top:14px">승부보다 즐거움,<br>함께할 분들을 찾습니다</h2>
-    <p class="sub">64명 16팀 · 6/20(토) 20:00 본 매치</p>
+  <section>
+    <div class="sec-tag">PRIZE</div>
+    <h2>상금</h2>
+    <p class="desc">총상금 590,000원. 본 매치 1·2·3위 + 킬 MVP, 이벤트 우승팀 별도 시상.</p>
+    <div class="card" style="padding:6px 16px">
+      <div class="card-title" style="padding-top:12px">🎯 본 매치</div>
+      <table>
+        <tr><th>순위</th><th>팀 상금</th><th>1인당</th></tr>
+        <tr><td>🥇 1위</td><td style="color:var(--gold);font-weight:700">200,000원</td><td>50,000원</td></tr>
+        <tr><td>🥈 2위</td><td style="color:var(--gold);font-weight:700">120,000원</td><td>30,000원</td></tr>
+        <tr><td>🥉 3위</td><td style="color:var(--gold);font-weight:700">80,000원</td><td>20,000원</td></tr>
+        <tr><td>👑 킬 MVP</td><td style="color:var(--gold);font-weight:700">30,000원</td><td>개인 1명</td></tr>
+      </table>
+      <div class="card-title" style="padding-top:14px">🎮 이벤트 매치 (별도)</div>
+      <table>
+        <tr><th>매치</th><th>우승팀</th><th>1인당</th></tr>
+        <tr><td>🚲 자전거 레이싱</td><td style="color:var(--gold);font-weight:700">80,000원</td><td>20,000원</td></tr>
+        <tr><td>🍳 후라이팬 매치</td><td style="color:var(--gold);font-weight:700">80,000원</td><td>20,000원</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-tag">FAIR PLAY</div>
+    <h2>⚖️ 공정성 규칙</h2>
+    <div class="card">
+      <ul class="clean">
+        <li>본인 명의 계정으로만 참여 가능</li>
+        <li>전적은 사실대로 신고 — 운영진이 전적 검색으로 대조</li>
+        <li class="no">대리(부스팅) · 거래로 산 계정 · 계정 공유 사용 금지</li>
+        <li class="no">전력 축소 신고(샌드배깅) 금지 — 약팀 가중치 노리고 실력 낮춰 적기</li>
+      </ul>
+    </div>
+    <div class="warn">📝 신청 시 <b style="color:var(--gold)">양심 서약</b> 체크 필수 — 역대 최고 티어·평균딜은 사실이며 실력을 낮춰 신고하지 않았음에 동의. <b>허위·축소 신고 확인 시 BPI 강제 상향 또는 팀 실격.</b> 적발 시 즉시 실격 · 상금 회수 · 다음 시즌 영구 참여 제한.</div>
+  </section>
+
+  <section>
+    <div class="sec-tag">APPLY</div>
+    <h2>신청 방법</h2>
+    <p class="desc">신청서 작성 → 디스코드 <strong style="color:var(--ink)">#G드컵2-참가신청</strong> 채널에 제출. 보증금·참가비 없음. 혼자여도 운영진이 팀을 맞춰드립니다.</p>
     <div class="cta">
-      <a class="btn btn-gold" href="https://shlee9498-dev.github.io/gmi-clancup/gdcup-s2.html">팀 신청하기 →</a>
-      <a class="btn btn-ghost" href="https://discord.gg/9RjqdSKw" target="_blank" rel="noopener">디스코드</a>
+      <a class="btn gold" href="gdcup-s2.html">팀 / 솔로 신청하기 →</a>
+      <a class="btn ghost" href="https://discord.gg/9RjqdSKw" target="_blank" rel="noopener">디스코드 입장</a>
     </div>
-    <p class="small" style="margin-top:18px">GmI 클랜 · G드컵 시즌2 · 2026</p>
-  </div></section>
+  </section>
+
+  <footer>
+    GmI 클랜 · G드컵 시즌2 · 2026<br>
+    <a href="index.html">메인</a> · <a href="gdcup-s2.html">상세 룰 · 신청</a> · <a href="https://discord.gg/9RjqdSKw" target="_blank" rel="noopener">디스코드</a>
+  </footer>
 
 </div>
-<div class="hint">← → 또는 좌우 스와이프로 넘기기</div>
-<div class="nav">
-  <button class="arw" id="prev" aria-label="이전">‹</button>
-  <div class="dots" id="dots"></div>
-  <button class="arw" id="next" aria-label="다음">›</button>
-</div>
-<script>
-const slides=[...document.querySelectorAll('.slide')], N=slides.length;
-let i=0;
-const dots=document.getElementById('dots');
-slides.forEach((_,k)=>{const d=document.createElement('span');d.className='dot'+(k===0?' on':'');d.onclick=()=>go(k);dots.appendChild(d);});
-const dotEls=[...dots.children];
-function go(n){
-  i=Math.max(0,Math.min(N-1,n));
-  slides.forEach((s,k)=>s.classList.toggle('active',k===i));
-  dotEls.forEach((d,k)=>d.classList.toggle('on',k===i));
-  document.getElementById('cur').textContent=i+1;
-  document.getElementById('bar').style.width=((i+1)/N*100)+'%';
-  slides[i].scrollTop=0;
-}
-document.getElementById('next').onclick=()=>go(i+1);
-document.getElementById('prev').onclick=()=>go(i-1);
-addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(i+1);if(e.key==='ArrowLeft')go(i-1);});
-let x0=null;
-addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
-addEventListener('touchend',e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)go(i+(dx<0?1:-1));x0=null;},{passive:true});
-go(0);
-</script>
-</body></html>
+</body>
+</html>
