@@ -1071,6 +1071,9 @@ footer a:hover { color: var(--gold); }
   </div>
 
   <div class="form-section">
+    <div class="callout" style="margin-bottom:18px; border-color:var(--gold-soft);">
+      👑 <strong style="color:var(--gold)">팀장 먼저 등록하세요!</strong> 팀원이 없어도 OK — <strong style="color:var(--ink)">본인(멤버1)만 입력</strong>하면 명단 맨 위에 “🔍 용병 모집중”으로 떠서 사람들이 합류 신청을 합니다. 빈자리는 운영진이 솔로 신청자로 채워드려요.
+    </div>
     <div class="form-group">
       <label class="form-label">팀명 <span class="req">*</span></label>
       <input type="text" class="form-input" id="teamName" placeholder="예: 메르시, 광부, 세휘 …">
@@ -1118,7 +1121,7 @@ footer a:hover { color: var(--gold); }
 
     <!-- Member 2-4 -->
     <div class="member-card">
-      <div class="member-head"><span class="member-num">멤버 2</span></div>
+      <div class="member-head"><span class="member-num">멤버 2</span><span style="font-size:11px; color:var(--ink-faint);">선택 — 비워두면 용병 모집 (운영진 배정)</span></div>
       <div class="form-row" style="grid-template-columns:1fr 1fr;">
         <div class="form-group">
           <label class="form-label">디스코드 닉네임 <span class="req">*</span></label>
@@ -1476,7 +1479,7 @@ function generateApplication() {
   if (!contact) errs.push('팀장 연락처');
   members.forEach((m, i) => {
     const filled = m.name || m.ign || m.peak || m.dmg;
-    if (i < 2 || filled) {
+    if (i < 1 || filled) {
       if (!m.name) errs.push(`멤버${i+1} 디스코드 닉네임`);
       if (!m.ign) errs.push(`멤버${i+1} 배그 닉네임`);
       if (!m.peak) errs.push(`멤버${i+1} 역대 최고 티어`);
@@ -1485,7 +1488,7 @@ function generateApplication() {
   });
 
   if (errs.length > 0) {
-    alert('다음 항목을 입력해주세요:\n\n' + errs.join('\n') + '\n\n※ 멤버 3·4는 비워도 됩니다 (용병 모집)');
+    alert('다음 항목을 입력해주세요:\n\n' + errs.join('\n') + '\n\n※ 멤버 2·3·4는 비워도 됩니다 (팀장 혼자 등록 OK → 용병 모집)');
     return;
   }
   // 빈 슬롯 제거 — 이후 계산·제출은 실제 멤버만
@@ -1625,19 +1628,26 @@ function copyAccount() {
       var el=document.getElementById('teamList'); if(!el)return;
       var teams=(d&&d.teams)||[];
       if(!teams.length){ el.innerHTML='<div style="color:var(--ink-dim);text-align:center;padding:18px;">아직 신청한 팀이 없어요. 첫 번째 팀이 되어보세요! 🎮</div>'; return; }
+      // 용병 모집중인 팀을 맨 위로 (자리 많은 순) → "붙을 팀"이 먼저 보이게
+      teams.forEach(function(t){var fm=(t.members||[]).filter(function(m){return m.ign;});t._fm=fm.length;t._open=4-fm.length;t._rec=(fm.length>0&&fm.length<4);});
+      teams.sort(function(a,b){ if(a._rec!==b._rec)return a._rec?-1:1; if(a._rec&&b._rec)return b._open-a._open; return 0; });
       el.innerHTML=teams.map(function(t,i){
         var conf=t.status==='confirmed';
         var badge=conf?'<span style="color:var(--green);font-weight:700;">✅ 확정</span>':'<span style="color:var(--ink-dim);">⏳ 신청</span>';
         var fm=(t.members||[]).filter(function(m){return m.ign;});
-        var mem=fm.map(function(m){return esc(m.ign)+(m.tier?' <span style="color:var(--ink-faint);">('+esc(m.tier)+')</span>':'');}).join(' · ');
-        if(fm.length>0&&fm.length<4){mem+=' <span style="color:var(--gold);font-weight:700;">· 🔍 용병 '+(4-fm.length)+'명 모집중</span>';}
-        return '<div style="background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:13px 15px;">'
+        var rec=t._rec, open=t._open;
+        var mem=fm.map(function(m,mi){return (mi===0?'👑 ':'')+esc(m.ign)+(m.tier?' <span style="color:var(--ink-faint);">('+esc(m.tier)+')</span>':'');}).join(' · ');
+        var recTag=rec?'<span style="background:var(--gold);color:#000;font-weight:800;font-size:11px;padding:3px 9px;border-radius:20px;white-space:nowrap;">🔍 용병 '+open+'명 모집중</span>':'';
+        var cta=rec?'<div style="color:var(--gold);font-size:12px;margin-top:8px;font-weight:700;">→ 합류하려면 솔로 신청 또는 팀장에게 디코 DM!</div>':'';
+        var border=rec?'border:1px solid var(--gold);box-shadow:0 0 0 1px var(--gold-soft);':'border:1px solid var(--line);';
+        return '<div style="background:var(--bg-card);'+border+'border-radius:10px;padding:13px 15px;">'
           +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'
-          +'<span style="font-family:var(--display);font-size:15px;">'+(i+1)+'. '+esc(t.team_name)+'</span>'
-          +'<span style="font-size:12px;white-space:nowrap;">'+badge+(t.bpi!=null?' <span style="color:var(--ink-faint);">· BPI '+esc(t.bpi)+'</span>':'')+'</span>'
+          +'<span style="font-family:var(--display);font-size:15px;">'+esc(t.team_name)+'</span>'
+          +'<span style="font-size:12px;white-space:nowrap;display:flex;gap:6px;align-items:center;">'+recTag+badge+(t.bpi!=null?' <span style="color:var(--ink-faint);">BPI '+esc(t.bpi)+'</span>':'')+'</span>'
           +'</div>'
           +(t.slogan?'<div style="color:var(--ink-dim);font-size:12.5px;margin-top:3px;">“'+esc(t.slogan)+'”</div>':'')
           +(mem?'<div style="color:var(--ink-dim);font-size:12.5px;margin-top:6px;">'+mem+'</div>':'')
+          +cta
           +'</div>';
       }).join('');
     }).catch(function(){});
@@ -1701,6 +1711,17 @@ function copyAccount() {
       else{msg.style.color='var(--red)';msg.textContent='신청 실패. 잠시 후 다시 시도해주세요.';}
     }).catch(function(){msg.style.color='var(--red)';msg.textContent='네트워크 오류.';});
   };
+  function tierBadge(t){
+    if(!t) return '';
+    var s=String(t), c='var(--ink-faint)';
+    if(/서바이버|T0/i.test(s)) c='var(--red)';
+    else if(/마스터|T1/i.test(s)) c='var(--gold)';
+    else if(/T2/i.test(s)) c='var(--orange)';
+    else if(/다이아|T3/i.test(s)) c='var(--blue)';
+    else if(/크리스탈|T5/i.test(s)) c='var(--purple)';
+    else if(/플래|T4/i.test(s)) c='var(--green)';
+    return '<span style="display:inline-block;border:1px solid '+c+';color:'+c+';font-weight:700;font-size:11px;padding:2px 9px;border-radius:20px;white-space:nowrap;">'+esc(s)+'</span>';
+  }
   function loadSolo(){
     fetch(GAPI+"/api/gdcup-solo-list").then(function(r){return r.json();}).then(function(d){
       var num=document.getElementById('gdcupSoloNum'); if(num)num.textContent=(d&&d.count!=null)?d.count:0;
@@ -1711,7 +1732,7 @@ function copyAccount() {
         var tag = s.kind==='short' ? '<span style="color:var(--blue);">👥 자리모집</span>' : '<span style="color:var(--gold);">🙋 솔로</span>';
         return '<div style="background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:11px 14px;">'
           +'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">'
-          +'<span style="font-weight:700;">'+esc(s.ign)+(s.tier?' <span style="color:var(--ink-faint);font-weight:400;">('+esc(s.tier)+')</span>':'')+'</span>'
+          +'<span style="font-weight:700;display:flex;align-items:center;gap:7px;flex-wrap:wrap;">'+esc(s.ign)+(s.tier?tierBadge(s.tier):'')+'</span>'
           +'<span style="font-size:12.5px;white-space:nowrap;">'+tag+'</span></div>'
           +(s.note?'<div style="color:var(--ink-dim);font-size:12.5px;margin-top:4px;">'+esc(s.note)+'</div>':'')
           +'</div>';

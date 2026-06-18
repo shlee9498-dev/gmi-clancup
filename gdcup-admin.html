@@ -48,6 +48,7 @@ h1{font-size:20px;margin-bottom:4px;}
   <button class="btn btn-gold" onclick="saveKeyAndLoad()">불러오기</button>
 </div>
 <div id="warn"></div>
+<button class="btn btn-ghost" style="width:100%;margin-bottom:14px;" onclick="postBoard()">📋 디코에 '현재 모집현황' 게시</button>
 <div class="stat" id="stat"></div>
 <div id="list"><div class="msg">키를 입력하고 불러오기를 누르세요.</div></div>
 
@@ -86,14 +87,22 @@ function render(teams){
   el.innerHTML=teams.map(function(t){
     var st=t.status||'applied';
     var badge=st==='confirmed'?'<span class="badge b-confirmed">✅ 확정</span>':(st==='cancelled'?'<span class="badge b-cancelled">🗑 취소</span>':'<span class="badge b-applied">⏳ 신청</span>');
-    var mem=(t.members||[]).filter(function(m){return m.ign;}).map(function(m){return esc(m.ign)+(m.tier?' ('+esc(m.tier)+')':'');}).join(' · ');
+    var memEdit=(t.members||[]).filter(function(m){return m.ign;}).map(function(m,mi){
+      var opts=['T0','T1','T2','T3','T4','T5'].map(function(tt){return '<option value="'+tt+'"'+(m.tier===tt?' selected':'')+'>'+tt+'</option>';}).join('');
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:5px 0;">'
+        +'<span style="font-size:13px;">'+(mi===0?'👑 ':'')+esc(m.ign)+(m.peak?' <span style="color:var(--ink-faint);font-size:11px;">('+esc(m.peak)+'/'+esc(m.dmg||'?')+'딜)</span>':'')+'</span>'
+        +'<select class="tier-edit" data-team="'+t.id+'" data-idx="'+mi+'" data-name="'+esc(m.name||'')+'" data-ign="'+esc(m.ign||'')+'" data-peak="'+esc(m.peak||'')+'" data-dmg="'+esc(m.dmg||'')+'" style="background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:5px 8px;border-radius:6px;font-size:13px;">'+opts+'</select>'
+        +'</div>';
+    }).join('');
     return '<div class="card '+(st==='confirmed'?'confirmed':'')+'">'
       +'<div class="row1"><span class="tname">'+esc(t.team_name)+'</span>'+badge+'</div>'
       +(t.slogan?'<div class="meta">“'+esc(t.slogan)+'”</div>':'')
-      +'<div class="meta">멤버: '+(mem||'-')+'</div>'
+      +'<div class="meta" style="margin-bottom:2px;">멤버 — 티어 바꾸면 💾 저장</div>'
+      +(memEdit||'<div class="meta">-</div>')
       +'<div class="meta">팀 BPI: <b>'+esc(t.bpi)+'</b>'+(t.weight!=null?' (가중치 ×'+esc(t.weight)+')':'')+'</div>'
       +'<div class="contact">📞 연락/입금자: '+esc(t.contact||'-')+'</div>'
       +'<div class="acts">'
+      +'<button class="ok" onclick="saveTiers('+t.id+')">💾 티어 저장</button>'
       +'<button class="ok" onclick="setStatus('+t.id+',\'confirmed\')">✅ 입금확정</button>'
       +'<button class="wait" onclick="setStatus('+t.id+',\'applied\')">↩️ 신청대기</button>'
       +'<button class="del" onclick="setStatus('+t.id+',\'cancelled\')">🗑 취소</button>'
@@ -107,6 +116,35 @@ function setStatus(id,status){
   fetch(GAPI+"/api/gdcup-confirm",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify({id:id,status:status})})
   .then(function(r){return r.json();})
   .then(function(d){ if(d&&d.ok){loadAdmin();} else {alert('처리 실패: '+((d&&d.error)||''));} })
+  .catch(function(){alert('네트워크 오류');});
+}
+
+function saveTiers(teamId){
+  var k=getKey(); if(!k){alert('키를 입력하세요');return;}
+  var sels=document.querySelectorAll('.tier-edit[data-team="'+teamId+'"]');
+  if(!sels.length)return;
+  var members=[];
+  sels.forEach(function(s){ members.push({name:s.getAttribute('data-name'),ign:s.getAttribute('data-ign'),tier:s.value,peak:s.getAttribute('data-peak')||'',dmg:s.getAttribute('data-dmg')||''}); });
+  fetch(GAPI+"/api/gdcup-edit",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify({id:teamId,members:members})})
+  .then(function(r){return r.json();})
+  .then(function(d){ if(d&&d.ok){alert('재계산 완료! 팀 BPI '+d.bpi+' (가중치 ×'+d.weight+')');loadAdmin();} else {alert('저장 실패: '+((d&&d.error)||''));} })
+  .catch(function(){alert('네트워크 오류');});
+}
+
+function postBoard(){
+  var k=getKey(); if(!k){alert('키를 입력하세요');return;}
+  fetch(GAPI+"/api/gdcup-board",{method:"POST",headers:{"x-admin-key":k}})
+  .then(function(r){return r.json();})
+  .then(function(d){ if(d&&d.ok){alert('📋 디코 게시 완료! 모집팀 '+d.teams+'개 · 대기솔로 '+d.solos+'명');} else {alert('실패: '+((d&&d.error)||'webhook 미설정?'));} })
+  .catch(function(){alert('네트워크 오류');});
+}
+
+function saveSoloTier(id){
+  var k=getKey(); if(!k)return;
+  var inp=document.querySelector('.solotier[data-id="'+id+'"]'); if(!inp)return;
+  fetch(GAPI+"/api/gdcup-solo-tier",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify({id:id,tier:inp.value})})
+  .then(function(r){return r.json();})
+  .then(function(d){ if(d&&d.ok){inp.style.borderColor='var(--green)';} else {alert('실패');} })
   .catch(function(){alert('네트워크 오류');});
 }
 
@@ -125,7 +163,7 @@ function renderSolos(solos){
     var kind=s.kind==='short'?'👥 자리모집':'🙋 솔로';
     return '<div class="card '+(st==='matched'?'confirmed':'')+'">'
       +'<div class="row1"><span class="tname">'+esc(s.ign)+' <span style="font-size:12px;color:var(--ink-faint);font-weight:400;">'+kind+'</span></span>'+badge+'</div>'
-      +(s.tier?'<div class="meta">티어: <b>'+esc(s.tier)+'</b></div>':'')
+      +'<div class="meta" style="display:flex;gap:6px;align-items:center;margin-top:6px;">티어: <input class="solotier" data-id="'+s.id+'" value="'+esc(s.tier||'')+'" placeholder="예: 마스터 / T2" style="flex:1;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:6px 9px;border-radius:6px;font-size:13px;"><button class="ok" style="padding:6px 10px;" onclick="saveSoloTier('+s.id+')">💾</button></div>'
       +(s.note?'<div class="meta">한마디: '+esc(s.note)+'</div>':'')
       +'<div class="contact">💬 디스코드: '+esc(s.discord||'-')+'</div>'
       +'<div class="acts">'
