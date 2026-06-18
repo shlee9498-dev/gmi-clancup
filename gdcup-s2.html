@@ -812,8 +812,9 @@ footer a:hover { color: var(--gold); }
     <div class="card-title">⚖️ 공정성 규칙</div>
     <div style="font-size:13.5px; color:var(--ink-dim); line-height:1.95;">
       ✓ <strong style="color:var(--ink)">본인 명의 계정으로만 참여</strong> 가능합니다.<br>
+      ✓ <strong style="color:var(--ink)">전적은 사실대로 신고</strong> — 운영진이 전적 검색으로 대조합니다.<br>
       ✗ 대리(부스팅) · 거래로 산 계정 · 계정 공유 사용 <strong style="color:var(--red)">금지</strong><br>
-      ✗ 신고한 티어와 실력이 현저히 다르면(빌린 계정 의심) 운영진이 확인할 수 있어요.
+      ✗ <strong style="color:var(--red)">전력 축소 신고(샌드배깅) 금지</strong> — 실력을 낮춰 적어 약팀 가중치를 노리는 행위 적발 시 BPI 강제 상향 또는 실격.
     </div>
     <div class="callout red" style="margin-top:14px;">
       <strong>적발 시</strong> → 즉시 실격 · 상금 회수 · 다음 시즌 영구 참여 제한
@@ -868,26 +869,27 @@ footer a:hover { color: var(--gold); }
   <div class="section-head">
     <div class="section-kicker">BPI SYSTEM</div>
     <h2 class="section-title">티어 · BPI</h2>
-    <p class="section-desc">시즌1 평균 딜량 기준으로 티어 산정. 팀 BPI 합계 20이 정석.</p>
+    <p class="section-desc">역대 최고 티어 + 시즌 최고 평균딜로 티어 자동 산정. 팀 BPI 합계 20이 정석. <span style="color:var(--ink-faint);">신청서에서 자동 계산됩니다.</span></p>
   </div>
 
   <div class="card">
     <table class="tier-table">
       <thead>
-        <tr><th>티어</th><th>평균 딜</th><th>BPI</th><th>역할</th></tr>
+        <tr><th>티어</th><th>기준 (최고티어 · 평균딜)</th><th>BPI</th><th>역할</th></tr>
       </thead>
       <tbody>
-        <tr><td class="tier-name tier-T1">T1</td><td>350+</td><td><span class="bpi-pill">10</span></td><td>에이스</td></tr>
-        <tr><td class="tier-name tier-T2">T2</td><td>300~349</td><td><span class="bpi-pill">6</span></td><td>준에이스</td></tr>
-        <tr><td class="tier-name tier-T3">T3</td><td>200~299</td><td><span class="bpi-pill">4</span></td><td>중위</td></tr>
-        <tr><td class="tier-name tier-T4">T4</td><td>100~199</td><td><span class="bpi-pill">2</span></td><td>받쳐주기</td></tr>
-        <tr><td class="tier-name tier-T5">T5</td><td>0~99</td><td><span class="bpi-pill">1</span></td><td>신예/숨은진주</td></tr>
+        <tr><td class="tier-name" style="color:var(--red); font-weight:800;">T0</td><td>서바이버 · 450딜+</td><td><span class="bpi-pill">10</span></td><td>괴물</td></tr>
+        <tr><td class="tier-name tier-T1">T1</td><td>350딜+ (크리스탈↑)</td><td><span class="bpi-pill">8</span></td><td>에이스</td></tr>
+        <tr><td class="tier-name tier-T2">T2</td><td>마스터 경험 · 딜 무관</td><td><span class="bpi-pill">6</span></td><td>준에이스</td></tr>
+        <tr><td class="tier-name tier-T3">T3</td><td>크리스탈↑ · 200~349딜</td><td><span class="bpi-pill">4</span></td><td>중위</td></tr>
+        <tr><td class="tier-name tier-T4">T4</td><td>저티어 · 200~349딜</td><td><span class="bpi-pill">2</span></td><td>받쳐주기</td></tr>
+        <tr><td class="tier-name tier-T5">T5</td><td>저티어 · ~199딜 / 신예</td><td><span class="bpi-pill">1</span></td><td>숨은진주</td></tr>
       </tbody>
     </table>
   </div>
 
   <div class="callout">
-    <strong>👑 T1 팀장 페널티</strong>: T1이 팀장이면 BPI <strong>+1</strong> (10 → 11로 계산). 강한 팀장의 영향력을 페널티로 반영.
+    <strong>👑 T0 팀장 페널티</strong>: T0(괴물)이 팀장이면 BPI <strong>+1</strong> (10 → 11로 계산). 강한 팀장의 영향력을 페널티로 반영.
   </div>
 
   <div class="card">
@@ -897,7 +899,9 @@ footer a:hover { color: var(--gold); }
     <div class="weight-row"><span class="weight-bpi">17~19</span><span class="weight-mult">×1.1</span><span class="weight-name">도전자</span></div>
     <div class="weight-row standard"><span class="weight-bpi">20</span><span class="weight-mult">×1.0</span><span class="weight-name"><strong style="color:var(--gold)">정석</strong></span></div>
     <div class="weight-row"><span class="weight-bpi">21~22</span><span class="weight-mult">×0.9</span><span class="weight-name">강팀</span></div>
-    <div class="weight-row"><span class="weight-bpi">23↑</span><span class="weight-mult">×0.8</span><span class="weight-name">슈퍼팀</span></div>
+    <div class="weight-row"><span class="weight-bpi">23~25</span><span class="weight-mult">×0.8</span><span class="weight-name">슈퍼팀</span></div>
+    <div class="weight-row"><span class="weight-bpi">26~28</span><span class="weight-mult">×0.7</span><span class="weight-name">괴물팀</span></div>
+    <div class="weight-row"><span class="weight-bpi">29↑</span><span class="weight-mult">×0.6</span><span class="weight-name">사기팀</span></div>
     <div class="callout green" style="margin-top:14px;">
       약팀 1등 = 1.3배 / 슈퍼팀 1등 = 0.8배. <strong>강팀이라고 무조건 유리하지 않음.</strong>
     </div>
@@ -906,10 +910,10 @@ footer a:hover { color: var(--gold); }
   <div class="card">
     <div class="card-title">🧮 정석 조합 예시 (모두 BPI 20)</div>
     <div class="combos">
-      <div class="combo"><span>T1 + T2 + T4 + T4 = 10+6+2+2</span><span class="combo-check">= 20 ✓</span></div>
       <div class="combo"><span>T2 + T2 + T3 + T3 = 6+6+4+4</span><span class="combo-check">= 20 ✓</span></div>
-      <div class="combo"><span>T1 + T3 + T3 + T4 = 10+4+4+2</span><span class="combo-check">= 20 ✓</span></div>
-      <div class="combo"><span>T2 + T2 + T2 + T4 = 6+6+6+2</span><span class="combo-check">= 20 ✓</span></div>
+      <div class="combo"><span>T1 + T2 + T3 + T4 = 8+6+4+2</span><span class="combo-check">= 20 ✓</span></div>
+      <div class="combo"><span>T0 + T3 + T3 + T4 = 10+4+4+2</span><span class="combo-check">= 20 ✓</span></div>
+      <div class="combo"><span>T1 + T1 + T4 + T4 = 8+8+2+2</span><span class="combo-check">= 20 ✓</span></div>
     </div>
   </div>
 </section>
@@ -1083,7 +1087,7 @@ footer a:hover { color: var(--gold); }
         <span class="member-num leader">멤버 1</span>
         <span style="font-size:11px; color:var(--ink-faint);">팀장 = 신청서 제출자</span>
       </div>
-      <div class="form-row">
+      <div class="form-row" style="grid-template-columns:1fr 1fr;">
         <div class="form-group">
           <label class="form-label">디스코드 닉네임 <span class="req">*</span></label>
           <input type="text" class="form-input member-name" data-idx="0" placeholder="">
@@ -1093,23 +1097,29 @@ footer a:hover { color: var(--gold); }
           <input type="text" class="form-input member-ign" data-idx="0" placeholder="">
         </div>
         <div class="form-group">
-          <label class="form-label">티어 <span class="req">*</span></label>
-          <select class="form-select member-tier" data-idx="0" data-leader="1">
+          <label class="form-label">역대 최고 티어 <span class="req">*</span></label>
+          <select class="form-select member-peak" data-idx="0">
             <option value="">선택</option>
-            <option value="T1">T1</option>
-            <option value="T2">T2</option>
-            <option value="T3">T3</option>
-            <option value="T4">T4</option>
-            <option value="T5">T5</option>
+            <option value="서바이버">서바이버</option>
+            <option value="마스터">마스터</option>
+            <option value="다이아">다이아</option>
+            <option value="크리스탈">크리스탈</option>
+            <option value="플래이하">플래티넘 이하</option>
           </select>
         </div>
+        <div class="form-group">
+          <label class="form-label">시즌 최고 평균딜 <span class="req">*</span></label>
+          <input type="number" inputmode="numeric" class="form-input member-dmg" data-idx="0" placeholder="예: 320">
+        </div>
       </div>
+      <input type="hidden" class="member-tier" data-idx="0">
+      <div class="member-auto" data-idx="0" style="font-size:12px;color:var(--ink-faint);margin-top:10px;">전적 입력 시 티어 자동 산정</div>
     </div>
 
     <!-- Member 2-4 -->
     <div class="member-card">
       <div class="member-head"><span class="member-num">멤버 2</span></div>
-      <div class="form-row">
+      <div class="form-row" style="grid-template-columns:1fr 1fr;">
         <div class="form-group">
           <label class="form-label">디스코드 닉네임 <span class="req">*</span></label>
           <input type="text" class="form-input member-name" data-idx="1">
@@ -1119,22 +1129,28 @@ footer a:hover { color: var(--gold); }
           <input type="text" class="form-input member-ign" data-idx="1">
         </div>
         <div class="form-group">
-          <label class="form-label">티어 <span class="req">*</span></label>
-          <select class="form-select member-tier" data-idx="1">
+          <label class="form-label">역대 최고 티어 <span class="req">*</span></label>
+          <select class="form-select member-peak" data-idx="1">
             <option value="">선택</option>
-            <option value="T1">T1</option>
-            <option value="T2">T2</option>
-            <option value="T3">T3</option>
-            <option value="T4">T4</option>
-            <option value="T5">T5</option>
+            <option value="서바이버">서바이버</option>
+            <option value="마스터">마스터</option>
+            <option value="다이아">다이아</option>
+            <option value="크리스탈">크리스탈</option>
+            <option value="플래이하">플래티넘 이하</option>
           </select>
         </div>
+        <div class="form-group">
+          <label class="form-label">시즌 최고 평균딜 <span class="req">*</span></label>
+          <input type="number" inputmode="numeric" class="form-input member-dmg" data-idx="1" placeholder="예: 320">
+        </div>
       </div>
+      <input type="hidden" class="member-tier" data-idx="1">
+      <div class="member-auto" data-idx="1" style="font-size:12px;color:var(--ink-faint);margin-top:10px;">전적 입력 시 티어 자동 산정</div>
     </div>
 
     <div class="member-card">
       <div class="member-head"><span class="member-num">멤버 3</span><span style="font-size:11px; color:var(--ink-faint);">선택 — 비워두면 용병 모집 (운영진 배정)</span></div>
-      <div class="form-row">
+      <div class="form-row" style="grid-template-columns:1fr 1fr;">
         <div class="form-group">
           <label class="form-label">디스코드 닉네임 <span class="req">*</span></label>
           <input type="text" class="form-input member-name" data-idx="2">
@@ -1144,22 +1160,28 @@ footer a:hover { color: var(--gold); }
           <input type="text" class="form-input member-ign" data-idx="2">
         </div>
         <div class="form-group">
-          <label class="form-label">티어 <span class="req">*</span></label>
-          <select class="form-select member-tier" data-idx="2">
+          <label class="form-label">역대 최고 티어 <span class="req">*</span></label>
+          <select class="form-select member-peak" data-idx="2">
             <option value="">선택</option>
-            <option value="T1">T1</option>
-            <option value="T2">T2</option>
-            <option value="T3">T3</option>
-            <option value="T4">T4</option>
-            <option value="T5">T5</option>
+            <option value="서바이버">서바이버</option>
+            <option value="마스터">마스터</option>
+            <option value="다이아">다이아</option>
+            <option value="크리스탈">크리스탈</option>
+            <option value="플래이하">플래티넘 이하</option>
           </select>
         </div>
+        <div class="form-group">
+          <label class="form-label">시즌 최고 평균딜 <span class="req">*</span></label>
+          <input type="number" inputmode="numeric" class="form-input member-dmg" data-idx="2" placeholder="예: 320">
+        </div>
       </div>
+      <input type="hidden" class="member-tier" data-idx="2">
+      <div class="member-auto" data-idx="2" style="font-size:12px;color:var(--ink-faint);margin-top:10px;">전적 입력 시 티어 자동 산정</div>
     </div>
 
     <div class="member-card">
       <div class="member-head"><span class="member-num">멤버 4</span><span style="font-size:11px; color:var(--ink-faint);">선택 — 비워두면 용병 모집 (운영진 배정)</span></div>
-      <div class="form-row">
+      <div class="form-row" style="grid-template-columns:1fr 1fr;">
         <div class="form-group">
           <label class="form-label">디스코드 닉네임 <span class="req">*</span></label>
           <input type="text" class="form-input member-name" data-idx="3">
@@ -1169,17 +1191,23 @@ footer a:hover { color: var(--gold); }
           <input type="text" class="form-input member-ign" data-idx="3">
         </div>
         <div class="form-group">
-          <label class="form-label">티어 <span class="req">*</span></label>
-          <select class="form-select member-tier" data-idx="3">
+          <label class="form-label">역대 최고 티어 <span class="req">*</span></label>
+          <select class="form-select member-peak" data-idx="3">
             <option value="">선택</option>
-            <option value="T1">T1</option>
-            <option value="T2">T2</option>
-            <option value="T3">T3</option>
-            <option value="T4">T4</option>
-            <option value="T5">T5</option>
+            <option value="서바이버">서바이버</option>
+            <option value="마스터">마스터</option>
+            <option value="다이아">다이아</option>
+            <option value="크리스탈">크리스탈</option>
+            <option value="플래이하">플래티넘 이하</option>
           </select>
         </div>
+        <div class="form-group">
+          <label class="form-label">시즌 최고 평균딜 <span class="req">*</span></label>
+          <input type="number" inputmode="numeric" class="form-input member-dmg" data-idx="3" placeholder="예: 320">
+        </div>
       </div>
+      <input type="hidden" class="member-tier" data-idx="3">
+      <div class="member-auto" data-idx="3" style="font-size:12px;color:var(--ink-faint);margin-top:10px;">전적 입력 시 티어 자동 산정</div>
     </div>
 
     <!-- BPI Live -->
@@ -1189,7 +1217,7 @@ footer a:hover { color: var(--gold); }
           <div style="font-size:11px; color:var(--ink-faint); letter-spacing:0.05em;">팀 BPI 합계</div>
           <div class="bpi-sum"><span id="bpiSum">0</span><span class="max"> / 정석 20</span></div>
         </div>
-        <div class="bpi-status" id="bpiStatus" style="text-align:right;">티어 선택 시 자동 계산</div>
+        <div class="bpi-status" id="bpiStatus" style="text-align:right;">전적 입력 시 자동 계산</div>
       </div>
       <div class="bpi-breakdown" id="bpiBreakdown">_ + _ + _ + _ = 0</div>
     </div>
@@ -1202,6 +1230,13 @@ footer a:hover { color: var(--gold); }
     <div class="form-group">
       <label class="form-label">전달사항 (선택)</label>
       <textarea class="form-textarea" id="memo" placeholder="후라이팬 이벤트 불참 / 특이사항 등"></textarea>
+    </div>
+
+    <div class="callout" style="margin-top:4px;">
+      <label style="display:flex; gap:10px; align-items:flex-start; cursor:pointer; font-size:13px; color:var(--ink-dim); line-height:1.7;">
+        <input type="checkbox" id="oathCheck" style="margin-top:3px; width:18px; height:18px; flex-shrink:0; accent-color:var(--gold);">
+        <span><strong style="color:var(--ink)">양심 서약</strong> — 위에 적은 역대 최고 티어·평균딜은 모두 사실이며, <strong style="color:var(--gold)">실력을 실제보다 낮춰 신고하지 않았습니다.</strong> 허위·축소 신고가 확인되면 팀 실격 처리에 동의합니다.</span>
+      </label>
     </div>
 
     <button class="btn btn-primary" style="width:100%; margin-top:8px;" onclick="generateApplication()">신청서 생성 ↓</button>
@@ -1294,7 +1329,7 @@ footer a:hover { color: var(--gold); }
 
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">Q. 내 티어를 모르겠어요</div>
-    <div class="faq-a">디스코드 <strong>#티어-발표</strong> 채널에서 본인 닉네임 검색. 신규 참가자는 #문의 채널로 시즌1 평균 딜량 신청.</div>
+    <div class="faq-a">신청서에 <strong>역대 최고 티어 + 시즌 최고 평균딜</strong>만 적으면 G드컵 티어·BPI가 자동 계산됩니다. 평균딜을 모르면 닥지지 등 전적 검색에서 확인하거나, #문의 채널에 배그 닉네임을 남겨주세요.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">Q. 친구가 없어요 (솔로 신청)</div>
@@ -1313,8 +1348,8 @@ footer a:hover { color: var(--gold); }
     <div class="faq-a">불가. 본 매치 참가팀에 한해 이벤트 매치 참여 가능. 단, 후라이팬은 팀 단위 불참 가능.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">Q. T1 팀장 +1 룰이 뭔가요?</div>
-    <div class="faq-a">T1 선수가 팀장이면 BPI에 +1 페널티 (T1 = 10 → 11). 강한 팀장의 영향력을 반영하는 룰.</div>
+    <div class="faq-q">Q. T0 팀장 +1 룰이 뭔가요?</div>
+    <div class="faq-a">T0(서바이버·450딜+ 괴물) 선수가 팀장이면 BPI에 +1 페널티 (T0 = 10 → 11). 강한 팀장의 영향력을 반영하는 룰.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">Q. 이벤트 매치 결과가 본 매치에 영향을 주나요?</div>
@@ -1336,38 +1371,75 @@ footer a:hover { color: var(--gold); }
 </main>
 
 <script>
-const BPI_MAP = { T1: 10, T2: 6, T3: 4, T4: 2, T5: 1 };
+const BPI_MAP = { T0: 10, T1: 8, T2: 6, T3: 4, T4: 2, T5: 1 };
 const WEIGHT_TABLE = [
   { min: 0, max: 14, mult: 1.3, label: '다크호스' },
   { min: 15, max: 16, mult: 1.2, label: '언더독' },
   { min: 17, max: 19, mult: 1.1, label: '도전자' },
   { min: 20, max: 20, mult: 1.0, label: '정석' },
   { min: 21, max: 22, mult: 0.9, label: '강팀' },
-  { min: 23, max: 999, mult: 0.8, label: '슈퍼팀' }
+  { min: 23, max: 25, mult: 0.8, label: '슈퍼팀' },
+  { min: 26, max: 28, mult: 0.7, label: '괴물팀' },
+  { min: 29, max: 999, mult: 0.6, label: '사기팀' }
 ];
 
 function getWeight(bpi) {
   return WEIGHT_TABLE.find(w => bpi >= w.min && bpi <= w.max) || WEIGHT_TABLE[0];
 }
 
+// 역대 최고 티어 + 시즌 최고 평균딜 → G드컵 티어 (랭크 게이트 포함)
+function computeTier(peak, dmg) {
+  dmg = Number(dmg) || 0;
+  if (!peak) return '';
+  // T0: 서바이버(=RP 4000급) 도달 AND 평균 450딜+
+  if (peak === '서바이버' && dmg >= 450) return 'T0';
+  // 마스터/서바이버 경험 = 최소 T2 (딜 무관), 350~449딜이면 T1
+  if (peak === '서바이버' || peak === '마스터') {
+    return dmg >= 350 ? 'T1' : 'T2';
+  }
+  // 다이아/크리스탈 경험
+  if (peak === '다이아' || peak === '크리스탈') {
+    if (dmg >= 350) return 'T1';
+    if (dmg >= 200) return 'T3';
+    return 'T4';
+  }
+  // 플래티넘 이하(저티어) = 크리스탈 무경험 → 캡(딜 뻥튀기 방지)
+  if (dmg >= 350) return 'T3';   // 350+ 의심 → T3 캡 (운영진 검증 대상)
+  if (dmg >= 200) return 'T4';
+  return 'T5';
+}
+
+// 멤버 i의 티어 계산 + 숨김 필드(.member-tier)에 기록 → 백엔드 호환
+function memberTier(i) {
+  const peak = (document.querySelector('.member-peak[data-idx="' + i + '"]') || {}).value || '';
+  const dmg = (document.querySelector('.member-dmg[data-idx="' + i + '"]') || {}).value || '';
+  const t = computeTier(peak, dmg);
+  const hid = document.querySelector('.member-tier[data-idx="' + i + '"]');
+  if (hid) hid.value = t;
+  return t;
+}
+
 function updateBPI() {
-  const tiers = document.querySelectorAll('.member-tier');
   let sum = 0;
   const parts = [];
-  tiers.forEach((sel, i) => {
-    const t = sel.value;
+  for (let i = 0; i < 4; i++) {
+    const t = memberTier(i);
     let v = t ? BPI_MAP[t] : 0;
-    // T1 leader penalty
-    if (i === 0 && t === 'T1') v += 1;
+    const isLeaderAce = (i === 0 && t === 'T0'); // T0 팀장 +1
+    if (isLeaderAce) v += 1;
     sum += v;
-    parts.push(t ? (v + (i === 0 && t === 'T1' ? '*' : '')) : '_');
-  });
+    const au = document.querySelector('.member-auto[data-idx="' + i + '"]');
+    if (au) au.innerHTML = t
+      ? ('→ <strong style="color:var(--gold)">' + t + '</strong> · BPI ' + v + (isLeaderAce ? ' (팀장 +1)' : ''))
+      : '전적 입력 시 티어 자동 산정';
+    parts.push(t ? (v + (isLeaderAce ? '*' : '')) : '_');
+  }
   document.getElementById('bpiSum').textContent = sum;
-  document.getElementById('bpiBreakdown').textContent = parts.join(' + ') + ' = ' + sum + (parts[0] && parts[0].includes('*') ? '  (* T1 팀장 +1)' : '');
+  document.getElementById('bpiBreakdown').textContent = parts.join(' + ') + ' = ' + sum + (parts.some(p => String(p).includes('*')) ? '  (* T0 팀장 +1)' : '');
 
   const status = document.getElementById('bpiStatus');
   if (sum === 0) {
-    status.innerHTML = '티어 선택 시 자동 계산';
+    status.innerHTML = '전적 입력 시 자동 계산';
   } else {
     const w = getWeight(sum);
     const color = w.mult === 1.0 ? 'var(--gold)' : (w.mult > 1 ? 'var(--green)' : 'var(--orange)');
@@ -1375,11 +1447,14 @@ function updateBPI() {
   }
 }
 
-document.querySelectorAll('.member-tier').forEach(sel => {
-  sel.addEventListener('change', updateBPI);
+document.querySelectorAll('.member-peak, .member-dmg').forEach(el => {
+  el.addEventListener('change', updateBPI);
+  el.addEventListener('input', updateBPI);
 });
 
 function generateApplication() {
+  const oath = document.getElementById('oathCheck');
+  if (oath && !oath.checked) { alert('마지막 "양심 서약"에 체크해야 신청서가 생성됩니다.\n전력을 사실대로 신고하는 것은 모든 참가팀의 공정성을 위한 약속입니다.'); return; }
   const teamName = document.getElementById('teamName').value.trim();
   const slogan = document.getElementById('teamSlogan').value.trim();
   const contact = document.getElementById('leaderContact').value.trim();
@@ -1389,8 +1464,10 @@ function generateApplication() {
   for (let i = 0; i < 4; i++) {
     const name = document.querySelector(`.member-name[data-idx="${i}"]`).value.trim();
     const ign = document.querySelector(`.member-ign[data-idx="${i}"]`).value.trim();
-    const tier = document.querySelector(`.member-tier[data-idx="${i}"]`).value;
-    members.push({ name, ign, tier });
+    const peak = document.querySelector(`.member-peak[data-idx="${i}"]`).value;
+    const dmg = document.querySelector(`.member-dmg[data-idx="${i}"]`).value.trim();
+    const tier = memberTier(i);
+    members.push({ name, ign, peak, dmg, tier });
   }
 
   // Validation — 멤버 1·2 필수, 3·4는 선택(비우면 용병 모집)
@@ -1398,15 +1475,12 @@ function generateApplication() {
   if (!teamName) errs.push('팀명');
   if (!contact) errs.push('팀장 연락처');
   members.forEach((m, i) => {
-    const filled = m.name || m.ign || m.tier;
-    if (i < 2) {
+    const filled = m.name || m.ign || m.peak || m.dmg;
+    if (i < 2 || filled) {
       if (!m.name) errs.push(`멤버${i+1} 디스코드 닉네임`);
       if (!m.ign) errs.push(`멤버${i+1} 배그 닉네임`);
-      if (!m.tier) errs.push(`멤버${i+1} 티어`);
-    } else if (filled) { // 일부만 채운 경우
-      if (!m.name) errs.push(`멤버${i+1} 디스코드 닉네임`);
-      if (!m.ign) errs.push(`멤버${i+1} 배그 닉네임`);
-      if (!m.tier) errs.push(`멤버${i+1} 티어`);
+      if (!m.peak) errs.push(`멤버${i+1} 역대 최고 티어`);
+      if (m.dmg === '') errs.push(`멤버${i+1} 시즌 최고 평균딜`);
     }
   });
 
@@ -1420,7 +1494,7 @@ function generateApplication() {
   let bpiSum = 0;
   filledMembers.forEach((m, i) => {
     let v = BPI_MAP[m.tier];
-    if (i === 0 && m.tier === 'T1') v += 1;
+    if (i === 0 && m.tier === 'T0') v += 1;
     bpiSum += v;
   });
   const weight = getWeight(bpiSum);
@@ -1438,11 +1512,12 @@ function generateApplication() {
   filledMembers.forEach((m, i) => {
     const role = i === 0 ? '👑 팀장' : '멤버 ' + (i+1);
     let v = BPI_MAP[m.tier];
-    const isT1Leader = (i === 0 && m.tier === 'T1');
-    if (isT1Leader) v += 1;
-    const bpiText = isT1Leader ? `BPI ${v} (T1 팀장 +1)` : `BPI ${v}`;
+    const isT0Leader = (i === 0 && m.tier === 'T0');
+    if (isT0Leader) v += 1;
+    const bpiText = isT0Leader ? `BPI ${v} (T0 팀장 +1)` : `BPI ${v}`;
     lines.push(`  ${role}`);
     lines.push(`    └ ${m.name} (배그: ${m.ign}) · ${m.tier} · ${bpiText}`);
+    lines.push(`       (신고 최고: ${m.peak} / 평균 ${m.dmg}딜)`);
   });
   if (recruiting > 0) {
     lines.push(`  🔍 용병 ${recruiting}명 모집중 (솔로 신청자 중 배정)`);
@@ -1513,6 +1588,8 @@ function copyAccount() {
         members.push({
           name:((document.querySelector('.member-name[data-idx="'+i+'"]')||{}).value||'').trim(),
           ign:((document.querySelector('.member-ign[data-idx="'+i+'"]')||{}).value||'').trim(),
+          peak:((document.querySelector('.member-peak[data-idx="'+i+'"]')||{}).value||''),
+          dmg:((document.querySelector('.member-dmg[data-idx="'+i+'"]')||{}).value||'').trim(),
           tier:((document.querySelector('.member-tier[data-idx="'+i+'"]')||{}).value||'')
         });
       }
