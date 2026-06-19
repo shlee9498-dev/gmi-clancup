@@ -84,7 +84,7 @@ function render(teams){
   document.getElementById('stat').innerHTML='✅ 확정 <b>'+confirmed+'</b> · ⏳ 신청 <b>'+applied+'</b> / 16팀';
   var el=document.getElementById('list');
   if(!teams.length){el.innerHTML='<div class="msg">아직 신청한 팀이 없어요.</div>';return;}
-  el.innerHTML=teams.map(function(t){
+  function card(t){
     var st=t.status||'applied';
     var badge=st==='confirmed'?'<span class="badge b-confirmed">✅ 확정</span>':(st==='cancelled'?'<span class="badge b-cancelled">🗑 취소</span>':'<span class="badge b-applied">⏳ 신청</span>');
     var memEdit=(t.members||[]).filter(function(m){return m.ign;}).map(function(m,mi){
@@ -102,12 +102,19 @@ function render(teams){
       +'<div class="meta">팀 BPI: <b>'+esc(t.bpi)+'</b>'+(t.weight!=null?' (가중치 ×'+esc(t.weight)+')':'')+'</div>'
       +'<div class="contact">📞 연락/입금자: '+esc(t.contact||'-')+'</div>'
       +'<div class="acts">'
-      +'<button class="ok" onclick="saveTiers('+t.id+')">💾 티어 저장</button>'
-      +'<button class="ok" onclick="setStatus('+t.id+',\'confirmed\')">✅ 입금확정</button>'
-      +'<button class="wait" onclick="setStatus('+t.id+',\'applied\')">↩️ 신청대기</button>'
-      +'<button class="del" onclick="setStatus('+t.id+',\'cancelled\')">🗑 취소</button>'
+      +'<button class="ok" onclick="saveTiers(\''+t.id+'\')">💾 티어 저장</button>'
+      +'<button class="ok" onclick="setStatus(\''+t.id+'\',\'confirmed\')">✅ 입금확정</button>'
+      +'<button class="wait" onclick="setStatus(\''+t.id+'\',\'applied\')">↩️ 신청대기</button>'
+      +'<button class="del" onclick="setStatus(\''+t.id+'\',\'cancelled\')">🗑 취소</button>'
       +'</div></div>';
-  }).join('');
+  }
+  var active=teams.filter(function(t){return (t.status||'')!=='cancelled';});
+  var canc=teams.filter(function(t){return (t.status||'')==='cancelled';});
+  var html=active.length?active.map(card).join(''):'<div class="msg">표시할 팀이 없어요.</div>';
+  if(canc.length){
+    html+='<details style="margin-top:16px;"><summary style="cursor:pointer;color:var(--ink-faint);font-size:14px;padding:8px 0;">🗑 취소된 팀 '+canc.length+'개 — 펼쳐서 복구(↩️ 신청대기)</summary><div style="opacity:.5;margin-top:8px;">'+canc.map(card).join('')+'</div></details>';
+  }
+  el.innerHTML=html;
 }
 
 function setStatus(id,status){
