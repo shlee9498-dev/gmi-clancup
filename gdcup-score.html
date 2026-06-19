@@ -78,6 +78,18 @@
       </div>
     </div>
     <div class="note">팀별 <b>순위</b> + <b>팀 총킬</b>만 넣어도 순위표 됩니다. 킬 MVP까지 하려면 <b>선수별</b>을 펼쳐 각자 킬 입력(합계가 팀 총킬). 저장은 팀마다 또는 위 "전체 저장".</div>
+    <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-top:10px;">
+      <div style="font-weight:800;margin-bottom:8px;">🤖 PUBG 자동 불러오기 <span style="color:var(--faint);font-weight:600;font-size:12px;">라운드 끝나면 클릭</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <select id="apPlat" style="flex:0 0 auto;width:auto;">
+          <option value="kakao">카카오</option>
+          <option value="steam">스팀</option>
+        </select>
+        <input id="apWho" placeholder="참가 선수 인게임닉 (또는 매치ID)" style="flex:1;min-width:150px;">
+        <button id="apBtn" class="save" style="flex:0 0 auto;">불러오기</button>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-top:8px;">참가 선수 닉 하나만 넣으면 그 사람의 <b>최근 매치</b>에서 16팀 순위·킬을 자동으로 채웁니다. 채운 뒤 검토하고 "전체 저장". (PUBG 키 필요)</div>
+    </div>
     <div id="list"></div>
   </div>
 
@@ -106,6 +118,55 @@
   }
   $("keyBtn").addEventListener("click",enter);
   $("keyInput").addEventListener("keydown",function(e){ if(e.key==="Enter") enter(); });
+
+  // ---- PUBG 자동 불러오기 (프리필) ----
+  function cardByTeam(name){
+    var found=null;
+    Array.prototype.forEach.call($("list").querySelectorAll('.tcard'),function(card){
+      var i=+card.getAttribute('data-i'); if(TEAMS[i] && TEAMS[i].team_name===name) found=card;
+    });
+    return found;
+  }
+  function autoPull(){
+    var plat=$("apPlat").value, who=$("apWho").value.trim();
+    if(!who){ toast("선수 닉 또는 매치ID를 입력하세요"); return; }
+    var isMatch=/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-/.test(who);
+    var q=isMatch?("matchId="+encodeURIComponent(who)):("player="+encodeURIComponent(who));
+    var btn=$("apBtn"); btn.disabled=true; var ot=btn.textContent; btn.textContent="불러오는 중…";
+    fetch(GAPI+"/api/gdcup-match-pull?platform="+encodeURIComponent(plat)+"&"+q,{headers:{"x-admin-key":key()}})
+      .then(function(r){ return r.json().then(function(d){ return {ok:r.ok,d:d}; }); })
+      .then(function(res){
+        btn.disabled=false; btn.textContent=ot;
+        var d=res.d||{};
+        if(!res.ok || !d.ok){
+          var em={pubg_disabled:"PUBG 키 미설정",match_not_found:"매치 못 찾음",no_recent_match:"최근 매치 없음",rate_limit:"잠시 후 다시(레이트리밋)",unauthorized:"키 오류"};
+          toast("실패: "+(em[d.error]||d.error||"오류")); return;
+        }
+        var filled=0;
+        (d.teams||[]).forEach(function(t){
+          var card=cardByTeam(t.team_name); if(!card) return;
+          filled++;
+          var plc=card.querySelector('.plc'); if(plc) plc.value=String(t.placement);
+          var pmap={}; (t.players||[]).forEach(function(p){ pmap[String(p.ign).trim().toLowerCase()]=p.kills; });
+          var anyPk=false;
+          Array.prototype.forEach.call(card.querySelectorAll('.pk'),function(inp){
+            var ign=String(inp.getAttribute('data-ign')||"").trim().toLowerCase();
+            if(pmap[ign]!=null){ inp.value=pmap[ign]; anyPk=true; }
+          });
+          var players=card.querySelector('.players');
+          if(anyPk && players && !players.classList.contains('show')) players.classList.add('show');
+          if(anyPk){ syncSum(card); }
+          else { var tk=card.querySelector('.tk'); if(tk){ tk.removeAttribute('readonly'); tk.value=t.team_kills; } }
+          var b=card.querySelector('.save'); if(b){ b.classList.remove('done'); b.textContent='저장'; }
+        });
+        var msg="✅ "+filled+"팀 자동 입력 ("+(d.mode||"")+")";
+        if(d.unmatched && d.unmatched.length) msg+=" · 미매칭 "+d.unmatched.length+"명(닉 확인)";
+        if(!filled) msg="매칭된 팀이 없습니다 · 닉/플랫폼 확인";
+        toast(msg);
+      })
+      .catch(function(){ btn.disabled=false; btn.textContent=ot; toast("네트워크 오류"); });
+  }
+  $("apBtn").addEventListener("click", autoPull);
 
   // ---- 데이터 ----
   function placementOptions(sel){
