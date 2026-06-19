@@ -42,6 +42,9 @@
   .row .rk{font-family:var(--display);font-size:30px;text-align:center;color:var(--ink-dim);}
   .row .nm{font-weight:800;font-size:25px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .row .nm .w{font-family:var(--body);font-weight:700;font-size:14px;color:var(--ink-faint);margin-left:9px;}
+  .row .nm{display:flex;align-items:center;gap:11px;}
+  .row .nm .tn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row .em{width:30px;height:30px;border-radius:7px;object-fit:contain;background:rgba(255,255,255,.06);flex:0 0 auto;}
   .row .sc{font-family:var(--display);font-size:30px;color:var(--ink);text-align:right;line-height:1;}
   .row .sc small{display:block;font-family:var(--body);font-weight:700;font-size:13px;color:var(--ink-faint);margin-top:4px;}
   /* TOP3 강조 */
@@ -89,6 +92,13 @@
   // ===== 데이터 소스 =====
   var GAPI="https://mri-academy-production.up.railway.app";
   var DEMO = new URLSearchParams(location.search).get('demo')==='1';
+  var BRANDS = {};
+  async function loadBrands(){
+    if(DEMO){ BRANDS.__loaded=true; return; }
+    try{ var r=await fetch(GAPI+"/api/gdcup-team-brands"); var d=await r.json();
+      ((d&&d.brands)||[]).forEach(function(b){ BRANDS[b.team_name]=b; }); }catch(e){}
+    BRANDS.__loaded=true;
+  }
   var SAMPLE=[
     {name:"세휘네치킨", weight:1.1, points:312, kills:41},
     {name:"파워", weight:1.0, points:298, kills:39},
@@ -117,9 +127,12 @@
 
   function rowHtml(t, rank){
     var cls = rank<=3 ? (' t'+rank) : '';
-    return '<div class="row'+cls+'">'
+    var b = BRANDS[t.name] || {};
+    var em = b.emblem ? '<img class="em" src="'+b.emblem+'">' : '';
+    var stl = (b.color && rank>3) ? ' style="border-left:5px solid '+b.color+'"' : '';
+    return '<div class="row'+cls+'"'+stl+'>'
       + '<div class="rk">'+rank+'</div>'
-      + '<div class="nm">'+escapeHtml(t.name)+'<span class="w">×'+t.weight+'</span></div>'
+      + '<div class="nm">'+em+'<span class="tn">'+escapeHtml(t.name)+'</span><span class="w">×'+t.weight+'</span></div>'
       + '<div class="sc">'+t.points+'<small>'+t.kills+'킬</small></div>'
       + '</div>';
   }
@@ -127,6 +140,7 @@
 
   async function render(){
     try{
+      if(!BRANDS.__loaded) await loadBrands();
       var d = await loadData();
       var data = (d.standings||[]).slice().sort(function(a,b){ return b.points - a.points; });
       if(!data.length){

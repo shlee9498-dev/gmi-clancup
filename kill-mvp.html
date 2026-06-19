@@ -89,6 +89,14 @@
   // ===== 데이터 소스 =====
   var GAPI="https://mri-academy-production.up.railway.app";
   var DEMO = new URLSearchParams(location.search).get('demo')==='1';
+  var BRANDS={};
+  async function loadBrands(){
+    if(DEMO){ BRANDS.__loaded=true; return; }
+    try{ var r=await fetch(GAPI+"/api/gdcup-team-brands"); var d=await r.json();
+      ((d&&d.brands)||[]).forEach(function(b){ BRANDS[b.team_name]=b; }); }catch(e){}
+    BRANDS.__loaded=true;
+  }
+  function tmCol(name){ var b=BRANDS[name]; return (b&&b.color)?(' style="color:'+b.color+'"'):''; }
   var SAMPLE=[
     {name:"GmI_Hye0n", team:"메르시", kills:14},
     {name:"DRIFT_Pervert", team:"불꽃", kills:12},
@@ -114,6 +122,7 @@
 
   async function render(){
     try{
+      if(!BRANDS.__loaded) await loadBrands();
       var d = await loadData();
       var data = (d.players||[]).slice().sort(function(a,b){ return b.kills - a.kills; });
       if(!data.length){
@@ -123,13 +132,13 @@
         var top=data[0];
         document.getElementById('hero').innerHTML=
           '<div class="crown">👑</div>'
-          + '<div class="who"><div class="lbl">KILL MVP</div><div class="nm">'+esc(top.name)+'</div><div class="tm">'+esc(top.team)+'</div></div>'
+          + '<div class="who"><div class="lbl">KILL MVP</div><div class="nm">'+esc(top.name)+'</div><div class="tm"'+tmCol(top.team)+'>'+esc(top.team)+'</div></div>'
           + '<div class="kills"><b>'+top.kills+'</b><span>KILLS</span></div>';
         var a='', b='';
         data.slice(1,13).forEach(function(p,i){
           var rank=i+2; var cls = rank<=3 ? (' s'+rank) : '';
           var html='<div class="row'+cls+'"><div class="rk">'+rank+'</div>'
-            +'<div class="nm">'+esc(p.name)+'<span class="tm">'+esc(p.team)+'</span></div>'
+            +'<div class="nm">'+esc(p.name)+'<span class="tm"'+tmCol(p.team)+'>'+esc(p.team)+'</span></div>'
             +'<div class="kl">'+p.kills+'<small>킬</small></div></div>';
           if(i<6) a+=html; else b+=html;
         });
