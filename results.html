@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G드컵 시즌2 · 누적 순위</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg:#0a0a0c; --panel:#16161c; --panel2:#1d1d25; --line:#27272a;
+    --ink:#f4f4f5; --ink-dim:#a1a1aa; --ink-faint:#71717a;
+    --gold:#f5c518; --gold-deep:#caa00f; --silver:#cbd5e1; --bronze:#d4955b; --blue:#5ac8fa; --red:#e63946;
+    --display:'Archivo Black',sans-serif; --body:'Pretendard Variable',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1920px;height:1080px;overflow:hidden;font-family:var(--body);color:var(--ink);
+    background:
+      radial-gradient(ellipse 60% 50% at 50% -8%, rgba(245,197,24,.10), transparent 60%),
+      linear-gradient(#0a0a0c,#0a0a0c);
+  }
+  body::before{content:"";position:fixed;inset:0;background-image:
+    linear-gradient(rgba(245,197,24,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(245,197,24,.022) 1px,transparent 1px);
+    background-size:37px 37px;pointer-events:none;}
+  .wrap{position:relative;height:1080px;padding:54px 70px 40px;display:flex;flex-direction:column;}
+
+  /* 헤더 */
+  .head{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:22px;}
+  .kick{font-family:var(--display);letter-spacing:.34em;font-size:20px;color:var(--gold);}
+  .title{font-family:var(--display);font-size:54px;line-height:.95;margin-top:8px;letter-spacing:-.01em;}
+  .title small{color:var(--ink-faint);font-size:26px;letter-spacing:.2em;margin-left:12px;}
+  .rstat{text-align:right;}
+  .rstat .r{font-family:var(--display);font-size:30px;color:var(--gold);}
+  .rstat .s{font-size:17px;color:var(--ink-dim);margin-top:6px;}
+
+  /* 순위 2열 */
+  .cols{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0 56px;align-content:center;padding:34px 0;}
+  .row{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:18px;
+    padding:14px 18px;border-radius:13px;border:1px solid transparent;}
+  .row + .row{margin-top:10px;}
+  .row .rk{font-family:var(--display);font-size:30px;text-align:center;color:var(--ink-dim);}
+  .row .nm{font-weight:800;font-size:25px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row .nm .w{font-family:var(--body);font-weight:700;font-size:14px;color:var(--ink-faint);margin-left:9px;}
+  .row .sc{font-family:var(--display);font-size:30px;color:var(--ink);text-align:right;line-height:1;}
+  .row .sc small{display:block;font-family:var(--body);font-weight:700;font-size:13px;color:var(--ink-faint);margin-top:4px;}
+  /* TOP3 강조 */
+  .row.t1{background:linear-gradient(90deg,rgba(245,197,24,.16),rgba(245,197,24,.03));border-color:rgba(245,197,24,.5);}
+  .row.t2{background:linear-gradient(90deg,rgba(203,213,225,.12),transparent);border-color:rgba(203,213,225,.32);}
+  .row.t3{background:linear-gradient(90deg,rgba(212,149,91,.12),transparent);border-color:rgba(212,149,91,.32);}
+  .row.t1 .rk{color:var(--gold);} .row.t2 .rk{color:var(--silver);} .row.t3 .rk{color:var(--bronze);}
+  .row.t1 .sc{color:var(--gold);}
+
+  /* 푸터 */
+  .foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:18px;}
+  .foot .next{font-weight:800;font-size:20px;color:var(--gold);display:flex;align-items:center;gap:10px;}
+  .foot .next .dot{width:10px;height:10px;border-radius:50%;background:var(--red);animation:bl 1.4s infinite;}
+  @keyframes bl{0%,100%{opacity:1}50%{opacity:.25}}
+  .foot .legend{font-size:15px;color:var(--ink-faint);}
+  .updating{position:fixed;top:18px;right:22px;font-size:13px;color:var(--ink-faint);}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <div class="kick">G드컵 SEASON 2</div>
+        <div class="title">누적 순위<small>STANDINGS</small></div>
+      </div>
+      <div class="rstat">
+        <div class="r" id="roundStat">ROUND 3 종료</div>
+        <div class="s" id="subStat">본매치 3~5R 누적 · 가중치 반영</div>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div id="colA"></div>
+      <div id="colB"></div>
+    </div>
+
+    <div class="foot">
+      <div class="next"><span class="dot"></span> <span id="nextLabel">잠시 후 ROUND 4 시작</span></div>
+      <div class="legend">점수 = (순위점 + 킬) 누적 × 팀 BPI 가중치</div>
+    </div>
+  </div>
+  <div class="updating" id="upd"></div>
+
+<script>
+  // ===== 데이터 소스 =====
+  var GAPI="https://mri-academy-production.up.railway.app";
+  var DEMO = new URLSearchParams(location.search).get('demo')==='1';
+  var SAMPLE=[
+    {name:"세휘네치킨", weight:1.1, points:312, kills:41},
+    {name:"파워", weight:1.0, points:298, kills:39},
+    {name:"광부", weight:1.2, points:276, kills:33},
+    {name:"메르시", weight:1.0, points:255, kills:30},
+    {name:"불꽃", weight:0.9, points:241, kills:35},
+    {name:"새벽", weight:1.1, points:228, kills:27},
+    {name:"질풍", weight:1.0, points:210, kills:25},
+    {name:"백호", weight:1.3, points:198, kills:18},
+    {name:"천둥", weight:1.0, points:181, kills:22},
+    {name:"해일", weight:0.9, points:166, kills:24},
+    {name:"북극성", weight:1.1, points:150, kills:16},
+    {name:"적호", weight:1.0, points:138, kills:17},
+    {name:"은하", weight:1.2, points:120, kills:11},
+    {name:"비룡", weight:1.0, points:104, kills:13},
+    {name:"서리", weight:0.9, points:88, kills:12},
+    {name:"고요", weight:1.0, points:71, kills:9}
+  ];
+  // 반환: {standings:[{name,weight,points,kills}], lastRound}
+  async function loadData(){
+    if(DEMO) return { standings: SAMPLE, lastRound: 3 };
+    var r = await fetch(GAPI+"/api/gdcup-scores");
+    var d = await r.json();
+    return { standings: (d&&d.standings)||[], lastRound: (d&&d.lastRound)||0 };
+  }
+
+  function rowHtml(t, rank){
+    var cls = rank<=3 ? (' t'+rank) : '';
+    return '<div class="row'+cls+'">'
+      + '<div class="rk">'+rank+'</div>'
+      + '<div class="nm">'+escapeHtml(t.name)+'<span class="w">×'+t.weight+'</span></div>'
+      + '<div class="sc">'+t.points+'<small>'+t.kills+'킬</small></div>'
+      + '</div>';
+  }
+  function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  async function render(){
+    try{
+      var d = await loadData();
+      var data = (d.standings||[]).slice().sort(function(a,b){ return b.points - a.points; });
+      if(!data.length){
+        document.getElementById('colA').innerHTML='<div class="row"><div class="nm" style="color:var(--ink-faint)">집계 대기 중…</div></div>';
+        document.getElementById('colB').innerHTML='';
+      } else {
+        var a='', b='';
+        data.forEach(function(t,i){ var html=rowHtml(t,i+1); if(i<8) a+=html; else b+=html; });
+        document.getElementById('colA').innerHTML=a;
+        document.getElementById('colB').innerHTML=b;
+      }
+      var lr=d.lastRound||0;
+      document.getElementById('roundStat').textContent = lr ? ('ROUND '+lr+' 종료') : '집계 대기';
+      document.getElementById('nextLabel').textContent = lr ? (lr<5 ? ('잠시 후 ROUND '+(lr+1)+' 시작') : '최종 결과 · 곧 시상') : '곧 시작합니다';
+      document.getElementById('upd').textContent='업데이트 '+new Date().toLocaleTimeString('ko-KR');
+    }catch(e){ document.getElementById('upd').textContent='연결 대기…'; }
+  }
+  render();
+  setInterval(render, 10000); // 10초마다 자동 갱신
+</script>
+</body>
+</html>

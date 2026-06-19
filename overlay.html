@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G드컵 시즌2 방송 오버레이</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --gold:#f5c518; --gold-deep:#caa00f; --ink:#f4f4f5; --ink-dim:#a1a1aa;
+    --blue:#5ac8fa; --red:#e63946; --green:#10b981; --panel:rgba(12,12,15,.82); --line:rgba(245,197,24,.35);
+    --display:'Archivo Black',sans-serif; --body:'Pretendard Variable',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1920px;height:1080px;overflow:hidden;background:transparent;font-family:var(--body);color:var(--ink);}
+
+  /* ── 좌상단 라운드 배지 ── */
+  .badge{position:absolute;top:40px;left:40px;display:flex;flex-direction:column;gap:8px;
+    transform:translateY(-6px);opacity:0;animation:in .5s cubic-bezier(.2,.8,.2,1) forwards;}
+  @keyframes in{to{transform:translateY(0);opacity:1;}}
+  .kick{align-self:flex-start;font-family:var(--display);letter-spacing:.3em;font-size:15px;color:var(--gold);
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 13px;
+    backdrop-filter:blur(8px);box-shadow:0 6px 24px rgba(0,0,0,.45);}
+  .pill{display:flex;align-items:center;gap:14px;background:var(--panel);
+    border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:14px;
+    padding:14px 20px;backdrop-filter:blur(8px);box-shadow:0 12px 40px rgba(0,0,0,.45);min-width:300px;}
+  .rno{font-family:var(--display);font-size:30px;line-height:1;color:var(--gold);}
+  .rno small{display:block;font-size:11px;letter-spacing:.2em;color:var(--ink-dim);margin-bottom:3px;font-family:var(--body);font-weight:700;}
+  .rinfo{display:flex;flex-direction:column;gap:3px;}
+  .rname{font-weight:800;font-size:21px;line-height:1.1;}
+  .rmeta{font-size:13px;color:var(--ink-dim);letter-spacing:.02em;}
+  .tag{font-family:var(--display);font-size:11px;letter-spacing:.15em;padding:3px 10px;border-radius:999px;}
+  .tag.ev{background:rgba(90,200,250,.16);color:var(--blue);border:1px solid rgba(90,200,250,.4);}
+  .tag.main{background:rgba(245,197,24,.16);color:var(--gold);border:1px solid var(--line);}
+  .tag.final{background:rgba(230,57,70,.18);color:#ff8a93;border:1px solid rgba(230,57,70,.5);}
+  /* 타입별 좌측 바 색 */
+  body[data-type="ev"] .pill{border-left-color:var(--blue);}
+  body[data-type="ev"] .rno{color:var(--blue);}
+  body[data-type="final"] .pill{border-left-color:var(--red);}
+  body[data-type="standby"] .pill{border-left-color:var(--ink-dim);}
+  body[data-type="standby"] .rno{color:var(--ink-dim);}
+
+  /* ── 좌하단 LIVE 칩 ── */
+  .live{position:absolute;bottom:40px;left:40px;display:flex;align-items:center;gap:10px;
+    background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:9px 18px;
+    backdrop-filter:blur(8px);font-weight:800;font-size:15px;box-shadow:0 8px 30px rgba(0,0,0,.4);}
+  .live .dot{width:11px;height:11px;border-radius:50%;background:var(--red);animation:blink 1.4s infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+  .live .plat{color:var(--ink-dim);font-weight:700;font-size:13px;}
+  body.nolive .live{display:none;}
+
+  /* ── 하단 컨트롤 바 (OBS에서 크롭해서 가림 · Interact로 클릭) ── */
+  #ctrl{position:absolute;left:0;bottom:0;width:1920px;height:64px;background:#0a0a0c;
+    border-top:2px solid var(--gold);display:flex;align-items:center;gap:8px;padding:0 16px;}
+  #ctrl .lab{font-family:var(--display);font-size:12px;color:var(--gold);letter-spacing:.1em;margin-right:8px;}
+  #ctrl button{font-family:var(--body);font-weight:800;font-size:15px;color:var(--ink);
+    background:#1a1a20;border:1px solid #2b2b34;border-radius:9px;padding:10px 16px;cursor:pointer;}
+  #ctrl button:hover{border-color:var(--gold);}
+  #ctrl button.on{background:var(--gold);color:#1a1500;border-color:var(--gold);}
+  #ctrl .sep{width:1px;height:30px;background:#2b2b34;margin:0 6px;}
+  #ctrl .hint{margin-left:auto;color:var(--ink-dim);font-size:12px;}
+  body.noctrl #ctrl{display:none;}
+</style>
+</head>
+<body data-type="standby">
+
+  <div class="badge" id="badge">
+    <div class="kick">G드컵 SEASON 2</div>
+    <div class="pill">
+      <div class="rno" id="rno"><small>ROUND</small>—</div>
+      <div class="rinfo">
+        <div class="rname" id="rname">잠시 후 시작</div>
+        <div class="rmeta"><span id="rmeta">곧 시작합니다</span> <span class="tag main" id="rtag" style="display:none"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="live">
+    <span class="dot"></span> LIVE <span class="plat">SOOP + YouTube</span>
+  </div>
+
+  <div id="ctrl">
+    <span class="lab">라운드</span>
+    <button data-r="0">대기</button>
+    <button data-r="1">R1 자전거</button>
+    <button data-r="2">R2 프라이팬</button>
+    <button data-r="3">R3 본매치</button>
+    <button data-r="4">R4 본매치</button>
+    <button data-r="5">R5 FINAL</button>
+    <span class="sep"></span>
+    <button id="liveBtn" class="on">🔴 LIVE</button>
+    <span class="hint">OBS: 이 바를 크롭으로 가리고 · Interact 창에서 클릭</span>
+  </div>
+
+<script>
+  var ROUNDS = {
+    0:{no:"—", small:"STANDBY", name:"잠시 후 시작", meta:"곧 시작합니다", tag:"", type:"standby"},
+    1:{no:"1", small:"ROUND", name:"🚲 자전거 레이싱", meta:"ERANGEL · 에란겔", tag:"이벤트 매치", tagcls:"ev", type:"ev"},
+    2:{no:"2", small:"ROUND", name:"🍳 프라이팬 매치", meta:"KARAKIN · 카라킨", tag:"이벤트 매치", tagcls:"ev", type:"ev"},
+    3:{no:"3", small:"ROUND", name:"e스포츠 본매치", meta:"TPP · 3인칭 정규전", tag:"본매치", tagcls:"main", type:"main"},
+    4:{no:"4", small:"ROUND", name:"e스포츠 본매치", meta:"TPP · 3인칭 정규전", tag:"본매치", tagcls:"main", type:"main"},
+    5:{no:"5", small:"ROUND", name:"e스포츠 본매치", meta:"TPP · 마지막 라운드", tag:"FINAL", tagcls:"final", type:"final"}
+  };
+  function qp(k){ return new URLSearchParams(location.search).get(k); }
+  function setRound(n){
+    n = String(n); var r = ROUNDS[n] || ROUNDS["0"];
+    document.body.setAttribute('data-type', r.type);
+    var badge = document.getElementById('badge');
+    badge.style.animation='none'; void badge.offsetWidth; badge.style.animation='in .5s cubic-bezier(.2,.8,.2,1) forwards';
+    document.getElementById('rno').innerHTML = '<small>'+r.small+'</small>'+r.no;
+    document.getElementById('rname').textContent = r.name;
+    document.getElementById('rmeta').textContent = r.meta;
+    var tag = document.getElementById('rtag');
+    if(r.tag){ tag.textContent=r.tag; tag.className='tag '+(r.tagcls||'main'); tag.style.display='inline-block'; }
+    else { tag.style.display='none'; }
+    document.querySelectorAll('#ctrl button[data-r]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-r')===n); });
+  }
+  function setLive(on){ document.body.classList.toggle('nolive', !on); document.getElementById('liveBtn').classList.toggle('on', on); }
+
+  document.querySelectorAll('#ctrl button[data-r]').forEach(function(b){
+    b.addEventListener('click', function(){ setRound(b.getAttribute('data-r')); });
+  });
+  document.getElementById('liveBtn').addEventListener('click', function(){
+    setLive(document.body.classList.contains('nolive'));
+  });
+  // 키보드 0~5 로도 전환 (OBS Interact에서 편하게)
+  document.addEventListener('keydown', function(e){ if(/^[0-5]$/.test(e.key)) setRound(e.key); });
+
+  // URL 파라미터: ?round=3 ?ctrl=0 ?live=0
+  if(qp('ctrl')==='0') document.body.classList.add('noctrl');
+  if(qp('live')==='0') setLive(false);
+  setRound(qp('round') || 0);
+</script>
+</body>
+</html>
