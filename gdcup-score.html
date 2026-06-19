@@ -87,8 +87,13 @@
         </select>
         <input id="apWho" placeholder="참가 선수 인게임닉 (또는 매치ID)" style="flex:1;min-width:150px;">
         <button id="apBtn" class="save" style="flex:0 0 auto;">불러오기</button>
+        <button id="apSaveBtn" class="save" style="flex:0 0 auto;background:var(--green);color:#04261b;">불러와서 저장</button>
       </div>
-      <div style="font-size:12px;color:var(--faint);margin-top:8px;">참가 선수 닉 하나만 넣으면 그 사람의 <b>최근 매치</b>에서 16팀 순위·킬을 자동으로 채웁니다. 채운 뒤 검토하고 "전체 저장". (PUBG 키 필요)</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">
+        <button id="apAuto" class="ptoggle">🔴 자동 감지 OFF</button>
+        <span id="apAutoMsg" style="font-size:12px;color:var(--faint);"></span>
+      </div>
+      <div style="font-size:12px;color:var(--faint);margin-top:8px;"><b>불러오기</b>=폼만 채움(검토용) · <b>불러와서 저장</b>=채우고 바로 저장 · <b>자동 감지</b>=새 매치 뜰 때마다 알아서 저장(라운드 탭 맞춰두기). (PUBG 키 필요)</div>
     </div>
     <div id="list"></div>
   </div>
@@ -119,7 +124,7 @@
   $("keyBtn").addEventListener("click",enter);
   $("keyInput").addEventListener("keydown",function(e){ if(e.key==="Enter") enter(); });
 
-  // ---- PUBG 자동 불러오기 (프리필) ----
+  // ---- PUBG 자동 불러오기 ----
   function cardByTeam(name){
     var found=null;
     Array.prototype.forEach.call($("list").querySelectorAll('.tcard'),function(card){
@@ -127,46 +132,84 @@
     });
     return found;
   }
-  function autoPull(){
+  function fillFromPull(d){
+    var filled=0;
+    (d.teams||[]).forEach(function(t){
+      var card=cardByTeam(t.team_name); if(!card) return;
+      filled++;
+      var plc=card.querySelector('.plc'); if(plc) plc.value=String(t.placement);
+      var pmap={}; (t.players||[]).forEach(function(p){ pmap[String(p.ign).trim().toLowerCase()]=p.kills; });
+      var anyPk=false;
+      Array.prototype.forEach.call(card.querySelectorAll('.pk'),function(inp){
+        var ign=String(inp.getAttribute('data-ign')||"").trim().toLowerCase();
+        if(pmap[ign]!=null){ inp.value=pmap[ign]; anyPk=true; }
+      });
+      var players=card.querySelector('.players');
+      if(anyPk && players && !players.classList.contains('show')) players.classList.add('show');
+      if(anyPk){ syncSum(card); }
+      else { var tk=card.querySelector('.tk'); if(tk){ tk.removeAttribute('readonly'); tk.value=t.team_kills; } }
+      var b=card.querySelector('.save'); if(b){ b.classList.remove('done'); b.textContent='저장'; }
+    });
+    return filled;
+  }
+  function autoPull(opts){
+    opts=opts||{};
     var plat=$("apPlat").value, who=$("apWho").value.trim();
-    if(!who){ toast("선수 닉 또는 매치ID를 입력하세요"); return; }
+    if(!who){ if(!opts.silent) toast("선수 닉 또는 매치ID를 입력하세요"); return Promise.resolve(null); }
     var isMatch=/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-/.test(who);
     var q=isMatch?("matchId="+encodeURIComponent(who)):("player="+encodeURIComponent(who));
-    var btn=$("apBtn"); btn.disabled=true; var ot=btn.textContent; btn.textContent="불러오는 중…";
-    fetch(GAPI+"/api/gdcup-match-pull?platform="+encodeURIComponent(plat)+"&"+q,{headers:{"x-admin-key":key()}})
+    if(!opts.silent){ var bb=$("apBtn"); bb.disabled=true; bb.textContent="불러오는 중…"; }
+    return fetch(GAPI+"/api/gdcup-match-pull?platform="+encodeURIComponent(plat)+"&"+q,{headers:{"x-admin-key":key()}})
       .then(function(r){ return r.json().then(function(d){ return {ok:r.ok,d:d}; }); })
       .then(function(res){
-        btn.disabled=false; btn.textContent=ot;
+        if(!opts.silent){ var b=$("apBtn"); b.disabled=false; b.textContent="불러오기"; }
         var d=res.d||{};
         if(!res.ok || !d.ok){
-          var em={pubg_disabled:"PUBG 키 미설정",match_not_found:"매치 못 찾음",no_recent_match:"최근 매치 없음",rate_limit:"잠시 후 다시(레이트리밋)",unauthorized:"키 오류"};
-          toast("실패: "+(em[d.error]||d.error||"오류")); return;
+          var em={pubg_disabled:"PUBG 키 미설정",match_not_found:"매치 못 찾음",no_recent_match:"최근 매치 없음",rate_limit:"잠시 후 다시(레이트리밋)",unauthorized:"키 오류",need_match_or_player:"닉/매치ID 입력"};
+          if(!opts.silent) toast("실패: "+(em[d.error]||d.error||"오류"));
+          return null;
         }
-        var filled=0;
-        (d.teams||[]).forEach(function(t){
-          var card=cardByTeam(t.team_name); if(!card) return;
-          filled++;
-          var plc=card.querySelector('.plc'); if(plc) plc.value=String(t.placement);
-          var pmap={}; (t.players||[]).forEach(function(p){ pmap[String(p.ign).trim().toLowerCase()]=p.kills; });
-          var anyPk=false;
-          Array.prototype.forEach.call(card.querySelectorAll('.pk'),function(inp){
-            var ign=String(inp.getAttribute('data-ign')||"").trim().toLowerCase();
-            if(pmap[ign]!=null){ inp.value=pmap[ign]; anyPk=true; }
-          });
-          var players=card.querySelector('.players');
-          if(anyPk && players && !players.classList.contains('show')) players.classList.add('show');
-          if(anyPk){ syncSum(card); }
-          else { var tk=card.querySelector('.tk'); if(tk){ tk.removeAttribute('readonly'); tk.value=t.team_kills; } }
-          var b=card.querySelector('.save'); if(b){ b.classList.remove('done'); b.textContent='저장'; }
-        });
-        var msg="✅ "+filled+"팀 자동 입력 ("+(d.mode||"")+")";
-        if(d.unmatched && d.unmatched.length) msg+=" · 미매칭 "+d.unmatched.length+"명(닉 확인)";
-        if(!filled) msg="매칭된 팀이 없습니다 · 닉/플랫폼 확인";
-        toast(msg);
+        var filled = opts.peek ? 0 : fillFromPull(d);
+        if(!opts.silent){
+          var msg="✅ "+filled+"팀 자동 입력 ("+(d.mode||"")+")";
+          if(d.unmatched && d.unmatched.length) msg+=" · 미매칭 "+d.unmatched.length+"명";
+          if(!filled) msg="매칭된 팀 없음 · 닉/플랫폼 확인";
+          toast(msg);
+        }
+        return { matchId:d.matchId, d:d, filled:filled };
       })
-      .catch(function(){ btn.disabled=false; btn.textContent=ot; toast("네트워크 오류"); });
+      .catch(function(){ if(!opts.silent){ var b=$("apBtn"); b.disabled=false; b.textContent="불러오기"; toast("네트워크 오류"); } return null; });
   }
-  $("apBtn").addEventListener("click", autoPull);
+  $("apBtn").addEventListener("click", function(){ autoPull(); });
+  $("apSaveBtn").addEventListener("click", function(){
+    autoPull().then(function(res){ if(res && res.filled){ saveAllNow(); } });
+  });
+  // 자동 감지: 새 매치가 뜨면 자동으로 불러와 저장 (옵션 · 라운드 탭을 맞게 둘 것)
+  var apTimer=null, apLastMatch=null;
+  function setAuto(on){
+    var b=$("apAuto");
+    if(on){
+      if(!$("apWho").value.trim()){ toast("먼저 참가 선수 닉을 입력하세요"); return; }
+      if(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-/.test($("apWho").value.trim())){ toast("자동 감지는 매치ID 말고 선수 닉으로"); return; }
+      b.textContent="🟢 자동 감지 ON"; b.style.borderColor="var(--green)"; b.style.color="var(--green)";
+      $("apAutoMsg").textContent="새 매치 감지 중…";
+      apLastMatch=null;
+      var tick=function(){
+        autoPull({silent:true, peek:true}).then(function(res){
+          if(res && res.matchId && res.matchId!==apLastMatch){
+            if(apLastMatch!==null){ fillFromPull(res.d); saveAllNow().then(function(n){ $("apAutoMsg").textContent="R"+round+" 자동 저장 "+n+"팀 · "+new Date().toLocaleTimeString('ko-KR'); }); }
+            else { $("apAutoMsg").textContent="대기 중(다음 매치부터 자동 저장)"; }
+            apLastMatch=res.matchId;
+          }
+        });
+      };
+      tick(); apTimer=setInterval(tick, 30000);
+    } else {
+      b.textContent="🔴 자동 감지 OFF"; b.style.borderColor=""; b.style.color="";
+      $("apAutoMsg").textContent=""; if(apTimer){ clearInterval(apTimer); apTimer=null; }
+    }
+  }
+  $("apAuto").addEventListener("click", function(){ setAuto(!apTimer); });
 
   // ---- 데이터 ----
   function placementOptions(sel){
@@ -258,19 +301,22 @@
         else { btn.textContent='저장'; toast("실패: "+((d&&d.error)||"")); }
       }).catch(function(){ btn.textContent='저장'; toast("네트워크 오류"); });
   }
-  $("saveAll").addEventListener("click",function(){
+  function saveAllNow(){
     var cards=Array.prototype.slice.call($("list").querySelectorAll('.tcard'));
     var todo=cards.filter(function(card){
       var b=teamPayload(card,+card.getAttribute('data-i'));
       return b.placement!=null || (b.team_kills>0) || (b.players&&b.players.some(function(p){return p.kills>0;}));
     });
-    if(!todo.length){ toast("입력된 팀이 없습니다"); return; }
-    var n=0;
-    (function next(idx){
-      if(idx>=todo.length){ toast("✅ "+n+"팀 저장 완료"); return; }
-      Promise.resolve(saveTeam(todo[idx],+todo[idx].getAttribute('data-i'))).then(function(){ n++; setTimeout(function(){next(idx+1);},120); });
-    })(0);
-  });
+    if(!todo.length){ toast("입력된 팀이 없습니다"); return Promise.resolve(0); }
+    return new Promise(function(resolve){
+      var n=0;
+      (function next(idx){
+        if(idx>=todo.length){ toast("✅ "+n+"팀 저장 완료"); resolve(n); return; }
+        Promise.resolve(saveTeam(todo[idx],+todo[idx].getAttribute('data-i'))).then(function(){ n++; setTimeout(function(){next(idx+1);},120); });
+      })(0);
+    });
+  }
+  $("saveAll").addEventListener("click", saveAllNow);
 
   function switchRound(r){
     round=r;
