@@ -164,13 +164,14 @@ function renderSolos(solos){
   var el=document.getElementById('soloAdminList'); if(!el)return;
   var act=solos.filter(function(s){return s.status!=='cancelled';});
   if(!act.length){el.innerHTML='<div class="msg">솔로/용병 신청이 없어요.</div>';return;}
-  el.innerHTML=act.map(function(s){
+  el.innerHTML='<div style="margin-bottom:10px;"><button class="ok" style="padding:7px 12px;" onclick="fetchAllSoloDmg()">🔍 대기자 전원 전시즌 딜 조회 (순차·느림)</button></div>'+act.map(function(s){
     var st=s.status||'waiting';
     var badge=st==='matched'?'<span class="badge b-confirmed">✅ 매칭완료</span>':'<span class="badge b-applied">⏳ 대기</span>';
     var kind=s.kind==='short'?'👥 자리모집':'🙋 솔로';
     return '<div class="card '+(st==='matched'?'confirmed':'')+'">'
       +'<div class="row1"><span class="tname">'+esc(s.ign)+' <span style="font-size:12px;color:var(--ink-faint);font-weight:400;">'+kind+'</span></span>'+badge+'</div>'
       +'<div class="meta" style="display:flex;gap:6px;align-items:center;margin-top:6px;">티어: <input class="solotier" data-id="'+s.id+'" value="'+esc(s.tier||'')+'" placeholder="예: 마스터 / T2" style="flex:1;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:6px 9px;border-radius:6px;font-size:13px;"><button class="ok" style="padding:6px 10px;" onclick="saveSoloTier('+s.id+')">💾</button></div>'
+      +'<div class="meta" id="dmg-'+s.id+'" style="margin-top:4px;">전시즌 딜: <button class="ok" style="padding:4px 9px;font-size:12px;" data-ign="'+esc(s.ign)+'" data-id="'+s.id+'" onclick="fetchSoloDmg(this)">🔍 조회</button></div>'
       +(s.note?'<div class="meta">한마디: '+esc(s.note)+'</div>':'')
       +'<div class="contact">💬 디스코드: '+esc(s.discord||'-')+'</div>'
       +'<div class="acts">'
@@ -179,6 +180,39 @@ function renderSolos(solos){
       +'<button class="del" onclick="setSolo('+s.id+',\'cancelled\')">🗑 취소</button>'
       +'</div></div>';
   }).join('');
+}
+function fetchSoloDmg(btn){
+  var k=getKey(); if(!k)return;
+  var ign=btn.getAttribute('data-ign'); var id=btn.getAttribute('data-id');
+  var box=document.getElementById('dmg-'+id); if(!box)return;
+  box.innerHTML='전시즌 딜: <span style="color:var(--ink-faint);">조회중… (수 초)</span>';
+  var iq=esc(ign);
+  return fetch(GAPI+"/api/gdcup-solo-stats?ign="+encodeURIComponent(ign),{headers:{"x-admin-key":k}})
+    .then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});})
+    .then(function(res){
+      var retry=' <button class="ok" style="padding:4px 9px;font-size:12px;" data-ign="'+iq+'" data-id="'+id+'" onclick="fetchSoloDmg(this)">🔍 재시도</button>';
+      if(res.s===200 && res.j && res.j.found){
+        var d=res.j;
+        var plat=d.platform==='kakao'?'카카오':(d.platform==='steam'?'스팀':d.platform);
+        var label=(d.source==='prev'?('시즌'+d.seasonNum):'현시즌');
+        box.innerHTML='전시즌 딜: <b style="color:var(--gold)">'+d.avgDamage+'</b> <span style="color:var(--ink-faint);font-size:12px;">('+label+' · '+plat+' · '+d.rounds+'판 · 평균 '+d.avgKills+'킬'+(d.tier?(' · '+d.tier):'')+')</span>'+retry;
+      } else if(res.s===429){
+        box.innerHTML='전시즌 딜: <span style="color:var(--red);">레이트리밋 — 잠시 후</span>'+retry;
+      } else {
+        box.innerHTML='전시즌 딜: <span style="color:var(--ink-faint);">못 찾음('+((res.j&&res.j.error)||'')+')</span>'+retry;
+      }
+    }).catch(function(){ box.innerHTML='전시즌 딜: <span style="color:var(--red);">네트워크 오류</span>'; });
+}
+function fetchAllSoloDmg(){
+  var btns=Array.prototype.slice.call(document.querySelectorAll('#soloAdminList [data-ign]'));
+  if(!btns.length)return;
+  if(!confirm(btns.length+'명을 순차 조회합니다. PUBG 제한(분당 10건) 때문에 1명당 약 9초, 총 '+Math.ceil(btns.length*9/60)+'분쯤 걸려요. 진행할까요?'))return;
+  var i=0;
+  (function next(){
+    if(i>=btns.length)return;
+    var b=btns[i++];
+    Promise.resolve(fetchSoloDmg(b)).then(function(){ setTimeout(next, 9000); });
+  })();
 }
 function setSolo(id,status){
   var k=getKey(); if(!k)return;
