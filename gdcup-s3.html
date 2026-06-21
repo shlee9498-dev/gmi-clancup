@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GmI G드컵 시즌3 | 8/7 본 매치 · 팀 신청</title>
+<meta name="description" content="GmI G드컵 시즌3. 배틀그라운드 사전 팀 신청 대회. 8월 7일(금) 본 매치. 멤버별 계좌 등록으로 상금 자동 정산.">
+<meta property="og:title" content="GmI G드컵 시즌3">
+<meta property="og:description" content="8/7(금) 본 매치 · 64명 16팀 · 참가비 무료 · 혼자 와도 OK">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#0a0a0c;--bg-elev:#15151a;--bg-card:#1a1a20;--bg-card-hi:#20202a;
+  --ink:#f4f4f5;--ink-dim:#a1a1aa;--ink-faint:#71717a;
+  --gold:#f5c518;--gold-soft:rgba(245,197,24,0.3);
+  --red:#e63946;--green:#10b981;--blue:#5ac8fa;--orange:#ff9500;--purple:#a855f7;
+  --line:#27272a;
+  --display:'Archivo Black','Pretendard Variable',sans-serif;
+  --body:'Pretendard Variable','Archivo',-apple-system,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(245,197,24,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(245,197,24,0.025) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,rgba(245,197,24,0.08),transparent 60%);pointer-events:none;z-index:0;}
+main{position:relative;z-index:1;}
+.container{max-width:720px;margin:0 auto;padding:0 20px;}
+.topbar{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;font-size:13px;position:sticky;top:0;z-index:5;background:rgba(10,10,12,0.85);backdrop-filter:blur(8px);}
+.topbar a{color:var(--ink-dim);text-decoration:none;transition:color .15s;}
+.topbar a:hover{color:var(--gold);}
+.brand{font-family:var(--display);letter-spacing:0.05em;color:var(--gold);font-size:14px;}
+.topbar-right{display:flex;gap:16px;align-items:center;}
+.topbar-cta{background:var(--gold);color:#000 !important;padding:6px 12px;border-radius:4px;font-weight:800;font-size:12px;}
+.hero{padding:56px 20px 40px;text-align:center;}
+.hero-badge{display:inline-block;font-size:11px;letter-spacing:0.2em;color:var(--gold);border:1px solid var(--gold-soft);padding:6px 14px;border-radius:999px;margin-bottom:20px;font-weight:600;}
+.hero h1{font-family:var(--display);font-size:clamp(40px,9vw,68px);line-height:1;letter-spacing:-0.02em;margin-bottom:14px;}
+.hero h1 .accent{color:var(--gold);}
+.hero-sub{font-size:16px;color:var(--ink-dim);margin-bottom:28px;}
+.hero-date{display:inline-flex;align-items:center;gap:10px;background:var(--bg-card);border:1px solid var(--line);padding:10px 18px;border-radius:8px;font-size:13px;color:var(--ink-dim);margin-bottom:28px;}
+.hero-date strong{color:var(--gold);font-weight:700;}
+.hero-cta-group{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.btn{display:inline-block;padding:14px 28px;border-radius:6px;font-weight:800;font-size:14px;text-decoration:none;letter-spacing:0.02em;transition:all .15s;cursor:pointer;border:none;font-family:inherit;}
+.btn-primary{background:var(--gold);color:#000;}
+.btn-primary:hover{background:#fde047;transform:translateY(-1px);}
+.btn-secondary{background:transparent;color:var(--ink);border:1px solid var(--line);}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold);}
+.btn-discord{background:#5865f2;color:#fff;}
+section{padding:48px 0;}
+.section-head{margin-bottom:24px;}
+.section-kicker{font-size:11px;letter-spacing:0.2em;color:var(--gold);font-weight:700;margin-bottom:8px;}
+.section-title{font-family:var(--display);font-size:clamp(24px,5vw,32px);line-height:1.1;}
+.section-desc{color:var(--ink-dim);font-size:14px;margin-top:8px;}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:40px;}
+.fact{background:var(--bg-card);border:1px solid var(--line);padding:16px;border-radius:8px;text-align:center;}
+.fact-label{font-size:11px;color:var(--ink-faint);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;font-weight:600;}
+.fact-value{font-family:var(--display);font-size:22px;color:var(--ink);line-height:1;}
+.fact-value .small{font-size:13px;color:var(--ink-dim);font-family:var(--body);font-weight:400;margin-left:4px;}
+.timeline{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:32px;}
+.tl-item{display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px dashed var(--line);}
+.tl-item:last-child{border-bottom:none;}
+.tl-date{font-family:var(--display);font-size:14px;color:var(--gold);min-width:84px;}
+.tl-title{font-weight:700;font-size:14px;margin-bottom:2px;}
+.tl-desc{font-size:13px;color:var(--ink-dim);}
+.card{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:16px;}
+.card-title{font-family:var(--display);font-size:18px;margin-bottom:14px;}
+.tier-table{width:100%;border-collapse:collapse;font-size:14px;}
+.tier-table th,.tier-table td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--line);}
+.tier-table th{font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;}
+.tier-table td.tier-name{font-family:var(--display);font-size:16px;}
+.tier-T1{color:var(--gold);}.tier-T2{color:var(--orange);}.tier-T3{color:var(--blue);}.tier-T4{color:var(--green);}.tier-T5{color:var(--purple);}
+.bpi-pill{display:inline-block;background:var(--bg-elev);border:1px solid var(--line);padding:3px 10px;border-radius:999px;font-weight:700;font-family:var(--display);font-size:12px;}
+.weight-row{display:grid;grid-template-columns:80px 60px 1fr;gap:12px;padding:10px 12px;border-bottom:1px solid var(--line);align-items:center;font-size:14px;}
+.weight-row:last-child{border-bottom:none;}
+.weight-row.standard{background:rgba(245,197,24,0.06);}
+.weight-bpi{font-family:var(--display);font-size:13px;color:var(--ink-dim);}
+.weight-mult{font-family:var(--display);color:var(--gold);}
+.weight-name{font-size:13px;color:var(--ink-dim);}
+.callout{background:rgba(245,197,24,0.08);border:1px solid var(--gold-soft);border-left:3px solid var(--gold);border-radius:6px;padding:14px 16px;margin:16px 0;font-size:14px;color:var(--ink);}
+.callout.red{background:rgba(230,57,70,0.08);border-color:rgba(230,57,70,0.3);border-left-color:var(--red);}
+.callout.green{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3);border-left-color:var(--green);}
+.callout.blue{background:rgba(90,200,250,0.08);border-color:rgba(90,200,250,0.3);border-left-color:var(--blue);}
+.callout strong{color:var(--gold);}.callout.red strong{color:var(--red);}.callout.green strong{color:var(--green);}.callout.blue strong{color:var(--blue);}
+.deposit{background:linear-gradient(135deg,rgba(245,197,24,0.1),rgba(245,197,24,0.02));border:1px solid var(--gold-soft);border-radius:12px;padding:24px;margin-bottom:16px;}
+.deposit-amount{font-family:var(--display);font-size:36px;color:var(--gold);margin:8px 0;}
+.form-section{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:16px;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:12px;letter-spacing:0.05em;color:var(--ink-dim);margin-bottom:6px;font-weight:600;}
+.form-label .req{color:var(--red);margin-left:4px;}
+.form-label .opt{color:var(--ink-faint);margin-left:4px;font-weight:400;}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);padding:11px 14px;border-radius:6px;font-size:14px;font-family:inherit;transition:border-color .15s;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--gold);}
+.form-textarea{resize:vertical;min-height:70px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end;}
+.form-row .form-group{margin-bottom:0;}
+.member-card{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:10px;}
+.member-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.member-num{font-family:var(--display);font-size:13px;color:var(--gold);letter-spacing:0.05em;}
+.member-num.leader::after{content:'👑 팀장';background:rgba(245,197,24,0.15);color:var(--gold);padding:2px 8px;border-radius:4px;font-size:10px;margin-left:8px;font-family:var(--body);}
+.acct-box{margin-top:12px;padding:12px;background:var(--bg-elev);border:1px dashed var(--line);border-radius:8px;}
+.acct-box .acct-h{font-size:11.5px;color:var(--ink-faint);margin-bottom:8px;}
+.acct-box .acct-h b{color:var(--gold);}
+.acct-row{display:grid;grid-template-columns:0.9fr 1.3fr 0.8fr;gap:8px;}
+@media(max-width:520px){.acct-row{grid-template-columns:1fr;}}
+.bpi-live{background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:16px;margin:16px 0;}
+.bpi-live-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.bpi-sum{font-family:var(--display);font-size:28px;color:var(--gold);}
+.bpi-sum .max{font-size:14px;color:var(--ink-faint);}
+.bpi-status{font-size:12px;color:var(--ink-dim);}
+.bpi-status .mult{color:var(--gold);font-weight:700;}.bpi-status .label{color:var(--ink);font-weight:700;}
+.bpi-breakdown{font-size:12px;color:var(--ink-faint);font-family:'Courier New',monospace;}
+.generated{background:var(--bg);border:1px solid var(--gold-soft);border-radius:8px;padding:16px;font-family:'Courier New',monospace;font-size:12px;white-space:pre-wrap;margin:16px 0;max-height:320px;overflow-y:auto;color:var(--ink-dim);}
+.copy-btn{background:var(--bg-elev);border:1px solid var(--line);color:var(--ink-dim);padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-family:inherit;}
+.copy-btn:hover{color:var(--gold);border-color:var(--gold);}
+.copy-btn.copied{color:var(--green);border-color:var(--green);}
+.faq-item{background:var(--bg-card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:8px;cursor:pointer;}
+.faq-q{font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center;}
+.faq-q::after{content:'+';color:var(--gold);font-size:18px;}
+.faq-item.open .faq-q::after{content:'−';}
+.faq-a{display:none;margin-top:10px;font-size:13px;color:var(--ink-dim);line-height:1.7;}
+.faq-item.open .faq-a{display:block;}
+footer{border-top:1px solid var(--line);padding:32px 20px;text-align:center;font-size:12px;color:var(--ink-faint);margin-top:40px;}
+footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--gold);}
+.anchor{scroll-margin-top:70px;}
+@media(max-width:600px){.facts{grid-template-columns:1fr 1fr;}.form-row{grid-template-columns:1fr;}.hero{padding:36px 20px 28px;}section{padding:32px 0;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="https://shlee9498-dev.github.io/gmi-clancup/" class="brand">GmI CLANCUP</a>
+  <div class="topbar-right">
+    <a href="https://discord.gg/9RjqdSKw" target="_blank">디스코드</a>
+    <a href="#apply" class="topbar-cta">신청하기</a>
+  </div>
+</div>
+
+<main>
+
+<section class="hero">
+  <div class="hero-badge">G드컵 SEASON 3 · 사전 팀 신청</div>
+  <h1>G드컵 <span class="accent">시즌3</span></h1>
+  <p class="hero-sub">배틀그라운드 · 64명 16팀 · 사전 팀 신청제</p>
+  <div class="hero-date">📅 본 매치 <strong>2026.08.07 (금) 20:00</strong> · 모집 <strong>7월 (예정)</strong></div>
+  <div id="gdcupCount" style="margin:2px 0 18px;font-size:14px;color:var(--ink-dim);">🔥 현재 <strong id="gdcupCountNum" style="color:var(--gold);font-family:var(--display);font-size:19px;">–</strong> <span style="opacity:.7">/ 16팀</span> · 🙋 솔로 대기 <strong id="gdcupSoloNum" style="color:var(--blue);font-family:var(--display);font-size:19px;">–</strong><span style="opacity:.7">명</span></div>
+  <div class="hero-cta-group">
+    <a href="#apply" class="btn btn-primary">팀 신청하기</a>
+    <a href="#rules" class="btn btn-secondary">티어·BPI 보기</a>
+    <a href="#solo" class="btn btn-secondary">🙋 솔로 신청</a>
+  </div>
+</section>
+
+<div class="container">
+
+<!-- KEY FACTS -->
+<section style="padding-top:0;">
+  <div class="facts">
+    <div class="fact"><div class="fact-label">팀 인원</div><div class="fact-value">4<span class="small">명</span></div></div>
+    <div class="fact"><div class="fact-label">최대 팀수</div><div class="fact-value">16<span class="small">팀</span></div></div>
+    <div class="fact"><div class="fact-label">총 인원</div><div class="fact-value">64<span class="small">명</span></div></div>
+    <div class="fact"><div class="fact-label">정석 BPI</div><div class="fact-value">20<span class="small">점</span></div></div>
+    <div class="fact"><div class="fact-label">참가비</div><div class="fact-value">무료</div></div>
+    <div class="fact"><div class="fact-label">본 매치</div><div class="fact-value">3<span class="small">라운드</span></div></div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="anchor">
+  <div class="section-head"><div class="section-kicker">SCHEDULE</div><h2 class="section-title">일정 <span style="font-size:13px;color:var(--ink-faint);font-family:var(--body);">(잠정)</span></h2></div>
+  <div class="timeline">
+    <div class="tl-item"><div class="tl-date">7월 초</div><div class="tl-body"><div class="tl-title">1차 모집</div><div class="tl-desc">GmI 클랜원 우선 · 팀 결성</div></div></div>
+    <div class="tl-item"><div class="tl-date">7월 중~말</div><div class="tl-body"><div class="tl-title">2차 모집 + 후원 OPEN</div><div class="tl-desc">용병 합류 · 솔로 매칭 · 타클랜 OK</div></div></div>
+    <div class="tl-item"><div class="tl-date">8/6 (목)</div><div class="tl-body"><div class="tl-title">신청 마감 · 최종 확정</div><div class="tl-desc">솔로 매칭 마무리 · 최종 16팀 확정</div></div></div>
+    <div class="tl-item"><div class="tl-date">8/7 (금)</div><div class="tl-body"><div class="tl-title">본 매치 — 19:30 대기 / 20:00 시작</div><div class="tl-desc">이벤트 매치 + 메인 e스포츠 모드 3라운드</div></div></div>
+  </div>
+  <div class="callout"><strong>📌 시즌3 변경점</strong> — 신청 시 <strong>멤버별 계좌(본인 명의)</strong>를 받아 상금을 개별 자동 정산합니다. (시즌2는 팀장 수기 취합 → 시즌3부터 폼에서 직접)</div>
+</section>
+
+<!-- BPI SYSTEM -->
+<section id="rules" class="anchor">
+  <div class="section-head"><div class="section-kicker">BPI SYSTEM</div><h2 class="section-title">티어 · BPI</h2>
+  <p class="section-desc">역대 최고 티어 + 시즌 최고 평균딜로 티어 자동 산정. 팀 BPI 합계 20이 정석. <span style="color:var(--ink-faint);">가중치는 시즌3 밸런스로 재산정될 수 있습니다.</span></p></div>
+  <div class="card">
+    <table class="tier-table">
+      <thead><tr><th>티어</th><th>기준 (최고티어 · 평균딜)</th><th>BPI</th><th>역할</th></tr></thead>
+      <tbody>
+        <tr><td class="tier-name" style="color:var(--red);font-weight:800;">T0</td><td>서바이버 · 450딜+</td><td><span class="bpi-pill">10</span></td><td>괴물</td></tr>
+        <tr><td class="tier-name tier-T1">T1</td><td>350딜+ (크리스탈↑)</td><td><span class="bpi-pill">8</span></td><td>에이스</td></tr>
+        <tr><td class="tier-name tier-T2">T2</td><td>마스터 경험 · 딜 무관</td><td><span class="bpi-pill">6</span></td><td>준에이스</td></tr>
+        <tr><td class="tier-name tier-T3">T3</td><td>크리스탈↑ · 200~349딜</td><td><span class="bpi-pill">4</span></td><td>중위</td></tr>
+        <tr><td class="tier-name tier-T4">T4</td><td>저티어 · 200~349딜</td><td><span class="bpi-pill">2</span></td><td>받쳐주기</td></tr>
+        <tr><td class="tier-name tier-T5">T5</td><td>저티어 · ~199딜 / 신예</td><td><span class="bpi-pill">1</span></td><td>숨은진주</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout"><strong>👑 T0 팀장 페널티</strong>: T0(괴물)이 팀장이면 BPI <strong>+1</strong> (10 → 11).</div>
+  <div class="card">
+    <div class="card-title">⚖️ 가중치 (계단식)</div>
+    <div class="weight-row"><span class="weight-bpi">14↓</span><span class="weight-mult">×1.3</span><span class="weight-name">다크호스</span></div>
+    <div class="weight-row"><span class="weight-bpi">15~16</span><span class="weight-mult">×1.2</span><span class="weight-name">언더독</span></div>
+    <div class="weight-row"><span class="weight-bpi">17~19</span><span class="weight-mult">×1.1</span><span class="weight-name">도전자</span></div>
+    <div class="weight-row standard"><span class="weight-bpi">20</span><span class="weight-mult">×1.0</span><span class="weight-name"><strong style="color:var(--gold)">정석</strong></span></div>
+    <div class="weight-row"><span class="weight-bpi">21~22</span><span class="weight-mult">×0.9</span><span class="weight-name">강팀</span></div>
+    <div class="weight-row"><span class="weight-bpi">23~25</span><span class="weight-mult">×0.8</span><span class="weight-name">슈퍼팀</span></div>
+    <div class="weight-row"><span class="weight-bpi">26~28</span><span class="weight-mult">×0.7</span><span class="weight-name">괴물팀</span></div>
+    <div class="weight-row"><span class="weight-bpi">29↑</span><span class="weight-mult">×0.6</span><span class="weight-name">사기팀</span></div>
+  </div>
+</section>
+
+<!-- FREE ENTRY -->
+<section class="anchor">
+  <div class="deposit">
+    <div style="font-size:12px;color:var(--ink-dim);letter-spacing:0.08em;">참가비</div>
+    <div class="deposit-amount" style="color:var(--green)">무료</div>
+    <div style="font-size:13px;color:var(--ink-dim);margin-top:8px;line-height:1.9;">
+      ✓ 보증금·참가비 <strong style="color:var(--green)">없음</strong><br>
+      ✓ 팀 없어도 OK → <strong>솔로/용병 신청</strong>하면 운영진이 매칭<br>
+      ✓ <strong style="color:var(--gold)">8/7(금) 참가 확정 체크인</strong>에 꼭 응답해주세요
+    </div>
+  </div>
+</section>
+
+<!-- APPLY FORM -->
+<section id="apply" class="anchor">
+  <div class="section-head"><div class="section-kicker">APPLY</div><h2 class="section-title">팀 신청</h2>
+  <p class="section-desc">양식 작성 → 신청서 생성 → 운영진 자동 전달 (참가비 무료)</p></div>
+
+  <div class="form-section">
+    <div class="callout" style="margin-bottom:18px;border-color:var(--gold-soft);">
+      👑 <strong style="color:var(--gold)">팀장 먼저 등록하세요!</strong> 팀원이 없어도 OK — <strong style="color:var(--ink)">본인(멤버1)만 입력</strong>하면 명단 맨 위에 "🔍 용병 모집중"으로 떠서 사람들이 합류 신청을 합니다.
+    </div>
+    <div class="form-group"><label class="form-label">팀명 <span class="req">*</span></label><input type="text" class="form-input" id="teamName" placeholder="예: 메르시, 광부, 세휘 …"></div>
+    <div class="form-group"><label class="form-label">팀 로고 / 슬로건 <span class="opt">(선택)</span></label><input type="text" class="form-input" id="teamSlogan" placeholder="자유 작성"></div>
+
+    <!-- 멤버 1~4 -->
+    <div id="memberCards"></div>
+
+    <div class="bpi-live">
+      <div class="bpi-live-head">
+        <div><div style="font-size:11px;color:var(--ink-faint);letter-spacing:0.05em;">팀 BPI 합계</div><div class="bpi-sum"><span id="bpiSum">0</span><span class="max"> / 정석 20</span></div></div>
+        <div class="bpi-status" id="bpiStatus" style="text-align:right;">전적 입력 시 자동 계산</div>
+      </div>
+      <div class="bpi-breakdown" id="bpiBreakdown">_ + _ + _ + _ = 0</div>
+    </div>
+
+    <div class="form-group"><label class="form-label">팀장 연락처 <span class="req">*</span></label><input type="text" class="form-input" id="leaderContact" placeholder="카카오톡 ID / 전화번호 (운영진 비공개)"></div>
+    <div class="form-group"><label class="form-label">전달사항 <span class="opt">(선택)</span></label><textarea class="form-textarea" id="memo" placeholder="이벤트 불참 / 특이사항 등"></textarea></div>
+
+    <div class="callout" style="margin-top:4px;">
+      <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:13px;color:var(--ink-dim);line-height:1.7;">
+        <input type="checkbox" id="oathCheck" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:var(--gold);">
+        <span><strong style="color:var(--ink)">양심 서약</strong> — 적은 전적은 모두 사실이며 실력을 낮춰 신고하지 않았고, <strong style="color:var(--gold)">입력한 계좌는 모두 본인(해당 멤버) 명의</strong>입니다. 허위 신고 시 실격, 타인 명의 계좌로 인한 정산 문제는 본인 책임에 동의합니다.</span>
+      </label>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="generateApplication()">신청서 생성 ↓</button>
+  </div>
+
+  <div id="generatedWrap" style="display:none;">
+    <div class="form-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-family:var(--display);font-size:16px;">📋 생성된 신청서</div>
+        <button class="copy-btn" id="copyAppBtn" onclick="copyApplication()">전체 복사</button>
+      </div>
+      <div class="generated" id="generated"></div>
+      <div class="callout green"><strong>✅ 신청 완료!</strong><br>운영진에게 자동 전달됐어요. 8/7(금) 참가 확정 체크인에 꼭 응답해주세요!<br>📌 계좌를 입력했다면 수상 시 자동 정산, 비웠다면 수상 후 개별 취합합니다.</div>
+      <a href="https://discord.gg/9RjqdSKw" target="_blank" class="btn btn-discord" style="width:100%;text-align:center;margin-top:8px;">디스코드로 이동 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- 참가팀 명단 -->
+<section class="anchor" id="teams">
+  <div class="section-head"><div class="section-kicker">TEAMS</div><h2 class="section-title">현재 신청 팀</h2>
+  <p class="section-desc">사이트·디스코드 어디서 신청해도 자동 표시 (개인정보·계좌 제외)</p></div>
+  <div id="teamList" style="display:grid;gap:10px;"><div style="color:var(--ink-dim);text-align:center;padding:18px;">불러오는 중…</div></div>
+</section>
+
+<!-- 솔로/용병 -->
+<section class="anchor" id="solo">
+  <div class="section-head"><div class="section-kicker">SOLO / 용병</div><h2 class="section-title">🙋 혼자 왔어요 / 팀원이 부족해요</h2>
+  <p class="section-desc">팀이 없어도 OK! 신청하면 디스코드에 자동 등록되고 아래 명단에 떠요.</p></div>
+  <div style="background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:18px;">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+      <label style="flex:1;min-width:150px;cursor:pointer;background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13.5px;"><input type="radio" name="soloKind" value="solo" checked style="margin-right:6px;">🙋 나 혼자예요</label>
+      <label style="flex:1;min-width:150px;cursor:pointer;background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13.5px;"><input type="radio" name="soloKind" value="short" style="margin-right:6px;">👥 자리 부족</label>
+    </div>
+    <input id="soloIgn" placeholder="인게임 닉네임 *" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:8px;font-size:14px;margin-bottom:8px;">
+    <input id="soloTier" placeholder="현재 티어 (예: 다이아, 마스터)" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:8px;font-size:14px;margin-bottom:8px;">
+    <input id="soloDiscord" placeholder="디스코드 사용자명 (예: zmdk1373) *" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:8px;font-size:14px;margin-bottom:8px;">
+    <input id="soloNote" placeholder="한마디 (예: 8시 이후 가능)" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:8px;font-size:14px;margin-bottom:8px;">
+    <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="submitSolo()">신청하기</button>
+    <div id="soloMsg" style="margin-top:10px;font-size:13px;text-align:center;"></div>
+  </div>
+  <h3 style="font-size:15px;margin-bottom:10px;color:var(--ink);">🙋 현재 참여 대기 명단</h3>
+  <div id="soloList" style="display:grid;gap:8px;"><div style="color:var(--ink-dim);text-align:center;padding:16px;">불러오는 중…</div></div>
+</section>
+
+<!-- FAQ -->
+<section class="anchor">
+  <div class="section-head"><div class="section-kicker">FAQ</div><h2 class="section-title">자주 묻는 질문</h2></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 계좌는 꼭 적어야 하나요?</div><div class="faq-a">아니요, <strong>선택</strong>입니다. 비워도 신청 가능해요. 단 입력해두면 수상 시 자동으로 개별 정산되어 빠릅니다. 입력 시 <strong>반드시 본인(해당 멤버) 명의</strong> 계좌만 적어주세요.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 내 티어를 모르겠어요</div><div class="faq-a">역대 최고 티어 + 시즌 최고 평균딜만 적으면 BPI가 자동 계산됩니다. 평균딜은 닥지지 등 전적 검색에서 확인하세요.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 친구가 없어요 (솔로 신청)</div><div class="faq-a">솔로 신청 OK. 운영진이 BPI 맞춰 자동 매칭합니다.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 참가비가 있나요?</div><div class="faq-a">완전 무료입니다. 보증금도 없어요. 대신 8/7(금) 참가 확정 체크인에 응답해주세요.</div></div>
+</section>
+
+</div><!-- /.container -->
+
+<footer>
+  <div>GmI 클랜 · G드컵 시즌3 · 2026 · 비영리 친목 대회</div>
+  <div style="margin-top:8px;">
+    <a href="https://shlee9498-dev.github.io/gmi-clancup/">메인</a> ·
+    <a href="https://discord.gg/9RjqdSKw" target="_blank">디스코드</a>
+  </div>
+</footer>
+
+</main>
+
+<script>
+/* ===== 백엔드 연동 메모 (사장 확인용) =====
+ * 이 폼은 멤버별 계좌(bank/account/holder)를 추가로 전송합니다. season=3 태깅.
+ * 백엔드(main.py) 측 필요 작업:
+ *  1) gdcup_teams(또는 members) 테이블에 컬럼 추가: bank, account, holder (멤버별)
+ *  2) /api/gdcup-apply 가 members[].bank/account/holder, season 저장
+ *  3) /api/gdcup-list, /api/gdcup-count, /api/gdcup-solo* 에 ?season=3 필터 추가
+ *     (미적용 시 시즌2 데이터가 섞여 보일 수 있음)
+ *  4) 계좌는 공개 목록(gdcup-list)에 절대 노출 금지 — admin-list에서만.
+ * ========================================== */
+const SEASON = 3;
+const BPI_MAP = { T0:10, T1:8, T2:6, T3:4, T4:2, T5:1 };
+const WEIGHT_TABLE = [
+  {min:0,max:14,mult:1.3,label:'다크호스'},{min:15,max:16,mult:1.2,label:'언더독'},
+  {min:17,max:19,mult:1.1,label:'도전자'},{min:20,max:20,mult:1.0,label:'정석'},
+  {min:21,max:22,mult:0.9,label:'강팀'},{min:23,max:25,mult:0.8,label:'슈퍼팀'},
+  {min:26,max:28,mult:0.7,label:'괴물팀'},{min:29,max:999,mult:0.6,label:'사기팀'}
+];
+function getWeight(b){return WEIGHT_TABLE.find(w=>b>=w.min&&b<=w.max)||WEIGHT_TABLE[0];}
+function computeTier(peak,dmg){
+  dmg=Number(dmg)||0; if(!peak)return'';
+  if(peak==='서바이버'&&dmg>=450)return'T0';
+  if(peak==='서바이버'||peak==='마스터')return dmg>=350?'T1':'T2';
+  if(peak==='다이아'||peak==='크리스탈'){ if(dmg>=350)return'T1'; if(dmg>=200)return'T3'; return'T4'; }
+  if(dmg>=350)return'T3'; if(dmg>=200)return'T4'; return'T5';
+}
+
+// 멤버 카드 4개 동적 생성 (계좌 포함)
+function bankOptions(){
+  var banks=['','국민','신한','우리','하나','농협','기업','카카오뱅크','토스뱅크','새마을','부산','전북','SC제일','케이뱅크','대구','경남','광주','수협','우체국','신협','산업'];
+  return banks.map(function(b){return '<option value="'+b+'">'+(b||'은행 선택')+'</option>';}).join('');
+}
+function memberCardHTML(i){
+  var leader=i===0;
+  var sub=leader?'<span style="font-size:11px;color:var(--ink-faint);">팀장 = 신청서 제출자</span>'
+                :'<span style="font-size:11px;color:var(--ink-faint);">선택 — 비우면 용병 모집</span>';
+  return '<div class="member-card">'
+    +'<div class="member-head"><span class="member-num'+(leader?' leader':'')+'">멤버 '+(i+1)+'</span>'+sub+'</div>'
+    +'<div class="form-row">'
+      +'<div class="form-group"><label class="form-label">디스코드 닉네임 <span class="req">*</span></label><input type="text" class="form-input member-name" data-idx="'+i+'"></div>'
+      +'<div class="form-group"><label class="form-label">배그 닉네임 <span class="req">*</span></label><input type="text" class="form-input member-ign" data-idx="'+i+'"></div>'
+      +'<div class="form-group"><label class="form-label">역대 최고 티어 <span class="req">*</span></label><select class="form-select member-peak" data-idx="'+i+'">'
+        +'<option value="">선택</option><option value="서바이버">서바이버</option><option value="마스터">마스터</option><option value="다이아">다이아</option><option value="크리스탈">크리스탈</option><option value="플래이하">플래티넘 이하</option></select></div>'
+      +'<div class="form-group"><label class="form-label">시즌 최고 평균딜 <span class="req">*</span></label><input type="number" inputmode="numeric" class="form-input member-dmg" data-idx="'+i+'" placeholder="예: 320"></div>'
+    +'</div>'
+    +'<input type="hidden" class="member-tier" data-idx="'+i+'">'
+    +'<div class="member-auto" data-idx="'+i+'" style="font-size:12px;color:var(--ink-faint);margin-top:10px;">전적 입력 시 티어 자동 산정</div>'
+    +'<div class="acct-box">'
+      +'<div class="acct-h">💳 상금 정산 계좌 <b>(선택 · 본인 명의만)</b> — 비워도 신청됩니다. 수상 시 자동 입금용.</div>'
+      +'<div class="acct-row">'
+        +'<select class="form-select member-bank" data-idx="'+i+'">'+bankOptions()+'</select>'
+        +'<input type="text" inputmode="numeric" class="form-input member-account" data-idx="'+i+'" placeholder="계좌번호 (- 없이)">'
+        +'<input type="text" class="form-input member-holder" data-idx="'+i+'" placeholder="예금주(본인)">'
+      +'</div>'
+    +'</div>'
+  +'</div>';
+}
+(function(){
+  var wrap=document.getElementById('memberCards'); var h='';
+  for(var i=0;i<4;i++){h+=memberCardHTML(i);} wrap.innerHTML=h;
+})();
+
+function memberTier(i){
+  var peak=(document.querySelector('.member-peak[data-idx="'+i+'"]')||{}).value||'';
+  var dmg=(document.querySelector('.member-dmg[data-idx="'+i+'"]')||{}).value||'';
+  var t=computeTier(peak,dmg);
+  var hid=document.querySelector('.member-tier[data-idx="'+i+'"]'); if(hid)hid.value=t;
+  return t;
+}
+function updateBPI(){
+  var sum=0,parts=[];
+  for(var i=0;i<4;i++){
+    var t=memberTier(i); var v=t?BPI_MAP[t]:0; var lead=(i===0&&t==='T0'); if(lead)v+=1; sum+=v;
+    var au=document.querySelector('.member-auto[data-idx="'+i+'"]');
+    if(au)au.innerHTML=t?('→ <strong style="color:var(--gold)">'+t+'</strong> · BPI '+v+(lead?' (팀장 +1)':'')):'전적 입력 시 티어 자동 산정';
+    parts.push(t?(v+(lead?'*':'')):'_');
+  }
+  document.getElementById('bpiSum').textContent=sum;
+  document.getElementById('bpiBreakdown').textContent=parts.join(' + ')+' = '+sum+(parts.some(function(p){return String(p).indexOf('*')>=0;})?'  (* T0 팀장 +1)':'');
+  var st=document.getElementById('bpiStatus');
+  if(sum===0){st.innerHTML='전적 입력 시 자동 계산';}
+  else{var w=getWeight(sum);var c=w.mult===1.0?'var(--gold)':(w.mult>1?'var(--green)':'var(--orange)');
+    st.innerHTML='<span class="label" style="color:'+c+'">'+w.label+'</span><br><span class="mult" style="color:'+c+'">×'+w.mult.toFixed(1)+'</span>';}
+}
+document.addEventListener('input',function(e){ if(e.target.classList.contains('member-peak')||e.target.classList.contains('member-dmg'))updateBPI(); });
+document.addEventListener('change',function(e){ if(e.target.classList.contains('member-peak')||e.target.classList.contains('member-dmg'))updateBPI(); });
+
+function readMembers(){
+  var out=[];
+  for(var i=0;i<4;i++){
+    out.push({
+      name:(document.querySelector('.member-name[data-idx="'+i+'"]').value||'').trim(),
+      ign:(document.querySelector('.member-ign[data-idx="'+i+'"]').value||'').trim(),
+      peak:document.querySelector('.member-peak[data-idx="'+i+'"]').value,
+      dmg:(document.querySelector('.member-dmg[data-idx="'+i+'"]').value||'').trim(),
+      tier:memberTier(i),
+      bank:document.querySelector('.member-bank[data-idx="'+i+'"]').value,
+      account:(document.querySelector('.member-account[data-idx="'+i+'"]').value||'').trim(),
+      holder:(document.querySelector('.member-holder[data-idx="'+i+'"]').value||'').trim()
+    });
+  }
+  return out;
+}
+
+function generateApplication(){
+  var oath=document.getElementById('oathCheck');
+  if(oath&&!oath.checked){alert('마지막 "양심 서약"에 체크해야 신청서가 생성됩니다.');return;}
+  var teamName=document.getElementById('teamName').value.trim();
+  var slogan=document.getElementById('teamSlogan').value.trim();
+  var contact=document.getElementById('leaderContact').value.trim();
+  var memo=document.getElementById('memo').value.trim();
+  var members=readMembers();
+
+  var errs=[];
+  if(!teamName)errs.push('팀명');
+  if(!contact)errs.push('팀장 연락처');
+  members.forEach(function(m,i){
+    var filled=m.name||m.ign||m.peak||m.dmg;
+    if(i<1||filled){
+      if(!m.name)errs.push('멤버'+(i+1)+' 디스코드 닉네임');
+      if(!m.ign)errs.push('멤버'+(i+1)+' 배그 닉네임');
+      if(!m.peak)errs.push('멤버'+(i+1)+' 역대 최고 티어');
+      if(m.dmg==='')errs.push('멤버'+(i+1)+' 시즌 최고 평균딜');
+    }
+    // 계좌 부분입력 방지 (은행·계좌번호는 같이)
+    if((m.bank&&!m.account)||(!m.bank&&m.account)){ errs.push('멤버'+(i+1)+' 계좌 — 은행과 계좌번호를 함께 입력(또는 둘 다 비우기)'); }
+  });
+  if(errs.length>0){alert('다음 항목을 확인해주세요:\n\n'+errs.join('\n')+'\n\n※ 멤버 2·3·4와 계좌는 비워도 됩니다.');return;}
+
+  var fm=members.filter(function(m){return m.name&&m.ign&&m.tier;});
+  var bpiSum=0;
+  fm.forEach(function(m,i){var v=BPI_MAP[m.tier]; if(i===0&&m.tier==='T0')v+=1; bpiSum+=v;});
+  var weight=getWeight(bpiSum);
+  var recruiting=4-fm.length;
+
+  var L=[];
+  L.push('━━━━━━━━━━━━━━━━━━━━━━━');
+  L.push('🏆 G드컵 시즌3 팀 신청서');
+  L.push('━━━━━━━━━━━━━━━━━━━━━━━');
+  L.push('');
+  L.push('▎팀명: '+teamName);
+  if(slogan)L.push('▎슬로건: '+slogan);
+  L.push('');
+  L.push('▎멤버 ('+fm.length+'/4명)');
+  fm.forEach(function(m,i){
+    var role=i===0?'👑 팀장':'멤버 '+(i+1);
+    var v=BPI_MAP[m.tier]; var t0=(i===0&&m.tier==='T0'); if(t0)v+=1;
+    L.push('  '+role);
+    L.push('    └ '+m.name+' (배그: '+m.ign+') · '+m.tier+' · BPI '+v+(t0?' (T0 팀장 +1)':''));
+    L.push('       (신고: '+m.peak+' / 평균 '+m.dmg+'딜)');
+    if(m.bank&&m.account){ L.push('       💳 '+m.bank+' '+m.account+(m.holder?' ('+m.holder+')':'')+' [본인명의]'); }
+    else { L.push('       💳 계좌 미입력 — 수상 시 취합'); }
+  });
+  if(recruiting>0)L.push('  🔍 용병 '+recruiting+'명 모집중');
+  L.push('');
+  L.push('▎팀 BPI 합계: '+bpiSum+(recruiting>0?(' ('+fm.length+'명 기준)'):''));
+  L.push('▎가중치: ×'+weight.mult.toFixed(1)+' ('+weight.label+')');
+  L.push('');
+  L.push('▎팀장 연락처: '+contact);
+  if(memo){L.push('');L.push('▎전달사항');L.push(memo.split('\n').map(function(l){return '  '+l;}).join('\n'));}
+  L.push('');
+  L.push('━━━━━━━━━━━━━━━━━━━━━━━');
+  L.push('✅ 참가비 무료 · 보증금 없음');
+  L.push('📌 8/7(금) 참가 확정 체크인 필수');
+  L.push('━━━━━━━━━━━━━━━━━━━━━━━');
+
+  document.getElementById('generated').textContent=L.join('\n');
+  document.getElementById('generatedWrap').style.display='block';
+  document.getElementById('generatedWrap').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function copyApplication(){
+  navigator.clipboard.writeText(document.getElementById('generated').textContent).then(function(){
+    var b=document.getElementById('copyAppBtn'); b.textContent='✓ 복사 완료'; b.classList.add('copied');
+    setTimeout(function(){b.textContent='전체 복사';b.classList.remove('copied');},2000);
+  });
+}
+</script>
+
+<script>
+(function(){
+  var GAPI="https://mri-academy-production.up.railway.app";
+  function setCount(n){var e=document.getElementById('gdcupCountNum');if(e&&n!=null)e.textContent=n;}
+  function loadCount(){fetch(GAPI+"/api/gdcup-count?season="+SEASON).then(function(r){return r.json();}).then(function(d){setCount(d.teams);}).catch(function(){});}
+  var _sent=false;
+  function autoSubmit(){
+    if(_sent)return;
+    try{
+      var teamName=((document.getElementById('teamName')||{}).value||'').trim(); if(!teamName)return;
+      var slogan=((document.getElementById('teamSlogan')||{}).value||'').trim();
+      var contact=((document.getElementById('leaderContact')||{}).value||'').trim();
+      var members=readMembers().filter(function(m){return m.name&&m.ign&&m.tier;});
+      var bpi=parseInt((((document.getElementById('bpiSum')||{}).textContent)||'').replace(/[^0-9]/g,''),10)||null;
+      fetch(GAPI+"/api/gdcup-apply",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({season:SEASON,team_name:teamName,slogan:slogan,members:members,bpi:bpi,contact:contact})})
+      .then(function(r){return r.json().catch(function(){return {};});})
+      .then(function(d){ _sent=true; if(d&&d.teams!=null)setCount(d.teams); }).catch(function(){});
+    }catch(e){}
+  }
+  if(typeof window.generateApplication==='function'){
+    var _orig=window.generateApplication;
+    window.generateApplication=function(){ _orig.apply(this,arguments);
+      var gg=document.getElementById('generated'),ww=document.getElementById('generatedWrap');
+      if(gg&&ww&&ww.style.display!=='none'&&gg.textContent.trim().length>20)autoSubmit();
+    };
+  }
+  if(document.readyState!=='loading')loadCount();else document.addEventListener('DOMContentLoaded',loadCount);
+})();
+</script>
+<script>
+(function(){
+  var GAPI="https://mri-academy-production.up.railway.app";
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  function loadTeams(){
+    fetch(GAPI+"/api/gdcup-list?season="+SEASON).then(function(r){return r.json();}).then(function(d){
+      var el=document.getElementById('teamList'); if(!el)return;
+      var teams=(d&&d.teams)||[];
+      if(!teams.length){el.innerHTML='<div style="color:var(--ink-dim);text-align:center;padding:18px;">아직 신청한 팀이 없어요. 첫 번째 팀이 되어보세요! 🎮</div>';return;}
+      teams.forEach(function(t){var fm=(t.members||[]).filter(function(m){return m.ign;});t._fm=fm.length;t._open=4-fm.length;t._rec=(fm.length>0&&fm.length<4);});
+      teams.sort(function(a,b){if(a._rec!==b._rec)return a._rec?-1:1;if(a._rec&&b._rec)return b._open-a._open;return 0;});
+      el.innerHTML=teams.map(function(t){
+        var conf=t.status==='confirmed';
+        var badge=conf?'<span style="color:var(--green);font-weight:700;">✅ 확정</span>':'<span style="color:var(--ink-dim);">⏳ 신청</span>';
+        var fm=(t.members||[]).filter(function(m){return m.ign;});
+        var rec=t._rec,open=t._open;
+        var mem=fm.map(function(m,mi){return (mi===0?'👑 ':'')+esc(m.ign)+(m.tier?' <span style="color:var(--ink-faint);">('+esc(m.tier)+')</span>':'');}).join(' · ');
+        var recTag=rec?'<span style="background:var(--gold);color:#000;font-weight:800;font-size:11px;padding:3px 9px;border-radius:20px;white-space:nowrap;">🔍 용병 '+open+'명 모집중</span>':'';
+        var cta=rec?'<div style="color:var(--gold);font-size:12px;margin-top:8px;font-weight:700;">→ 합류하려면 솔로 신청 또는 팀장에게 디코 DM!</div>':'';
+        var border=rec?'border:1px solid var(--gold);box-shadow:0 0 0 1px var(--gold-soft);':'border:1px solid var(--line);';
+        return '<div style="background:var(--bg-card);'+border+'border-radius:10px;padding:13px 15px;">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'
+          +'<span style="font-family:var(--display);font-size:15px;">'+esc(t.team_name)+'</span>'
+          +'<span style="font-size:12px;white-space:nowrap;display:flex;gap:6px;align-items:center;">'+recTag+badge+(t.bpi!=null?' <span style="color:var(--ink-faint);">BPI '+esc(t.bpi)+'</span>':'')+'</span></div>'
+          +(t.slogan?'<div style="color:var(--ink-dim);font-size:12.5px;margin-top:3px;">"'+esc(t.slogan)+'"</div>':'')
+          +(mem?'<div style="color:var(--ink-dim);font-size:12.5px;margin-top:6px;">'+mem+'</div>':'')+cta+'</div>';
+      }).join('');
+    }).catch(function(){});
+  }
+  if(document.readyState!=='loading')loadTeams();else document.addEventListener('DOMContentLoaded',loadTeams);
+  setInterval(loadTeams,30000);
+})();
+</script>
+<script>
+(function(){
+  var GAPI="https://mri-academy-production.up.railway.app";
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  window.submitSolo=function(){
+    var ign=(document.getElementById('soloIgn').value||'').trim();
+    var msg=document.getElementById('soloMsg');
+    if(!ign){msg.style.color='var(--red)';msg.textContent='인게임 닉네임을 입력해주세요.';return;}
+    var discord=(document.getElementById('soloDiscord').value||'').trim();
+    if(!discord){msg.style.color='var(--red)';msg.textContent='디스코드 사용자명을 입력해주세요.';return;}
+    var kind='solo';var rs=document.getElementsByName('soloKind');for(var i=0;i<rs.length;i++){if(rs[i].checked)kind=rs[i].value;}
+    var body={season:SEASON,kind:kind,ign:ign,tier:(document.getElementById('soloTier').value||'').trim(),discord:discord,note:(document.getElementById('soloNote').value||'').trim()};
+    msg.style.color='var(--ink-dim)';msg.textContent='신청 중…';
+    fetch(GAPI+"/api/gdcup-solo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+    .then(function(r){return r.json();}).then(function(d){
+      if(d&&d.ok){msg.style.color='var(--green)';msg.textContent='✅ 신청 완료! 디스코드에 등록됐어요.';
+        document.getElementById('soloIgn').value='';document.getElementById('soloTier').value='';document.getElementById('soloDiscord').value='';document.getElementById('soloNote').value='';
+        setTimeout(loadSolo,800);}
+      else{msg.style.color='var(--red)';msg.textContent='신청 실패. 잠시 후 다시 시도해주세요.';}
+    }).catch(function(){msg.style.color='var(--red)';msg.textContent='네트워크 오류.';});
+  };
+  function tierBadge(t){
+    if(!t)return''; var s=String(t),c='var(--ink-faint)';
+    if(/서바이버|T0/i.test(s))c='var(--red)'; else if(/마스터|T1/i.test(s))c='var(--gold)';
+    else if(/T2/i.test(s))c='var(--orange)'; else if(/다이아|T3/i.test(s))c='var(--blue)';
+    else if(/크리스탈|T5/i.test(s))c='var(--purple)'; else if(/플래|T4/i.test(s))c='var(--green)';
+    return '<span style="display:inline-block;border:1px solid '+c+';color:'+c+';font-weight:700;font-size:11px;padding:2px 9px;border-radius:20px;white-space:nowrap;">'+esc(s)+'</span>';
+  }
+  function loadSolo(){
+    fetch(GAPI+"/api/gdcup-solo-list?season="+SEASON).then(function(r){return r.json();}).then(function(d){
+      var num=document.getElementById('gdcupSoloNum'); if(num)num.textContent=(d&&d.count!=null)?d.count:0;
+      var el=document.getElementById('soloList'); if(!el)return;
+      var solos=((d&&d.solos)||[]).filter(function(s){return s.status!=='matched';});
+      if(!solos.length){el.innerHTML='<div style="color:var(--ink-dim);text-align:center;padding:16px;">아직 솔로/용병 신청이 없어요. 혼자여도 편하게 신청하세요! 🙋</div>';return;}
+      el.innerHTML=solos.map(function(s){
+        var tag=s.kind==='short'?'<span style="color:var(--blue);">👥 자리모집</span>':'<span style="color:var(--gold);">🙋 솔로</span>';
+        return '<div style="background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:11px 14px;">'
+          +'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">'
+          +'<span style="font-weight:700;display:flex;align-items:center;gap:7px;flex-wrap:wrap;">'+esc(s.ign)+(s.tier?tierBadge(s.tier):'')+'</span>'
+          +'<span style="font-size:12.5px;white-space:nowrap;">'+tag+'</span></div>'
+          +(s.note?'<div style="color:var(--ink-dim);font-size:12.5px;margin-top:4px;">'+esc(s.note)+'</div>':'')+'</div>';
+      }).join('');
+    }).catch(function(){});
+  }
+  if(document.readyState!=='loading')loadSolo();else document.addEventListener('DOMContentLoaded',loadSolo);
+  setInterval(loadSolo,30000);
+})();
+</script>
+</body>
+</html>
