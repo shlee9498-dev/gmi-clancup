@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GmI G드컵 명예의 전당 | 역대 우승 기록</title>
+<meta name="description" content="GmI G드컵 역대 시즌 우승팀·킬 MVP·이벤트 기록 아카이브. 시즌1 경매 드래프트 내전, 시즌2 BPI 밸런스 대회." />
+<meta property="og:title" content="GmI G드컵 명예의 전당" />
+<meta property="og:description" content="역대 G드컵 우승팀·킬 MVP·이벤트 기록" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://shlee9498-dev.github.io/gmi-clancup/poster-s2.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet" />
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+:root{
+  --bg:#0a0a0c; --card:#15151a; --card2:#1c1c24; --line:#27272a;
+  --ink:#f4f4f5; --dim:#a1a1aa; --faint:#71717a;
+  --gold:#f5c518; --gold-d:#caa00f; --silver:#cdd2d8; --bronze:#cd7f4d;
+  --display:'Archivo Black',sans-serif;
+  --body:'Pretendard Variable',-apple-system,system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(245,197,24,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(245,197,24,.022) 1px,transparent 1px);background-size:38px 38px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,rgba(245,197,24,.08),transparent 60%);pointer-events:none;z-index:0}
+main{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:0 18px 60px}
+
+/* 상단바 */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 4px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(10,10,12,.85);backdrop-filter:blur(8px);z-index:5;font-size:13px}
+.brand{font-family:var(--display);color:var(--gold);letter-spacing:.05em;font-size:14px}
+.topbar a{color:var(--dim);text-decoration:none;transition:color .15s}
+.topbar a:hover{color:var(--gold)}
+
+/* 히어로 */
+.hero{text-align:center;padding:46px 0 30px}
+.hero .crown{font-size:42px;filter:drop-shadow(0 0 18px rgba(245,197,24,.5))}
+.hero h1{font-family:var(--display);font-size:30px;letter-spacing:-.01em;margin-top:8px;line-height:1.15}
+.hero h1 .g{color:var(--gold)}
+.hero p{color:var(--dim);font-size:14px;margin-top:10px}
+
+/* 시즌 섹션 */
+.season{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 18px;margin:20px 0}
+.season-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:18px}
+.season-tag{font-family:var(--display);font-size:13px;color:#000;background:var(--gold);padding:4px 12px;border-radius:999px}
+.season-head h2{font-size:18px}
+.season-head .meta{color:var(--faint);font-size:12.5px;margin-left:auto}
+
+/* 포디움 */
+.podium{display:grid;grid-template-columns:1fr;gap:10px}
+.rank{display:flex;gap:13px;align-items:flex-start;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:13px 15px;position:relative;overflow:hidden}
+.rank.r1{border-color:rgba(245,197,24,.55)}
+.rank.r1::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gold)}
+.rank.r2::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--silver)}
+.rank.r3::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--bronze)}
+.medal{font-size:26px;flex-shrink:0;width:34px;text-align:center}
+.rank .body{flex:1;min-width:0}
+.rank .tname{font-size:16px;font-weight:800}
+.rank.r1 .tname{color:var(--gold)}
+.rank .slogan{color:var(--faint);font-size:12px;font-style:italic;margin:1px 0 6px}
+.rank .members{color:var(--dim);font-size:12.5px;word-break:keep-all}
+.rank .pts{font-family:var(--display);font-size:14px;color:var(--ink);flex-shrink:0;text-align:right;line-height:1.3}
+.rank .pts small{display:block;color:var(--faint);font-size:10px;font-family:var(--body);font-weight:400}
+
+/* 어워드 칩 */
+.awards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.chip{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+.chip .k{font-size:11px;color:var(--faint)}
+.chip .v{font-size:14.5px;font-weight:800;color:var(--gold);margin-top:3px}
+.chip .v small{color:var(--dim);font-weight:600;font-size:12px}
+
+/* 룰 노트 */
+.note{background:rgba(245,197,24,.06);border:1px solid rgba(245,197,24,.2);border-radius:11px;padding:12px 14px;margin-top:16px;font-size:12.5px;color:var(--dim);line-height:1.7}
+.note b{color:var(--ink)}
+
+/* 입력대기 */
+.pending{border:1px dashed var(--line);border-radius:11px;padding:14px;margin-top:12px;text-align:center;color:var(--faint);font-size:12.5px}
+
+/* CTA */
+.cta{text-align:center;margin:26px 0 6px}
+.cta a{display:inline-block;background:var(--gold);color:#000;font-weight:800;font-size:15px;padding:14px 28px;border-radius:10px;text-decoration:none;transition:transform .12s}
+.cta a:hover{transform:translateY(-2px)}
+
+footer{text-align:center;color:var(--faint);font-size:12px;padding:30px 0 10px;border-top:1px solid var(--line);margin-top:30px}
+footer a{color:var(--dim);text-decoration:none}
+footer a:hover{color:var(--gold)}
+</style>
+</head>
+<body>
+<main>
+
+  <div class="topbar">
+    <span class="brand">GmI G드컵</span>
+    <span><a href="https://shlee9498-dev.github.io/gmi-clancup/">메인</a> &nbsp;·&nbsp; <a href="gdcup-s3.html">시즌3 신청</a></span>
+  </div>
+
+  <div class="hero">
+    <div class="crown">🏆</div>
+    <h1>G드컵 <span class="g">명예의 전당</span></h1>
+    <p>역대 시즌 우승팀 · 킬 MVP · 이벤트 기록</p>
+  </div>
+
+  <!-- ════════ 시즌 2 ════════ -->
+  <section class="season">
+    <div class="season-head">
+      <span class="season-tag">SEASON 2</span>
+      <h2>BPI 밸런스 대회</h2>
+      <span class="meta">11팀 · 2026</span>
+    </div>
+
+    <div class="podium">
+      <div class="rank r1">
+        <div class="medal">🥇</div>
+        <div class="body">
+          <div class="tname">세휘네 치킨집</div>
+          <div class="slogan">"24시간 영업 중: 적들 뚝배기 깨는 집"</div>
+          <div class="members">GmI_birdwhistle · lsmRF · GmI_OIEI · GmI_Soondae</div>
+        </div>
+        <div class="pts">30.6<small>pts · ×0.9</small></div>
+      </div>
+      <div class="rank r2">
+        <div class="medal">🥈</div>
+        <div class="body">
+          <div class="tname">딱퍼</div>
+          <div class="slogan">"dodo"</div>
+          <div class="members">o8l8_-Re4pxr · yumin121_- · 17st_ · ELLLL-___-</div>
+        </div>
+        <div class="pts">준우승</div>
+      </div>
+      <div class="rank r3">
+        <div class="medal">🥉</div>
+        <div class="body">
+          <div class="tname">빡빡하다</div>
+          <div class="slogan">"PAK"</div>
+          <div class="members">GmI_PackPack · GmI_Moru · GmI_Gne · GmI_RED</div>
+        </div>
+        <div class="pts">3위</div>
+      </div>
+    </div>
+
+    <div class="awards">
+      <div class="chip"><div class="k">🎯 킬 MVP</div><div class="v">GmI_OIEI <small>· 12킬</small></div></div>
+      <div class="chip"><div class="k">🚲 자전거 이벤트</div><div class="v">형진팀</div></div>
+      <div class="chip"><div class="k">🍳 프라이팬 매치</div><div class="v">세휘네 치킨집 <small>· MVP 원섭</small></div></div>
+    </div>
+
+    <div class="note">
+      <b>방식</b> — 팀별 BPI 가중치(약팀 보너스·강팀 페널티)로 밸런스를 맞춘 시즌제 대회.<br>
+      <b>점수</b> — 순위점 + 킬 1점, 누적 후 × 팀 BPI 가중치.
+    </div>
+  </section>
+
+  <!-- ════════ 시즌 1 ════════ -->
+  <section class="season">
+    <div class="season-head">
+      <span class="season-tag">SEASON 1</span>
+      <h2>경매 드래프트 내전</h2>
+      <span class="meta">2026.5.10</span>
+    </div>
+
+    <div class="podium">
+      <div class="rank r1">
+        <div class="medal">🥇</div>
+        <div class="body">
+          <div class="tname">파워팀</div>
+          <div class="members">김현성 · 이동주 · 윤영민 · 조웅열</div>
+        </div>
+        <div class="pts">우승</div>
+      </div>
+    </div>
+
+    <div class="pending">
+      🚧 준우승 · 3위 · 킬 MVP · 특별상 기록은 정리되는 대로 시즌2와 동일 포맷으로 채워집니다.
+    </div>
+
+    <div class="note">
+      <b>방식</b> — 구단주(팀장)가 가상 예산으로 선수를 <b>경매 드래프트</b>로 영입해 팀을 꾸린 내전.<br>
+      <b>특별상</b> — 가성비왕 구단주 / 숨은 진주 발굴상 / 호구 구단주상 / 텅장상.
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta">
+    <a href="gdcup-s3.html">🏆 다음 챔피언은 당신 — 시즌3 신청하기 →</a>
+  </div>
+
+</main>
+
+<footer>
+  <div>GmI 클랜 · G드컵 명예의 전당 · 2026 · 비영리 친목 대회</div>
+  <div style="margin-top:8px;">
+    <a href="https://shlee9498-dev.github.io/gmi-clancup/">메인</a> ·
+    <a href="gdcup-s3.html">시즌3 신청</a>
+  </div>
+</footer>
+
+</body>
+</html>
