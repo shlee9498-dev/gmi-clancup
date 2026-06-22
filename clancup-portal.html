@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>GmI 클랜컵 · G드컵 공식 포털</title>
+<meta name="description" content="GmI (GYMMRIacademy) 클랜 내전 공식 포털 — G드컵 시즌3 사전 팀 신청. 8/7 본 매치." />
+<meta property="og:title" content="GmI 클랜컵 · G드컵 공식 포털" />
+<meta property="og:description" content="G드컵 시즌3 — 8/7(금) 20:00 본 매치 · 참가비 무료" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://shlee9498-dev.github.io/gmi-clancup/poster.png" />
+<meta name="theme-color" content="#0a0e1a" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet" />
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+:root{
+  --bg:#0a0a0c; --panel:#15151c; --panel2:#1d1d27; --line:#27272e;
+  --ink:#f4f4f5; --dim:#a1a1aa; --faint:#71717a;
+  --gold:#f5c518; --gold-deep:#caa00f; --silver:#cbd5e1; --bronze:#d4955b;
+  --green:#10b981; --blue:#5ac8fa; --red:#e63946;
+  --display:'Archivo Black',sans-serif;
+  --body:'Pretendard Variable',-apple-system,system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  background-image:radial-gradient(ellipse 60% 45% at 50% -5%,rgba(245,197,24,.10),transparent 60%);}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(245,197,24,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(245,197,24,.02) 1px,transparent 1px);background-size:38px 38px;}
+.wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:0 18px 64px;}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px;padding:15px 2px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(10,10,12,.85);backdrop-filter:blur(10px);z-index:10;flex-wrap:wrap;font-size:13px;}
+.nav .brand{font-family:var(--display);letter-spacing:.06em;color:var(--gold);font-size:15px;}
+.nav .sp{flex:1;}
+.nav a{color:var(--dim);text-decoration:none;transition:color .15s;}
+.nav a:hover{color:var(--gold);}
+.nav a.cta{background:var(--gold);color:#000;font-weight:800;padding:6px 13px;border-radius:6px;}
+.nav a.cta:hover{color:#000;background:#fde047;}
+
+/* hero */
+.hero{text-align:center;padding:54px 0 30px;}
+.hero .kick{font-family:var(--display);letter-spacing:.32em;font-size:13px;color:var(--gold);}
+.hero h1{font-family:var(--display);font-size:clamp(38px,9vw,62px);line-height:1;margin:14px 0 10px;letter-spacing:-.02em;}
+.hero h1 .s{color:var(--gold);}
+.hero .tag{color:var(--dim);font-size:15px;}
+
+/* countdown */
+.countdown{display:flex;justify-content:center;gap:10px;margin:30px 0 22px;flex-wrap:wrap;}
+.cd-box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 10px;min-width:78px;}
+.cd-box .n{font-family:var(--display);font-size:32px;color:var(--gold);line-height:1;}
+.cd-box .l{font-size:11px;color:var(--faint);letter-spacing:.12em;margin-top:6px;}
+.cd-done{font-family:var(--display);font-size:22px;color:var(--gold);}
+
+.hero-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:520px;margin:0 auto 26px;}
+.hm{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 10px;}
+.hm .v{font-family:var(--display);font-size:18px;}
+.hm .v.free{color:var(--green);}
+.hm .k{font-size:11px;color:var(--faint);margin-top:4px;}
+
+.cta-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.btn{display:inline-block;text-decoration:none;font-weight:800;font-size:14px;padding:14px 26px;border-radius:8px;transition:transform .12s,background .15s;}
+.btn.gold{background:var(--gold);color:#000;}
+.btn.gold:hover{transform:translateY(-2px);background:#fde047;}
+.btn.ghost{background:var(--panel);color:var(--ink);border:1px solid var(--line);}
+.btn.ghost:hover{border-color:var(--gold);color:var(--gold);}
+
+/* section */
+section{margin-top:46px;}
+.sec-kick{font-family:var(--display);letter-spacing:.22em;font-size:11px;color:var(--faint);}
+.sec-title{font-family:var(--display);font-size:clamp(22px,5vw,30px);margin:5px 0 16px;}
+
+/* season cards */
+.seasons{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:640px){.seasons{grid-template-columns:1fr;}.hero-meta{max-width:none;}}
+.scard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;}
+.scard .st{font-family:var(--display);font-size:12px;letter-spacing:.1em;}
+.scard.done .st{color:var(--green);}
+.scard.live .st{color:var(--gold);}
+.scard.lock .st{color:var(--faint);}
+.scard h3{font-size:16px;margin:10px 0 6px;}
+.scard p{font-size:13px;color:var(--dim);line-height:1.6;}
+.scard .links{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;}
+.scard .links a{font-size:12px;color:var(--gold);text-decoration:none;border:1px solid var(--gold-deep);padding:5px 10px;border-radius:6px;}
+.scard .links a:hover{background:rgba(245,197,24,.1);}
+.scard.live{border-color:var(--gold-deep);box-shadow:0 0 0 1px rgba(245,197,24,.2);}
+
+/* archive podium (S1) */
+.archive{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:14px;}
+.archive .ah{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px;}
+.archive .ah .badge{font-size:11px;color:var(--green);font-weight:800;}
+.archive .ah h3{font-size:16px;}
+.archive .ah .meta{margin-left:auto;color:var(--faint);font-size:12px;}
+.pod{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;}
+@media(max-width:560px){.pod{grid-template-columns:1fr;}}
+.pr{display:flex;gap:11px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;}
+.pr .m{font-size:20px;flex:0 0 auto;}
+.pr .b{flex:1;min-width:0;}
+.pr .nm{font-weight:800;font-size:14px;}
+.pr .who{font-size:11.5px;color:var(--faint);}
+.pr .sc{font-family:var(--display);font-size:13px;color:var(--gold);}
+.pr.r1{border-color:rgba(245,197,24,.45);} .pr.r1 .nm{color:var(--gold);}
+
+/* rules grid */
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media(max-width:640px){.rules{grid-template-columns:1fr;}}
+.rule{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px;}
+.rule .no{font-family:var(--display);font-size:13px;color:var(--gold-deep);}
+.rule h4{font-size:14px;margin:6px 0 5px;}
+.rule p{font-size:12.5px;color:var(--dim);line-height:1.55;}
+
+/* grades */
+.grades{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media(max-width:640px){.grades{grid-template-columns:1fr;}}
+.grade{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center;}
+.grade .g{font-family:var(--display);font-size:30px;color:var(--gold);}
+.grade .d{font-size:12.5px;color:var(--dim);margin-top:6px;line-height:1.5;}
+
+.mri{background:linear-gradient(135deg,rgba(245,197,24,.08),rgba(245,197,24,.01));border:1px solid var(--gold-deep);border-radius:14px;padding:22px;margin-top:14px;text-align:center;}
+.mri p{font-size:13.5px;color:var(--dim);margin:6px 0 14px;}
+
+footer{border-top:1px solid var(--line);margin-top:48px;padding:28px 0 8px;text-align:center;color:var(--faint);font-size:12px;}
+footer .links{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:12px;}
+footer a{color:var(--dim);text-decoration:none;}
+footer a:hover{color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="nav">
+    <span class="brand">GmI 클랜컵</span>
+    <span class="sp"></span>
+    <a href="#archive">시즌</a>
+    <a href="gdcup-history.html">🏆 명예의 전당</a>
+    <a href="#rules">룰</a>
+    <a href="#grades">등급</a>
+    <a href="https://shlee9498-dev.github.io/mri-academy/">MRI</a>
+    <a href="https://discord.gg/9RjqdSKw" target="_blank" rel="noopener">💬 디스코드</a>
+    <a href="gdcup-s3.html" class="cta">S3 신청</a>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="kick">SEASON 03 · G드컵</div>
+    <h1>G드컵 <span class="s">시즌3</span></h1>
+    <div class="tag">사전 팀 신청 · 멤버별 계좌 자동 정산 · 64명 16팀</div>
+
+    <div class="countdown" id="countdown">
+      <div class="cd-box"><div class="n" id="cdD">--</div><div class="l">DAYS</div></div>
+      <div class="cd-box"><div class="n" id="cdH">--</div><div class="l">HOURS</div></div>
+      <div class="cd-box"><div class="n" id="cdM">--</div><div class="l">MIN</div></div>
+      <div class="cd-box"><div class="n" id="cdS">--</div><div class="l">SEC</div></div>
+    </div>
+
+    <div class="hero-meta">
+      <div class="hm"><div class="v">8/7 금<span style="font-size:12px;color:var(--dim)"> 20:00</span></div><div class="k">본 매치</div></div>
+      <div class="hm"><div class="v free">무료</div><div class="k">참가비</div></div>
+      <div class="hm"><div class="v">4인 1팀</div><div class="k">사전 신청</div></div>
+    </div>
+
+    <div class="cta-row">
+      <a href="gdcup-s3.html" class="btn gold">참가 신청하기 →</a>
+      <a href="#archive" class="btn ghost">시즌 기록 보기</a>
+    </div>
+  </div>
+
+  <!-- SEASON ARCHIVE -->
+  <section id="archive">
+    <div class="sec-kick">SEASON ARCHIVE</div>
+    <h2 class="sec-title">시즌 기록</h2>
+    <div class="seasons">
+      <div class="scard done">
+        <div class="st">✓ SEASON 01 · COMPLETED</div>
+        <h3>G드컵 1회 · THE AUCTION</h3>
+        <p>2026.05.10 · 경매 드래프트 방식. 파워레인저 우승 🏆</p>
+        <div class="links"><a href="gmi-final-bible.html">📖 룰북</a><a href="roster.html">👥 명단</a><a href="gdcup-history.html">🏆 전당</a></div>
+      </div>
+      <div class="scard done">
+        <div class="st">✓ SEASON 02 · COMPLETED</div>
+        <h3>G드컵 2회 · BPI 밸런스</h3>
+        <p>2026.06.20 · 11팀. 세휘네 치킨집 우승 🏆 · 킬 MVP GmI_OIEI</p>
+        <div class="links"><a href="gdcup-history.html">🏆 전당에서 보기</a></div>
+      </div>
+      <div class="scard live">
+        <div class="st">⏳ SEASON 03 · NOW OPEN</div>
+        <h3>G드컵 3회</h3>
+        <p>2026.08.07 (금) 20:00 · 사전 팀 신청제 · 멤버별 계좌 자동 정산 · 참가비 무료</p>
+        <div class="links"><a href="gdcup-s3.html">참가 신청하기 →</a></div>
+      </div>
+    </div>
+
+    <!-- 시즌1 포디움 (확정 기록 보존) -->
+    <div class="archive">
+      <div class="ah"><span class="badge">✓ COMPLETED</span><h3>🏆 G드컵 1회 · THE AUCTION</h3><span class="meta">2026.05.10 · 경매 드래프트</span></div>
+      <div class="pod">
+        <div class="pr r1"><span class="m">🥇</span><div class="b"><div class="nm">파워레인저</div><div class="who">김현성 · 이동주 · 윤영민 · 조웅열</div></div><span class="sc">61점</span></div>
+        <div class="pr"><span class="m">🥈</span><div class="b"><div class="nm">광부</div><div class="who">박선우 · 허욱 · 황다운 · 최현준</div></div><span class="sc">59점</span></div>
+        <div class="pr"><span class="m">🥉</span><div class="b"><div class="nm">세휘네치킨집</div><div class="who">이한결 · 유재훈 · 이수미 · 한도은</div></div><span class="sc">46점</span></div>
+        <div class="pr"><span class="m">4️⃣</span><div class="b"><div class="nm">메르시</div><div class="who">이동영 · 배건희 · 안현태 · 윤다온</div></div><span class="sc">44점</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="rules">
+    <div class="sec-kick">HOW IT WORKS</div>
+    <h2 class="sec-title">시즌3 룰 요약</h2>
+    <div class="rules">
+      <div class="rule"><div class="no">01</div><h4>사전 팀 신청</h4><p>4인 1팀, 팀원 직접 구성. 2명만 있어도 신청 OK → 나머지는 용병/운영진 배정.</p></div>
+      <div class="rule"><div class="no">02</div><h4>참가비 무료</h4><p>보증금·참가비 없음. 8/7(금) 참가 확정 체크인에만 응답하면 됩니다.</p></div>
+      <div class="rule"><div class="no">03</div><h4>BPI 밸런스</h4><p>역대 최고 티어 + 평균딜로 팀 BPI 자동 산정. 약팀 보너스·강팀 페널티 가중치.</p></div>
+      <div class="rule"><div class="no">04</div><h4>멤버별 계좌 정산</h4><p>신청 시 본인 명의 계좌(선택) 등록 → 수상 시 개별 자동 입금. 시즌2 수기 취합 폐지.</p></div>
+      <div class="rule"><div class="no">05</div><h4>본 매치 3라운드</h4><p>e스포츠 모드 3R 누적 점수 × 팀 BPI 가중치. 킬 MVP는 별도 개인상.</p></div>
+      <div class="rule"><div class="no">06</div><h4>이벤트 매치</h4><p>자전거 레이싱 등 별도 상품. 본 매치 순위와 완전 독립.</p></div>
+    </div>
+    <div style="text-align:center;margin-top:16px;"><a href="gdcup-s3.html#rules" class="btn ghost">전체 룰 보러가기 →</a></div>
+  </section>
+
+  <!-- GRADES -->
+  <section id="grades">
+    <div class="sec-kick">PLAYER GRADES</div>
+    <h2 class="sec-title">선수 등급</h2>
+    <div class="grades">
+      <div class="grade"><div class="g">G</div><div class="d">조에이스 · 서바이버 티어<br>트레이너 포함 · 최상위</div></div>
+      <div class="grade"><div class="g">m</div><div class="d">준에이스 · 꾸준한 중상위권<br>가성비 핵심 전력</div></div>
+      <div class="grade"><div class="g">I</div><div class="d">실속형 · 신예 · 숨은 진주<br>가장 많은 클랜원 · 변수</div></div>
+    </div>
+  </section>
+
+  <!-- MRI -->
+  <section>
+    <div class="mri">
+      <h3 style="font-family:var(--display);font-size:18px;">MRI ACADEMY</h3>
+      <p>배틀그라운드 1:1 맞춤 코칭. GmI 클랜과 함께하는 MRI Academy에서 실력을 키우고 내전에서 빛나보세요.</p>
+      <a href="https://shlee9498-dev.github.io/mri-academy/" class="btn gold">🎓 MRI Academy 바로가기</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="links">
+      <a href="gdcup-s3.html">🎮 시즌3 참가</a>
+      <a href="gdcup-history.html">🏆 명예의 전당</a>
+      <a href="gmi-final-bible.html">📖 시즌1 룰북</a>
+      <a href="https://discord.gg/9RjqdSKw" target="_blank" rel="noopener">💬 디스코드</a>
+      <a href="https://www.sooplive.com/station/zmdk1373" target="_blank" rel="noopener">📺 이무리 SOOP</a>
+      <a href="https://shlee9498-dev.github.io/mri-academy/">🎓 MRI Academy</a>
+    </div>
+    <div>© 2026 GmI (GYMMRIacademy) · G드컵 공식 포털 · Powered by 이무리</div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  // 본 매치: 2026-08-07 20:00 KST
+  var target = new Date('2026-08-07T20:00:00+09:00').getTime();
+  var d=document.getElementById('cdD'),h=document.getElementById('cdH'),m=document.getElementById('cdM'),s=document.getElementById('cdS');
+  function tick(){
+    var diff=target-Date.now();
+    if(diff<=0){
+      document.getElementById('countdown').innerHTML='<div class="cd-done">🎮 본 매치 진행 중 / 종료 — 결과는 명예의 전당에서</div>';
+      return;
+    }
+    var dd=Math.floor(diff/86400000), hh=Math.floor(diff%86400000/3600000), mm=Math.floor(diff%3600000/60000), ss=Math.floor(diff%60000/1000);
+    d.textContent=dd; h.textContent=String(hh).padStart(2,'0'); m.textContent=String(mm).padStart(2,'0'); s.textContent=String(ss).padStart(2,'0');
+  }
+  tick(); setInterval(tick,1000);
+})();
+</script>
+</body>
+</html>
