@@ -471,7 +471,7 @@ function generateApplication(){
     L.push('  '+role);
     L.push('    └ '+m.name+' (배그: '+m.ign+') · '+m.tier+' · BPI '+v+(t0?' (T0 팀장 +1)':''));
     L.push('       (신고: '+m.peak+' / 평균 '+m.dmg+'딜)');
-    if(m.bank&&m.account){ L.push('       💳 '+m.bank+' '+m.account+(m.holder?' ('+m.holder+')':'')+' [본인명의]'); }
+    if(m.bank&&m.account){ var _ac=String(m.account).replace(/\D/g,''); var _mask=_ac.length>4?('****'+_ac.slice(-4)):'****'; L.push('       💳 '+m.bank+' '+_mask+(m.holder?' ('+m.holder+')':'')+' · 계좌 입력됨(본인명의)'); }
     else { L.push('       💳 계좌 미입력 — 수상 시 취합'); }
   });
   if(recruiting>0)L.push('  🔍 용병 '+recruiting+'명 모집중');
