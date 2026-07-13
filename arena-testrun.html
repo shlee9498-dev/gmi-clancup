@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘 킬내기 모의전 — GmI</title>
+<style>
+:root{--bg:#0a0a0c;--card:#141417;--elev:#1d1d22;--line:#26262b;--gold:#f5c518;--gold-soft:rgba(245,197,24,.3);--ink:#ededf0;--dim:#a0a0a8;--faint:#6b6b73;--red:#ff6b6b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;background-image:radial-gradient(700px 350px at 50% -5%,rgba(245,197,24,.08),transparent 70%)}
+.wrap{max-width:600px;margin:0 auto;padding:36px 16px 70px}
+.kick{color:var(--gold);font-size:11px;font-weight:800;letter-spacing:.15em}
+h1{font-size:clamp(23px,6vw,30px);font-weight:800;margin:6px 0 6px}
+.sub{color:var(--dim);font-size:13.5px;margin-bottom:24px}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px 16px;margin-bottom:12px}
+.sec h2{font-size:15px;font-weight:800;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sec p{font-size:13.5px;color:var(--dim);margin-bottom:6px}
+.sec b{color:var(--ink)}.gold{color:var(--gold)!important}
+.pill{display:inline-block;background:var(--elev);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:13px;margin:3px 4px 3px 0;color:var(--dim)}
+.pill b{color:var(--gold)}
+.calc{background:var(--elev);border:1px solid var(--gold-soft);border-radius:12px;padding:15px;margin-top:10px}
+.calc label{font-size:11.5px;color:var(--faint);display:block;margin:6px 0 3px}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+input,select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:9px;font-size:15px;text-align:center}
+.result{margin-top:12px;background:var(--bg);border-radius:10px;padding:13px;text-align:center}
+.result .val{font-size:32px;font-weight:800;color:var(--gold)}
+.result .lbl{font-size:11px;color:var(--faint);margin-top:2px}
+.flow{display:flex;flex-direction:column}
+.step{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.n{flex:0 0 26px;height:26px;border-radius:50%;background:var(--gold);color:#0a0a0c;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+.step div{font-size:13px;color:var(--dim)}.step b{color:var(--ink)}
+.warn{border-left:3px solid var(--red);background:var(--elev);border-radius:0 10px 10px 0;padding:10px 13px;font-size:12.5px;color:var(--dim);margin-top:10px}
+.warn b{color:var(--red)}
+footer{text-align:center;color:var(--faint);font-size:11px;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kick">GmI ARENA · 오늘 모의전 (TEST RUN)</div>
+  <h1>🎤 오늘 킬내기 모의전</h1>
+  <p class="sub">2팀 8명 · 2시간 · 코인·상금 없는 <b class="gold">룰 테스트</b> — 편하게 참여하고 피드백 주세요!</p>
+
+  <div class="sec">
+    <h2>⚡ 30초 요약</h2>
+    <p><b class="gold">일반게임 스쿼드를 돌면서 킬로 점수 쌓기. 목표점수 40점 먼저 찍는 팀 우승!</b></p>
+    <div style="margin-top:8px">
+      <span class="pill">킬 <b>+1</b></span>
+      <span class="pill">완전사망 <b>−2</b></span>
+      <span class="pill">치킨 <b>+8</b> (사녹 +5)</span>
+      <span class="pill">목표 <b>40점</b> · 양팀 동일</span>
+      <span class="pill">제한 <b>2시간</b></span>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>🧮 점수 계산기 — 한 판 넣어보기</h2>
+    <p>방금 판 결과를 넣으면 점수가 바로 나와요.</p>
+    <div class="calc">
+      <div class="grid">
+        <div><label>팀 총킬</label><input type="number" id="k" value="12" min="0"></div>
+        <div><label>팀 총사망</label><input type="number" id="d" value="5" min="0"></div>
+        <div><label>치킨</label>
+          <select id="c"><option value="0">X</option><option value="8">일반맵+8</option><option value="5">사녹+5</option></select>
+        </div>
+      </div>
+      <div class="result"><div class="val" id="score">7</div><div class="lbl">이번 판 점수 = 킬 − 사망×2 + 치킨</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>⚖️ 목표점수 = 40점 (양 팀 동일)</h2>
+    <p>오늘은 <b class="gold">운영이 양 팀 전력을 맞춰서 편성</b>해요. 그래서 두 팀 다 목표 <b>40점 동일</b> — 먼저 40 찍는 팀이 우승!</p>
+    <p style="font-size:12px;color:var(--faint)">※ 정식 시즌엔 실력차를 목표점수로 보정하는 방식도 있어요. 오늘은 "전력 맞춤(맞밸)"이 재밌는지 보는 테스트입니다.</p>
+  </div>
+
+  <div class="sec">
+    <h2>🗺️ 진행 방식</h2>
+    <div class="flow">
+      <div class="step"><div class="n">1</div><div><b>20:00 디코 집합</b> → 양 팀 카운트다운 맞춰 <b>동시 큐</b>, 랜덤맵</div></div>
+      <div class="step"><div class="n">2</div><div>일반게임 스쿼드로 플레이. 아군 팀과 같은 매치 만나면 <b>그냥 싸우세요 — 킬 인정!</b> 🔥</div></div>
+      <div class="step"><div class="n">3</div><div>매 판 끝나면 팀장이 결과 스샷 + <b>[팀명][n판] 각자 킬/사망</b>을 채널에 올리기</div></div>
+      <div class="step"><div class="n">4</div><div>운영이 합산 → <b>40점 도달 팀 우승!</b> 2시간 내 미달 시 누적점수 높은 팀 승</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>💀 "사망" 기준 (헷갈리지 마세요)</h2>
+    <p>· <b>완전 사망(관전으로 넘어감)만 −2점</b>입니다.</p>
+    <p>· 기절했다가 <b class="gold">블루칩으로 살아나면 사망 아님</b> — 안 셉니다.</p>
+    <p>· 한 판에 완전 사망은 1인당 최대 1번 → 사망 페널티도 판당 −2 한 번.</p>
+    <div class="warn">스샷에 찍힌 <b>사망 수(0 또는 1)</b> 그대로 적으면 됩니다. 기절 횟수 세지 마세요!</div>
+  </div>
+
+  <div class="sec">
+    <h2>📢 오늘은 테스트예요</h2>
+    <p>코인·상금 없이 <b>룰이 재밌는지</b>만 봅니다. 끝나고 꼭 피드백 주세요:</p>
+    <p>· 사망 −2가 적당했나요? (너무 세다 / 약하다)</p>
+    <p>· 2시간에 몇 판 했고, 40점이 적당했나요?</p>
+    <p>· 맞밸 편성이 밸런스가 맞던가요?</p>
+  </div>
+
+  <footer>GmI 킬내기 아레나 · 오늘 모의전용 · 정식 룰은 테스트 후 확정</footer>
+</div>
+<script>
+function calc(){const k=+k_.value||0,d=+d_.value||0,c=+c_.value;s_.textContent=k-d*2+c;}
+const k_=document.getElementById('k'),d_=document.getElementById('d'),c_=document.getElementById('c'),s_=document.getElementById('score');
+[k_,d_,c_].forEach(e=>e.addEventListener('input',calc));calc();
+</script>
+</body>
+</html>
