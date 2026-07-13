@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GmI 킬내기 전광판</title>
+<style>
+:root{--gold:#f5c518;--ink:#fff;--dim:#b8b8c0;--a:#ff5a5a;--b:#5aa8ff}
+*{box-sizing:border-box;margin:0;padding:0;font-family:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif}
+body{background:transparent;overflow:hidden}
+/* OBS 브라우저 소스: 폭 360 세로 사이드바 */
+.board{width:360px;background:linear-gradient(160deg,rgba(12,12,16,.96),rgba(20,20,26,.96));border:2px solid var(--gold);border-radius:16px;padding:16px 15px;color:var(--ink);box-shadow:0 8px 40px rgba(0,0,0,.6)}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.12)}
+.title{font-size:14px;font-weight:800;color:var(--gold);letter-spacing:.02em}
+.live{font-size:10px;font-weight:800;color:var(--a);display:flex;align-items:center;gap:4px}
+.live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--a);animation:blink 1.2s infinite}
+@keyframes blink{50%{opacity:.3}}
+.team{margin-bottom:12px}
+.trow{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.tname{font-size:16px;font-weight:800;display:flex;align-items:center;gap:7px}
+.dot{width:11px;height:11px;border-radius:50%}
+.tscore{font-size:15px;font-weight:800}
+.tscore .cur{font-size:22px;color:var(--gold)}
+.tscore .goal{color:var(--dim);font-size:14px}
+.bar{height:12px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden}
+.fill{height:100%;border-radius:6px;transition:width .4s ease}
+.meta{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-top:5px}
+.foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.12)}
+.round{font-size:12px;font-weight:700;color:var(--ink)}
+.king{font-size:12px;color:var(--gold);font-weight:700}
+.timer{text-align:center;font-size:13px;font-weight:800;color:var(--ink);margin-top:8px;letter-spacing:.05em}
+.timer span{color:var(--gold)}
+/* 편집 패널 (OBS엔 안 보이게, 브라우저에서만 조작) */
+#panel{position:fixed;top:8px;right:8px;background:#15151b;border:1px solid #333;border-radius:10px;padding:12px;color:#ddd;font-size:12px;width:230px}
+#panel h4{color:var(--gold);margin-bottom:8px;font-size:12px}
+#panel label{display:block;margin:6px 0 2px;color:#999;font-size:11px}
+#panel input{width:100%;background:#0c0c10;border:1px solid #333;border-radius:6px;color:#fff;padding:5px;font-size:13px}
+#panel .g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.hint{color:#666;font-size:10px;margin-top:8px;line-height:1.4}
+body.obs #panel{display:none}
+</style>
+</head>
+<body>
+<div class="board">
+  <div class="top">
+    <div class="title">🎤 GmI 킬내기 아레나</div>
+    <div class="live">LIVE</div>
+  </div>
+
+  <div class="team">
+    <div class="trow">
+      <div class="tname"><span class="dot" style="background:var(--a)"></span><span id="an">치킨집</span></div>
+      <div class="tscore"><span class="cur" id="as">0</span><span class="goal"> / <span id="ag">40</span></span></div>
+    </div>
+    <div class="bar"><div class="fill" id="af" style="width:0%;background:linear-gradient(90deg,#ff5a5a,#ff8a5a)"></div></div>
+    <div class="meta"><span id="ameta">킬 0 · 사망 0</span><span id="aleft">40점 남음</span></div>
+  </div>
+
+  <div class="team">
+    <div class="trow">
+      <div class="tname"><span class="dot" style="background:var(--b)"></span><span id="bn">언더독</span></div>
+      <div class="tscore"><span class="cur" id="bs">0</span><span class="goal"> / <span id="bg">40</span></span></div>
+    </div>
+    <div class="bar"><div class="fill" id="bf" style="width:0%;background:linear-gradient(90deg,#5aa8ff,#5ae0ff)"></div></div>
+    <div class="meta"><span id="bmeta">킬 0 · 사망 0</span><span id="bleft">40점 남음</span></div>
+  </div>
+
+  <div class="timer">⏱ <span id="timer">2:00:00</span> 남음</div>
+
+  <div class="foot">
+    <div class="round">현재 <span id="rd">1</span>판째</div>
+    <div class="king">🔫 킬왕: <span id="king">-</span></div>
+  </div>
+</div>
+
+<div id="panel">
+  <h4>⚙️ 점수 입력 (OBS엔 안 보임)</h4>
+  <div class="g2">
+    <div><label>A팀명</label><input id="i_an" value="치킨집"></div>
+    <div><label>B팀명</label><input id="i_bn" value="언더독"></div>
+  </div>
+  <div class="g2">
+    <div><label>A 목표</label><input type="number" id="i_ag" value="40"></div>
+    <div><label>B 목표</label><input type="number" id="i_bg" value="40"></div>
+  </div>
+  <div class="g2">
+    <div><label>A 총킬</label><input type="number" id="i_ak" value="0"></div>
+    <div><label>A 총사망</label><input type="number" id="i_ad" value="0"></div>
+  </div>
+  <div class="g2">
+    <div><label>A 치킨점수</label><input type="number" id="i_ac" value="0"></div>
+    <div><label>B 치킨점수</label><input type="number" id="i_bc" value="0"></div>
+  </div>
+  <div class="g2">
+    <div><label>B 총킬</label><input type="number" id="i_bk" value="0"></div>
+    <div><label>B 총사망</label><input type="number" id="i_bd" value="0"></div>
+  </div>
+  <div class="g2">
+    <div><label>현재 판</label><input type="number" id="i_rd" value="1"></div>
+    <div><label>킬왕</label><input id="i_king" value="-"></div>
+  </div>
+  <label>남은 시간 (분)</label><input type="number" id="i_min" value="120">
+  <div class="hint">숫자만 바꾸면 전광판 자동 갱신. OBS 브라우저 소스 URL 뒤에 <b>?obs=1</b> 붙이면 이 패널이 사라집니다.</div>
+</div>
+
+<script>
+if(new URLSearchParams(location.search).get('obs')) document.body.classList.add('obs');
+function upd(){
+  const g=id=>document.getElementById(id), v=id=>+g(id).value||0, t=id=>g(id).value;
+  // A
+  g('an').textContent=t('i_an'); g('bn').textContent=t('i_bn');
+  const ak=v('i_ak'),ad=v('i_ad'),ac=v('i_ac'),ag=v('i_ag');
+  const as=ak-ad+ac; // 데스 -1
+  g('as').textContent=as; g('ag').textContent=ag;
+  g('af').style.width=Math.min(100,Math.max(0,as/ag*100))+'%';
+  g('ameta').textContent=`킬 ${ak} · 사망 ${ad}`;
+  g('aleft').textContent=(ag-as>0?ag-as+'점 남음':'🏆 목표 달성!');
+  // B
+  const bk=v('i_bk'),bd=v('i_bd'),bc=v('i_bc'),bg=v('i_bg');
+  const bs=bk-bd+bc;
+  g('bs').textContent=bs; g('bg').textContent=bg;
+  g('bf').style.width=Math.min(100,Math.max(0,bs/bg*100))+'%';
+  g('bmeta').textContent=`킬 ${bk} · 사망 ${bd}`;
+  g('bleft').textContent=(bg-bs>0?bg-bs+'점 남음':'🏆 목표 달성!');
+  g('rd').textContent=v('i_rd'); g('king').textContent=t('i_king');
+  window._min=v('i_min');
+}
+document.querySelectorAll('#panel input').forEach(e=>e.addEventListener('input',upd));
+// 타이머
+let sec=120*60;
+function tick(){
+  sec=(window._min!=null?window._min*60:sec);
+  const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=Math.floor(sec%60);
+  document.getElementById('timer').textContent=`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+// 남은시간은 수동 입력값 기준 표시 (자동 카운트다운은 원하면 활성화)
+upd(); tick();
+</script>
+</body>
+</html>
