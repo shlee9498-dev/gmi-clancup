@@ -46,7 +46,7 @@ footer{text-align:center;color:var(--faint);font-size:11px;margin-top:24px}
     <p><b class="gold">일반게임 스쿼드를 돌면서 킬로 점수 쌓기. 목표점수 40점 먼저 찍는 팀 우승!</b></p>
     <div style="margin-top:8px">
       <span class="pill">킬 <b>+1</b></span>
-      <span class="pill">완전사망 <b>−2</b></span>
+      <span class="pill">완전사망 <b>−1</b></span>
       <span class="pill">치킨 <b>+8</b> (사녹 +5)</span>
       <span class="pill">목표 <b>40점</b> · 양팀 동일</span>
       <span class="pill">제한 <b>2시간</b></span>
@@ -64,7 +64,7 @@ footer{text-align:center;color:var(--faint);font-size:11px;margin-top:24px}
           <select id="c"><option value="0">X</option><option value="8">일반맵+8</option><option value="5">사녹+5</option></select>
         </div>
       </div>
-      <div class="result"><div class="val" id="score">7</div><div class="lbl">이번 판 점수 = 킬 − 사망×2 + 치킨</div></div>
+      <div class="result"><div class="val" id="score">7</div><div class="lbl">이번 판 점수 = 킬 − 사망 + 치킨</div></div>
     </div>
   </div>
 
@@ -77,7 +77,7 @@ footer{text-align:center;color:var(--faint);font-size:11px;margin-top:24px}
   <div class="sec">
     <h2>🗺️ 진행 방식</h2>
     <div class="flow">
-      <div class="step"><div class="n">1</div><div><b>20:00 디코 집합</b> → 양 팀 카운트다운 맞춰 <b>동시 큐</b>, 랜덤맵</div></div>
+      <div class="step"><div class="n">1</div><div><b>20:45 디코 집합, 21:00 시작</b> → 양 팀 카운트다운 맞춰 <b>동시 큐</b>, 랜덤맵</div></div>
       <div class="step"><div class="n">2</div><div>일반게임 스쿼드로 플레이. 아군 팀과 같은 매치 만나면 <b>그냥 싸우세요 — 킬 인정!</b> 🔥</div></div>
       <div class="step"><div class="n">3</div><div>매 판 끝나면 팀장이 결과 스샷 + <b>[팀명][n판] 각자 킬/사망</b>을 채널에 올리기</div></div>
       <div class="step"><div class="n">4</div><div>운영이 합산 → <b>40점 도달 팀 우승!</b> 2시간 내 미달 시 누적점수 높은 팀 승</div></div>
@@ -86,9 +86,9 @@ footer{text-align:center;color:var(--faint);font-size:11px;margin-top:24px}
 
   <div class="sec">
     <h2>💀 "사망" 기준 (헷갈리지 마세요)</h2>
-    <p>· <b>완전 사망(관전으로 넘어감)만 −2점</b>입니다.</p>
+    <p>· <b>완전 사망(관전으로 넘어감)만 −1점</b>입니다.</p>
     <p>· 기절했다가 <b class="gold">블루칩으로 살아나면 사망 아님</b> — 안 셉니다.</p>
-    <p>· 한 판에 완전 사망은 1인당 최대 1번 → 사망 페널티도 판당 −2 한 번.</p>
+    <p>· 한 판에 완전 사망은 1인당 최대 1번 → 사망 페널티도 판당 −1 한 번.</p>
     <div class="warn">스샷에 찍힌 <b>사망 수(0 또는 1)</b> 그대로 적으면 됩니다. 기절 횟수 세지 마세요!</div>
   </div>
 
@@ -103,7 +103,7 @@ footer{text-align:center;color:var(--faint);font-size:11px;margin-top:24px}
   <footer>GmI 킬내기 아레나 · 오늘 모의전용 · 정식 룰은 테스트 후 확정</footer>
 </div>
 <script>
-function calc(){const k=+k_.value||0,d=+d_.value||0,c=+c_.value;s_.textContent=k-d*2+c;}
+function calc(){const k=+k_.value||0,d=+d_.value||0,c=+c_.value;s_.textContent=k-d+c;}
 const k_=document.getElementById('k'),d_=document.getElementById('d'),c_=document.getElementById('c'),s_=document.getElementById('score');
 [k_,d_,c_].forEach(e=>e.addEventListener('input',calc));calc();
 </script>
