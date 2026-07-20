@@ -4,9 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>GmI 클랜컵 · G드컵 공식 포털</title>
-<meta name="description" content="GmI (GYMMRIacademy) 클랜 내전 공식 포털 — G드컵 시즌3 사전 팀 신청. 8/7 본 매치." />
+<meta name="description" content="GmI (GYMMRIacademy) 클랜 내전 공식 포털 — G드컵 시즌3 사전 팀 신청. 8/7(금) 오후 8시 이벤트매치(솔로 2판) · 오후 9시 본선(스쿼드 5판)." />
 <meta property="og:title" content="GmI 클랜컵 · G드컵 공식 포털" />
-<meta property="og:description" content="G드컵 시즌3 — 8/7(금) 20:00 본 매치 · 참가비 무료" />
+<meta property="og:description" content="G드컵 시즌3 — 8/7(금) 오후 8시 이벤트매치(솔로 2판) · 오후 9시 본선(스쿼드 5판) · 참가비 무료" />
 <meta property="og:type" content="website" />
 <meta property="og:image" content="https://shlee9498-dev.github.io/gmi-clancup/poster.png" />
 <meta name="theme-color" content="#0a0e1a" />
@@ -121,6 +121,23 @@ section{margin-top:46px;}
 .mri{background:linear-gradient(135deg,rgba(245,197,24,.08),rgba(245,197,24,.01));border:1px solid var(--gold-deep);border-radius:14px;padding:22px;margin-top:14px;text-align:center;}
 .mri p{font-size:13.5px;color:var(--dim);margin:6px 0 14px;}
 
+/* match-day schedule + event card */
+.sched{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:560px){.sched{grid-template-columns:1fr;}}
+.sl{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px;}
+.sl.main{border-color:var(--gold-deep);box-shadow:0 0 0 1px rgba(245,197,24,.2);}
+.sl-time{font-family:var(--display);font-size:15px;color:var(--gold);white-space:nowrap;}
+.sl-title{font-weight:800;font-size:14px;}
+.sl-desc{font-size:12px;color:var(--dim);margin-top:2px;}
+.sched-note{margin-top:12px;background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--dim);}
+.sched-note b{color:var(--gold);}
+.evcard{margin-top:14px;background:linear-gradient(135deg,rgba(245,197,24,.08),rgba(245,197,24,.01));border:1px solid var(--gold-deep);border-radius:14px;padding:20px;}
+.ev-h{font-family:var(--display);font-size:16px;color:var(--gold);margin-bottom:8px;}
+.ev-p{font-size:13.5px;color:var(--dim);line-height:1.7;}
+.ev-list{list-style:none;margin:12px 0 14px;padding:0;display:grid;gap:7px;}
+.ev-list li{font-size:13px;color:var(--ink);padding-left:18px;position:relative;}
+.ev-list li::before{content:'·';position:absolute;left:6px;color:var(--gold);font-weight:800;}
+.ev-list b{color:var(--gold);}
 footer{border-top:1px solid var(--line);margin-top:48px;padding:28px 0 8px;text-align:center;color:var(--faint);font-size:12px;}
 footer .links{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:12px;}
 footer a{color:var(--dim);text-decoration:none;}
@@ -134,6 +151,7 @@ footer a:hover{color:var(--gold);}
     <span class="brand">GmI 클랜컵</span>
     <span class="sp"></span>
     <a href="#archive">시즌</a>
+    <a href="#schedule">일정</a>
     <a href="gdcup-history.html">🏆 명예의 전당</a>
     <a href="#rules">룰</a>
     <a href="#grades">등급</a>
@@ -156,7 +174,7 @@ footer a:hover{color:var(--gold);}
     </div>
 
     <div class="hero-meta">
-      <div class="hm"><div class="v">8/7 금<span style="font-size:12px;color:var(--dim)"> 20:00</span></div><div class="k">본 매치</div></div>
+      <div class="hm"><div class="v">8/7 금</div><div class="k">이벤트 20시 · 본선 21시</div></div>
       <div class="hm"><div class="v free">무료</div><div class="k">참가비</div></div>
       <div class="hm"><div class="v">4인 1팀</div><div class="k">사전 신청</div></div>
     </div>
@@ -166,6 +184,35 @@ footer a:hover{color:var(--gold);}
       <a href="#archive" class="btn ghost">시즌 기록 보기</a>
     </div>
   </div>
+
+  <!-- MATCH DAY SCHEDULE + EVENT MATCH -->
+  <section id="schedule">
+    <div class="sec-kick">MATCH DAY · 8/7 (금)</div>
+    <h2 class="sec-title">당일 일정</h2>
+    <div class="sched">
+      <div class="sl">
+        <div class="sl-time">오후 8시</div>
+        <div class="sl-body"><div class="sl-title">⚡ 이벤트매치 — 솔로 2판</div><div class="sl-desc">누구나 참가 가능 (오픈)</div></div>
+      </div>
+      <div class="sl main">
+        <div class="sl-time">오후 9시</div>
+        <div class="sl-body"><div class="sl-title">🏆 시즌3 본선 — 스쿼드 5판</div><div class="sl-desc">사전 팀 신청 완료 인원</div></div>
+      </div>
+    </div>
+    <div class="sched-note">⏱️ 본선은 <b>5판 진행</b>으로 <b>자정 이후 종료</b>될 수 있습니다.</div>
+
+    <div class="evcard">
+      <div class="ev-h">⚡ 이벤트매치 — 솔로 2판 · 오픈 참가</div>
+      <p class="ev-p">클랜원이 아니어도 참가 가능! 유튜브/방송 보고 오신 분들 환영 🙌<br>
+        <b>별도 신청 없이</b> 당일 디스코드 입장 → 커스텀 방 코드 받고 참가</p>
+      <ul class="ev-list">
+        <li>방 코드·비밀번호는 <b>당일 디스코드 공지 채널</b>에서 배포</li>
+        <li>본선(스쿼드) 순위와 <b>완전 독립</b> — 이벤트 단독 보상</li>
+        <li>🎁 보상: <b>[TODO] 보상 확정 후 기재</b></li>
+      </ul>
+      <a href="https://discord.gg/szFa7teEJs" target="_blank" rel="noopener" class="btn gold" style="margin-top:4px;">💬 디스코드 입장하고 참가하기 →</a>
+    </div>
+  </section>
 
   <!-- SEASON ARCHIVE -->
   <section id="archive">
@@ -187,7 +234,7 @@ footer a:hover{color:var(--gold);}
       <div class="scard live">
         <div class="st">⏳ SEASON 03 · NOW OPEN</div>
         <h3>G드컵 3회</h3>
-        <p>2026.08.07 (금) 20:00 · 사전 팀 신청제 · 멤버별 계좌 자동 정산 · 참가비 무료</p>
+        <p>2026.08.07 (금) · 오후 8시 이벤트매치(솔로 2판) · 오후 9시 본선(스쿼드 5판) · 사전 팀 신청 · 참가비 무료</p>
         <div class="links"><a href="gdcup-s3.html">참가 신청하기 →</a></div>
       </div>
     </div>
@@ -213,8 +260,8 @@ footer a:hover{color:var(--gold);}
       <div class="rule"><div class="no">02</div><h4>참가비 무료</h4><p>보증금·참가비 없음. 8/7(금) 참가 확정 체크인에만 응답하면 됩니다.</p></div>
       <div class="rule"><div class="no">03</div><h4>BPI 밸런스</h4><p>역대 최고 티어 + 평균딜로 팀 BPI 자동 산정. 약팀 보너스·강팀 페널티 가중치.</p></div>
       <div class="rule"><div class="no">04</div><h4>멤버별 계좌 정산</h4><p>신청 시 본인 명의 계좌(선택) 등록 → 수상 시 개별 자동 입금. 시즌2 수기 취합 폐지.</p></div>
-      <div class="rule"><div class="no">05</div><h4>본 매치 3라운드</h4><p>e스포츠 모드 3R 누적 점수 × 팀 BPI 가중치. 킬 MVP는 별도 개인상.</p></div>
-      <div class="rule"><div class="no">06</div><h4>이벤트 매치</h4><p>자전거 레이싱 등 별도 상품. 본 매치 순위와 완전 독립.</p></div>
+      <div class="rule"><div class="no">05</div><h4>본선 스쿼드 5판</h4><p>오후 9시 시작. e스포츠 모드 5판 누적 점수 × 팀 BPI 가중치. 킬 MVP는 별도 개인상.</p></div>
+      <div class="rule"><div class="no">06</div><h4>이벤트매치 (솔로)</h4><p>본선 전 오후 8시 · 솔로 2판 오픈전. 클랜원 아니어도 참가. 본선 순위와 완전 독립.</p></div>
     </div>
     <div style="text-align:center;margin-top:16px;"><a href="gdcup-s3.html#rules" class="btn ghost">전체 룰 보러가기 →</a></div>
   </section>
@@ -255,13 +302,13 @@ footer a:hover{color:var(--gold);}
 
 <script>
 (function(){
-  // 본 매치: 2026-08-07 20:00 KST
+  // 당일 시작(이벤트매치): 2026-08-07 20:00 KST · 본선은 21:00
   var target = new Date('2026-08-07T20:00:00+09:00').getTime();
   var d=document.getElementById('cdD'),h=document.getElementById('cdH'),m=document.getElementById('cdM'),s=document.getElementById('cdS');
   function tick(){
     var diff=target-Date.now();
     if(diff<=0){
-      document.getElementById('countdown').innerHTML='<div class="cd-done">🎮 본 매치 진행 중 / 종료 — 결과는 명예의 전당에서</div>';
+      document.getElementById('countdown').innerHTML='<div class="cd-done">🎮 G드컵 시즌3 당일 — 이벤트매치·본선 진행 / 결과는 명예의 전당에서</div>';
       return;
     }
     var dd=Math.floor(diff/86400000), hh=Math.floor(diff%86400000/3600000), mm=Math.floor(diff%3600000/60000), ss=Math.floor(diff%60000/1000);
