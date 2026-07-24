@@ -64,13 +64,17 @@
 
   <div id="app" class="hidden">
     <div class="top">
-      <div class="kick">G드컵 SEASON 2</div>
+      <div class="kick" id="kick">G드컵 SEASON 3</div>
       <h1>본매치 점수 입력</h1>
-      <div class="tabs">
-        <button data-r="3" class="on">ROUND 3</button>
-        <button data-r="4">ROUND 4</button>
-        <button data-r="5">ROUND 5</button>
+      <div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap;">
+        <label style="font-size:12px;color:var(--faint);">시즌</label>
+        <select id="seasonSel" style="width:auto;">
+          <option value="3">시즌 3</option>
+          <option value="2">시즌 2 (조회전용)</option>
+        </select>
+        <span id="roMsg" style="font-size:12px;color:var(--gold);font-weight:700;"></span>
       </div>
+      <div class="tabs" id="tabs"></div>
       <div class="bar">
         <button class="saveall" id="saveAll">이 라운드 전체 저장</button>
         <a href="results.html" target="_blank">순위화면</a>
@@ -78,7 +82,7 @@
       </div>
     </div>
     <div class="note">팀별 <b>순위</b> + <b>팀 총킬</b>만 넣어도 순위표 됩니다. 킬 MVP까지 하려면 <b>선수별</b>을 펼쳐 각자 킬 입력(합계가 팀 총킬). 저장은 팀마다 또는 위 "전체 저장". <b style="color:var(--gold)">🔥 시즌3 연속 보너스(연속 Top4 +2 / 연속 치킨 +5)는 순위 기록으로 서버가 자동 계산</b> — 따로 입력할 것 없습니다.</div>
-    <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-top:10px;">
+    <div id="apBox" style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-top:10px;">
       <div style="font-weight:800;margin-bottom:8px;">🤖 PUBG 자동 불러오기 <span style="color:var(--faint);font-weight:600;font-size:12px;">라운드 끝나면 클릭</span></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <select id="apPlat" style="flex:0 0 auto;width:auto;">
@@ -105,7 +109,10 @@
 (function(){
   var GAPI="https://mri-academy-production.up.railway.app";
   var KEYNAME="gdcupKey";
-  var TEAMS=[]; var SCORES={}; var round=3;
+  var SEASON_ROUNDS={2:[3,4,5],3:[1,2,3,4,5]};
+  var season=3;
+  var TEAMS=[]; var SCORES={}; var round=SEASON_ROUNDS[3][0];
+  function readOnly(){ return season===2; }   // 시즌2는 조회 전용(기록 동결)
   var $=function(id){return document.getElementById(id);};
   function key(){ return sessionStorage.getItem(KEYNAME)||""; }
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
@@ -116,7 +123,7 @@
     var k=$("keyInput").value.trim(); if(!k){return;}
     sessionStorage.setItem(KEYNAME,k);
     // 키 검증 겸 데이터 로드
-    fetch(GAPI+"/api/gdcup-round-scores?round=3",{headers:{"x-admin-key":k}})
+    fetch(GAPI+"/api/gdcup-round-scores?season=3",{headers:{"x-admin-key":k}})
       .then(function(r){ if(r.status===401){throw new Error("키 오류");} return r.json(); })
       .then(function(){ $("gate").classList.add("hidden"); $("app").classList.remove("hidden"); boot(); })
       .catch(function(){ $("gateMsg").textContent="❌ 관리자 키가 올바르지 않습니다."; sessionStorage.removeItem(KEYNAME); });
@@ -221,7 +228,7 @@
     return fetch(GAPI+"/api/gdcup-list").then(function(r){return r.json();}).then(function(d){ TEAMS=(d&&d.teams)||[]; });
   }
   function loadScores(){
-    return fetch(GAPI+"/api/gdcup-round-scores?round="+round,{headers:{"x-admin-key":key()}})
+    return fetch(GAPI+"/api/gdcup-round-scores?season="+season+"&round="+round,{headers:{"x-admin-key":key()}})
       .then(function(r){return r.json();}).then(function(d){
         SCORES={}; ((d&&d.scores)||[]).forEach(function(s){ SCORES[s.team_name]=s; });
       });
@@ -280,7 +287,7 @@
     var plc=card.querySelector('.plc').value;
     var p=card.querySelector('.players');
     var usePlayers = p.classList.contains('show') && Array.prototype.some.call(card.querySelectorAll('.pk'),function(x){return x.value!=="";});
-    var body={ round:round, team_name:t.team_name, placement: plc==="" ? null : Number(plc) };
+    var body={ season:season, round:round, team_name:t.team_name, placement: plc==="" ? null : Number(plc) };
     if(usePlayers){
       body.players = Array.prototype.map.call(card.querySelectorAll('.pk'),function(inp){ return {ign:inp.getAttribute('data-ign'), kills:Number(inp.value)||0}; });
     } else {
@@ -318,16 +325,38 @@
   }
   $("saveAll").addEventListener("click", saveAllNow);
 
+  function renderTabs(){
+    var rounds=SEASON_ROUNDS[season]||SEASON_ROUNDS[3];
+    if(rounds.indexOf(round)<0) round=rounds[0];
+    $("tabs").innerHTML=rounds.map(function(r){ return '<button data-r="'+r+'" class="'+(r===round?'on':'')+'">ROUND '+r+'</button>'; }).join('');
+    Array.prototype.forEach.call($("tabs").querySelectorAll('button'),function(b){
+      b.addEventListener('click',function(){ switchRound(+b.getAttribute('data-r')); });
+    });
+  }
   function switchRound(r){
     round=r;
-    Array.prototype.forEach.call(document.querySelectorAll('.tabs button'),function(b){ b.classList.toggle('on', +b.getAttribute('data-r')===r); });
-    loadScores().then(render);
+    Array.prototype.forEach.call($("tabs").querySelectorAll('button'),function(b){ b.classList.toggle('on', +b.getAttribute('data-r')===r); });
+    loadScores().then(function(){ render(); applyReadOnly(); });
   }
-  Array.prototype.forEach.call(document.querySelectorAll('.tabs button'),function(b){
-    b.addEventListener('click',function(){ switchRound(+b.getAttribute('data-r')); });
-  });
+  function applyReadOnly(){
+    var ro=readOnly();
+    $("kick").textContent="G드컵 SEASON "+season;
+    $("roMsg").textContent = ro ? "🔒 시즌 2는 조회 전용 (기록 동결)" : "";
+    var sa=$("saveAll"); if(sa) sa.style.display = ro ? "none" : "";
+    var ap=$("apBox"); if(ap) ap.style.display = ro ? "none" : "";
+    if(ro){
+      Array.prototype.forEach.call($("list").querySelectorAll('.tcard select,.tcard input'),function(x){ x.setAttribute('disabled','disabled'); });
+      Array.prototype.forEach.call($("list").querySelectorAll('.tcard .save'),function(b){ b.style.display='none'; });
+    }
+  }
+  function seasonChange(){
+    season=Number($("seasonSel").value)||3;
+    renderTabs();
+    loadScores().then(function(){ render(); applyReadOnly(); });
+  }
+  $("seasonSel").addEventListener("change", seasonChange);
 
-  function boot(){ loadTeams().then(loadScores).then(render).catch(function(){ $("list").innerHTML='<div class="note">불러오기 실패 — 새로고침 해주세요.</div>'; }); }
+  function boot(){ renderTabs(); loadTeams().then(loadScores).then(function(){ render(); applyReadOnly(); }).catch(function(){ $("list").innerHTML='<div class="note">불러오기 실패 — 새로고침 해주세요.</div>'; }); }
 
   // 이미 키 있으면 바로
   if(key()){ $("keyInput").value=key(); enter(); }
