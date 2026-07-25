@@ -195,6 +195,82 @@ CREATE TABLE IF NOT EXISTS sponsors (
     created_at      TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_sponsor_season ON sponsors(season_id, discord_id);
+
+-- ===== Arena (킬내기 세트 자동화) =====
+-- A "set" is a 2-hour timed container; multiple independent matches run inside it.
+-- Per-match score = team_kills + (chicken ? 0 : -4). Scores do NOT accumulate.
+CREATE TABLE IF NOT EXISTS arena_sets (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    opened_by     TEXT NOT NULL REFERENCES users(discord_id),
+    manager_id    TEXT NOT NULL REFERENCES users(discord_id),   -- current 담당자 (인수 시 변경)
+    channel_id    TEXT,
+    message_id    TEXT,                    -- the single embed we keep editing
+    target_score  INTEGER NOT NULL DEFAULT 25,
+    duration_min  INTEGER NOT NULL DEFAULT 120,
+    entry_fee     INTEGER NOT NULL DEFAULT 1,
+    pot           INTEGER NOT NULL DEFAULT 0,
+    team_mode     TEXT NOT NULL DEFAULT 'random',   -- 'random' | 'balanced'
+    status        TEXT NOT NULL CHECK (status IN ('recruiting','teamed','running','ended','cancelled')) DEFAULT 'recruiting',
+    winner_team   TEXT,
+    created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+    started_at    TEXT,
+    ends_at       TEXT,                    -- UTC; running set auto-ends at this time
+    ended_at      TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_arena_set_status ON arena_sets(status);
+
+CREATE TABLE IF NOT EXISTS arena_participants (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    set_id      INTEGER NOT NULL REFERENCES arena_sets(id) ON DELETE CASCADE,
+    discord_id  TEXT NOT NULL REFERENCES users(discord_id),
+    team        TEXT,                      -- NULL until teamed; 'A'..'D'; '대기' = benched
+    fee_paid    INTEGER NOT NULL DEFAULT 0,
+    created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(set_id, discord_id)
+);
+CREATE INDEX IF NOT EXISTS idx_arena_part_set ON arena_participants(set_id);
+
+CREATE TABLE IF NOT EXISTS arena_teams (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    set_id      INTEGER NOT NULL REFERENCES arena_sets(id) ON DELETE CASCADE,
+    team        TEXT NOT NULL,             -- slot key 'A'..'D'
+    name        TEXT NOT NULL,             -- display name (editable)
+    UNIQUE(set_id, team)
+);
+
+CREATE TABLE IF NOT EXISTS arena_matches (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    set_id      INTEGER NOT NULL REFERENCES arena_sets(id) ON DELETE CASCADE,
+    match_no    INTEGER NOT NULL,
+    team        TEXT NOT NULL,             -- slot key 'A'..'D'
+    kills       INTEGER NOT NULL DEFAULT 0,
+    chicken     INTEGER NOT NULL DEFAULT 0,
+    score       INTEGER NOT NULL DEFAULT 0,
+    created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_arena_match_set ON arena_matches(set_id, match_no);
+
+-- Per-set individual kill attribution (optional; used for 개인 킬 1위 award).
+CREATE TABLE IF NOT EXISTS arena_players (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    set_id      INTEGER NOT NULL REFERENCES arena_sets(id) ON DELETE CASCADE,
+    team        TEXT,
+    discord_id  TEXT NOT NULL,
+    kills       INTEGER NOT NULL DEFAULT 0,
+    UNIQUE(set_id, discord_id)
+);
+
+-- Weekly per-person reward gate (Mon 00:00 KST). Max 2 reward-eligible sets/week.
+CREATE TABLE IF NOT EXISTS arena_participation (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    discord_id  TEXT NOT NULL,
+    week_key    TEXT NOT NULL,             -- KST Monday date 'YYYY-MM-DD'
+    set_id      INTEGER NOT NULL,
+    rewarded    INTEGER NOT NULL DEFAULT 0,
+    created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(set_id, discord_id)
+);
+CREATE INDEX IF NOT EXISTS idx_arena_partc_week ON arena_participation(discord_id, week_key);
 """
 
 
