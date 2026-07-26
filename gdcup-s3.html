@@ -396,6 +396,8 @@ function weightLabel(m){
 }
 function teamCap(){ return (META&&META.cap&&META.cap.team)||null; }
 function sTierCap(){ return (META&&META.cap&&META.cap.sTier)||null; }
+// ⚠️ 폴백 전용 — 자동조회 실패 시 대략값. S급은 현시즌 랭크(RP)가 필요해 클라가 판정할 수 없다.
+//    최대 T0까지만 나온다. S급 판정은 서버(/api/bpi-suggest-auto)만 가능.
 function computeTier(peak,dmg){
   dmg=Number(dmg)||0; if(!peak)return'';
   if(peak==='서바이버'&&dmg>=450)return'T0';
@@ -445,10 +447,14 @@ function memberCardHTML(i){
 })();
 
 function memberTier(i){
+  var hid=document.querySelector('.member-tier[data-idx="'+i+'"]');
+  // 자동조회로 서버가 판정한 티어가 있으면 그게 정본. 여기서 재계산하면 안 된다 —
+  // computeTier는 S급 분기가 없어(최대 T0) 서버가 준 S를 깎아버린다.
+  if(hid&&hid.value&&hid.getAttribute('data-src')==='api') return hid.value;
   var peak=(document.querySelector('.member-peak[data-idx="'+i+'"]')||{}).value||'';
   var dmg=(document.querySelector('.member-dmg[data-idx="'+i+'"]')||{}).value||'';
   var t=computeTier(peak,dmg);
-  var hid=document.querySelector('.member-tier[data-idx="'+i+'"]'); if(hid)hid.value=t;
+  if(hid){ hid.value=t; hid.setAttribute('data-src','local'); }
   return t;
 }
 function updateBPI(){
@@ -766,12 +772,15 @@ function copyApplication(){
         }
         var best=res.d.found[0];
         var s=best.suggested||{}, samp=best.sample||{};
-        var hid=document.querySelector('.member-tier[data-idx="'+i+'"]'); if(hid)hid.value=s.tier||'';
+        var hid=document.querySelector('.member-tier[data-idx="'+i+'"]');
+        if(hid){ hid.value=s.tier||''; hid.setAttribute('data-src','api'); }   // 서버 판정 = 정본(S급 포함)
         var dmgEl=document.querySelector('.member-dmg[data-idx="'+i+'"]');
         if(dmgEl&&samp.avgDamage!=null)dmgEl.value=Math.round(samp.avgDamage);
         if(out)out.innerHTML='✅ <b>'+(best.platform==='kakao'?'카카오':'스팀')+'</b> · 티어 <b>'+(s.tier||'?')+'</b>'
           +(samp.avgDamage!=null?(' · 평딜 '+Math.round(samp.avgDamage)):'')
-          +' · BPI <b>'+(s.bpi!=null?s.bpi:'?')+'</b>';
+          +' · BPI <b>'+(s.bpi!=null?s.bpi:'?')+'</b>'
+          +(s.tier==='S'?' <span style="color:var(--gold)">· S급 (팀당 1명 제한)</span>':'')
+          +' <span style="color:var(--ink-faint);font-size:11px">현시즌 기준</span>';
         renderBadge();
       })
       .catch(function(){ if(out)out.textContent='조회 실패 — 잠시 후 다시 시도해주세요'; });
@@ -783,11 +792,24 @@ function copyApplication(){
       var b=e.target.closest&&e.target.closest('.member-lookup');
       if(b){ e.preventDefault(); lookup(parseInt(b.getAttribute('data-idx'),10)); }
     });
+    // 자동조회 후 평딜·티어를 손대면 서버 판정이 더는 유효하지 않다 → 무효화하고 재조회 요구.
+    // (그냥 두면 화면값과 실제 제출 티어가 어긋난다. 이번 S급 사고의 형태다.)
+    function invalidateTier(idx){
+      var hid=document.querySelector('.member-tier[data-idx="'+idx+'"]');
+      if(hid&&hid.getAttribute('data-src')==='api'){
+        hid.setAttribute('data-src','');
+        var out=document.querySelector('.member-auto[data-idx="'+idx+'"]');
+        if(out)out.innerHTML='⚠️ 전적을 수정했어요 — <b>자동조회를 다시</b> 눌러주세요 (S급은 서버 판정만 유효)';
+      }
+    }
     document.addEventListener('input',function(e){
-      if(e.target.classList&&(e.target.classList.contains('member-dmg')||e.target.classList.contains('member-name')||e.target.classList.contains('member-ign')))renderBadge();
+      var c=e.target.classList; if(!c)return;
+      if(c.contains('member-dmg')){ invalidateTier(e.target.getAttribute('data-idx')); renderBadge(); }
+      else if(c.contains('member-name')||c.contains('member-ign'))renderBadge();
     });
     document.addEventListener('change',function(e){
-      if(e.target.classList&&e.target.classList.contains('member-peak'))renderBadge();
+      var c=e.target.classList; if(!c)return;
+      if(c.contains('member-peak')){ invalidateTier(e.target.getAttribute('data-idx')); renderBadge(); }
     });
     loadMeta();
   }
