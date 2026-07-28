@@ -117,7 +117,11 @@ function render(teams){
   if(!teams.length){el.innerHTML='<div class="msg">아직 신청한 팀이 없어요.</div>';return;}
   function card(t){
     var st=t.status||'applied';
-    var badge=st==='confirmed'?'<span class="badge b-confirmed">✅ 확정</span>':(st==='cancelled'?'<span class="badge b-cancelled">🗑 취소</span>':'<span class="badge b-applied">⏳ 신청</span>');
+    // verified = 확정 시 서버 tier 재검증 통과. 강제확정은 확정이어도 미검증으로 남는다.
+    var badge=st==='confirmed'
+      ?(t.verified?'<span class="badge b-confirmed">✅ 확정 · 검증됨</span>'
+                  :'<span class="badge b-confirmed" title="강제확정 — 서버 검증 생략됨">✅ 확정 · ⚠️ 미검증</span>')
+      :(st==='cancelled'?'<span class="badge b-cancelled">🗑 취소</span>':'<span class="badge b-applied">⏳ 신청 · 미검증</span>');
     var memEdit=(t.members||[]).filter(function(m){return m.ign;}).map(function(m,mi){
       var opts=['T0','T1','T2','T3','T4','T5'].map(function(tt){return '<option value="'+tt+'"'+(m.tier===tt?' selected':'')+'>'+tt+'</option>';}).join('');
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:5px 0;">'
@@ -148,13 +152,52 @@ function render(teams){
   el.innerHTML=html;
 }
 
-function setStatus(id,status){
+// 확정은 서버가 멤버 tier를 재도출·검증한다(멤버당 20초 페이싱 → 최대 ~70초 소요).
+// 409=검증 실패(사유·멤버별 차이 표시) · 503=PUBG 장애(재시도 또는 강제확정).
+// 강제확정은 감사 기록이 남고 목록에 '미검증'으로 표시된다.
+function confirmDenied(d){
+  var lines=['❌ 확정 거부 — 서버 재검증 실패'];
+  if(d.serverBpi!=null)lines.push('서버 재도출 합산: '+d.serverBpi);
+  (d.reasons||[]).forEach(function(r){
+    if(r.code==='bpi_cap_exceeded')lines.push('· 합산 '+r.teamBpi+' — 상한 '+r.cap+' 초과 ('+r.over+'점)');
+    else if(r.code==='s_tier_limit')lines.push('· S급 '+r.count+'명 — 팀당 '+r.max+'명까지');
+    else if(r.code==='player_not_found')lines.push('· 닉을 찾을 수 없음 (idx '+r.idx+')');
+    else lines.push('· '+r.code);
+  });
+  var diffs=(d.members||[]).filter(function(m){return m.mismatch;});
+  if(diffs.length){
+    lines.push('');
+    lines.push('신고 티어와 실제가 다른 멤버:');
+    diffs.forEach(function(m){lines.push('· '+m.ign+': 신고 '+m.clientTier+' → 실제 '+m.serverTier);});
+  }
+  alert(lines.join('\n'));
+}
+function setStatus(id,status,force){
   var k=getKey(); if(!k)return;
   if(status==='cancelled' && !confirm('이 팀을 취소(명단에서 제외)할까요?'))return;
-  fetch(GAPI+"/api/gdcup-confirm",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify({id:id,status:status})})
-  .then(function(r){return r.json();})
-  .then(function(d){ if(d&&d.ok){loadAdmin();} else {alert('처리 실패: '+((d&&d.error)||''));} })
-  .catch(function(){alert('네트워크 오류');});
+  if(status==='confirmed'&&!force){
+    if(!window.confirm('확정 시 서버가 멤버 전적을 재검증합니다.\n(최대 1분 정도 걸릴 수 있어요 — 창을 닫지 마세요)'))return;
+  }
+  var body={id:id,status:status};
+  if(force){
+    var why=window.prompt('강제확정 사유 (감사 기록에 남습니다):','PUBG API 장애');
+    if(why===null)return;
+    body.force=1; body.force_reason=why;
+  }
+  fetch(GAPI+"/api/gdcup-confirm",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify(body)})
+  .then(function(r){return r.json().then(function(d){return {status:r.status,d:d};});})
+  .then(function(res){
+    var d=res.d||{};
+    if(d.ok){loadAdmin();return;}
+    if(res.status===409){confirmDenied(d);return;}
+    if(res.status===503){
+      if(window.confirm((d.message||'PUBG API 장애로 검증 불가')+'\n\n강제확정할까요? (검증 생략 · 감사 기록됨 · 미검증 표시)'))
+        setStatus(id,'confirmed',true);
+      return;
+    }
+    alert('처리 실패: '+(d.error||res.status));
+  })
+  .catch(function(){alert('네트워크 오류 — 검증이 오래 걸리는 중일 수 있어요. 새로고침 후 상태를 확인해주세요.');});
 }
 
 function saveTiers(teamId){
