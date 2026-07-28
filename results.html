@@ -17,6 +17,7 @@
   html,body{width:1920px;height:1080px;overflow:hidden;font-family:var(--body);color:var(--ink);
     background:
       radial-gradient(ellipse 60% 50% at 50% -8%, rgba(245,197,24,.10), transparent 60%),
+      radial-gradient(ellipse 46% 38% at 88% 108%, rgba(245,197,24,.06), transparent 60%),
       linear-gradient(#0a0a0c,#0a0a0c);
   }
   body::before{content:"";position:fixed;inset:0;background-image:
@@ -33,6 +34,11 @@
   .rstat{text-align:right;}
   .rstat .r{font-family:var(--display);font-size:30px;color:var(--gold);}
   .rstat .s{font-size:17px;color:var(--ink-dim);margin-top:6px;}
+  /* 본선 날짜 칩 — 현재 시즌일 때만 JS로 표시 (아카이브 조회 시 숨김) */
+  .datechip{display:inline-flex;align-items:center;gap:9px;margin-top:14px;padding:7px 16px;
+    border:1px solid rgba(245,197,24,.4);border-radius:999px;
+    font-weight:800;font-size:16px;color:var(--gold);letter-spacing:.06em;}
+  .datechip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);}
 
   /* 순위 2열 */
   .cols{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0 56px;align-content:center;padding:34px 0;}
@@ -51,7 +57,10 @@
   .row.t1{background:linear-gradient(90deg,rgba(245,197,24,.16),rgba(245,197,24,.03));border-color:rgba(245,197,24,.5);}
   .row.t2{background:linear-gradient(90deg,rgba(203,213,225,.12),transparent);border-color:rgba(203,213,225,.32);}
   .row.t3{background:linear-gradient(90deg,rgba(212,149,91,.12),transparent);border-color:rgba(212,149,91,.32);}
+  /* 4위 — 연속 보너스 사정권(Top4) 경계 강조. 금은동과 구분되는 무채 하이라이트 */
+  .row.t4{background:linear-gradient(90deg,rgba(244,244,245,.08),transparent);border-color:rgba(244,244,245,.25);}
   .row.t1 .rk{color:var(--gold);} .row.t2 .rk{color:var(--silver);} .row.t3 .rk{color:var(--bronze);}
+  .row.t4 .rk{color:var(--ink);}
   .row.t1 .sc{color:var(--gold);}
 
   /* 푸터 */
@@ -63,7 +72,9 @@
   .updating{position:fixed;top:18px;right:22px;font-size:13px;color:var(--ink-faint);}
   .empty{display:flex;align-items:center;justify-content:center;min-height:340px;
     color:var(--ink-dim);font-size:26px;font-weight:700;letter-spacing:.02em;}
-.bn{margin-left:6px;padding:1px 7px;border-radius:10px;font-size:12px;font-weight:700;background:rgba(245,197,24,.14);color:#f5c518;vertical-align:middle;}
+/* 연속 보너스 뱃지 — 1080p 방송 송출 기준 가독 크기 */
+.bn{margin-left:8px;padding:3px 10px;border-radius:11px;font-size:16px;font-weight:800;
+  background:rgba(245,197,24,.16);border:1px solid rgba(245,197,24,.38);color:#f5c518;vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -72,6 +83,8 @@
       <div>
         <div class="kick" id="kick">G드컵</div>
         <div class="title">누적 순위<small>STANDINGS</small></div>
+        <!-- 이벤트 고정 표기(시즌 규칙 아님) — 다음 시즌 본선 때 날짜만 갱신 -->
+        <div class="datechip" id="dateChip" style="display:none;">본선 2026.08.07 (금) · GmI 클랜컵</div>
       </div>
       <div class="rstat">
         <div class="r" id="roundStat">ROUND 3 종료</div>
@@ -86,7 +99,7 @@
 
     <div class="foot">
       <div class="next"><span class="dot"></span> <span id="nextLabel">잠시 후 ROUND 4 시작</span></div>
-      <div class="legend">점수 = (순위점 + 킬 + 연속 보너스) 누적 × 팀 BPI 가중치</div>
+      <div class="legend">점수 = (순위점 + 킬 + 연속 보너스) 누적 × 팀 BPI 가중치 · 1~4위 = 연속 보너스 사정권</div>
     </div>
   </div>
   <div class="updating" id="upd"></div>
@@ -144,7 +157,7 @@
   }
 
   function rowHtml(t, rank){
-    var cls = rank<=3 ? (' t'+rank) : '';
+    var cls = rank<=4 ? (' t'+rank) : '';
     var b = BRANDS[t.name] || {};
     var em = b.emblem ? '<img class="em" src="'+b.emblem+'">' : '';
     var stl = (b.color && rank>3) ? ' style="border-left:5px solid '+b.color+'"' : '';
@@ -175,6 +188,9 @@
         document.getElementById('kick').textContent = 'G드컵 SEASON '+sn;
         document.title = 'G드컵 시즌'+sn+' · 누적 순위';
       }
+      // 본선 날짜 칩 — 현재 시즌 화면에서만 (아카이브 ?season=2 조회 시 숨김)
+      var dc = document.getElementById('dateChip');
+      if(dc) dc.style.display = (sn && META && Number(sn)===Number(META.currentSeason)) ? '' : 'none';
       var rds = (META && META.rounds && META.rounds.length) ? META.rounds : null;
       if(rds) document.getElementById('subStat').textContent =
         '본매치 '+rds[0]+'~'+rds[rds.length-1]+'R 누적 · 가중치 반영';
