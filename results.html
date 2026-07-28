@@ -61,6 +61,7 @@
   @keyframes bl{0%,100%{opacity:1}50%{opacity:.25}}
   .foot .legend{font-size:15px;color:var(--ink-faint);}
   .updating{position:fixed;top:18px;right:22px;font-size:13px;color:var(--ink-faint);}
+.bn{margin-left:6px;padding:1px 7px;border-radius:10px;font-size:12px;font-weight:700;background:rgba(245,197,24,.14);color:#f5c518;vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -133,8 +134,16 @@
     return '<div class="row'+cls+'"'+stl+'>'
       + '<div class="rk">'+rank+'</div>'
       + '<div class="nm">'+em+'<span class="tn">'+escapeHtml(t.name)+'</span><span class="w">×'+t.weight+'</span></div>'
-      + '<div class="sc">'+t.points+'<small>'+t.kills+'킬</small></div>'
+      + '<div class="sc">'+t.points
+      +   (t.bonus?'<span class="bn" title="연속 보너스 — 라운드별: '+bonusTip(t)+'">+'+t.bonus+'</span>':'')
+      +   '<small>'+t.kills+'킬</small></div>'
       + '</div>';
+  }
+  // 연속 보너스 툴팁 — 준구 검산용 (라운드별 +2/+4 귀속)
+  function bonusTip(t){
+    var br=t.bonusByRound||{};
+    var parts=Object.keys(br).sort(function(a,b){return a-b;}).map(function(r){return r+'R +'+br[r];});
+    return parts.join(' · ')||('+'+t.bonus);
   }
   function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
