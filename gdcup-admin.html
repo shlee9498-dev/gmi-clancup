@@ -52,11 +52,42 @@ h1{font-size:20px;margin-bottom:4px;}
 <div class="stat" id="stat"></div>
 <div id="list"><div class="msg">키를 입력하고 불러오기를 누르세요.</div></div>
 
+<div style="margin:14px 0 6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+  <label for="seasonSel" style="font-size:13px;opacity:.85;">시즌</label>
+  <select id="seasonSel" onchange="onSeasonChange()" style="padding:7px 10px;border-radius:7px;"></select>
+  <span id="seasonHint" style="font-size:12px;opacity:.6;"></span>
+</div>
+
 <h2 style="font-size:16px;margin:22px 0 8px;">🙋 솔로 / 용병 대기</h2>
 <div id="soloAdminList"></div>
 
 <script>
 var GAPI="https://mri-academy-production.up.railway.app";
+// 시즌 목록·기본값은 서버(/api/gdcup-meta)에서 받는다. 여기에 하드코딩하면
+// 시즌이 늘 때마다 프론트를 고쳐야 하고, 서버와 어긋나면 조회 시즌이 틀어진다.
+var SEASON=null;
+function seasonQS(){ return SEASON!=null ? ("?season="+SEASON) : ""; }
+function onSeasonChange(){
+  var sel=document.getElementById('seasonSel');
+  SEASON=parseInt(sel.value,10);
+  try{ sessionStorage.setItem('gdcupSeason',String(SEASON)); }catch(e){}
+  if(getKey())loadAdmin();
+}
+function loadSeasons(){
+  return fetch(GAPI+"/api/gdcup-meta").then(function(r){return r.json();}).then(function(m){
+    var sel=document.getElementById('seasonSel');
+    var list=(m&&m.seasons&&m.seasons.length)?m.seasons:[m&&m.currentSeason].filter(Boolean);
+    var saved=null; try{ saved=parseInt(sessionStorage.getItem('gdcupSeason'),10); }catch(e){}
+    SEASON=(saved&&list.indexOf(saved)>=0)?saved:(m&&m.currentSeason)||list[list.length-1];
+    sel.innerHTML=list.map(function(s){
+      return '<option value="'+s+'"'+(s===SEASON?' selected':'')+'>시즌 '+s+(s===m.currentSeason?' (현재)':'')+'</option>';
+    }).join('');
+    document.getElementById('seasonHint').textContent=(SEASON===m.currentSeason)?'':'과거 시즌 조회 중';
+  }).catch(function(){
+    // meta 실패 시 시즌을 추측하지 않는다 — 서버 폴백(현재 시즌)에 맡긴다
+    document.getElementById('seasonHint').textContent='시즌 목록을 못 불러왔어요 (현재 시즌으로 조회)';
+  });
+}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
 function getKey(){return document.getElementById('key').value.trim();}
 function saveKeyAndLoad(){var k=getKey(); if(k){try{sessionStorage.setItem('gdcupKey',k);}catch(e){}} loadAdmin();}
@@ -65,7 +96,7 @@ function loadAdmin(){
   var k=getKey(); var warn=document.getElementById('warn'); warn.innerHTML='';
   if(!k){warn.innerHTML='<div class="warn">키를 입력하세요.</div>';return;}
   document.getElementById('list').innerHTML='<div class="msg">불러오는 중…</div>';
-  fetch(GAPI+"/api/gdcup-admin-list",{headers:{"x-admin-key":k}})
+  fetch(GAPI+"/api/gdcup-admin-list"+seasonQS(),{headers:{"x-admin-key":k}})
   .then(function(r){
     if(r.status===401){throw new Error('unauthorized');}
     return r.json();
@@ -222,7 +253,12 @@ function setSolo(id,status){
 }
 
 // 세션에 저장된 키 있으면 자동 로드
-(function(){try{var k=sessionStorage.getItem('gdcupKey'); if(k){document.getElementById('key').value=k; loadAdmin();}}catch(e){}})();
+(function(){
+  // 시즌 목록을 먼저 받아 SEASON을 확정한 뒤 조회한다 — 순서가 뒤바뀌면 첫 조회가 시즌 없이 나간다.
+  var k=null; try{ k=sessionStorage.getItem('gdcupKey'); }catch(e){}
+  if(k){ try{ document.getElementById('key').value=k; }catch(e){} }
+  loadSeasons().then(function(){ if(k)loadAdmin(); });
+})();
 </script>
 </body>
 </html>

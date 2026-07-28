@@ -1579,8 +1579,10 @@ function copyAccount() {
 <script>
 (function(){
   var GAPI="https://mri-academy-production.up.railway.app";
+  // 이 페이지는 시즌2 아카이브. 서버 폴백은 현재 시즌이므로 반드시 명시해야 한다.
+  var SEASON=2;
   function setCount(n){var e=document.getElementById('gdcupCountNum');if(e&&n!=null)e.textContent=n;}
-  function loadCount(){fetch(GAPI+"/api/gdcup-count").then(function(r){return r.json();}).then(function(d){setCount(d.teams);}).catch(function(){});}
+  function loadCount(){fetch(GAPI+"/api/gdcup-count?season="+SEASON).then(function(r){return r.json();}).then(function(d){setCount(d.teams);}).catch(function(){});}
   var _sent=false;
   function autoSubmit(){
     if(_sent)return;
@@ -1601,7 +1603,7 @@ function copyAccount() {
       }
       members=members.filter(function(m){return m.name&&m.ign&&m.tier;}); // 빈 슬롯 제외 (2~4인 팀 허용)
       var bpi=parseInt((((document.getElementById('bpiSum')||{}).textContent)||'').replace(/[^0-9]/g,''),10)||null;
-      fetch(GAPI+"/api/gdcup-apply",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({team_name:teamName,slogan:slogan,members:members,bpi:bpi,contact:contact})})
+      fetch(GAPI+"/api/gdcup-apply",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({season:SEASON,team_name:teamName,slogan:slogan,members:members,bpi:bpi,contact:contact})})
       .then(function(r){return r.json().catch(function(){return {};});})
       .then(function(d){
         _sent=true;
@@ -1627,7 +1629,7 @@ function copyAccount() {
   var GAPI="https://mri-academy-production.up.railway.app";
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
   function loadTeams(){
-    fetch(GAPI+"/api/gdcup-list").then(function(r){return r.json();}).then(function(d){
+    fetch(GAPI+"/api/gdcup-list?season="+SEASON).then(function(r){return r.json();}).then(function(d){
       var el=document.getElementById('teamList'); if(!el)return;
       var teams=(d&&d.teams)||[];
       if(!teams.length){ el.innerHTML='<div style="color:var(--ink-dim);text-align:center;padding:18px;">아직 신청한 팀이 없어요. 첫 번째 팀이 되어보세요! 🎮</div>'; return; }
@@ -1665,7 +1667,7 @@ function copyAccount() {
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
   function medal(i){return ["🥇","🥈","🥉"][i]||(i+1);}
   function loadScores(){
-    fetch(GAPI+"/api/gdcup-scores").then(function(r){return r.json();}).then(function(d){
+    fetch(GAPI+"/api/gdcup-scores?season="+SEASON).then(function(r){return r.json();}).then(function(d){
       var sec=document.getElementById('scores'); if(!sec)return;
       var sc=d&&d.scores;
       if(!sc||!sc.published||!sc.ranking||!sc.ranking.length){ sec.style.display='none'; return; }
@@ -1706,7 +1708,7 @@ function copyAccount() {
     var kind='solo';var rs=document.getElementsByName('soloKind');for(var i=0;i<rs.length;i++){if(rs[i].checked)kind=rs[i].value;}
     var body={kind:kind,ign:ign,tier:(document.getElementById('soloTier').value||'').trim(),discord:discord,note:(document.getElementById('soloNote').value||'').trim()};
     msg.style.color='var(--ink-dim)';msg.textContent='신청 중…';
-    fetch(GAPI+"/api/gdcup-solo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+    fetch(GAPI+"/api/gdcup-solo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({season:SEASON},body))})
     .then(function(r){return r.json();}).then(function(d){
       if(d&&d.ok){msg.style.color='var(--green)';msg.textContent='✅ 신청 완료! 디스코드 용병-구인구직에 등록됐어요.';
         document.getElementById('soloIgn').value='';document.getElementById('soloTier').value='';document.getElementById('soloDiscord').value='';document.getElementById('soloNote').value='';
@@ -1726,7 +1728,7 @@ function copyAccount() {
     return '<span style="display:inline-block;border:1px solid '+c+';color:'+c+';font-weight:700;font-size:11px;padding:2px 9px;border-radius:20px;white-space:nowrap;">'+esc(s)+'</span>';
   }
   function loadSolo(){
-    fetch(GAPI+"/api/gdcup-solo-list").then(function(r){return r.json();}).then(function(d){
+    fetch(GAPI+"/api/gdcup-solo-list?season="+SEASON).then(function(r){return r.json();}).then(function(d){
       var num=document.getElementById('gdcupSoloNum'); if(num)num.textContent=(d&&d.count!=null)?d.count:0;
       var el=document.getElementById('soloList'); if(!el)return;
       var solos=((d&&d.solos)||[]).filter(function(s){return s.status!=='matched';});
