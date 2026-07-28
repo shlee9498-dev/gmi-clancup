@@ -202,7 +202,7 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
 <!-- BPI SYSTEM -->
 <section id="rules" class="anchor">
   <div class="section-head"><div class="section-kicker">BPI SYSTEM</div><h2 class="section-title">티어 · BPI</h2>
-  <p class="section-desc">역대 최고 티어 + 시즌 최고 평균딜로 티어 자동 산정. 팀 BPI 합계 <b style="color:var(--gold)">22~23</b>이 정석. <span style="color:var(--ink-faint);">시즌2 실측 데이터 기반으로 시즌3 재산정 완료.</span></p></div>
+  <p class="section-desc">배그 닉으로 <b style="color:var(--gold)">전적 자동조회</b>를 누르면 현시즌 기준으로 티어·BPI가 산정됩니다. 팀 합산 BPI <b style="color:var(--gold)">36</b>이 상한이며 <b style="color:var(--gold)">S급은 팀당 1명</b>까지입니다. <span style="color:var(--ink-faint);">가중치는 서버 기준으로 실시간 표시됩니다.</span></p></div>
   <div class="card">
     <table class="tier-table">
       <thead><tr><th>티어</th><th>기준 (최고티어 · 평균딜)</th><th>BPI</th><th>역할</th></tr></thead>
@@ -336,7 +336,7 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
 <section class="anchor">
   <div class="section-head"><div class="section-kicker">FAQ</div><h2 class="section-title">자주 묻는 질문</h2></div>
   <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 계좌는 꼭 적어야 하나요?</div><div class="faq-a"><strong>네, 시즌3부터 필수</strong>입니다. 상금을 팀장 취합 없이 멤버 개인에게 바로 입금하기 위해서예요. <strong>반드시 본인(해당 멤버) 명의</strong> 계좌만 적어주세요. 계좌·실명은 상금 지급 목적으로만 쓰이고 운영진(오너)만 조회할 수 있으며, 공개 팀 목록에는 절대 노출되지 않습니다.</div></div>
-  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 내 티어를 모르겠어요</div><div class="faq-a">역대 최고 티어 + 시즌 최고 평균딜만 적으면 BPI가 자동 계산됩니다. 평균딜은 닥지지 등 전적 검색에서 확인하세요.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 내 티어를 모르겠어요</div><div class="faq-a">배그 닉을 넣고 <b>전적 자동조회</b>를 누르면 서버가 <b>현시즌</b> 기록으로 티어·평딜·BPI를 자동 산정합니다. 닉을 못 찾을 때만 역대 최고 티어·평균딜을 직접 입력하시면 대략값으로 폴백됩니다(이 경우 S급은 판정되지 않습니다).</div></div>
   <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 친구가 없어요 (솔로 신청)</div><div class="faq-a">솔로 신청 OK. 운영진이 BPI 맞춰 자동 매칭합니다.</div></div>
   <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 참가비가 있나요?</div><div class="faq-a">완전 무료입니다. 보증금도 없어요. 대신 8/7(금) 참가 확정 체크인에 응답해주세요.</div></div>
 </section>
@@ -396,6 +396,8 @@ function weightLabel(m){
 }
 function teamCap(){ return (META&&META.cap&&META.cap.team)||null; }
 function sTierCap(){ return (META&&META.cap&&META.cap.sTier)||null; }
+// ⚠️ 폴백 전용 — 자동조회 실패 시 대략값. S급은 현시즌 랭크(RP)가 필요해 클라가 판정할 수 없다.
+//    최대 T0까지만 나온다. S급 판정은 서버(/api/bpi-suggest-auto)만 가능.
 function computeTier(peak,dmg){
   dmg=Number(dmg)||0; if(!peak)return'';
   if(peak==='서바이버'&&dmg>=450)return'T0';
@@ -418,7 +420,7 @@ function memberCardHTML(i){
     +'<div class="form-row">'
       +'<div class="form-group"><label class="form-label">디스코드 닉네임 <span class="req">*</span></label><input type="text" class="form-input member-name" data-idx="'+i+'"></div>'
       +'<div class="form-group"><label class="form-label">배그 닉네임 <span class="req">*</span></label><input type="text" class="form-input member-ign" data-idx="'+i+'"></div>'
-      +'<div class="form-group"><label class="form-label">역대 최고 티어 <span class="req">*</span></label><select class="form-select member-peak" data-idx="'+i+'">'
+      +'<div class="form-group"><label class="form-label">역대 최고 티어 <span class="req">*</span> <span class="opt">자동조회 실패 시 폴백용</span></label><select class="form-select member-peak" data-idx="'+i+'">'
         +'<option value="">선택</option><option value="서바이버">서바이버</option><option value="마스터">마스터</option><option value="다이아">다이아</option><option value="크리스탈">크리스탈</option><option value="플래이하">플래티넘 이하</option></select></div>'
       +'<div class="form-group"><label class="form-label">시즌 최고 평균딜 <span class="req">*</span></label><input type="number" inputmode="numeric" class="form-input member-dmg" data-idx="'+i+'" placeholder="예: 320"></div>'
     +'</div>'
@@ -445,10 +447,14 @@ function memberCardHTML(i){
 })();
 
 function memberTier(i){
+  var hid=document.querySelector('.member-tier[data-idx="'+i+'"]');
+  // 자동조회로 서버가 판정한 티어가 있으면 그게 정본. 여기서 재계산하면 안 된다 —
+  // computeTier는 S급 분기가 없어(최대 T0) 서버가 준 S를 깎아버린다.
+  if(hid&&hid.value&&hid.getAttribute('data-src')==='api') return hid.value;
   var peak=(document.querySelector('.member-peak[data-idx="'+i+'"]')||{}).value||'';
   var dmg=(document.querySelector('.member-dmg[data-idx="'+i+'"]')||{}).value||'';
   var t=computeTier(peak,dmg);
-  var hid=document.querySelector('.member-tier[data-idx="'+i+'"]'); if(hid)hid.value=t;
+  if(hid){ hid.value=t; hid.setAttribute('data-src','local'); }
   return t;
 }
 function updateBPI(){
@@ -703,6 +709,15 @@ function copyApplication(){
    가중치·상한은 전부 서버(/api/gdcup-meta)에서 온다. 이 파일에 표를 두지 않는다. */
 (function(){
   var badge=null, submitBtn=null;
+  // 자동조회가 성공하면 '역대 최고 티어'는 판정에 관여하지 않는다(서버가 현시즌 기준으로 판정).
+  // 열어두면 사용자가 이걸 바꿔 티어가 바뀔 거라 기대하게 되므로 잠근다.
+  window.setFallbackLocked=function(i, locked){
+    var sel=document.querySelector('.member-peak[data-idx="'+i+'"]');
+    if(!sel)return;
+    sel.disabled=!!locked;
+    sel.style.opacity=locked?0.55:1;
+    sel.title=locked?'자동조회 결과가 적용됐습니다 (현시즌 기준). 전적을 수정하면 다시 열립니다.':'';
+  };
   function ensureBadge(){
     if(badge)return badge;
     var host=document.getElementById('bpiSum'); if(!host)return null;
@@ -766,12 +781,17 @@ function copyApplication(){
         }
         var best=res.d.found[0];
         var s=best.suggested||{}, samp=best.sample||{};
-        var hid=document.querySelector('.member-tier[data-idx="'+i+'"]'); if(hid)hid.value=s.tier||'';
+        var hid=document.querySelector('.member-tier[data-idx="'+i+'"]');
+        if(hid){ hid.value=s.tier||''; hid.setAttribute('data-src','api'); }   // 서버 판정 = 정본(S급 포함)
+        // 폴백 입력(역대 최고 티어)은 판정에 쓰이지 않으므로 잠근다 — 근거처럼 보이는 혼란 제거
+        setFallbackLocked(i, true);
         var dmgEl=document.querySelector('.member-dmg[data-idx="'+i+'"]');
         if(dmgEl&&samp.avgDamage!=null)dmgEl.value=Math.round(samp.avgDamage);
         if(out)out.innerHTML='✅ <b>'+(best.platform==='kakao'?'카카오':'스팀')+'</b> · 티어 <b>'+(s.tier||'?')+'</b>'
           +(samp.avgDamage!=null?(' · 평딜 '+Math.round(samp.avgDamage)):'')
-          +' · BPI <b>'+(s.bpi!=null?s.bpi:'?')+'</b>';
+          +' · BPI <b>'+(s.bpi!=null?s.bpi:'?')+'</b>'
+          +(s.tier==='S'?' <span style="color:var(--gold)">· S급 (팀당 1명 제한)</span>':'')
+          +' <span style="color:var(--ink-faint);font-size:11px">현시즌 기준</span>';
         renderBadge();
       })
       .catch(function(){ if(out)out.textContent='조회 실패 — 잠시 후 다시 시도해주세요'; });
@@ -783,11 +803,25 @@ function copyApplication(){
       var b=e.target.closest&&e.target.closest('.member-lookup');
       if(b){ e.preventDefault(); lookup(parseInt(b.getAttribute('data-idx'),10)); }
     });
+    // 자동조회 후 평딜·티어를 손대면 서버 판정이 더는 유효하지 않다 → 무효화하고 재조회 요구.
+    // (그냥 두면 화면값과 실제 제출 티어가 어긋난다. 이번 S급 사고의 형태다.)
+    function invalidateTier(idx){
+      var hid=document.querySelector('.member-tier[data-idx="'+idx+'"]');
+      if(hid&&hid.getAttribute('data-src')==='api'){
+        hid.setAttribute('data-src','');
+        setFallbackLocked(idx, false);
+        var out=document.querySelector('.member-auto[data-idx="'+idx+'"]');
+        if(out)out.innerHTML='⚠️ 전적을 수정했어요 — <b>자동조회를 다시</b> 눌러주세요 (S급은 서버 판정만 유효)';
+      }
+    }
     document.addEventListener('input',function(e){
-      if(e.target.classList&&(e.target.classList.contains('member-dmg')||e.target.classList.contains('member-name')||e.target.classList.contains('member-ign')))renderBadge();
+      var c=e.target.classList; if(!c)return;
+      if(c.contains('member-dmg')){ invalidateTier(e.target.getAttribute('data-idx')); renderBadge(); }
+      else if(c.contains('member-name')||c.contains('member-ign'))renderBadge();
     });
     document.addEventListener('change',function(e){
-      if(e.target.classList&&e.target.classList.contains('member-peak'))renderBadge();
+      var c=e.target.classList; if(!c)return;
+      if(c.contains('member-peak')){ invalidateTier(e.target.getAttribute('data-idx')); renderBadge(); }
     });
     loadMeta();
   }
