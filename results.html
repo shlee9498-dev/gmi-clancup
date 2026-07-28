@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>G드컵 시즌2 · 누적 순위</title>
+<title>G드컵 · 누적 순위</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -68,12 +68,12 @@
   <div class="wrap">
     <div class="head">
       <div>
-        <div class="kick">G드컵 SEASON 2</div>
+        <div class="kick" id="kick">G드컵</div>
         <div class="title">누적 순위<small>STANDINGS</small></div>
       </div>
       <div class="rstat">
         <div class="r" id="roundStat">ROUND 3 종료</div>
-        <div class="s" id="subStat">본매치 3~5R 누적 · 가중치 반영</div>
+        <div class="s" id="subStat">본매치 누적 · 가중치 반영</div>
       </div>
     </div>
 
@@ -84,7 +84,7 @@
 
     <div class="foot">
       <div class="next"><span class="dot"></span> <span id="nextLabel">잠시 후 ROUND 4 시작</span></div>
-      <div class="legend">점수 = (순위점 + 킬) 누적 × 팀 BPI 가중치</div>
+      <div class="legend">점수 = (순위점 + 킬 + 연속 보너스) 누적 × 팀 BPI 가중치</div>
     </div>
   </div>
   <div class="updating" id="upd"></div>
@@ -92,7 +92,16 @@
 <script>
   // ===== 데이터 소스 =====
   var GAPI="https://mri-academy-production.up.railway.app";
-  var DEMO = new URLSearchParams(location.search).get('demo')==='1';
+  var QS = new URLSearchParams(location.search);
+  var DEMO = QS.get('demo')==='1';
+  // ?season=N 지정 시 해당 시즌, 미지정 = 서버 현재 시즌 폴백 (시즌 번호 하드코딩 금지)
+  var SEASON = QS.get('season');
+  var seasonQ = SEASON ? ('season='+encodeURIComponent(SEASON)) : '';
+  var META = null;   // /api/gdcup-meta — 라운드 범위(1~5R 등) 라벨용
+  async function loadMeta(){
+    if(DEMO){ META={rounds:[3,4,5]}; return; }
+    try{ var r=await fetch(GAPI+"/api/gdcup-meta"+(seasonQ?('?'+seasonQ):'')); META=await r.json(); }catch(e){ META=null; }
+  }
   var BRANDS = {};
   async function loadBrands(){
     if(DEMO){ BRANDS.__loaded=true; return; }
@@ -118,12 +127,12 @@
     {name:"서리", weight:0.9, points:88, kills:12},
     {name:"고요", weight:1.0, points:71, kills:9}
   ];
-  // 반환: {standings:[{name,weight,points,kills}], lastRound}
+  // 반환: {standings:[{name,weight,points,kills}], lastRound, season}
   async function loadData(){
-    if(DEMO) return { standings: SAMPLE, lastRound: 3 };
-    var r = await fetch(GAPI+"/api/gdcup-scores");
+    if(DEMO) return { standings: SAMPLE, lastRound: 3, season: 2 };
+    var r = await fetch(GAPI+"/api/gdcup-scores"+(seasonQ?('?'+seasonQ):''));
     var d = await r.json();
-    return { standings: (d&&d.standings)||[], lastRound: (d&&d.lastRound)||0 };
+    return { standings: (d&&d.standings)||[], lastRound: (d&&d.lastRound)||0, season: d&&d.season };
   }
 
   function rowHtml(t, rank){
@@ -149,8 +158,19 @@
 
   async function render(){
     try{
+      if(!META) await loadMeta();
       if(!BRANDS.__loaded) await loadBrands();
       var d = await loadData();
+      // 시즌 라벨은 서버 응답이 정본 — 화면 하드코딩 금지 (SEASON 2 고정 표기 사고 재발 방지)
+      var sn = d.season || (META && META.season);
+      if(sn){
+        document.getElementById('kick').textContent = 'G드컵 SEASON '+sn;
+        document.title = 'G드컵 시즌'+sn+' · 누적 순위';
+      }
+      var rds = (META && META.rounds && META.rounds.length) ? META.rounds : null;
+      if(rds) document.getElementById('subStat').textContent =
+        '본매치 '+rds[0]+'~'+rds[rds.length-1]+'R 누적 · 가중치 반영';
+      var finalR = rds ? rds[rds.length-1] : 5;
       var data = (d.standings||[]).slice().sort(function(a,b){ return b.points - a.points; });
       if(!data.length){
         document.getElementById('colA').innerHTML='<div class="row"><div class="nm" style="color:var(--ink-faint)">집계 대기 중…</div></div>';
@@ -163,7 +183,7 @@
       }
       var lr=d.lastRound||0;
       document.getElementById('roundStat').textContent = lr ? ('ROUND '+lr+' 종료') : '집계 대기';
-      document.getElementById('nextLabel').textContent = lr ? (lr<5 ? ('잠시 후 ROUND '+(lr+1)+' 시작') : '최종 결과 · 곧 시상') : '곧 시작합니다';
+      document.getElementById('nextLabel').textContent = lr ? (lr<finalR ? ('잠시 후 ROUND '+(lr+1)+' 시작') : '최종 결과 · 곧 시상') : '곧 시작합니다';
       document.getElementById('upd').textContent='업데이트 '+new Date().toLocaleTimeString('ko-KR');
     }catch(e){ document.getElementById('upd').textContent='연결 대기…'; }
   }

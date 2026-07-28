@@ -77,11 +77,11 @@
       <div class="tabs" id="tabs"></div>
       <div class="bar">
         <button class="saveall" id="saveAll">이 라운드 전체 저장</button>
-        <a href="results.html" target="_blank">순위화면</a>
-        <a href="kill-mvp.html" target="_blank">MVP화면</a>
+        <a href="results.html" target="_blank" id="lnkResults">순위화면</a>
+        <a href="kill-mvp.html" target="_blank" id="lnkMvp">MVP화면</a>
       </div>
     </div>
-    <div class="note">팀별 <b>순위</b> + <b>팀 총킬</b>만 넣어도 순위표 됩니다. 킬 MVP까지 하려면 <b>선수별</b>을 펼쳐 각자 킬 입력(합계가 팀 총킬). 저장은 팀마다 또는 위 "전체 저장". <b style="color:var(--gold)">🔥 시즌3 연속 보너스(연속 Top4 +2 / 연속 치킨 +5)는 순위 기록으로 서버가 자동 계산</b> — 따로 입력할 것 없습니다.</div>
+    <div class="note">팀별 <b>순위</b> + <b>팀 총킬</b>만 넣어도 순위표 됩니다. 킬 MVP까지 하려면 <b>선수별</b>을 펼쳐 각자 킬 입력(합계가 팀 총킬). 저장은 팀마다 또는 위 "전체 저장". <b style="color:var(--gold)">🔥 시즌3 연속 보너스(연속 Top4 +2 / 연속 치킨 +4)는 순위 기록으로 서버가 자동 계산</b> — 따로 입력할 것 없습니다.</div>
     <div id="apBox" style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-top:10px;">
       <div style="font-weight:800;margin-bottom:8px;">🤖 PUBG 자동 불러오기 <span style="color:var(--faint);font-weight:600;font-size:12px;">라운드 끝나면 클릭</span></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -338,8 +338,15 @@
     Array.prototype.forEach.call($("tabs").querySelectorAll('button'),function(b){ b.classList.toggle('on', +b.getAttribute('data-r')===r); });
     loadScores().then(function(){ render(); applyReadOnly(); });
   }
+  // 순위/MVP 화면 링크에 현재 선택 시즌 전달 — 미전달 시 두 화면은 서버 현재 시즌으로
+  // 열리므로, 여기서 과거 시즌을 보다가 링크를 열면 화면 간 시즌이 어긋난다.
+  function syncLinks(){
+    $("lnkResults").href = "results.html?season="+season;
+    $("lnkMvp").href = "kill-mvp.html?season="+season;
+  }
   function applyReadOnly(){
     var ro=readOnly();
+    syncLinks();
     $("kick").textContent="G드컵 SEASON "+season;
     $("roMsg").textContent = ro ? "🔒 시즌 2는 조회 전용 (기록 동결)" : "";
     var sa=$("saveAll"); if(sa) sa.style.display = ro ? "none" : "";

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>G드컵 시즌2 · 킬 MVP</title>
+<title>G드컵 · 킬 MVP</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -62,7 +62,7 @@
   <div class="wrap">
     <div class="head">
       <div>
-        <div class="kick">G드컵 SEASON 2</div>
+        <div class="kick" id="kick">G드컵</div>
         <div class="title">킬 MVP<small>KILL LEADERS</small></div>
       </div>
       <div class="rstat">
@@ -88,7 +88,11 @@
 <script>
   // ===== 데이터 소스 =====
   var GAPI="https://mri-academy-production.up.railway.app";
-  var DEMO = new URLSearchParams(location.search).get('demo')==='1';
+  var QS = new URLSearchParams(location.search);
+  var DEMO = QS.get('demo')==='1';
+  // ?season=N 지정 시 해당 시즌, 미지정 = 서버 현재 시즌 폴백 (시즌 번호 하드코딩 금지)
+  var SEASON = QS.get('season');
+  var seasonQ = SEASON ? ('season='+encodeURIComponent(SEASON)) : '';
   var BRANDS={};
   async function loadBrands(){
     if(DEMO){ BRANDS.__loaded=true; return; }
@@ -111,12 +115,12 @@
     {name:"Da3va", team:"북극성", kills:5},
     {name:"ansiwoo", team:"적호", kills:5}
   ];
-  // 반환: {players:[{name,team,kills}], lastRound}
+  // 반환: {players:[{name,team,kills}], lastRound, season}
   async function loadData(){
-    if(DEMO) return { players: SAMPLE, lastRound: 3 };
-    var r = await fetch(GAPI+"/api/gdcup-killmvp");
+    if(DEMO) return { players: SAMPLE, lastRound: 3, season: 2 };
+    var r = await fetch(GAPI+"/api/gdcup-killmvp"+(seasonQ?('?'+seasonQ):''));
     var d = await r.json();
-    return { players: (d&&d.players)||[], lastRound: (d&&d.lastRound)||0 };
+    return { players: (d&&d.players)||[], lastRound: (d&&d.lastRound)||0, season: d&&d.season };
   }
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
@@ -124,6 +128,11 @@
     try{
       if(!BRANDS.__loaded) await loadBrands();
       var d = await loadData();
+      // 시즌 라벨은 서버 응답이 정본 — 화면 하드코딩 금지 (SEASON 2 고정 표기 사고 재발 방지)
+      if(d.season){
+        document.getElementById('kick').textContent = 'G드컵 SEASON '+d.season;
+        document.title = 'G드컵 시즌'+d.season+' · 킬 MVP';
+      }
       var data = (d.players||[]).slice().sort(function(a,b){ return b.kills - a.kills; });
       if(!data.length){
         document.getElementById('hero').innerHTML='<div class="who"><div class="lbl">KILL MVP</div><div class="nm" style="color:var(--ink-faint)">집계 대기 중…</div></div>';
