@@ -93,6 +93,17 @@
   // ?season=N 지정 시 해당 시즌, 미지정 = 서버 현재 시즌 폴백 (시즌 번호 하드코딩 금지)
   var SEASON = QS.get('season');
   var seasonQ = SEASON ? ('season='+encodeURIComponent(SEASON)) : '';
+  // 파라미터 미지정 시 meta의 현재 시즌으로 확정 — results/score/admin과 동일한 시즌 결정 로직.
+  // (meta 실패 시에도 killmvp API 자체가 현재 시즌 폴백이라 동작은 동일)
+  var META_DONE=false;
+  async function resolveSeason(){
+    if(META_DONE || DEMO || SEASON){ META_DONE=true; return; }
+    try{
+      var r=await fetch(GAPI+"/api/gdcup-meta"); var m=await r.json();
+      if(m && m.currentSeason){ SEASON=String(m.currentSeason); seasonQ='season='+encodeURIComponent(SEASON); }
+    }catch(e){}
+    META_DONE=true;
+  }
   var BRANDS={};
   async function loadBrands(){
     if(DEMO){ BRANDS.__loaded=true; return; }
@@ -126,6 +137,7 @@
 
   async function render(){
     try{
+      if(!META_DONE) await resolveSeason();
       if(!BRANDS.__loaded) await loadBrands();
       var d = await loadData();
       // 시즌 라벨은 서버 응답이 정본 — 화면 하드코딩 금지 (SEASON 2 고정 표기 사고 재발 방지)

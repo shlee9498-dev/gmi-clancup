@@ -61,6 +61,8 @@
   @keyframes bl{0%,100%{opacity:1}50%{opacity:.25}}
   .foot .legend{font-size:15px;color:var(--ink-faint);}
   .updating{position:fixed;top:18px;right:22px;font-size:13px;color:var(--ink-faint);}
+  .empty{display:flex;align-items:center;justify-content:center;min-height:340px;
+    color:var(--ink-dim);font-size:26px;font-weight:700;letter-spacing:.02em;}
 .bn{margin-left:6px;padding:1px 7px;border-radius:10px;font-size:12px;font-weight:700;background:rgba(245,197,24,.14);color:#f5c518;vertical-align:middle;}
 </style>
 </head>
@@ -97,10 +99,16 @@
   // ?season=N 지정 시 해당 시즌, 미지정 = 서버 현재 시즌 폴백 (시즌 번호 하드코딩 금지)
   var SEASON = QS.get('season');
   var seasonQ = SEASON ? ('season='+encodeURIComponent(SEASON)) : '';
-  var META = null;   // /api/gdcup-meta — 라운드 범위(1~5R 등) 라벨용
+  var META = null;   // /api/gdcup-meta — 현재 시즌 결정 + 라운드 범위(1~5R 등) 라벨용
   async function loadMeta(){
     if(DEMO){ META={rounds:[3,4,5]}; return; }
     try{ var r=await fetch(GAPI+"/api/gdcup-meta"+(seasonQ?('?'+seasonQ):'')); META=await r.json(); }catch(e){ META=null; }
+    // 파라미터 미지정 시 meta의 현재 시즌으로 확정 — score/admin과 동일한 시즌 결정 로직.
+    // (meta 실패 시에도 scores API 자체가 현재 시즌 폴백이라 동작은 동일)
+    if(!SEASON && META && META.currentSeason){
+      SEASON = String(META.currentSeason);
+      seasonQ = 'season='+encodeURIComponent(SEASON);
+    }
   }
   var BRANDS = {};
   async function loadBrands(){
@@ -172,14 +180,18 @@
         '본매치 '+rds[0]+'~'+rds[rds.length-1]+'R 누적 · 가중치 반영';
       var finalR = rds ? rds[rds.length-1] : 5;
       var data = (d.standings||[]).slice().sort(function(a,b){ return b.points - a.points; });
+      var colA=document.getElementById('colA'), colB=document.getElementById('colB');
       if(!data.length){
-        document.getElementById('colA').innerHTML='<div class="row"><div class="nm" style="color:var(--ink-faint)">집계 대기 중…</div></div>';
-        document.getElementById('colB').innerHTML='';
+        // .row 그리드(1열=64px)에 넣으면 문구가 잘리므로 전용 빈 상태 블록을 두 열에 걸쳐 표시
+        colA.style.gridColumn='1 / -1';
+        colA.innerHTML='<div class="empty">아직 집계된 라운드가 없습니다 — 본선을 기다려주세요</div>';
+        colB.innerHTML='';
       } else {
+        colA.style.gridColumn='';
         var a='', b='';
         data.forEach(function(t,i){ var html=rowHtml(t,i+1); if(i<8) a+=html; else b+=html; });
-        document.getElementById('colA').innerHTML=a;
-        document.getElementById('colB').innerHTML=b;
+        colA.innerHTML=a;
+        colB.innerHTML=b;
       }
       var lr=d.lastRound||0;
       document.getElementById('roundStat').textContent = lr ? ('ROUND '+lr+' 종료') : '집계 대기';
