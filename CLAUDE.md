@@ -1,5 +1,8 @@
 # GmI 클랜컵 작업 규칙
 - 브랜드: 다크+골드(#f5c518), index 스타일 통일.
+- **디자인 계약: mri-academy의 DESIGN.md v2·PRODUCT.md 준수** (2026-07 리디자인 확정).
+  AI 티 5대 패턴 금지, 페이지 작업 후 impeccable detect 무출력까지 수정
+  (`node <mri-academy>/.claude/skills/impeccable/scripts/detect.mjs <파일>` — v4, 인라인 예외 지원).
 - 시즌3 점수: (순위점+킬+연속보너스) × BPI 가중치.
 - **가중치표·BPI 스케일·팀 상한의 정본은 server.js(mri-academy)의 `GDCUP_WEIGHT_S3` 하나뿐이다.**
   gdcup-s3.html은 `GET /api/gdcup-meta`로 받아 쓴다 — **프론트에 표를 복제하지 말 것.**
