@@ -11,40 +11,42 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
-  --bg:#0a0a0c;--bg-elev:#15151a;--bg-card:#1a1a20;--bg-card-hi:#20202a;
-  --ink:#f4f4f5;--ink-dim:#a1a1aa;--ink-faint:#71717a;
-  --gold:#f5c518;--gold-soft:rgba(245,197,24,0.3);
-  --red:#e63946;--green:#10b981;--blue:#5ac8fa;--orange:#ff9500;--purple:#a855f7;
-  --line:#27272a;
-  --display:'Archivo Black','Pretendard Variable',sans-serif;
-  --body:'Pretendard Variable','Archivo',-apple-system,sans-serif;
+  /* DESIGN.md v2 토큰 — 셀렉터는 기존 유지(비주얼 레이어만 교체), 변수 리매핑으로 대비 일괄 보정 */
+  --bg:#0a0a0c;--bg-elev:#141419;--bg-card:#141419;--bg-card-hi:#1b1b21;
+  --ink:#f4f4f5;--ink-dim:#c6c6cd;--ink-faint:#9b9ba4;
+  --gold:#f5c518;--gold-soft:rgba(245,197,24,0.4);
+  --red:#f87171;--green:#4ade80;--blue:#5ac8fa;--orange:#fdba74;--purple:#c4b5fd;
+  --line:#26262c;
+  --display:'Saira Condensed','Pretendard Variable',sans-serif;
+  --body:'Pretendard Variable',-apple-system,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(245,197,24,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(245,197,24,0.025) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;z-index:0;}
-body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at top,rgba(245,197,24,0.08),transparent 60%);pointer-events:none;z-index:0;}
 main{position:relative;z-index:1;}
 .container{max-width:720px;margin:0 auto;padding:0 20px;}
 .topbar{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;font-size:13px;position:sticky;top:0;z-index:5;background:rgba(10,10,12,0.85);backdrop-filter:blur(8px);}
 .topbar a{color:var(--ink-dim);text-decoration:none;transition:color .15s;}
 .topbar a:hover{color:var(--gold);}
-.brand{font-family:var(--display);letter-spacing:0.05em;color:var(--gold);font-size:14px;}
+.brand{font-family:var(--display);font-weight:700;letter-spacing:0.12em;color:var(--gold);font-size:15px;text-transform:uppercase;}
+/* Saira Condensed는 가변 웨이트 — 디스플레이 요소 기본 700 (Archivo Black 단일웨이트 대체) */
+.hero h1,.section-title,.fact-value,.tl-date,.card-title,.tier-name,.bpi-pill,.weight-bpi,.weight-mult,.bpi-sum,.member-num,.deposit-amount{font-weight:800;}
+#teamList span[style*="--display"]{font-weight:700;}
 .topbar-right{display:flex;gap:16px;align-items:center;}
-.topbar-cta{background:var(--gold);color:#000 !important;padding:6px 12px;border-radius:4px;font-weight:800;font-size:12px;}
+.topbar-cta{background:var(--gold);color:#000 !important;padding:6px 12px;border-radius:0;font-weight:800;font-size:12px;}
 .hero{padding:56px 20px 40px;text-align:center;}
-.hero-badge{display:inline-block;font-size:11px;letter-spacing:0.2em;color:var(--gold);border:1px solid var(--gold-soft);padding:6px 14px;border-radius:999px;margin-bottom:20px;font-weight:600;}
+.hero-badge{display:inline-block;font-family:var(--display);font-size:14px;letter-spacing:0.05em;color:var(--gold);border:1px solid var(--gold-soft);padding:7px 15px;margin-bottom:20px;font-weight:700;text-transform:uppercase;}
 .hero h1{font-family:var(--display);font-size:clamp(40px,9vw,68px);line-height:1;letter-spacing:-0.02em;margin-bottom:14px;}
 .hero h1 .accent{color:var(--gold);}
 .hero-sub{font-size:16px;color:var(--ink-dim);margin-bottom:28px;}
-.hero-date{display:inline-flex;align-items:center;gap:10px;background:var(--bg-card);border:1px solid var(--line);padding:10px 18px;border-radius:8px;font-size:13px;color:var(--ink-dim);margin-bottom:28px;}
+.hero-date{display:inline-flex;align-items:center;gap:10px;background:var(--bg-card);border:1px solid var(--line);padding:10px 18px;border-radius:0;font-size:13px;color:var(--ink-dim);margin-bottom:28px;}
 .hero-date strong{color:var(--gold);font-weight:700;}
 .hero-cta-group{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-.btn{display:inline-block;padding:14px 28px;border-radius:6px;font-weight:800;font-size:14px;text-decoration:none;letter-spacing:0.02em;transition:all .15s;cursor:pointer;border:none;font-family:inherit;}
+.btn{display:inline-block;padding:14px 28px;border-radius:0;font-weight:800;font-size:14px;text-decoration:none;letter-spacing:0.02em;transition:all .15s;cursor:pointer;border:none;font-family:inherit;}
 .btn-primary{background:var(--gold);color:#000;}
 .btn-primary:hover{background:#fde047;transform:translateY(-1px);}
 .btn-secondary{background:transparent;color:var(--ink);border:1px solid var(--line);}
@@ -52,72 +54,73 @@ main{position:relative;z-index:1;}
 .btn-discord{background:#5865f2;color:#fff;}
 section{padding:48px 0;}
 .section-head{margin-bottom:24px;}
-.section-kicker{font-size:11px;letter-spacing:0.2em;color:var(--gold);font-weight:700;margin-bottom:8px;}
+.section-kicker{font-family:var(--display);font-size:15px;letter-spacing:0.05em;color:var(--gold);font-weight:700;margin-bottom:8px;text-transform:uppercase;}
+.section-kicker::before{content:'';display:inline-block;width:10px;height:10px;background:var(--gold);clip-path:polygon(0 0,100% 0,100% 30%,30% 30%,30% 100%,0 100%);margin-right:8px;}
 .section-title{font-family:var(--display);font-size:clamp(24px,5vw,32px);line-height:1.1;}
 .section-desc{color:var(--ink-dim);font-size:14px;margin-top:8px;}
 .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:40px;}
-.fact{background:var(--bg-card);border:1px solid var(--line);padding:16px;border-radius:8px;text-align:center;}
+.fact{background:var(--bg-card);border:1px solid var(--line);padding:16px;border-radius:0;text-align:center;}
 .fact-label{font-size:11px;color:var(--ink-faint);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;font-weight:600;}
 .fact-value{font-family:var(--display);font-size:22px;color:var(--ink);line-height:1;}
 .fact-value .small{font-size:13px;color:var(--ink-dim);font-family:var(--body);font-weight:400;margin-left:4px;}
-.timeline{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:32px;}
+.timeline{background:var(--bg-card);border:1px solid var(--line);border-radius:0;padding:20px;margin-bottom:32px;}
 .tl-item{display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px dashed var(--line);}
 .tl-item:last-child{border-bottom:none;}
 .tl-date{font-family:var(--display);font-size:14px;color:var(--gold);min-width:84px;}
 .tl-title{font-weight:700;font-size:14px;margin-bottom:2px;}
 .tl-desc{font-size:13px;color:var(--ink-dim);}
-.card{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:16px;}
+.card{background:var(--bg-card);border:1px solid var(--line);border-radius:0;padding:24px;margin-bottom:16px;}
 .card-title{font-family:var(--display);font-size:18px;margin-bottom:14px;}
 .tier-table{width:100%;border-collapse:collapse;font-size:14px;}
 .tier-table th,.tier-table td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--line);}
 .tier-table th{font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;}
 .tier-table td.tier-name{font-family:var(--display);font-size:16px;}
 .tier-T1{color:var(--gold);}.tier-T2{color:var(--orange);}.tier-T3{color:var(--blue);}.tier-T4{color:var(--green);}.tier-T5{color:var(--purple);}
-.bpi-pill{display:inline-block;background:var(--bg-elev);border:1px solid var(--line);padding:3px 10px;border-radius:999px;font-weight:700;font-family:var(--display);font-size:12px;}
+.bpi-pill{display:inline-block;background:var(--bg-elev);border:1px solid var(--line);padding:3px 10px;border-radius:0;font-weight:700;font-family:var(--display);font-size:12px;}
 .weight-row{display:grid;grid-template-columns:80px 60px 1fr;gap:12px;padding:10px 12px;border-bottom:1px solid var(--line);align-items:center;font-size:14px;}
 .weight-row:last-child{border-bottom:none;}
 .weight-row.standard{background:rgba(245,197,24,0.06);}
 .weight-bpi{font-family:var(--display);font-size:13px;color:var(--ink-dim);}
 .weight-mult{font-family:var(--display);color:var(--gold);}
 .weight-name{font-size:13px;color:var(--ink-dim);}
-.callout{background:rgba(245,197,24,0.08);border:1px solid var(--gold-soft);border-left:3px solid var(--gold);border-radius:6px;padding:14px 16px;margin:16px 0;font-size:14px;color:var(--ink);}
-.callout.red{background:rgba(230,57,70,0.08);border-color:rgba(230,57,70,0.3);border-left-color:var(--red);}
-.callout.green{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3);border-left-color:var(--green);}
-.callout.blue{background:rgba(90,200,250,0.08);border-color:rgba(90,200,250,0.3);border-left-color:var(--blue);}
+.callout{background:rgba(245,197,24,0.08);border:1px solid var(--gold-soft);padding:14px 16px;margin:16px 0;font-size:14px;color:var(--ink);}
+.callout.red{background:rgba(230,57,70,0.08);border-color:rgba(230,57,70,0.3);}
+.callout.green{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3);}
+.callout.blue{background:rgba(90,200,250,0.08);border-color:rgba(90,200,250,0.3);}
 .callout strong{color:var(--gold);}.callout.red strong{color:var(--red);}.callout.green strong{color:var(--green);}.callout.blue strong{color:var(--blue);}
-.deposit{background:linear-gradient(135deg,rgba(245,197,24,0.1),rgba(245,197,24,0.02));border:1px solid var(--gold-soft);border-radius:12px;padding:24px;margin-bottom:16px;}
+.deposit{background:rgba(245,197,24,0.06);border:1px solid var(--gold-soft);padding:24px;margin-bottom:16px;}
 .deposit-amount{font-family:var(--display);font-size:36px;color:var(--gold);margin:8px 0;}
-.form-section{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:16px;}
+.form-section{background:var(--bg-card);border:1px solid var(--line);border-radius:0;padding:24px;margin-bottom:16px;}
 .form-group{margin-bottom:16px;}
 .form-label{display:block;font-size:12px;letter-spacing:0.05em;color:var(--ink-dim);margin-bottom:6px;font-weight:600;}
 .form-label .req{color:var(--red);margin-left:4px;}
 .form-label .opt{color:var(--ink-faint);margin-left:4px;font-weight:400;}
-.form-input,.form-select,.form-textarea{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);padding:11px 14px;border-radius:6px;font-size:14px;font-family:inherit;transition:border-color .15s;}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);padding:11px 14px;border-radius:0;font-size:14px;font-family:inherit;transition:border-color .15s;}
 .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--gold);}
 .form-textarea{resize:vertical;min-height:70px;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end;}
 .form-row .form-group{margin-bottom:0;}
-.member-card{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:10px;}
+.member-card{background:var(--bg);border:1px solid var(--line);border-radius:0;padding:14px;margin-bottom:10px;}
 .member-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
 .member-num{font-family:var(--display);font-size:13px;color:var(--gold);letter-spacing:0.05em;}
-.member-num.leader::after{content:'👑 팀장';background:rgba(245,197,24,0.15);color:var(--gold);padding:2px 8px;border-radius:4px;font-size:10px;margin-left:8px;font-family:var(--body);}
-.acct-box{margin-top:12px;padding:12px;background:var(--bg-elev);border:1px dashed var(--line);border-radius:8px;}
+.member-num.leader::after{content:'👑 팀장';background:rgba(245,197,24,0.15);color:var(--gold);padding:2px 8px;border-radius:0;font-size:10px;margin-left:8px;font-family:var(--body);}
+.acct-box{margin-top:12px;padding:12px;background:var(--bg-elev);border:1px dashed var(--line);border-radius:0;}
 .acct-box .acct-h{font-size:11.5px;color:var(--ink-faint);margin-bottom:8px;}
 .acct-box .acct-h b{color:var(--gold);}
 .acct-row{display:grid;grid-template-columns:0.9fr 1.3fr 0.8fr;gap:8px;}
 @media(max-width:520px){.acct-row{grid-template-columns:1fr;}}
-.bpi-live{background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:16px;margin:16px 0;}
+.bpi-live{background:var(--bg-elev);border:1px solid var(--line);border-radius:0;padding:16px;margin:16px 0;}
 .bpi-live-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 .bpi-sum{font-family:var(--display);font-size:28px;color:var(--gold);}
 .bpi-sum .max{font-size:14px;color:var(--ink-faint);}
 .bpi-status{font-size:12px;color:var(--ink-dim);}
 .bpi-status .mult{color:var(--gold);font-weight:700;}.bpi-status .label{color:var(--ink);font-weight:700;}
 .bpi-breakdown{font-size:12px;color:var(--ink-faint);font-family:'Courier New',monospace;}
-.generated{background:var(--bg);border:1px solid var(--gold-soft);border-radius:8px;padding:16px;font-family:'Courier New',monospace;font-size:12px;white-space:pre-wrap;margin:16px 0;max-height:320px;overflow-y:auto;color:var(--ink-dim);}
-.copy-btn{background:var(--bg-elev);border:1px solid var(--line);color:var(--ink-dim);padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-family:inherit;}
+.generated{background:var(--bg);border:1px solid var(--gold-soft);border-radius:0;padding:16px;font-family:'Courier New',monospace;font-size:12px;white-space:pre-wrap;margin:16px 0;max-height:320px;overflow-y:auto;color:var(--ink-dim);}
+.copy-btn{background:var(--bg-elev);border:1px solid var(--line);color:var(--ink-dim);padding:4px 10px;border-radius:0;font-size:11px;cursor:pointer;font-family:inherit;}
 .copy-btn:hover{color:var(--gold);border-color:var(--gold);}
 .copy-btn.copied{color:var(--green);border-color:var(--green);}
-.faq-item{background:var(--bg-card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:8px;cursor:pointer;}
+.faq-item{background:var(--bg-card);border:1px solid var(--line);border-radius:0;padding:14px 16px;margin-bottom:8px;cursor:pointer;}
 .faq-q{font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center;}
 .faq-q::after{content:'+';color:var(--gold);font-size:18px;}
 .faq-item.open .faq-q::after{content:'−';}
@@ -163,7 +166,7 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
     <div class="fact"><div class="fact-label">팀 인원</div><div class="fact-value">4<span class="small">명</span></div></div>
     <div class="fact"><div class="fact-label">최대 팀수</div><div class="fact-value">16<span class="small">팀</span></div></div>
     <div class="fact"><div class="fact-label">총 인원</div><div class="fact-value">64<span class="small">명</span></div></div>
-    <div class="fact"><div class="fact-label">정석 BPI</div><div class="fact-value">22~23<span class="small">점</span></div></div>
+    <div class="fact"><div class="fact-label">정석 BPI</div><div class="fact-value" id="factStd">—</div></div>
     <div class="fact"><div class="fact-label">참가비</div><div class="fact-value">무료</div></div>
     <div class="fact"><div class="fact-label">본선</div><div class="fact-value">스쿼드 5<span class="small">판</span></div></div>
   </div>
@@ -206,36 +209,32 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
   <div class="card">
     <table class="tier-table">
       <thead><tr><th>티어</th><th>기준 (최고티어 · 평균딜)</th><th>BPI</th><th>역할</th></tr></thead>
+      <!-- BPI 수치는 서버 meta가 정본 — data-bpi 셀은 로드 후 채워짐 (하드코딩 금지) -->
       <tbody>
-        <tr><td class="tier-name" style="color:var(--red);font-weight:800;">T0</td><td>서바이버 · 450딜+</td><td><span class="bpi-pill">10</span></td><td>괴물</td></tr>
-        <tr><td class="tier-name tier-T1">T1</td><td>350딜+ (크리스탈↑)</td><td><span class="bpi-pill">8</span></td><td>에이스</td></tr>
-        <tr><td class="tier-name tier-T2">T2</td><td>마스터 경험 · 딜 무관</td><td><span class="bpi-pill">6</span></td><td>준에이스</td></tr>
-        <tr><td class="tier-name tier-T3">T3</td><td>크리스탈↑ · 200~349딜</td><td><span class="bpi-pill">4</span></td><td>중위</td></tr>
-        <tr><td class="tier-name tier-T4">T4</td><td>저티어 · 200~349딜</td><td><span class="bpi-pill">2</span></td><td>받쳐주기</td></tr>
-        <tr><td class="tier-name tier-T5">T5</td><td>저티어 · ~199딜 / 신예</td><td><span class="bpi-pill">1</span></td><td>숨은진주</td></tr>
+        <tr><td class="tier-name" style="color:var(--gold);font-weight:800;">S</td><td>서바이버 · 현시즌 RP 3700+ (서버 판정만)</td><td><span class="bpi-pill" data-bpi="S">—</span></td><td>슈퍼에이스 · 팀당 1명</td></tr>
+        <tr><td class="tier-name" style="color:var(--red);font-weight:800;">T0</td><td>서바이버 · 450딜+</td><td><span class="bpi-pill" data-bpi="T0">—</span></td><td>괴물</td></tr>
+        <tr><td class="tier-name tier-T1">T1</td><td>350딜+ (크리스탈↑)</td><td><span class="bpi-pill" data-bpi="T1">—</span></td><td>에이스</td></tr>
+        <tr><td class="tier-name tier-T2">T2</td><td>마스터 경험 · 딜 무관</td><td><span class="bpi-pill" data-bpi="T2">—</span></td><td>준에이스</td></tr>
+        <tr><td class="tier-name tier-T3">T3</td><td>크리스탈↑ · 200~349딜</td><td><span class="bpi-pill" data-bpi="T3">—</span></td><td>중위</td></tr>
+        <tr><td class="tier-name tier-T4">T4</td><td>저티어 · 200~349딜</td><td><span class="bpi-pill" data-bpi="T4">—</span></td><td>받쳐주기</td></tr>
+        <tr><td class="tier-name tier-T5">T5</td><td>저티어 · ~199딜 / 신예</td><td><span class="bpi-pill" data-bpi="T5">—</span></td><td>숨은진주</td></tr>
       </tbody>
     </table>
   </div>
   <div class="callout"><strong>👑 T0 팀장 페널티</strong>: T0(괴물)이 팀장이면 BPI <strong>+1</strong> (10 → 11).</div>
   <div class="card">
     <div class="card-title">⚖️ 가중치 (계단식 · 시즌3 재산정)</div>
-    <div class="weight-row"><span class="weight-bpi">16↓</span><span class="weight-mult">×1.3</span><span class="weight-name">다크호스</span></div>
-    <div class="weight-row"><span class="weight-bpi">17~19</span><span class="weight-mult">×1.2</span><span class="weight-name">언더독</span></div>
-    <div class="weight-row"><span class="weight-bpi">20~21</span><span class="weight-mult">×1.1</span><span class="weight-name">도전자</span></div>
-    <div class="weight-row standard"><span class="weight-bpi">22~23</span><span class="weight-mult">×1.0</span><span class="weight-name"><strong style="color:var(--gold)">정석</strong></span></div>
-    <div class="weight-row"><span class="weight-bpi">24~25</span><span class="weight-mult">×0.9</span><span class="weight-name">강팀</span></div>
-    <div class="weight-row"><span class="weight-bpi">26~28</span><span class="weight-mult">×0.8</span><span class="weight-name">슈퍼팀</span></div>
-    <div class="weight-row"><span class="weight-bpi">29~31</span><span class="weight-mult">×0.7</span><span class="weight-name">괴물팀</span></div>
-    <div class="weight-row"><span class="weight-bpi">32↑</span><span class="weight-mult">×0.6</span><span class="weight-name">사기팀</span></div>
+    <!-- 가중치표는 서버 meta가 정본 — 여기에 표를 두지 않는다(구표 하드코딩 표시 사고 재발 방지). 로드 실패 시 표를 비워둔다. -->
+    <div id="weightRows"><div class="weight-row"><span class="weight-name" style="grid-column:1 / -1;color:var(--ink-faint);">서버 기준 가중치 불러오는 중…</span></div></div>
   </div>
 </section>
 
 <section class="section">
   <div class="card">
     <div class="card-title">🔥 연속 보너스 <span style="color:var(--gold);font-size:11px;">NEW · 42시즌 공식 패치 오마주</span></div>
-    <div class="weight-row"><span class="weight-bpi">Top4</span><span class="weight-mult">+2점</span><span class="weight-name">2판 연속 Top4 시 판당</span></div>
-    <div class="weight-row standard"><span class="weight-bpi">치킨</span><span class="weight-mult">+5점</span><span class="weight-name">2판 연속 <strong style="color:var(--gold)">우승</strong> 시 판당</span></div>
-    <div class="weight-row"><span class="weight-bpi" style="font-size:11px">규칙</span><span class="weight-mult" style="font-size:12px">—</span><span class="weight-name">높은 것 하나만 적용 · 5위↓/몰수 시 연속 초기화 · 순위표에 자동 반영</span></div>
+    <div class="weight-row"><span class="weight-bpi">Top4</span><span class="weight-mult">+2점</span><span class="weight-name">2판 연속 Top4 시 해당 판</span></div>
+    <div class="weight-row standard"><span class="weight-bpi">치킨</span><span class="weight-mult">+4점</span><span class="weight-name">2판 연속 <strong style="color:var(--gold)">우승</strong> 시 해당 판 (+2 대체)</span></div>
+    <div class="weight-row"><span class="weight-bpi" style="font-size:11px">규칙</span><span class="weight-mult" style="font-size:12px">—</span><span class="weight-name">높은 것 하나만 적용 · 기록 없는 판(불참) 시 연속 초기화 · BPI 가중 전 합산 · 순위표 자동 반영</span></div>
   </div>
 </section>
 
@@ -316,15 +315,15 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
 <section class="anchor" id="solo">
   <div class="section-head"><div class="section-kicker">SOLO / 용병</div><h2 class="section-title">🙋 혼자 왔어요 / 팀원이 부족해요</h2>
   <p class="section-desc">팀이 없어도 OK! 신청하면 디스코드에 자동 등록되고 아래 명단에 떠요.</p></div>
-  <div style="background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:18px;">
+  <div style="background:var(--bg-card);border:1px solid var(--line);border-radius:0;padding:16px;margin-bottom:18px;">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-      <label style="flex:1;min-width:150px;cursor:pointer;background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13.5px;"><input type="radio" name="soloKind" value="solo" checked style="margin-right:6px;">🙋 나 혼자예요</label>
-      <label style="flex:1;min-width:150px;cursor:pointer;background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13.5px;"><input type="radio" name="soloKind" value="short" style="margin-right:6px;">👥 자리 부족</label>
+      <label style="flex:1;min-width:150px;cursor:pointer;background:var(--bg-elev);border:1px solid var(--line);border-radius:0;padding:10px 12px;font-size:13.5px;"><input type="radio" name="soloKind" value="solo" checked style="margin-right:6px;">🙋 나 혼자예요</label>
+      <label style="flex:1;min-width:150px;cursor:pointer;background:var(--bg-elev);border:1px solid var(--line);border-radius:0;padding:10px 12px;font-size:13.5px;"><input type="radio" name="soloKind" value="short" style="margin-right:6px;">👥 자리 부족</label>
     </div>
-    <input id="soloIgn" placeholder="인게임 닉네임 *" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:8px;font-size:14px;margin-bottom:8px;">
-    <input id="soloTier" placeholder="현재 티어 (예: 다이아, 마스터)" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:8px;font-size:14px;margin-bottom:8px;">
-    <input id="soloDiscord" placeholder="디스코드 사용자명 (예: zmdk1373) *" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:8px;font-size:14px;margin-bottom:8px;">
-    <input id="soloNote" placeholder="한마디 (예: 8시 이후 가능)" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:8px;font-size:14px;margin-bottom:8px;">
+    <input id="soloIgn" placeholder="인게임 닉네임 *" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:0;font-size:14px;margin-bottom:8px;">
+    <input id="soloTier" placeholder="현재 티어 (예: 다이아, 마스터)" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:0;font-size:14px;margin-bottom:8px;">
+    <input id="soloDiscord" placeholder="디스코드 사용자명 (예: zmdk1373) *" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:0;font-size:14px;margin-bottom:8px;">
+    <input id="soloNote" placeholder="한마디 (예: 8시 이후 가능)" style="width:100%;background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:11px 13px;border-radius:0;font-size:14px;margin-bottom:8px;">
     <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="submitSolo()">신청하기</button>
     <div id="soloMsg" style="margin-top:10px;font-size:13px;text-align:center;"></div>
   </div>
@@ -390,9 +389,10 @@ function getWeight(b){
   }
   return {mult:1,label:'—'};
 }
+// 표시 전용 라벨 — ×1.00 = 정석이 정본(서버 표·CLAUDE.md). 과거 한 칸씩 밀려 있었음.
 function weightLabel(m){
-  if(m>=1.15)return '언더독'; if(m>=1.10)return '도전자'; if(m>=1.05)return '정석';
-  if(m>=1.00)return '강팀';   if(m>=0.95)return '슈퍼팀'; return '괴물팀';
+  if(m>=1.15)return '다크호스'; if(m>=1.10)return '언더독'; if(m>=1.05)return '도전자';
+  if(m>=1.00)return '정석';    if(m>=0.95)return '강팀';   return '슈퍼팀';
 }
 function teamCap(){ return (META&&META.cap&&META.cap.team)||null; }
 function sTierCap(){ return (META&&META.cap&&META.cap.sTier)||null; }
@@ -640,10 +640,10 @@ function copyApplication(){
         var fm=(t.members||[]).filter(function(m){return m.ign;});
         var rec=t._rec,open=t._open;
         var mem=fm.map(function(m,mi){return (mi===0?'👑 ':'')+esc(m.ign)+(m.tier?' <span style="color:var(--ink-faint);">('+esc(m.tier)+')</span>':'');}).join(' · ');
-        var recTag=rec?'<span style="background:var(--gold);color:#000;font-weight:800;font-size:11px;padding:3px 9px;border-radius:20px;white-space:nowrap;">🔍 용병 '+open+'명 모집중</span>':'';
+        var recTag=rec?'<span style="background:var(--gold);color:#000;font-weight:800;font-size:11px;padding:3px 9px;border-radius:0;white-space:nowrap;">🔍 용병 '+open+'명 모집중</span>':'';
         var cta=rec?'<div style="color:var(--gold);font-size:12px;margin-top:8px;font-weight:700;">→ 합류하려면 솔로 신청 또는 팀장에게 디코 DM!</div>':'';
         var border=rec?'border:1px solid var(--gold);box-shadow:0 0 0 1px var(--gold-soft);':'border:1px solid var(--line);';
-        return '<div style="background:var(--bg-card);'+border+'border-radius:10px;padding:13px 15px;">'
+        return '<div style="background:var(--bg-card);'+border+'border-radius:0;padding:13px 15px;">'
           +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'
           +'<span style="font-family:var(--display);font-size:15px;">'+esc(t.team_name)+'</span>'
           +'<span style="font-size:12px;white-space:nowrap;display:flex;gap:6px;align-items:center;">'+recTag+badge+(t.bpi!=null?' <span style="color:var(--ink-faint);">BPI '+esc(t.bpi)+'</span>':'')+'</span></div>'
@@ -682,7 +682,7 @@ function copyApplication(){
     if(/서바이버|T0/i.test(s))c='var(--red)'; else if(/마스터|T1/i.test(s))c='var(--gold)';
     else if(/T2/i.test(s))c='var(--orange)'; else if(/다이아|T3/i.test(s))c='var(--blue)';
     else if(/크리스탈|T5/i.test(s))c='var(--purple)'; else if(/플래|T4/i.test(s))c='var(--green)';
-    return '<span style="display:inline-block;border:1px solid '+c+';color:'+c+';font-weight:700;font-size:11px;padding:2px 9px;border-radius:20px;white-space:nowrap;">'+esc(s)+'</span>';
+    return '<span style="display:inline-block;border:1px solid '+c+';color:'+c+';font-weight:700;font-size:11px;padding:2px 9px;border-radius:0;white-space:nowrap;">'+esc(s)+'</span>';
   }
   function loadSolo(){
     fetch(GAPI+"/api/gdcup-solo-list?season="+SEASON).then(function(r){return r.json();}).then(function(d){
@@ -692,7 +692,7 @@ function copyApplication(){
       if(!solos.length){el.innerHTML='<div style="color:var(--ink-dim);text-align:center;padding:16px;">아직 솔로/용병 신청이 없어요. 혼자여도 편하게 신청하세요! 🙋</div>';return;}
       el.innerHTML=solos.map(function(s){
         var tag=s.kind==='short'?'<span style="color:var(--blue);">👥 자리모집</span>':'<span style="color:var(--gold);">🙋 솔로</span>';
-        return '<div style="background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:11px 14px;">'
+        return '<div style="background:var(--bg-card);border:1px solid var(--line);border-radius:0;padding:11px 14px;">'
           +'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">'
           +'<span style="font-weight:700;display:flex;align-items:center;gap:7px;flex-wrap:wrap;">'+esc(s.ign)+(s.tier?tierBadge(s.tier):'')+'</span>'
           +'<span style="font-size:12.5px;white-space:nowrap;">'+tag+'</span></div>'
@@ -723,7 +723,7 @@ function copyApplication(){
     var host=document.getElementById('bpiSum'); if(!host)return null;
     badge=document.createElement('div');
     badge.id='teamBadge';
-    badge.style.cssText='margin-top:10px;padding:10px 12px;border-radius:8px;font-size:13px;line-height:1.6;';
+    badge.style.cssText='margin-top:10px;padding:10px 12px;border-radius:0;font-size:13px;line-height:1.6;';
     var box=host.closest('.form-section')||host.parentNode.parentNode;
     box.appendChild(badge); return badge;
   }
@@ -746,6 +746,30 @@ function copyApplication(){
     BPI_MAP = META.bpiScale || {};
     var lab=document.getElementById('bpiCapLabel');
     if(lab) lab.textContent=' / 상한 '+(META.cap&&META.cap.team!=null?META.cap.team:'—');
+    // ── 표시 레이어: 정보 섹션의 티어 BPI·가중치표·정석 팩트를 meta로 렌더 ──
+    // (검증 로직과 무관한 표시 전용. 과거 구표 하드코딩이 신청자에게 노출된 사고 재발 방지)
+    try{
+      var pills=document.querySelectorAll('[data-bpi]');
+      Array.prototype.forEach.call(pills,function(p){
+        var v=BPI_MAP[p.getAttribute('data-bpi')];
+        p.textContent=(v!=null?v:'—');
+      });
+      if(META.weightTable){
+        var std=null, rows='';
+        for(var i=0;i<META.weightTable.length;i++){
+          var r=META.weightTable[i], isStd=(r[2]===1.0);
+          if(isStd) std=r;
+          var range=(r[0]<=0?(r[1]+'↓'):(r[1]>=9999?(r[0]+'↑'):(r[0]+'~'+r[1])));
+          rows+='<div class="weight-row'+(isStd?' standard':'')+'">'
+            +'<span class="weight-bpi">'+range+'</span>'
+            +'<span class="weight-mult">×'+r[2].toFixed(2)+'</span>'
+            +'<span class="weight-name">'+(isStd?'<strong style="color:var(--gold)">'+weightLabel(r[2])+'</strong>':weightLabel(r[2]))+'</span></div>';
+        }
+        var wr=document.getElementById('weightRows'); if(wr) wr.innerHTML=rows;
+        var fs=document.getElementById('factStd');
+        if(fs&&std) fs.innerHTML=std[0]+'~'+std[1]+'<span class="small">점</span>';
+      }
+    }catch(e){}
     if(META.applyOpen===false){
       var wrap=document.getElementById('regWarn');
       if(wrap){ wrap.textContent='신청이 마감됐습니다. 수정은 운영진에게 문의해주세요.'; wrap.style.display='block'; }
