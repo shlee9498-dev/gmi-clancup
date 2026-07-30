@@ -608,7 +608,7 @@ function copyApplication(){
         _sent=true; if(d.teams!=null)setCount(d.teams);
         if(d.warnings&&d.warnings.length){
           var w=document.getElementById('regWarn');
-          if(w){ w.innerHTML='<strong>⚠️ 등록계 미등록</strong><br>'+d.warnings.join('<br>')+'<br><span style="opacity:.8">신청은 접수됐습니다. 8/1 등록계 마감 전까지 <code>/등록계</code>로 등록해주세요.</span>'; w.style.display='block'; }
+          if(w){ w.innerHTML='신청은 접수됐습니다. <span style="opacity:.8">참고: 클랜원은 전적관리 ID(<code>/등록계</code>) 등록 대상입니다 — 용병은 해당 없습니다.</span>'; w.style.display='block'; }
         }
       }).catch(function(){});
     }catch(e){}
