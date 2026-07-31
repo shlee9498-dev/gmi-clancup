@@ -125,7 +125,10 @@ function render(teams){
     var memEdit=(t.members||[]).filter(function(m){return m.ign;}).map(function(m,mi){
       var opts=['T0','T1','T2','T3','T4','T5'].map(function(tt){return '<option value="'+tt+'"'+(m.tier===tt?' selected':'')+'>'+tt+'</option>';}).join('');
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:5px 0;">'
-        +'<span style="font-size:13px;">'+(mi===0?'👑 ':'')+esc(m.ign)+(m.peak?' <span style="color:var(--ink-faint);font-size:11px;">('+esc(m.peak)+'/'+esc(m.dmg||'?')+'딜)</span>':'')+'</span>'
+        +'<span style="font-size:13px;">'+(mi===0?'👑 ':'')+esc(m.ign)
+        // registered===false 일 때만 표시 — 구 서버 응답(undefined)에서는 뱃지를 띄우지 않는다.
+        +(m.registered===false?' <span title="등록계(clan_registry) 미등록 — 닉 오기재 가능성. 확정 시 서버가 PUBG 실존까지 재검증한다." style="color:#fbbf24;font-size:11px;font-weight:800;">⚠ 미검증</span>':'')
+        +(m.peak?' <span style="color:var(--ink-faint);font-size:11px;">('+esc(m.peak)+'/'+esc(m.dmg||'?')+'딜)</span>':'')+'</span>'
         +'<select class="tier-edit" data-team="'+t.id+'" data-idx="'+mi+'" data-name="'+esc(m.name||'')+'" data-ign="'+esc(m.ign||'')+'" data-peak="'+esc(m.peak||'')+'" data-dmg="'+esc(m.dmg||'')+'" style="background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:5px 8px;border-radius:6px;font-size:13px;">'+opts+'</select>'
         +'</div>';
     }).join('');
@@ -135,6 +138,7 @@ function render(teams){
       +'<div class="meta" style="margin-bottom:2px;">멤버 — 티어 바꾸면 💾 저장</div>'
       +(memEdit||'<div class="meta">-</div>')
       +'<div class="meta">팀 BPI: <b>'+esc(t.bpi)+'</b>'+(t.weight!=null?' (가중치 ×'+esc(t.weight)+')':'')+'</div>'
+      +(t.unregistered?'<div class="meta" style="color:#fbbf24;">⚠ 등록계 미등록 '+t.unregistered+'명 — 확정 전 팀장에게 정확한 인게임 닉 확인 필요</div>':'')
       +'<div class="contact">📞 연락/입금자: '+esc(t.contact||'-')+'</div>'
       +'<div class="acts">'
       +'<button class="ok" onclick="saveTiers(\''+t.id+'\')">💾 티어 저장</button>'
