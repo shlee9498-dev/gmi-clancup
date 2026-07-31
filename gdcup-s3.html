@@ -196,17 +196,22 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
   <div class="card">
     <table class="tier-table">
       <thead><tr><th>티어</th><th>기준 (최고티어 · 평균딜)</th><th>BPI</th><th>역할</th></tr></thead>
-      <!-- BPI 수치는 서버 meta가 정본 — data-bpi 셀은 로드 후 채워짐 (하드코딩 금지) -->
+      <!-- BPI·평딜 경계 모두 서버 meta가 정본 — data-bpi·data-range 셀은 로드 후 채워짐 (하드코딩 금지) -->
       <tbody>
-        <tr><td class="tier-name" style="color:var(--gold);font-weight:800;">S</td><td>서바이버 · 현시즌 RP 3700+ (서버 판정만)</td><td><span class="bpi-pill" data-bpi="S">—</span></td><td>슈퍼에이스 · 팀당 1명</td></tr>
-        <tr><td class="tier-name" style="color:var(--red);font-weight:800;">T0</td><td>서바이버 · 450딜+</td><td><span class="bpi-pill" data-bpi="T0">—</span></td><td>괴물</td></tr>
-        <tr><td class="tier-name tier-T1">T1</td><td>350딜+ (크리스탈↑)</td><td><span class="bpi-pill" data-bpi="T1">—</span></td><td>에이스</td></tr>
-        <tr><td class="tier-name tier-T2">T2</td><td>마스터 경험 · 딜 무관</td><td><span class="bpi-pill" data-bpi="T2">—</span></td><td>준에이스</td></tr>
-        <tr><td class="tier-name tier-T3">T3</td><td>크리스탈↑ · 200~349딜</td><td><span class="bpi-pill" data-bpi="T3">—</span></td><td>중위</td></tr>
-        <tr><td class="tier-name tier-T4">T4</td><td>저티어 · 200~349딜</td><td><span class="bpi-pill" data-bpi="T4">—</span></td><td>받쳐주기</td></tr>
-        <tr><td class="tier-name tier-T5">T5</td><td>저티어 · ~199딜 / 신예</td><td><span class="bpi-pill" data-bpi="T5">—</span></td><td>숨은진주</td></tr>
+        <tr><td class="tier-name" style="color:var(--gold);font-weight:800;">S</td><td data-range="S">—</td><td><span class="bpi-pill" data-bpi="S">—</span></td><td>슈퍼에이스 · 팀당 1명</td></tr>
+        <tr><td class="tier-name" style="color:var(--red);font-weight:800;">T0</td><td data-range="T0">—</td><td><span class="bpi-pill" data-bpi="T0">—</span></td><td>괴물</td></tr>
+        <tr><td class="tier-name tier-T1">T1</td><td data-range="T1">—</td><td><span class="bpi-pill" data-bpi="T1">—</span></td><td>에이스</td></tr>
+        <tr><td class="tier-name tier-T2">T2</td><td data-range="T2">—</td><td><span class="bpi-pill" data-bpi="T2">—</span></td><td>준에이스</td></tr>
+        <tr><td class="tier-name tier-T3">T3</td><td data-range="T3">—</td><td><span class="bpi-pill" data-bpi="T3">—</span></td><td>중위</td></tr>
+        <tr><td class="tier-name tier-T4">T4</td><td data-range="T4">—</td><td><span class="bpi-pill" data-bpi="T4">—</span></td><td>받쳐주기</td></tr>
+        <tr><td class="tier-name tier-T5">T5</td><td data-range="T5">—</td><td><span class="bpi-pill" data-bpi="T5">—</span></td><td>숨은진주</td></tr>
       </tbody>
     </table>
+    <p style="font-size:12.5px;color:var(--ink-dim);margin:10px 2px 2px;line-height:1.75;">
+      평균딜 기준으로 1차 산정한 뒤, 역대 최고 티어가 더 높은 등급을 보장하면 그쪽으로 올립니다
+      (서바이버·마스터 → 최소 T0 · 다이아·크리스탈 → 최소 T1).
+      마스터 이상이면서 현시즌 RP 3700+인 경우의 S 판정은 자동조회(서버)에서만 이뤄집니다.
+    </p>
   </div>
   <div class="callout"><strong>👑 T0 팀장 페널티</strong>: T0(괴물)이 팀장이면 BPI <strong>+1</strong> (10 → 11).</div>
   <div class="card">
@@ -383,14 +388,30 @@ function weightLabel(m){
 }
 function teamCap(){ return (META&&META.cap&&META.cap.team)||null; }
 function sTierCap(){ return (META&&META.cap&&META.cap.sTier)||null; }
-// ⚠️ 폴백 전용 — 자동조회 실패 시 대략값. S급은 현시즌 랭크(RP)가 필요해 클라가 판정할 수 없다.
-//    최대 T0까지만 나온다. S급 판정은 서버(/api/bpi-suggest-auto)만 가능.
+/* ⚠️ 평딜 경계를 여기에 두지 말 것. 예전엔 450/350/200 행렬을 자체 보유해 서버
+   suggestBPI(400/350/300/250/180/100)와 어긋났고, 같은 입력에 다른 티어가 나왔다
+   (다이아·320딜 → 서버 T1 / 클라 T3처럼 고딜 유저를 체계적으로 저평가).
+   정본은 서버 TIERS이며 GET /api/gdcup-meta의 tiers로 받아온다.
+   불러오기 실패 시엔 추정값을 쓰지 않고 빈 값을 돌려준다(가중치표와 동일 정책). */
+function tierByDamage(dmg){
+  if(!META||!META.tiers||!META.tiers.length) return '';
+  for(var i=0;i<META.tiers.length;i++){ if(dmg>=META.tiers[i].min) return META.tiers[i].tier; }
+  return META.tiers[META.tiers.length-1].tier;   // meta.tiers는 min 내림차순
+}
+// 최고티어가 보장하는 최소 등급 — 서버 gdcupRankedFloor와 같은 매핑.
+// 서버는 여기에 더해 "마스터 + 현시즌 RP 3700+ → S"를 보지만 클라는 RP를 모른다.
+// 그 케이스는 자동조회(data-src='api') 결과가 대신 채운다.
+function tierFloor(peak){
+  if(peak==='서바이버'||peak==='마스터') return 'T0';
+  if(peak==='다이아'||peak==='크리스탈') return 'T1';
+  return null;
+}
 function computeTier(peak,dmg){
   dmg=Number(dmg)||0; if(!peak)return'';
-  if(peak==='서바이버'&&dmg>=450)return'T0';
-  if(peak==='서바이버'||peak==='마스터')return dmg>=350?'T1':'T2';
-  if(peak==='다이아'||peak==='크리스탈'){ if(dmg>=350)return'T1'; if(dmg>=200)return'T3'; return'T4'; }
-  if(dmg>=350)return'T3'; if(dmg>=200)return'T4'; return'T5';
+  var byDmg=tierByDamage(dmg); if(!byDmg)return'';
+  var fl=tierFloor(peak), order=(META&&META.tierOrder)||[];
+  if(fl&&order.indexOf(fl)>order.indexOf(byDmg)) return fl;   // 최종 = max(평딜, 티어보정)
+  return byDmg;
 }
 
 // 멤버 카드 4개 동적 생성 (계좌 포함)
@@ -436,7 +457,8 @@ function memberCardHTML(i){
 function memberTier(i){
   var hid=document.querySelector('.member-tier[data-idx="'+i+'"]');
   // 자동조회로 서버가 판정한 티어가 있으면 그게 정본. 여기서 재계산하면 안 된다 —
-  // computeTier는 S급 분기가 없어(최대 T0) 서버가 준 S를 깎아버린다.
+  // computeTier는 현시즌 RP를 모르므로 "마스터 + RP 3700+ → S" 경로를 재현할 수 없고,
+  // 서버가 준 S를 평딜만 보고 깎아버린다.
   if(hid&&hid.value&&hid.getAttribute('data-src')==='api') return hid.value;
   var peak=(document.querySelector('.member-peak[data-idx="'+i+'"]')||{}).value||'';
   var dmg=(document.querySelector('.member-dmg[data-idx="'+i+'"]')||{}).value||'';
@@ -741,6 +763,18 @@ function copyApplication(){
         var v=BPI_MAP[p.getAttribute('data-bpi')];
         p.textContent=(v!=null?v:'—');
       });
+      // 평딜 경계도 meta에서 렌더 — 재보정해도 이 표가 자동으로 따라온다.
+      if(META.tiers){
+        var RANGE={};
+        META.tiers.forEach(function(t){
+          RANGE[t.tier]=(t.max==null?t.min+'딜+':t.min+'~'+t.max+'딜');
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-range]'),function(td){
+          var key=td.getAttribute('data-range'), txt=RANGE[key];
+          if(!txt) return;
+          td.textContent=(key==='S')?(txt+' 또는 현시즌 RP 3700+'):txt;
+        });
+      }
       if(META.weightTable){
         var std=null, rows='';
         for(var i=0;i<META.weightTable.length;i++){
