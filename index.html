@@ -201,10 +201,19 @@ footer a:hover{color:var(--gold);}
     </div>
     <div class="sched-note">⏱️ 본선은 <b>5판 진행</b>으로 <b>자정 이후 종료</b>될 수 있습니다.</div>
 
-    <!-- 이벤트매치 안내 카드(.evcard)는 시즌3에서 비노출. 보상이 미확정인 채로 "[TODO]"가
-         라이브에 노출돼 미완성 인상을 주는 문제 때문에 오너 지시로 제거(2026-07-31).
-         당일 진행 자체는 유지되므로 위 스케줄의 "오후 8시 이벤트매치" 항목은 그대로 둔다.
-         보상 확정 후 되살릴 때는 이 커밋을 revert하고 [TODO] 문구를 실제 보상으로 교체할 것. -->
+    <!-- 이벤트매치 카드 — 보상 확정으로 복원(2026-07-31).
+         참가 CTA는 반드시 클랜 서버(YfZD8d22wJ)로. 아카데미 상담 서버로 보내지 말 것. -->
+    <div class="evcard">
+      <div class="ev-h">⚡ 이벤트매치 — 솔로 경쟁전 2판 · 오픈 참가</div>
+      <p class="ev-p">클랜원이 아니어도 참가 가능! 유튜브/방송 보고 오신 분들 환영 🙌<br>
+        <b>별도 신청 없이</b> 당일 디스코드 입장 → 커스텀 방 코드 받고 참가</p>
+      <ul class="ev-list">
+        <li>방 코드·비밀번호는 <b>당일 디스코드 공지 채널</b>에서 배포</li>
+        <li>본선(스쿼드) 순위와 <b>완전 독립</b> — 이벤트 단독 보상</li>
+        <li>🎁 보상: <b>1등 치킨 1세트</b> · <b>킬 MVP 치킨 1세트</b></li>
+      </ul>
+      <a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener" class="btn gold" style="margin-top:4px;">💬 디스코드 입장하고 참가하기 →</a>
+    </div>
   </section>
 
   <!-- SEASON ARCHIVE -->
