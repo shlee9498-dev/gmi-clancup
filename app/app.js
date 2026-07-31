@@ -181,7 +181,7 @@ function renderFooter() {
   document.body.insertAdjacentHTML("beforeend", `
     <footer class="footer">
       GmI 클랜 · 2026 ·
-      <a href="https://discord.gg/9RjqdSKw">디스코드</a> ·
+      <a href="https://discord.gg/YfZD8d22wJ">디스코드</a> ·
       <a href="https://shlee9498-dev.github.io/gmi-clancup/">G드컵</a>
     </footer>
   `);
