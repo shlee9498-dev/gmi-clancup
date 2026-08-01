@@ -126,12 +126,17 @@ function render(teams){
       var opts=['T0','T1','T2','T3','T4','T5'].map(function(tt){return '<option value="'+tt+'"'+(m.tier===tt?' selected':'')+'>'+tt+'</option>';}).join('');
       // 닉은 인라인 편집 — 닉변·오타로 PUBG 조회가 실패하면 ⚠ 미검증이 뜨는데,
       // 여기서 못 고치면 SQL 말고는 방법이 없었다. 저장 시 서버가 재검증까지 돌린다.
-      var inpStyle='background:var(--bg-elev);border:1px solid '+(m.registered===false?'#fbbf24':'var(--line)')
+      // pubgOk: 마지막 재검증에서 PUBG 조회가 됐는지. null = 아직 검증 안 함.
+      // 등록계(clan_registry) 미등록은 더 이상 보지 않는다 — 용병은 등록계 대상이 아니라
+      // "미등록"이 정상인데도 경고로 읽혀 오해를 만들었다. 확정 판단에 필요한 건
+      // "PUBG에서 이 닉이 잡히는가" 하나뿐이다.
+      var pubgBad = m.pubgOk===false;
+      var inpStyle='background:var(--bg-elev);border:1px solid '+(pubgBad?'#f87171':'var(--line)')
         +';color:var(--ink);padding:5px 8px;border-radius:6px;font-size:13px;min-width:0;flex:1;';
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:5px 0;">'
         +'<span style="font-size:13px;flex:0 0 auto;">'+(mi===0?'👑':'&nbsp;&nbsp;')
-        // registered===false 일 때만 표시 — 구 서버 응답(undefined)에서는 뱃지를 띄우지 않는다.
-        +(m.registered===false?' <span title="등록계(clan_registry) 미등록 — 닉 오기재 가능성. 저장 시 서버가 PUBG 실존까지 재검증한다." style="color:#fbbf24;font-size:11px;font-weight:800;">⚠</span>':'')
+        +(pubgBad?' <span title="PUBG에서 이 닉을 찾지 못했습니다 — 정확한 인게임 닉으로 고친 뒤 저장하세요" style="color:#f87171;font-size:11px;font-weight:800;">⚠</span>'
+          :(m.pubgOk===true?' <span title="PUBG 조회 성공'+(m.pubgAt?(' · '+m.pubgAt.slice(0,10)):'')+'" style="color:var(--green,#10b981);font-size:11px;">✓</span>':''))
         +'</span>'
         +'<input class="ign-edit" type="text" value="'+esc(m.ign||'')+'" maxlength="40" spellcheck="false" autocomplete="off"'
         +' data-team="'+t.id+'" data-idx="'+mi+'" title="인게임 닉 — 고친 뒤 💾 저장하면 서버가 재검증합니다" style="'+inpStyle+'">'
@@ -145,7 +150,7 @@ function render(teams){
       +'<div class="meta" style="margin-bottom:2px;">멤버 — 티어 바꾸면 💾 저장</div>'
       +(memEdit||'<div class="meta">-</div>')
       +'<div class="meta">팀 BPI: <b>'+esc(t.bpi)+'</b>'+(t.weight!=null?' (가중치 ×'+esc(t.weight)+')':'')+'</div>'
-      +(t.unregistered?'<div class="meta" style="color:#fbbf24;">⚠ 등록계 미등록 '+t.unregistered+'명 — 확정 전 팀장에게 정확한 인게임 닉 확인 필요</div>':'')
+      +(t.pubgFailed?'<div class="meta" style="color:#f87171;">⚠ 전적 조회 실패 '+t.pubgFailed+'명 — 정확한 인게임 닉으로 고친 뒤 💾 저장하세요</div>':'')
       +'<div class="contact">📞 연락/입금자: '+esc(t.contact||'-')+'</div>'
       +'<div class="acts">'
       +'<button class="ok" onclick="saveTiers(\''+t.id+'\')">💾 닉·티어 저장 → 재검증</button>'
