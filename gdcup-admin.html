@@ -130,13 +130,22 @@ function render(teams){
       // 등록계(clan_registry) 미등록은 더 이상 보지 않는다 — 용병은 등록계 대상이 아니라
       // "미등록"이 정상인데도 경고로 읽혀 오해를 만들었다. 확정 판단에 필요한 건
       // "PUBG에서 이 닉이 잡히는가" 하나뿐이다.
-      var pubgBad = m.pubgOk===false;
-      var inpStyle='background:var(--bg-elev);border:1px solid '+(pubgBad?'#f87171':'var(--line)')
+      // 3단계 — 계정 존재와 시즌 기록 유무는 별개다.
+      //   ok        검증됨
+      //   no_season 계정은 있으나 최근 두 시즌 기록 없음 → 참가 가능(조치 불필요)
+      //   not_found 닉을 못 찾음 → 유일하게 수정이 필요한 상태
+      var st = m.pubgState || null;
+      var mark = st==='not_found'
+        ? ' <span title="PUBG에서 이 닉을 찾지 못했습니다 — 정확한 인게임 닉으로 고친 뒤 저장하세요" style="color:#f87171;font-size:11px;font-weight:800;">❌</span>'
+        : st==='no_season'
+        ? ' <span title="계정은 확인됐지만 최근 두 시즌 매치 기록이 없습니다. 참가 가능하며, 티어는 신고값이 유지됩니다." style="color:#fbbf24;font-size:11px;font-weight:800;">⚠</span>'
+        : st==='ok'
+        ? ' <span title="PUBG 조회 성공'+(m.pubgAt?(' · '+m.pubgAt.slice(0,10)):'')+'" style="color:#10b981;font-size:11px;">✅</span>'
+        : '';
+      var inpStyle='background:var(--bg-elev);border:1px solid '+(st==='not_found'?'#f87171':'var(--line)')
         +';color:var(--ink);padding:5px 8px;border-radius:6px;font-size:13px;min-width:0;flex:1;';
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:5px 0;">'
-        +'<span style="font-size:13px;flex:0 0 auto;">'+(mi===0?'👑':'&nbsp;&nbsp;')
-        +(pubgBad?' <span title="PUBG에서 이 닉을 찾지 못했습니다 — 정확한 인게임 닉으로 고친 뒤 저장하세요" style="color:#f87171;font-size:11px;font-weight:800;">⚠</span>'
-          :(m.pubgOk===true?' <span title="PUBG 조회 성공'+(m.pubgAt?(' · '+m.pubgAt.slice(0,10)):'')+'" style="color:var(--green,#10b981);font-size:11px;">✓</span>':''))
+        +'<span style="font-size:13px;flex:0 0 auto;">'+(mi===0?'👑':'&nbsp;&nbsp;')+mark
         +'</span>'
         +'<input class="ign-edit" type="text" value="'+esc(m.ign||'')+'" maxlength="40" spellcheck="false" autocomplete="off"'
         +' data-team="'+t.id+'" data-idx="'+mi+'" title="인게임 닉 — 고친 뒤 💾 저장하면 서버가 재검증합니다" style="'+inpStyle+'">'
@@ -150,7 +159,9 @@ function render(teams){
       +'<div class="meta" style="margin-bottom:2px;">멤버 — 티어 바꾸면 💾 저장</div>'
       +(memEdit||'<div class="meta">-</div>')
       +'<div class="meta">팀 BPI: <b>'+esc(t.bpi)+'</b>'+(t.weight!=null?' (가중치 ×'+esc(t.weight)+')':'')+'</div>'
-      +(t.pubgFailed?'<div class="meta" style="color:#f87171;">⚠ 전적 조회 실패 '+t.pubgFailed+'명 — 정확한 인게임 닉으로 고친 뒤 💾 저장하세요</div>':'')
+      // 조치가 필요한 건 not_found 뿐. no_season은 정상 상태라 정보성으로만 적는다.
+      +(t.pubgFailed?'<div class="meta" style="color:#f87171;">❌ 닉 조회 실패 '+t.pubgFailed+'명 — 정확한 인게임 닉으로 고친 뒤 💾 저장하세요</div>':'')
+      +(t.pubgNoSeason?'<div class="meta" style="color:#fbbf24;">⚠ 시즌 기록 없음 '+t.pubgNoSeason+'명 — 계정은 확인됨, 참가 가능(티어는 신고값 유지)</div>':'')
       +'<div class="contact">📞 연락/입금자: '+esc(t.contact||'-')+'</div>'
       +'<div class="acts">'
       +'<button class="ok" onclick="saveTiers(\''+t.id+'\')">💾 닉·티어 저장 → 재검증</button>'
