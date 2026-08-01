@@ -27,7 +27,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     --bg:#0a0a0c; --surface-1:#141419; --surface-2:#1b1b21; --line:#26262c;
     --ink:#f4f4f5; --ink-body:#c6c6cd; --ink-dim:#9b9ba4;
     --gold:#f5c518; --gold-deep:#caa00f;
-    --silver:#cbd5e1; --bronze:#d4955b; --danger:#f87171;
+    /* 은·동은 --ink-dim(#9b9ba4)과 채도로 갈라야 1080p 원거리에서 구분된다.
+       명도만 다른 무채색은 방송에서 같은 회색으로 뭉갠다. */
+    --silver:#e8eef7; --bronze:#e08a3c; --danger:#f87171;
     --disp:'Saira Condensed',sans-serif; --body:'Pretendard Variable',sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -56,7 +58,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
   /* ── 원장: 2열 × 8행 스코어바 ── */
   .cols{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0 60px;align-content:center;padding:26px 0;}
-  .row{position:relative;display:grid;grid-template-columns:66px 40px 1fr auto;align-items:center;gap:16px;
+  .row{position:relative;display:grid;grid-template-columns:66px 64px 1fr auto;align-items:center;gap:16px;
     padding:17px 18px 17px 0;border-bottom:1px solid var(--line);will-change:transform;}
   .col > .row:first-child{border-top:1px solid var(--line);}
   /* 팀이 적을 때(≤8) 행을 키워 세로를 채운다 — 5팀에서 헤더와 1위 사이가 비던 문제.
@@ -64,12 +66,12 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   .cols.sparse .row{padding-top:30px;padding-bottom:30px;}
   .row .rk{font-family:var(--disp);font-weight:800;font-size:34px;text-align:center;color:var(--ink-dim);
     font-variant-numeric:tabular-nums;}
-  .row .em{width:34px;height:34px;object-fit:contain;background:var(--surface-1);}
+  .row .em{width:64px;height:44px;object-fit:contain;background:var(--surface-1);}
   /* 팀 태그 — 로고 대신 쓰는 3~4자 타이포. 회색 빈 사각형이 세로로 늘어서면
      방송 화면이 미완성으로 읽혀서, 자리지킴을 없애고 태그로 대체했다. */
-  .row .tg{font-family:var(--disp);font-weight:800;font-size:14px;letter-spacing:.08em;
-    line-height:1;text-align:center;padding:7px 0;border:1px solid currentColor;
-    white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .row .tg{font-family:var(--disp);font-weight:800;font-size:26px;letter-spacing:.04em;
+    line-height:44px;height:44px;text-align:center;white-space:nowrap;
+    font-variant-numeric:tabular-nums;}
   .row .nm{display:flex;align-items:baseline;gap:10px;min-width:0;}
   .row .nm .tn{font-weight:800;font-size:25px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .row .nm .w{font-family:var(--disp);font-weight:600;font-size:15px;letter-spacing:.06em;color:var(--ink-dim);flex:0 0 auto;}
@@ -227,19 +229,36 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     return String(name||"").replace(/\s+/g,"").slice(0,2) || "?";
   }
   // 색: 등록값 우선 → 없으면 팀명 해시로 고정 배정. 같은 팀은 항상 같은 색이 나온다.
-  // 골드(45°) 근처는 1위 강조와 겹치므로 피한다.
+  // 골드(45°) 근처는 1위 강조와 겹치므로 피한다. 반환은 항상 #RRGGBB — 대비 계산에 필요.
   function teamColor(name, b){
-    if(b && b.color) return b.color;
+    if(b && b.color) return String(b.color)[0]==='#' ? b.color : '#'+b.color;
     var h=0, s=String(name||"");
     for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0;
     var hue=h%330; if(hue>25&&hue<75) hue=(hue+90)%360;   // 골드 대역 회피
-    return 'hsl('+hue+',52%,62%)';
+    return hslHex(hue, .52, .62);
+  }
+  function hslHex(hue, sat, li){
+    var c=(1-Math.abs(2*li-1))*sat, x=c*(1-Math.abs((hue/60)%2-1)), m=li-c/2, r=0,g=0,b=0;
+    if(hue<60){r=c;g=x;} else if(hue<120){r=x;g=c;} else if(hue<180){g=c;b=x;}
+    else if(hue<240){g=x;b=c;} else if(hue<300){r=x;b=c;} else {r=c;b=x;}
+    var hx=function(v){ return ('0'+Math.round((v+m)*255).toString(16)).slice(-2); };
+    return '#'+hx(r)+hx(g)+hx(b);
+  }
+  // 배경 위에 올릴 글자색 — 상대휘도(WCAG) 기준으로 검정/흰색 자동 선택.
+  // 태그는 solid fill이라 밝은 팀색(#4ECDC4)엔 검정, 어두운 색(#4D96FF)엔 흰색이 붙는다.
+  function textOn(hex){
+    var h=String(hex||'').replace('#','');
+    if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    var lin=function(v){ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); };
+    var L=0.2126*lin(parseInt(h.slice(0,2),16))+0.7152*lin(parseInt(h.slice(2,4),16))+0.0722*lin(parseInt(h.slice(4,6),16));
+    return L > 0.42 ? '#0a0a0c' : '#ffffff';
   }
   function rowHtml(t, rank){
     var cls = rank<=4 ? (' t'+rank) : '';
     var b = BRANDS[t.name] || {};
     var em = b.emblem ? '<img class="em" src="'+b.emblem+'" alt="">'
-           : '<span class="tg" style="color:'+teamColor(t.name, b)+'">'+escapeHtml(teamTag(t.name, b))+'</span>';
+           : (function(c){ return '<span class="tg" style="background:'+c+';color:'+textOn(c)+'">'
+               +escapeHtml(teamTag(t.name, b))+'</span>'; })(teamColor(t.name, b));
     var stl = (b.color && rank>4) ? ' style="box-shadow:inset 4px 0 0 '+escapeHtml(b.color)+'"' : '';
     return '<div class="row'+cls+'" data-team="'+escapeHtml(t.name)+'"'+stl+'>'
       + '<div class="rk">'+rank+'</div>'
