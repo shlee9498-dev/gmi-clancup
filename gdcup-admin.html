@@ -48,7 +48,8 @@ h1{font-size:20px;margin-bottom:4px;}
   <button class="btn btn-gold" onclick="saveKeyAndLoad()">불러오기</button>
 </div>
 <div id="warn"></div>
-<button class="btn btn-ghost" style="width:100%;margin-bottom:14px;" onclick="postBoard()">📋 디코에 '현재 모집현황' 게시</button>
+<button class="btn btn-ghost" style="width:100%;margin-bottom:8px;" onclick="postBoard()">📋 디코에 '현재 모집현황' 게시</button>
+<button class="btn btn-ghost" style="width:100%;margin-bottom:14px;" onclick="downloadObsCsv()">⬇️ 옵저버 CSV 내려받기 (확정 팀)</button>
 <div class="stat" id="stat"></div>
 <div id="list"><div class="msg">키를 입력하고 불러오기를 누르세요.</div></div>
 
@@ -243,6 +244,48 @@ function setStatus(id,status,force){
     alert('처리 실패: '+(d.error||res.status));
   })
   .catch(function(){alert('네트워크 오류 — 검증이 오래 걸리는 중일 수 있어요. 새로고침 후 상태를 확인해주세요.');});
+}
+
+// ── 옵저버 CSV — 확정 팀만. 태그는 results.html과 같은 규칙을 쓴다(한 번 정해 두 곳 사용).
+//    시즌2에서 한글 팀명이 옵저버에서 ??????로 깨졌으므로, 표시용 식별자는 태그가 담당한다.
+//    열: 번호, 팀명, 짧은태그, png, 색FF
+function obsTag(name, b){
+  if(b && b.tag) return String(b.tag).toUpperCase().slice(0,4);
+  return String(name||'').replace(/\s+/g,'').slice(0,2) || '?';
+}
+function obsColor(name, b){
+  if(b && b.color) return String(b.color).replace('#','').toUpperCase()+'FF';
+  var h=0, s=String(name||'');
+  for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0;
+  var hue=h%330; if(hue>25&&hue<75) hue=(hue+90)%360;
+  // hsl(hue,52%,62%) → hex (results.html의 자동 배정색과 같은 값)
+  var c=(1-Math.abs(2*0.62-1))*0.52, x=c*(1-Math.abs((hue/60)%2-1)), m=0.62-c/2, r=0,g=0,bl=0;
+  if(hue<60){r=c;g=x;} else if(hue<120){r=x;g=c;} else if(hue<180){g=c;bl=x;}
+  else if(hue<240){g=x;bl=c;} else if(hue<300){r=x;bl=c;} else {r=c;bl=x;}
+  var hx=function(v){ return ('0'+Math.round((v+m)*255).toString(16)).slice(-2).toUpperCase(); };
+  return hx(r)+hx(g)+hx(bl)+'FF';
+}
+function downloadObsCsv(){
+  var k=getKey(); if(!k){alert('키를 입력하세요');return;}
+  Promise.all([
+    fetch(GAPI+"/api/gdcup-admin-list"+seasonQS(),{headers:{"x-admin-key":k}}).then(function(r){return r.json();}),
+    fetch(GAPI+"/api/gdcup-team-brands").then(function(r){return r.json();}).catch(function(){return {brands:[]};})
+  ]).then(function(res){
+    var teams=((res[0]&&res[0].teams)||[]).filter(function(t){return t.status==='confirmed';});
+    if(!teams.length){alert('확정된 팀이 없습니다.');return;}
+    var B={}; ((res[1]&&res[1].brands)||[]).forEach(function(b){B[b.team_name]=b;});
+    var rows=teams.map(function(t,i){
+      var b=B[t.name||t.team_name]||{};
+      var nm=t.team_name||t.name||'';
+      return [i+1, nm, obsTag(nm,b), '', obsColor(nm,b)].join(',');
+    });
+    // BOM — 엑셀·옵저버가 UTF-8로 읽게 한다(없으면 한글이 깨진다)
+    var blob=new Blob(["﻿"+rows.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8;'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='gdcup-observer-s'+(SEASON||'')+'.csv';
+    a.click(); URL.revokeObjectURL(a.href);
+  }).catch(function(){ alert('CSV 생성 실패 — 네트워크/키를 확인하세요.'); });
 }
 
 function saveTiers(teamId){
