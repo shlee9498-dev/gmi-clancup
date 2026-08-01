@@ -59,10 +59,17 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   .row{position:relative;display:grid;grid-template-columns:66px 40px 1fr auto;align-items:center;gap:16px;
     padding:17px 18px 17px 0;border-bottom:1px solid var(--line);will-change:transform;}
   .col > .row:first-child{border-top:1px solid var(--line);}
+  /* 팀이 적을 때(≤8) 행을 키워 세로를 채운다 — 5팀에서 헤더와 1위 사이가 비던 문제.
+     16팀이면 자동으로 기본 높이로 돌아간다. */
+  .cols.sparse .row{padding-top:30px;padding-bottom:30px;}
   .row .rk{font-family:var(--disp);font-weight:800;font-size:34px;text-align:center;color:var(--ink-dim);
     font-variant-numeric:tabular-nums;}
   .row .em{width:34px;height:34px;object-fit:contain;background:var(--surface-1);}
-  .row .em-ph{width:34px;height:34px;background:var(--surface-1);}
+  /* 팀 태그 — 로고 대신 쓰는 3~4자 타이포. 회색 빈 사각형이 세로로 늘어서면
+     방송 화면이 미완성으로 읽혀서, 자리지킴을 없애고 태그로 대체했다. */
+  .row .tg{font-family:var(--disp);font-weight:800;font-size:14px;letter-spacing:.08em;
+    line-height:1;text-align:center;padding:7px 0;border:1px solid currentColor;
+    white-space:nowrap;font-variant-numeric:tabular-nums;}
   .row .nm{display:flex;align-items:baseline;gap:10px;min-width:0;}
   .row .nm .tn{font-weight:800;font-size:25px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .row .nm .w{font-family:var(--disp);font-weight:600;font-size:15px;letter-spacing:.06em;color:var(--ink-dim);flex:0 0 auto;}
@@ -214,10 +221,25 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   });
   sndPaint();
 
+  // 태그: 등록값 우선 → 없으면 팀명 앞 2글자. 수동 관리를 최소화하되 등록하면 그게 이긴다.
+  function teamTag(name, b){
+    if(b && b.tag) return String(b.tag).toUpperCase().slice(0,4);
+    return String(name||"").replace(/\s+/g,"").slice(0,2) || "?";
+  }
+  // 색: 등록값 우선 → 없으면 팀명 해시로 고정 배정. 같은 팀은 항상 같은 색이 나온다.
+  // 골드(45°) 근처는 1위 강조와 겹치므로 피한다.
+  function teamColor(name, b){
+    if(b && b.color) return b.color;
+    var h=0, s=String(name||"");
+    for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0;
+    var hue=h%330; if(hue>25&&hue<75) hue=(hue+90)%360;   // 골드 대역 회피
+    return 'hsl('+hue+',52%,62%)';
+  }
   function rowHtml(t, rank){
     var cls = rank<=4 ? (' t'+rank) : '';
     var b = BRANDS[t.name] || {};
-    var em = b.emblem ? '<img class="em" src="'+b.emblem+'" alt="">' : '<span class="em-ph"></span>';
+    var em = b.emblem ? '<img class="em" src="'+b.emblem+'" alt="">'
+           : '<span class="tg" style="color:'+teamColor(t.name, b)+'">'+escapeHtml(teamTag(t.name, b))+'</span>';
     var stl = (b.color && rank>4) ? ' style="box-shadow:inset 4px 0 0 '+escapeHtml(b.color)+'"' : '';
     return '<div class="row'+cls+'" data-team="'+escapeHtml(t.name)+'"'+stl+'>'
       + '<div class="rk">'+rank+'</div>'
@@ -259,6 +281,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
       var data = (d.standings||[]).slice().sort(function(a,b){ return b.points - a.points; });
       var colA=document.getElementById('colA'), colB=document.getElementById('colB');
+      var cols=document.getElementById('cols');
 
       // FLIP 준비: 교체 전 각 팀 행의 화면 위치 캡처
       var before={};
@@ -274,6 +297,8 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         colB.innerHTML='';
       } else {
         colA.style.gridColumn='';
+        // 팀이 적으면 행을 키워 세로를 채운다(5팀도, 16팀도 화면이 비지 않게).
+        cols.classList.toggle('sparse', data.length <= 8);
         var a='', b='';
         data.forEach(function(t,i){ var html=rowHtml(t,i+1); if(i<8) a+=html; else b+=html; });
         colA.innerHTML=a; colB.innerHTML=b;
