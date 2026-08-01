@@ -127,6 +127,23 @@ function render(teams){
       // 닉은 인라인 편집 — 닉변·오타로 PUBG 조회가 실패하면 ⚠ 미검증이 뜨는데,
       // 여기서 못 고치면 SQL 말고는 방법이 없었다. 저장 시 서버가 재검증까지 돌린다.
       // pubgOk: 마지막 재검증에서 PUBG 조회가 됐는지. null = 아직 검증 안 함.
+      // 신고값과 판정근거를 눈에 띄게 갈라놓는다.
+      // 신고 670딜(일겜 8판)이 S의 근거처럼 읽혀 "딜량 뻥튀기 아니냐"는 오해가 실제로 나왔다.
+      // 판정은 경쟁전 439딜(95판)로 났고 시스템은 정상 동작했다 — 표시만 문제였다.
+      // 검증 전(pubgDmgSource 없음)이면 아무것도 붙이지 않는다. 없는 근거를 지어내지 않는다.
+      function judgeBasis(m){
+        if(!m.pubgDmgSource) return '';
+        var ranked = m.pubgDmgSource === 'ranked';
+        var txt = ranked
+          ? '판정 경쟁전 '+m.pubgJudgeDmg+'딜('+m.pubgRankedRounds+'판)'
+          : '판정 일겜 '+m.pubgJudgeDmg+'딜';
+        var tip = ranked
+          ? '이 등급의 실제 산정 근거입니다. 경쟁전 표본이 충분해 일겜 딜은 무시했습니다.'
+          : '경쟁전 판수가 기준에 못 미쳐 일반전 평딜로 판정했습니다'
+            + (m.pubgRankedRounds!=null ? ' (경쟁전 '+m.pubgRankedRounds+'판).' : '.');
+        return '<span title="'+tip+'" style="color:'+(ranked?'#10b981':'#fbbf24')
+          +';font-size:11px;flex:0 0 auto;white-space:nowrap;">'+txt+'</span>';
+      }
       // 등록계(clan_registry) 미등록은 더 이상 보지 않는다 — 용병은 등록계 대상이 아니라
       // "미등록"이 정상인데도 경고로 읽혀 오해를 만들었다. 확정 판단에 필요한 건
       // "PUBG에서 이 닉이 잡히는가" 하나뿐이다.
@@ -149,7 +166,8 @@ function render(teams){
         +'</span>'
         +'<input class="ign-edit" type="text" value="'+esc(m.ign||'')+'" maxlength="40" spellcheck="false" autocomplete="off"'
         +' data-team="'+t.id+'" data-idx="'+mi+'" title="인게임 닉 — 고친 뒤 💾 저장하면 서버가 재검증합니다" style="'+inpStyle+'">'
-        +(m.peak?'<span style="color:var(--ink-faint);font-size:11px;flex:0 0 auto;">'+esc(m.peak)+'/'+esc(m.dmg||'?')+'딜</span>':'')
+        +(m.peak?'<span title="본인이 신청서에 적은 값 — 판정 근거가 아닙니다" style="color:var(--ink-faint);font-size:11px;flex:0 0 auto;">신고 '+esc(m.peak)+'/'+esc(m.dmg||'?')+'딜</span>':'')
+        +judgeBasis(m)
         +'<select class="tier-edit" data-team="'+t.id+'" data-idx="'+mi+'" data-name="'+esc(m.name||'')+'" data-peak="'+esc(m.peak||'')+'" data-dmg="'+esc(m.dmg||'')+'" style="background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:5px 8px;border-radius:6px;font-size:13px;flex:0 0 auto;">'+opts+'</select>'
         +'</div>';
     }).join('');
