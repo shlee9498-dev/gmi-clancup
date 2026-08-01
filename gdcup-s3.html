@@ -206,7 +206,7 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
 <!-- BPI SYSTEM -->
 <section id="rules" class="anchor">
   <div class="section-head"><div class="section-kicker">BPI SYSTEM</div><h2 class="section-title">티어 · BPI</h2>
-  <p class="section-desc">배그 닉으로 <b style="color:var(--gold)">전적 자동조회</b>를 누르면 현시즌 기준으로 티어·BPI가 산정됩니다. 팀 합산 BPI <b style="color:var(--gold)">36</b>이 상한이며 <b style="color:var(--gold)">S급은 팀당 1명</b>까지입니다. <span style="color:var(--ink-faint);">가중치는 서버 기준으로 실시간 표시됩니다.</span></p></div>
+  <p class="section-desc">배그 닉으로 <b style="color:var(--gold)">전적 자동조회</b>를 누르면 현시즌 기준으로 티어·BPI가 산정됩니다. 팀 합산 BPI <b style="color:var(--gold)" id="capProse">—</b>이 상한이며 <b style="color:var(--gold)" id="sCapProse">S급은 팀당 1명</b>까지입니다. <span style="color:var(--ink-faint);">가중치는 서버 기준으로 실시간 표시됩니다.</span></p></div>
   <div class="card">
     <table class="tier-table">
       <thead><tr><th>티어</th><th>기준 (최고티어 · 평균딜)</th><th>BPI</th><th>역할</th></tr></thead>
@@ -769,6 +769,11 @@ function copyApplication(){
     BPI_MAP = META.bpiScale || {};
     var lab=document.getElementById('bpiCapLabel');
     if(lab) lab.textContent=' / 상한 '+(META.cap&&META.cap.team!=null?META.cap.team:'—');
+    // 안내 문구의 상한·S급 인원도 meta에서 — 숫자를 본문에 적어두면 서버와 어긋난다.
+    var cp=document.getElementById('capProse');
+    if(cp) cp.textContent=(META.cap&&META.cap.team!=null?META.cap.team:'—');
+    var sp=document.getElementById('sCapProse');
+    if(sp&&META.cap&&META.cap.sTier!=null) sp.textContent='S급은 팀당 '+META.cap.sTier+'명';
     // ── 표시 레이어: 정보 섹션의 티어 BPI·가중치표·정석 팩트를 meta로 렌더 ──
     // (검증 로직과 무관한 표시 전용. 과거 구표 하드코딩이 신청자에게 노출된 사고 재발 방지)
     try{
