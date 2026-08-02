@@ -49,7 +49,12 @@ h1{font-size:20px;margin-bottom:4px;}
 </div>
 <div id="warn"></div>
 <button class="btn btn-ghost" style="width:100%;margin-bottom:8px;" onclick="postBoard()">📋 디코에 '현재 모집현황' 게시</button>
-<button class="btn btn-ghost" style="width:100%;margin-bottom:14px;" onclick="downloadObsCsv()">⬇️ 옵저버 CSV 내려받기 (확정 팀)</button>
+<button class="btn btn-ghost" style="width:100%;margin-bottom:6px;" onclick="downloadObsCsv('utf8')">⬇️ 옵저버 CSV 내려받기 (확정 팀)</button>
+<div style="display:flex;gap:6px;margin-bottom:6px;">
+  <button class="btn btn-ghost" style="flex:1;" onclick="downloadObsCsv('cp949')">CP949로</button>
+  <button class="btn btn-ghost" style="flex:1;" onclick="downloadObsCsv('ascii')">영문 태그로</button>
+</div>
+<p class="sub" style="margin-bottom:14px;">기본은 BOM 없는 UTF-8. 옵저버에서 한글이 깨지면 CP949 → 그래도 깨지면 영문 태그 순으로 시도하세요.</p>
 <div class="stat" id="stat"></div>
 <div id="list"><div class="msg">키를 입력하고 불러오기를 누르세요.</div></div>
 
@@ -248,7 +253,9 @@ function setStatus(id,status,force){
 
 // ── 옵저버 CSV — 확정 팀만. 태그는 results.html과 같은 규칙을 쓴다(한 번 정해 두 곳 사용).
 //    시즌2에서 한글 팀명이 옵저버에서 ??????로 깨졌으므로, 표시용 식별자는 태그가 담당한다.
-//    열: 번호, 팀명, 짧은태그, png, 색FF
+//    열: 번호, 팀명, 짧은태그, png, 색FF (헤더 행 없음 · CRLF · BOM 없음)
+//    인코딩 3종: utf8(기본) · cp949 · ascii(팀명 자리도 태그). 옵저버가 무엇을 먹는지
+//    확정될 때까지 셋 다 남긴다 — 본선 당일 바꿔 끼울 수 있어야 한다.
 function obsTag(name, b){
   if(b && b.tag) return String(b.tag).toUpperCase().slice(0,4);
   return String(name||'').replace(/\s+/g,'').slice(0,2) || '?';
@@ -265,7 +272,41 @@ function obsColor(name, b){
   var hx=function(v){ return ('0'+Math.round((v+m)*255).toString(16)).slice(-2).toUpperCase(); };
   return hx(r)+hx(g)+hx(bl)+'FF';
 }
-function downloadObsCsv(){
+// CP949(EUC-KR) 인코더 — 브라우저 자신의 디코더에서 역표를 만든다.
+// TextEncoder는 UTF-8만 되고 레거시 인코딩은 지원하지 않지만, TextDecoder('euc-kr')는
+// 표준(WHATWG Encoding)이라 쓸 수 있다. 2바이트 조합을 전수 디코드해 문자→바이트를
+// 뒤집어 두면 외부 라이브러리 없이 변환이 된다(약 8,400자 · 생성 20ms대 · 최초 1회).
+var CP949=null;
+function cp949Map(){
+  if(CP949) return CP949;
+  var dec; try{ dec=new TextDecoder('euc-kr'); }catch(e){ return (CP949={}); }
+  var m={}, buf=new Uint8Array(2);
+  for(var hi=0x81; hi<=0xFE; hi++){
+    for(var lo=0x41; lo<=0xFE; lo++){
+      buf[0]=hi; buf[1]=lo;
+      var ch=dec.decode(buf);
+      // 첫 매핑만 채택 — 같은 글자에 조합이 여럿이면 낮은 코드가 표준 조합이다.
+      if(ch.length===1 && ch!=='�' && !Object.prototype.hasOwnProperty.call(m,ch)) m[ch]=[hi,lo];
+    }
+  }
+  return (CP949=m);
+}
+function cp949Bytes(str){
+  var m=cp949Map(), out=[], bad=[];
+  for(var i=0;i<str.length;i++){
+    var cc=str.charCodeAt(i);
+    if(cc<0x80){ out.push(cc); continue; }
+    // 서로게이트 쌍(이모지 등)은 한 글자로 묶어 '?' 하나로 떨어뜨린다.
+    var c=str[i];
+    if(cc>=0xD800 && cc<=0xDBFF && i+1<str.length){ c=str[i]+str[i+1]; i++; }
+    var p=Object.prototype.hasOwnProperty.call(m,c) ? m[c] : null;
+    if(p){ out.push(p[0],p[1]); } else { out.push(0x3F); bad.push(c); }
+  }
+  return { bytes:new Uint8Array(out), bad:bad, ok:Object.keys(m).length>0 };
+}
+// enc: 'utf8'(기본) | 'cp949' | 'ascii'(팀명 자리에 영문 태그)
+function downloadObsCsv(enc){
+  enc = enc || 'utf8';
   var k=getKey(); if(!k){alert('키를 입력하세요');return;}
   Promise.all([
     fetch(GAPI+"/api/gdcup-admin-list"+seasonQS(),{headers:{"x-admin-key":k}}).then(function(r){return r.json();}),
@@ -280,13 +321,24 @@ function downloadObsCsv(){
     var rows=teams.map(function(t,i){
       var b=B[t.name||t.team_name]||{};
       var nm=t.team_name||t.name||'';
-      return [i+1, nm, obsTag(nm,b), '', obsColor(nm,b)].join(',');
+      var tag=obsTag(nm,b);
+      // ascii: 옵저버가 한글을 아예 못 그릴 때의 최후 폴백 — 팀명 자리도 태그로 채운다.
+      return [i+1, (enc==='ascii' ? tag : nm), tag, '', obsColor(nm,b)].join(',');
     });
-    // BOM — 엑셀·옵저버가 UTF-8로 읽게 한다(없으면 한글이 깨진다)
-    var blob=new Blob(["﻿"+rows.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8;'});
+    // BOM 없음 — 옵저버가 첫 필드를 BOM+"1"로 읽어 깨질 수 있다(엑셀 호환보다 옵저버 우선).
+    var text=rows.join('\r\n')+'\r\n', blob, suffix='';
+    if(enc==='cp949'){
+      var r=cp949Bytes(text);
+      if(!r.ok){ alert('이 브라우저는 CP949 변환을 지원하지 않습니다. UTF-8 또는 영문 태그로 받아주세요.'); return; }
+      if(r.bad.length) alert('CP949로 표현할 수 없는 문자가 있어 ?로 바뀝니다: '+r.bad.join(' ')+'\n\n영문 태그 버전을 권장합니다.');
+      blob=new Blob([r.bytes],{type:'text/csv;charset=euc-kr;'}); suffix='-cp949';
+    }else{
+      blob=new Blob([text],{type:'text/csv;charset=utf-8;'});
+      if(enc==='ascii') suffix='-en';
+    }
     var a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download='gdcup-observer-s'+(SEASON||'')+'.csv';
+    a.download='gdcup-observer-s'+(SEASON||'')+suffix+'.csv';
     a.click(); URL.revokeObjectURL(a.href);
   }).catch(function(){ alert('CSV 생성 실패 — 네트워크/키를 확인하세요.'); });
 }
