@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08080c">
+  <meta name="gmi-api-base" content="https://worker-production-06b8.up.railway.app">
+  <title>GmI 클랜 — G샵</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="shop.css?v=1">
+</head>
+<body>
+
+<main class="container">
+
+  <!-- 상단 고정: 잔액 + 주간 적립 게이지 -->
+  <div class="shop-bar" id="shop-bar">
+    <div class="shop-bar-row">
+      <span class="shop-bar-label">내 잔액</span>
+      <span class="shop-bar-balance" id="bar-balance">—</span>
+    </div>
+    <div class="shop-bar-row">
+      <span class="shop-bar-label">이번 주 적립</span>
+      <span class="shop-bar-weekly" id="bar-weekly">—</span>
+    </div>
+    <div class="gauge"><div class="gauge-fill" id="bar-gauge"></div></div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" id="tab-items" role="tab"
+            aria-selected="true" aria-controls="panel-items">상품</button>
+    <button class="tab" id="tab-orders" role="tab"
+            aria-selected="false" aria-controls="panel-orders">내 주문</button>
+  </div>
+
+  <section id="panel-items" role="tabpanel" aria-labelledby="tab-items">
+    <div id="items" class="item-grid" aria-live="polite"></div>
+  </section>
+
+  <section id="panel-orders" role="tabpanel" aria-labelledby="tab-orders"
+           hidden>
+    <div id="orders" aria-live="polite"></div>
+  </section>
+
+</main>
+
+<!-- 구매 확인 모달 -->
+<div class="modal-back" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true"
+       aria-labelledby="modal-title">
+    <div class="modal-title" id="modal-title">구매 확인</div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="modal-cancel">취소</button>
+      <button class="btn" id="modal-ok">구매하기</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts" aria-live="assertive"></div>
+
+<script src="app.js?v=5"></script>
+<script>
+// ⚠️ 선언은 requireAuth() 블록보다 위 (matches.html의 TDZ 사고와 같은 패턴 방지)
+let ITEMS = [];
+let PENDING = null;      // 확인 모달에서 대기 중인 상품
+let BUYING = false;      // 이중 제출 잠금 (서버도 idem_key로 막지만 UI에서도)
+
+const me = requireAuth();
+if (me) {
+  renderNav("shop");
+  renderFooter();
+  loadItems();
+}
+
+// ---------------------------------------------------------------- 탭
+document.getElementById("tab-items").addEventListener("click",
+  () => switchTab("items"));
+document.getElementById("tab-orders").addEventListener("click",
+  () => switchTab("orders"));
+
+function switchTab(which) {
+  const isItems = which === "items";
+  document.getElementById("tab-items").classList.toggle("active", isItems);
+  document.getElementById("tab-orders").classList.toggle("active", !isItems);
+  document.getElementById("tab-items").setAttribute("aria-selected", isItems);
+  document.getElementById("tab-orders").setAttribute("aria-selected", !isItems);
+  document.getElementById("panel-items").hidden = !isItems;
+  document.getElementById("panel-orders").hidden = isItems;
+  if (isItems) loadItems(); else loadOrders();
+}
+
+// ---------------------------------------------------------------- 상품
+function skeletons(n) {
+  return Array.from({ length: n },
+    () => `<div class="item-card skel"><div class="skel-box"></div></div>`
+  ).join("");
+}
+
+async function loadItems() {
+  const el = document.getElementById("items");
+  el.innerHTML = skeletons(4);
+  try {
+    const d = await api("/api/shop/items");
+    ITEMS = d.items || [];
+    renderBar(d.balance, d.weekly_earned, d.weekly_cap);
+    if (!ITEMS.length) {
+      el.innerHTML = `<div class="empty">판매 중인 상품이 없습니다</div>`;
+      return;
+    }
+    el.innerHTML = ITEMS.map(itemCard).join("");
+    el.querySelectorAll("[data-sku]").forEach(btn => {
+      btn.addEventListener("click", () => askBuy(btn.dataset.sku));
+    });
+  } catch (e) {
+    // 조용히 실패하지 않는다 — 원인을 그대로 보여주고 재시도 경로를 준다
+    el.innerHTML = `<div class="empty">상품을 불러오지 못했습니다<br>
+      <span class="err-detail">${escapeHtml(e.message)}</span><br>
+      <button class="btn btn-outline retry" id="retry-items">다시 시도</button>
+    </div>`;
+    document.getElementById("retry-items")
+      .addEventListener("click", loadItems);
+  }
+}
+
+function renderBar(balance, earned, cap) {
+  document.getElementById("bar-balance").textContent =
+    `${fmtCoin(balance)}코인`;
+  document.getElementById("bar-weekly").textContent =
+    `${fmtCoin(earned)} / ${fmtCoin(cap)}`;
+  const pct = cap > 0 ? Math.min(100, Math.round(earned / cap * 100)) : 0;
+  // width가 아니라 scaleX — 레이아웃 재계산 없이 부드럽게 찬다
+  document.getElementById("bar-gauge").style.transform = `scaleX(${pct / 100})`;
+}
+
+function itemCard(it) {
+  const soldOut = it.sold_out;
+  const limited = it.limit_reached;
+  const pct = it.stock_total > 0
+    ? Math.round(it.stock_left / it.stock_total * 100) : 0;
+  let btn;
+  if (soldOut) {
+    btn = `<button class="btn buy" disabled>품절</button>`;
+  } else if (limited) {
+    btn = `<button class="btn buy" disabled>구매 완료</button>`;
+  } else {
+    btn = `<button class="btn buy" data-sku="${escapeAttr(it.sku)}">구매</button>`;
+  }
+  return `
+    <div class="item-card ${soldOut ? "is-sold-out" : ""}">
+      ${soldOut ? `<span class="sold-badge">품절</span>` : ""}
+      <div class="item-thumb">${it.image_url
+        ? `<img src="${escapeAttr(it.image_url)}" alt="" loading="lazy">`
+        : `<span class="item-emoji">${emojiFor(it.sku)}</span>`}</div>
+      <div class="item-name">${escapeHtml(it.name)}</div>
+      <div class="item-desc">${escapeHtml(it.description || "")}</div>
+      <div class="item-price">${fmtCoin(it.price)}<span>코인</span></div>
+      <div class="stock-row">
+        <div class="stock-bar"><div class="stock-fill" style="width:${pct}%"></div></div>
+        <span class="stock-text">${it.stock_left}/${it.stock_total}</span>
+      </div>
+      ${btn}
+    </div>`;
+}
+
+function emojiFor(sku) {
+  return ({ chicken: "🍗", pizza: "🍕", replay: "🎬", role_rich: "👑" })[sku]
+    || "🎁";
+}
+
+// ---------------------------------------------------------------- 구매
+function askBuy(sku) {
+  const it = ITEMS.find(x => x.sku === sku);
+  if (!it) return;
+  PENDING = it;
+  document.getElementById("modal-body").innerHTML = `
+    <div class="confirm-item">${emojiFor(it.sku)} <b>${escapeHtml(it.name)}</b></div>
+    <div class="confirm-price">${fmtCoin(it.price)}코인이 차감됩니다</div>
+    <div class="confirm-note">구매 후 운영진이 발송 처리합니다.
+      코인은 환전·양도가 불가합니다.</div>`;
+  document.getElementById("modal").hidden = false;
+  document.getElementById("modal-ok").focus();
+}
+
+document.getElementById("modal-cancel").addEventListener("click", closeModal);
+document.getElementById("modal").addEventListener("click", (e) => {
+  if (e.target.id === "modal") closeModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !document.getElementById("modal").hidden) {
+    closeModal();
+  }
+});
+
+function closeModal() {
+  document.getElementById("modal").hidden = true;
+  PENDING = null;
+}
+
+document.getElementById("modal-ok").addEventListener("click", async () => {
+  if (!PENDING || BUYING) return;
+  BUYING = true;
+  const okBtn = document.getElementById("modal-ok");
+  okBtn.disabled = true;
+  okBtn.textContent = "처리 중…";
+  const it = PENDING;
+  try {
+    // idem_key는 프론트가 UUID로 발급한다(오너 결정). 서버는 UNIQUE 검사만.
+    // 같은 키로 재전송되면 서버가 기존 주문을 그대로 돌려준다 → 이중 차감 없음.
+    const d = await api("/api/shop/purchase", {
+      method: "POST",
+      body: { sku: it.sku, idem_key: uuid() },
+    });
+    closeModal();
+    toast(d.duplicate
+      ? `이미 처리된 주문입니다 — ${it.name}`
+      : `구매 완료! ${it.name} · 잔액 ${fmtCoin(d.balance)}코인`, "ok");
+    loadItems();
+  } catch (e) {
+    closeModal();
+    toast(e.message.replace(/^\d+:\s*/, ""), "err");
+  } finally {
+    BUYING = false;
+    okBtn.disabled = false;
+    okBtn.textContent = "구매하기";
+  }
+});
+
+function uuid() {
+  if (crypto && crypto.randomUUID) return crypto.randomUUID();
+  // 구형 사파리 폴백 — 충돌만 안 나면 되므로 강한 난수일 필요는 없다
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === "x" ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+// ---------------------------------------------------------------- 내 주문
+const STATUS_LABEL = {
+  paid: ["결제완료", "st-paid"],
+  fulfilled: ["발송완료", "st-done"],
+  refunded: ["환불", "st-refund"],
+  cancelled: ["취소", "st-cancel"],
+};
+
+async function loadOrders() {
+  const el = document.getElementById("orders");
+  el.innerHTML = `<div class="card">${skeletons(1)}</div>`;
+  try {
+    const d = await api("/api/shop/orders/me");
+    const rows = d.orders || [];
+    if (!rows.length) {
+      el.innerHTML = `<div class="empty">아직 구매 내역이 없습니다</div>`;
+      return;
+    }
+    el.innerHTML = `<div class="order-list">${rows.map(o => {
+      const [label, cls] = STATUS_LABEL[o.status] || [o.status, "st-paid"];
+      return `
+        <div class="order-row">
+          <div class="order-main">
+            <span class="order-emoji">${emojiFor(o.sku)}</span>
+            <div>
+              <div class="order-name">${escapeHtml(o.item_name || o.sku)}</div>
+              <div class="order-meta">${timeAgo(o.created_at)}
+                · ${fmtCoin(o.price_paid)}코인</div>
+              ${o.note ? `<div class="order-note">${escapeHtml(o.note)}</div>` : ""}
+            </div>
+          </div>
+          <span class="st ${cls}">${label}</span>
+        </div>`;
+    }).join("")}</div>`;
+  } catch (e) {
+    el.innerHTML = `<div class="empty">주문 내역을 불러오지 못했습니다<br>
+      <span class="err-detail">${escapeHtml(e.message)}</span><br>
+      <button class="btn btn-outline retry" id="retry-orders">다시 시도</button>
+    </div>`;
+    document.getElementById("retry-orders")
+      .addEventListener("click", loadOrders);
+  }
+}
+
+// ---------------------------------------------------------------- 토스트
+function toast(msg, kind) {
+  const el = document.createElement("div");
+  el.className = `toast ${kind === "err" ? "toast-err" : "toast-ok"}`;
+  el.textContent = msg;
+  document.getElementById("toasts").appendChild(el);
+  setTimeout(() => el.classList.add("out"), 3200);
+  setTimeout(() => el.remove(), 3600);
+}
+
+// 서버 문자열(상품명·메모)이 그대로 innerHTML에 들어가므로 이스케이프 필수
+function escapeHtml(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g,
+    ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;",
+             '"': "&quot;", "'": "&#39;" })[ch]);
+}
+function escapeAttr(s) { return escapeHtml(s); }
+</script>
+
+</body>
+</html>

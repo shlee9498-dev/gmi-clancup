@@ -123,10 +123,15 @@ const REASON_LABEL = {
   manual_grant: "지급",
   manual_deduct: "차감",
   g_drop: "G드랍",
+  shop_purchase: "G샵 구매",
+  shop_refund: "G샵 환불",
 };
 
 function labelReason(reason) {
-  return REASON_LABEL[reason] || reason;
+  if (REASON_LABEL[reason]) return REASON_LABEL[reason];
+  // "shop_purchase:chicken" 처럼 접두사:상세 형태 → 접두사로 매칭
+  const head = String(reason || "").split(":")[0];
+  return REASON_LABEL[head] || reason;
 }
 
 /** ISO 시간 → 상대 표시 (방금 / N분 전 / 어제). */
@@ -161,6 +166,7 @@ function renderNav(currentPage = "") {
         <a href="index.html" class="${currentPage === 'index' ? 'active' : ''}">홈</a>
         <a href="casino.html" class="${currentPage === 'casino' ? 'active' : ''}">🎰 카지노</a>
         <a href="matches.html" class="${currentPage === 'matches' ? 'active' : ''}">매치</a>
+        <a href="shop.html" class="${currentPage === 'shop' ? 'active' : ''}">🛒 G샵</a>
         <a href="https://shlee9498-dev.github.io/gmi-clancup/gdcup-s2.html">G드컵</a>
       </div>
       ${me ? `
