@@ -1,0 +1,567 @@
+/* ============================================================
+   GmI NIGHT OPERATION — 공통 컴포넌트
+   지시서 §2. 페이지마다 다시 만들지 말 것.
+   tokens.css 이후에 로드한다.
+
+   상태 3종은 전 페이지 동일:
+     비활성/닫힘 = 채도 제거 + --smoke
+     진행 중     = --amber + 맥동
+     완료/획득   = --gold
+   ============================================================ */
+
+/* ============================================================ 상단바 */
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 18px;
+  background: rgba(5, 19, 15, .82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+}
+
+.mark {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.mark i {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-family: var(--f-num);
+  font-weight: 900;
+  font-size: 16px;
+  color: #1A1206;
+  background: linear-gradient(145deg, #F7DE94, var(--brass) 55%, #8A6C12);
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(201, 162, 39, .35);
+}
+
+.mark small {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .24em;
+  color: var(--brass);
+}
+
+.mark b {
+  display: block;
+  margin-top: 1px;
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+/* 사운드 토글 — 기본 OFF(§3). */
+.sound {
+  margin-left: auto;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--brass);
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+.sound:hover {
+  background: rgba(201, 162, 39, .1);
+  color: var(--gold);
+}
+
+.sound.off {
+  color: #4E5B54;
+  border-color: rgba(255, 255, 255, .08);
+}
+
+/* 잔액 — 항상 우상단 고정(§2). */
+.purse {
+  padding-left: 15px;
+  border-left: 1px solid var(--line);
+  text-align: right;
+  line-height: 1.2;
+}
+
+.purse small {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  color: var(--smoke);
+}
+
+.purse b {
+  display: block;
+  font-family: var(--f-num);
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  color: var(--gold);
+  text-shadow: 0 0 22px rgba(243, 206, 106, .4);
+}
+
+.purse b em {
+  font-family: var(--f-ui);
+  font-style: normal;
+  font-size: 11px;
+  color: var(--brass);
+  margin-left: 2px;
+}
+
+/* ============================================================ 레이아웃 */
+
+.wrap {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 16px 14px 0;
+}
+
+/* ============================================================ 카드 */
+
+.card {
+  padding: 15px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: linear-gradient(180deg, rgba(18, 59, 48, .5), rgba(12, 42, 34, .35));
+}
+
+.card h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 13px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .22em;
+  color: var(--brass);
+}
+
+.card h3 em {
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: var(--smoke);
+}
+
+.card + .card { margin-top: 13px; }
+
+/* ============================================================ 베팅 칩 */
+
+.chips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.chip {
+  position: relative;
+  padding: 15px 0 13px;
+  border-radius: 50px;
+  border: 2px dashed rgba(201, 162, 39, .28);
+  background: radial-gradient(circle at 50% 38%, #17493B, #0B2A21);
+  color: var(--ivory);
+  font-family: var(--f-num);
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .14s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.chip small {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--f-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: var(--smoke);
+}
+
+.chip:hover:not(:disabled) { transform: translateY(-3px); }
+
+.chip.on {
+  border-style: solid;
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 0 1px rgba(243, 206, 106, .4), 0 8px 26px -10px rgba(243, 206, 106, .6);
+}
+
+.chip:disabled {
+  cursor: not-allowed;
+  filter: grayscale(1);
+  opacity: .45;
+}
+
+/* ============================================================ 주액션 */
+
+.go {
+  width: 100%;
+  margin-top: 12px;
+  padding: 17px 0;
+  border: 0;
+  border-radius: 4px;
+  font-family: var(--f-ui);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: #160F03;
+  background: linear-gradient(150deg, #F7DE94, var(--brass) 52%, #9C7A15);
+  box-shadow: 0 10px 30px -14px rgba(201, 162, 39, .9);
+  cursor: pointer;
+  transition: filter .15s ease, transform .15s ease;
+}
+
+.go small {
+  display: block;
+  margin-top: 2px;
+  font-size: 10.5px;
+  font-weight: 700;
+  opacity: .66;
+}
+
+.go:hover:not(:disabled) { filter: brightness(1.07); }
+.go:active:not(:disabled) { transform: scale(.99); }
+
+.go:disabled {
+  background: #16302A;
+  color: #7C8D84;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* 진행 중 — 지금 눌러야 하는 것(§1 --amber 규칙). */
+.go.cash {
+  background: linear-gradient(150deg, #FFD98A, var(--amber) 55%, #C2650E);
+  color: #1A0C00;
+  animation: urge .9s ease-in-out infinite;
+}
+
+@keyframes urge {
+  50% { box-shadow: 0 10px 44px -8px rgba(255, 158, 61, .95); }
+}
+
+/* ============================================================ 한도바 */
+
+.lim {
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, .05);
+}
+
+.lim .t {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--smoke);
+}
+
+.lim .t b {
+  font-weight: 800;
+  color: var(--gold);
+}
+
+/* 트랙은 transform으로 채운다 — width 트랜지션은 레이아웃을 다시 계산한다(§6). */
+.trk {
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .07);
+}
+
+.trk i {
+  display: block;
+  height: 100%;
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--brass), var(--gold));
+  transition: transform .18s linear;
+}
+
+/* ============================================================ 피드행 */
+
+.feed { min-height: 60px; }
+
+.ln {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 0;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, .045);
+  animation: slide-in .3s ease-out;
+}
+
+.ln:last-child { border-bottom: 0; }
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.ln .d {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--smoke);
+}
+
+.ln .w {
+  flex: 1;
+  font-weight: 700;
+  color: #D8CEB8;
+}
+
+.ln .a {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--smoke);
+}
+
+.ln .r {
+  font-family: var(--f-num);
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--gold);
+}
+
+/* 획득 */
+.ln.ok .d {
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold);
+}
+
+/* 실패 — 채도 제거 */
+.ln.no .d { background: #3A4741; }
+.ln.no .w { color: #7E8B84; }
+
+.ln.no .r {
+  font-family: var(--f-ui);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #6C7A72;
+}
+
+/* ============================================================ 결과칩 */
+
+.hist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.h {
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 2px;
+  font-family: var(--f-num);
+  font-size: 13px;
+  font-weight: 700;
+  color: #94A198;
+}
+
+.h.m {
+  color: var(--brass);
+  border-color: rgba(201, 162, 39, .3);
+}
+
+.h.g {
+  color: var(--gold);
+  border-color: rgba(243, 206, 106, .5);
+  background: rgba(243, 206, 106, .07);
+}
+
+/* ============================================================ 빈 상태 */
+
+/* 다음 행동을 안내한다 — "데이터 없음"으로 끝내지 않는다(§5). */
+.none {
+  padding: 16px 0;
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #7A877F;
+}
+
+.none b {
+  display: block;
+  margin-bottom: 3px;
+  font-weight: 700;
+  color: #A9B5AC;
+}
+
+/* 스켈레톤 — "로딩 중" 글자 대신 쓴다(§4-1). */
+.skel {
+  height: 12px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .09), rgba(255, 255, 255, .04));
+  background-size: 200% 100%;
+  animation: skel 1.3s ease-in-out infinite;
+}
+
+.skel + .skel { margin-top: 8px; }
+.skel.w60 { width: 60%; }
+.skel.w40 { width: 40%; }
+
+@keyframes skel {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================================ 규칙표 */
+
+.rules dl {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 9px 12px;
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.62;
+}
+
+.rules dt {
+  padding-top: 1px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  color: var(--brass);
+}
+
+.rules dd {
+  margin: 0;
+  color: #B7C2BA;
+}
+
+/* ============================================================ 토스트 */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 200;
+  max-width: min(88vw, 420px);
+  padding: 12px 18px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(9, 28, 23, .96);
+  color: var(--ivory);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.toast.success { border-color: rgba(243, 206, 106, .5); }
+.toast.error { border-color: rgba(194, 51, 77, .6); }
+
+/* ============================================================ 모달 */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.modal.hidden { display: none; }
+
+.modal-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 8, 6, .78);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  border: 0;
+  padding: 0;
+}
+
+.modal-box {
+  position: relative;
+  width: min(520px, 100%);
+  max-height: 82vh;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: linear-gradient(180deg, #10332A, #0A241D);
+  box-shadow: 0 30px 80px -40px #000;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .22em;
+  color: var(--brass);
+}
+
+.modal-close {
+  border: 0;
+  background: transparent;
+  color: var(--smoke);
+  font-size: 16px;
+  cursor: pointer;
+  transition: color .2s ease;
+}
+
+.modal-close:hover { color: var(--ivory); }
+
+.modal-body { padding: 16px; }
+
+.field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(5, 19, 15, .7);
+  color: var(--ivory);
+  font-family: var(--f-ui);
+  font-size: 14px;
+}
+
+.btn-line {
+  padding: 9px 16px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--brass);
+  font-family: var(--f-ui);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+.btn-line:hover {
+  background: rgba(201, 162, 39, .1);
+  color: var(--gold);
+}

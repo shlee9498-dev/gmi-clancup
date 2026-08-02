@@ -1,561 +1,796 @@
-/* ============================================
-   GmI 크래시 — 라이브 게임 로직
-   - SSE로 라운드 상태 수신
-   - Canvas 실시간 차트
-   - 베팅/캐시아웃 버튼 핸들러
-   ============================================ */
+/* ============================================================
+   나이트 드롭 (크래시) — 라이브 게임
+   지시서 §4-1. 비주얼·모션·사운드만 바꿨다.
+   라운드 타이밍·배수·터지는 지점·provably-fair 값은 전부 서버 것을 그대로 쓴다.
+
+   서버 계약 (건드리지 않음):
+     SSE  /api/crash/stream        event: round | phase | update
+     POST /api/crash/bet           {amount}
+     POST /api/crash/cashout
+     GET  /api/crash/my-bets?limit
+     GET  /api/crash/round/{id}/verify
+     GET  /api/wallet              {balance}
+
+   스냅샷: phase(betting|flight|crashed|paused) · round_id · multiplier ·
+           crash_point · bets[] · history[] · seconds_remaining ·
+           min_bet · max_bet · bet_unit · bet_tiers[]
+
+   ⚠️ 베팅 티어는 서버가 내려주는 bet_tiers를 쓴다. 프론트에 박지 말 것 —
+      예전 코드가 [10,50,100,200,500]을 하드코딩해서 10·50은 서버가
+      CRASH_MIN_BET(100)·BET_UNIT(100)으로 거부했다.
+   ============================================================ */
 
 const me = requireAuth();
-if (me) {
-  renderNav();
-  renderFooter();
-  initChart();
-  connectStream();
-  loadMyBets();
-}
 
-// ===== 상태 =====
-let lastSnap = null;
-let evtSource = null;
+/* ============================================================ 상태 */
+
+let snap = null;            // 마지막 서버 스냅샷
+let stream = null;
 let reconnectTimer = null;
-let cashoutBusy = false;
+
+let balance = null;         // /api/wallet
+let pickedBet = null;       // 선택한 티어 (없으면 첫 티어)
 let betBusy = false;
+let cashBusy = false;
 
-// 차트 데이터: 0.1초 단위로 (t, multiplier) 누적
-let chartPoints = [];
-let lastTickTime = 0;
+// 표시용 보간 — 서버 값이 진실이고, 그 값으로 부드럽게 다가갈 뿐이다.
+let shownMult = 1;
+let shownLeft = 0;          // 남은 초
+let leftStamp = 0;          // seconds_remaining을 받은 시각
+let lastTickSfx = 0;
+let flying = false;         // 라이저 on/off 판정용
 
-// ===== SSE 연결 =====
-function connectStream() {
-  const url = `${API_BASE}/api/crash/stream`;
-  evtSource = new EventSource(url);
+const $ = (id) => document.getElementById(id);
 
-  evtSource.addEventListener("update", (e) => {
-    try {
-      const snap = JSON.parse(e.data);
-      handleUpdate(snap);
-    } catch (err) {
-      console.error("snap parse error", err);
-    }
+// 캔버스 — 부팅 블록이 fitCanvas()를 부르므로 반드시 그 위에서 초기화한다.
+// (let/const는 선언 위치까지 TDZ라 아래에 두면 부팅이 통째로 죽는다.)
+const cv = document.getElementById("cv");
+const ctx = cv ? cv.getContext("2d") : null;
+let W = 0;
+let H = 0;
+let city = [];
+let stars = [];
+const particles = [];
+const MAX_PARTICLES = 60;   // §6 상한
+
+/** 운영 시간. 서버 _utils.hours_label()이 정본이지만 스냅샷에 없어서
+ *  여기 적어둔다(지시서 §10). 서버가 내려주게 되면 그 값으로 바꿀 것. */
+const HOURS_LABEL = "18:00~03:00 KST";
+
+/* ============================================================ 부팅 */
+
+if (me) {
+  initSound();
+  wire();
+  fitCanvas();
+  loadBalance();
+  loadMyBets();
+  connect();
+  requestAnimationFrame(loop);
+  setInterval(paintClock, 1000);
+  paintClock();
+}
+
+function wire() {
+  addEventListener("resize", fitCanvas);
+  $("go").addEventListener("click", onAction);
+
+  $("verify-link").addEventListener("click", () => openVerify(true));
+  $("verify-close").addEventListener("click", () => openVerify(false));
+  $("verify-bg").addEventListener("click", () => openVerify(false));
+  $("verify-run").addEventListener("click", runVerify);
+  addEventListener("keydown", (e) => {
+    if (e.key === "Escape") openVerify(false);
   });
 
-  evtSource.addEventListener("round", (e) => {
-    // 새 라운드 시작
-    chartPoints = [{ t: 0, m: 1.00 }];
+  // 탭이 안 보이면 캔버스를 멈춘다(§6). 돌아오면 rAF가 다시 돈다.
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) riserOff();
+    else requestAnimationFrame(loop);
+  });
+}
+
+/* ============================================================ 잔액 */
+
+async function loadBalance() {
+  try {
+    const w = await api("/api/wallet");
+    balance = Number(w.balance) || 0;
+  } catch (e) {
+    balance = null;
+  }
+  paintPurse();
+}
+
+function paintPurse() {
+  $("bal").innerHTML = (balance === null ? "—" : fmtCoin(balance)) + "<em>G</em>";
+}
+
+/* ============================================================ SSE */
+
+function connect() {
+  stream = new EventSource(`${API_BASE}/api/crash/stream`);
+
+  stream.addEventListener("update", (e) => {
+    let next;
+    try { next = JSON.parse(e.data); } catch (err) { return; }
+    onSnap(next);
   });
 
-  evtSource.addEventListener("phase", (e) => {
-    try {
-      const data = JSON.parse(e.data);
-      handlePhaseChange(data.phase, data.crash_point);
-    } catch (err) {}
+  stream.addEventListener("phase", (e) => {
+    let d;
+    try { d = JSON.parse(e.data); } catch (err) { return; }
+    onPhase(d.phase);
   });
 
-  evtSource.addEventListener("error", () => {
-    if (evtSource.readyState === EventSource.CLOSED) {
+  stream.addEventListener("error", () => {
+    if (stream.readyState === EventSource.CLOSED) {
       clearTimeout(reconnectTimer);
-      reconnectTimer = setTimeout(connectStream, 3000);
+      reconnectTimer = setTimeout(connect, 3000);
     }
   });
 }
 
-// ===== 라운드 상태 핸들링 =====
+function onSnap(next) {
+  const prev = snap;
+  const roundChanged = !prev || prev.round_id !== next.round_id;
+  const phaseChanged = !prev || prev.phase !== next.phase;
+  snap = next;
 
-function handleUpdate(snap) {
-  const phaseChanged = !lastSnap || lastSnap.phase !== snap.phase;
-  const roundChanged = !lastSnap || lastSnap.round_id !== snap.round_id;
-
-  // 차트 데이터 누적 (비행 중에만)
-  if (snap.phase === "flight") {
-    const now = performance.now();
-    if (now - lastTickTime > 50) {  // 50ms 최소 간격
-      const t = chartPoints.length > 0
-        ? (chartPoints.length * 0.1)  // 대략적인 t
-        : 0;
-      chartPoints.push({ t, m: snap.multiplier });
-      // 최대 600개 (60초까지)
-      if (chartPoints.length > 600) chartPoints.shift();
-      lastTickTime = now;
-    }
-  } else if (phaseChanged && snap.phase === "betting") {
-    // 베팅 단계로 전환 → 차트 리셋
-    chartPoints = [{ t: 0, m: 1.00 }];
-  } else if (phaseChanged && snap.phase === "crashed") {
-    // 폭발 시 마지막 점 (실제 crash_point)
-    if (snap.crash_point) {
-      chartPoints.push({
-        t: chartPoints.length * 0.1,
-        m: snap.crash_point
-      });
-    }
+  if (roundChanged) {
+    shownMult = 1;
+    particles.length = 0;
+    $("pop").classList.remove("go");
   }
 
-  // UI 갱신
-  updateHeader(snap);
-  updateBigMult(snap);
-  drawChart(snap);
-  updateAction(snap);
-  updateParticipants(snap);
-
-  if (phaseChanged || roundChanged) {
-    updateHistory(snap.history);
-    if (snap.phase === "crashed") {
-      loadMyBets();  // 베팅 결과 갱신
-    }
+  if (next.seconds_remaining !== null && next.seconds_remaining !== undefined) {
+    shownLeft = next.seconds_remaining;
+    leftStamp = performance.now();
   }
 
-  lastSnap = snap;
+  paintStage();
+  paintBetPanel();
+  paintFeed();
+  if (roundChanged || phaseChanged) paintHistory();
+
+  // 라운드가 끝나면 결과가 확정된다 — 잔액·이력을 다시 읽는다.
+  if (phaseChanged && next.phase === "crashed") {
+    loadBalance();
+    loadMyBets();
+  }
 }
 
-function handlePhaseChange(phase, crashPoint) {
+function onPhase(phase) {
+  const stage = $("stage");
+
+  if (phase === "flight") {
+    stage.classList.add("fly");
+    flying = true;
+    riserOn();
+    sfx.board();
+  } else {
+    stage.classList.remove("fly");
+    if (flying) { riserOff(); flying = false; }
+  }
+
   if (phase === "crashed") {
-    if (crashPoint && crashPoint >= 10) {
-      showToast(`💥 ${crashPoint}x 폭발!`, "success");
-    }
-  }
-}
-
-// ===== 헤더 =====
-function updateHeader(snap) {
-  document.getElementById("round-no").textContent =
-    `라운드 #${snap.round_id || "—"}`;
-
-  const tag = document.getElementById("phase-tag");
-  const phaseLabel = {
-    betting: "베팅 받는 중",
-    flight: "비행 중",
-    crashed: "폭발",
-    paused: "휴식 (도박 시간 22:00~02:00)",
-  }[snap.phase] || snap.phase;
-  tag.textContent = phaseLabel;
-  tag.className = "phase-tag " + snap.phase;
-
-  const metaLabel = document.getElementById("phase-label");
-  const metaTime = document.getElementById("phase-time");
-  if (snap.phase === "betting") {
-    metaLabel.textContent = "베팅 종료까지";
-    metaTime.textContent = snap.seconds_remaining != null
-      ? `${snap.seconds_remaining.toFixed(1)}초` : "—";
-  } else if (snap.phase === "flight") {
-    metaLabel.textContent = "비행 중";
-    metaTime.textContent = `${snap.multiplier.toFixed(2)}x`;
-  } else if (snap.phase === "crashed") {
-    metaLabel.textContent = "다음 라운드까지";
-    metaTime.textContent = snap.seconds_remaining != null
-      ? `${snap.seconds_remaining.toFixed(1)}초` : "—";
+    sfx.bust();
+    stage.classList.add("bust");
+    setTimeout(() => stage.classList.remove("bust"), 600);
+    $("mult").classList.add("flick");
+    setTimeout(() => {
+      $("mult").classList.remove("flick");
+      $("mult").classList.add("dead");
+    }, 320);
   } else {
-    metaLabel.textContent = "—";
-    metaTime.textContent = "—";
+    $("mult").classList.remove("dead");
   }
+
+  if (phase === "betting") sfx.board();
 }
 
-// ===== 큰 멀티 텍스트 =====
-function updateBigMult(snap) {
-  const el = document.getElementById("big-mult");
-  const lbl = document.getElementById("big-mult-label");
+/* ============================================================ 무대 */
 
-  if (snap.phase === "flight") {
-    el.textContent = `${snap.multiplier.toFixed(2)}x`;
-    el.classList.remove("crashed");
-    lbl.textContent = "현재 멀티플라이어";
-  } else if (snap.phase === "crashed") {
-    const cp = snap.crash_point ?? snap.multiplier;
-    el.textContent = `${cp.toFixed(2)}x`;
-    el.classList.add("crashed");
-    lbl.textContent = "💥 폭발!";
-  } else if (snap.phase === "betting") {
-    el.textContent = "1.00x";
-    el.classList.remove("crashed");
-    lbl.textContent = "베팅 받는 중";
-  } else {
-    el.textContent = "—";
-    el.classList.remove("crashed");
-    lbl.textContent = "휴식 시간";
-  }
+const PHASE_SUB = {
+  betting: "탑승 접수 중",
+  flight: "강하 중",
+  crashed: "낙하산 미전개",
+  paused: "영업 종료",
+};
+
+const PHASE_SLUG = {
+  betting: "BOARDING",
+  flight: "DROPPING",
+  crashed: "DOWN",
+  paused: "CLOSED",
+};
+
+function paintStage() {
+  if (!snap) return;
+  const rid = snap.round_id ? String(snap.round_id).padStart(3, "0") : "—";
+  $("slug").textContent = `ROUND ${rid} · ${PHASE_SLUG[snap.phase] || "STANDBY"}`;
+  $("sub").textContent = PHASE_SUB[snap.phase] || "대기";
+
+  const cd = $("cd");
+  const showCd = snap.phase === "betting" || snap.phase === "crashed";
+  cd.hidden = !showCd;
+  $("cdlabel").textContent = snap.phase === "betting" ? "초 후 이탈" : "초 후 다음 라운드";
 }
 
-// ===== Canvas 차트 =====
-let chartCtx = null;
-
-function initChart() {
-  const canvas = document.getElementById("chart");
-  // 고해상도 대응
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = (rect.width || 800) * dpr;
-  canvas.height = (rect.height || 480) * dpr;
-  chartCtx = canvas.getContext("2d");
-  chartCtx.scale(dpr, dpr);
-}
-
-function drawChart(snap) {
-  if (!chartCtx) return;
-  const canvas = document.getElementById("chart");
-  const dpr = window.devicePixelRatio || 1;
-  const W = canvas.width / dpr;
-  const H = canvas.height / dpr;
-
-  const ctx = chartCtx;
-  ctx.clearRect(0, 0, W, H);
-
-  // 데이터 없으면 그냥 끝
-  if (chartPoints.length === 0) return;
-
-  // 스케일: max multiplier에 맞춰 y축
-  const maxM = Math.max(2.0, ...chartPoints.map(p => p.m), snap.multiplier || 1);
-  const maxT = Math.max(2.0, chartPoints.length * 0.1);
-
-  // 패딩
-  const padL = 36, padR = 16, padT = 16, padB = 24;
-  const plotW = W - padL - padR;
-  const plotH = H - padT - padB;
-
-  // 보조선 (y축)
-  const ticks = niceTicks(1.0, maxM, 5);
-  ctx.strokeStyle = "rgba(255,255,255,0.06)";
-  ctx.lineWidth = 1;
-  ctx.fillStyle = "#5a5a6a";
-  ctx.font = "10px system-ui, sans-serif";
-  ctx.textAlign = "right";
-  for (const tk of ticks) {
-    const ratio = (tk - 1.0) / (maxM - 1.0);
-    const y = padT + plotH - ratio * plotH;
-    ctx.beginPath();
-    ctx.moveTo(padL, y);
-    ctx.lineTo(W - padR, y);
-    ctx.stroke();
-    ctx.fillText(`${tk.toFixed(2)}x`, padL - 6, y + 3);
-  }
-
-  // 곡선
-  const isFlightOrCrashed = snap.phase === "flight" || snap.phase === "crashed";
-  if (chartPoints.length >= 2 && isFlightOrCrashed) {
-    const xy = chartPoints.map(p => {
-      const x = padL + (p.t / maxT) * plotW;
-      const ratio = (p.m - 1.0) / (maxM - 1.0);
-      const y = padT + plotH - ratio * plotH;
-      return [x, y];
-    });
-
-    // 영역 채우기 (글로우 효과)
-    ctx.beginPath();
-    ctx.moveTo(xy[0][0], padT + plotH);
-    for (const [x, y] of xy) ctx.lineTo(x, y);
-    ctx.lineTo(xy[xy.length - 1][0], padT + plotH);
-    ctx.closePath();
-    const grad = ctx.createLinearGradient(0, padT, 0, padT + plotH);
-    const isCrashed = snap.phase === "crashed";
-    grad.addColorStop(0,
-      isCrashed ? "rgba(220, 60, 70, 0.25)" : "rgba(212, 175, 55, 0.18)");
-    grad.addColorStop(1,
-      isCrashed ? "rgba(220, 60, 70, 0.02)" : "rgba(212, 175, 55, 0.02)");
-    ctx.fillStyle = grad;
-    ctx.fill();
-
-    // 라인
-    ctx.beginPath();
-    ctx.moveTo(xy[0][0], xy[0][1]);
-    for (const [x, y] of xy) ctx.lineTo(x, y);
-    ctx.strokeStyle = isCrashed ? "#dc3c46" : "#d4af37";
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.stroke();
-
-    // 끝점 (현재 위치)
-    const last = xy[xy.length - 1];
-    ctx.beginPath();
-    ctx.arc(last[0], last[1], 6, 0, Math.PI * 2);
-    ctx.fillStyle = isCrashed ? "#dc3c46" : "#f4cc4d";
-    ctx.fill();
-    ctx.strokeStyle = "#f0f0f5";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
-}
-
-function niceTicks(min, max, n) {
-  const step = (max - min) / (n - 1);
-  const out = [];
-  for (let i = 0; i < n; i++) {
-    out.push(min + step * i);
-  }
-  return out;
-}
-
-// ===== 액션 영역 (베팅 입력 / 캐시아웃 버튼) =====
-
-function updateAction(snap) {
-  const el = document.getElementById("action-area");
-  const myBet = (snap.bets || []).find(b => b.discord_id === me.sub);
-
-  if (snap.phase === "paused") {
-    el.innerHTML = `
-      <div class="action-info">
-        <div>
-          <div class="label">상태</div>
-          <div class="value" style="color: var(--text-sub);">도박 시간 (22:00~02:00 KST)에 진행</div>
-        </div>
-      </div>`;
-    return;
-  }
-
-  if (snap.phase === "betting") {
-    if (myBet) {
-      // 베팅 완료 — 대기
-      el.innerHTML = `
-        <div class="action-info">
-          <div>
-            <div class="label">내 베팅 (잠금됨)</div>
-            <div class="value gold">${fmtCoin(myBet.amount)} 코인</div>
-          </div>
-          <div style="text-align:right;">
-            <div class="label">잠재 수익</div>
-            <div class="value pos">곧 비행 시작</div>
-          </div>
-        </div>`;
-    } else {
-      // 베팅 입력
-      el.innerHTML = `
-        <div class="bet-form">
-          <input type="number" class="bet-input" id="bet-amount"
-                 inputmode="numeric" min="${snap.min_bet}" max="${snap.max_bet}"
-                 placeholder="베팅액 (${snap.min_bet}~${snap.max_bet})">
-          <button class="btn-action" id="bet-btn" onclick="doBet()">베팅</button>
-        </div>
-        <div class="quick-bets">
-          ${[10, 50, 100, 200, 500].map(v =>
-            `<button class="quick-chip" onclick="setBet(${v})">${v}</button>`
-          ).join("")}
-        </div>`;
-    }
-    return;
-  }
-
-  if (snap.phase === "flight") {
-    if (myBet && myBet.status === "placed") {
-      const curPayout = Math.round(myBet.amount * snap.multiplier);
-      const profit = curPayout - myBet.amount;
-      el.innerHTML = `
-        <button class="btn-action cashout" id="cashout-btn" onclick="doCashout()">
-          ✋ 캐시아웃<br>
-          <span style="font-size:18px;">+${fmtCoin(profit)} 코인 (${snap.multiplier.toFixed(2)}x)</span>
-        </button>`;
-    } else if (myBet && myBet.status === "cashed") {
-      el.innerHTML = `
-        <div class="action-info">
-          <div>
-            <div class="label">캐시아웃 완료 @ ${myBet.cashout_at.toFixed(2)}x</div>
-            <div class="value pos">+${fmtCoin(myBet.payout - myBet.amount)} 코인</div>
-          </div>
-          <div style="text-align:right;">
-            <div class="label">받은 금액</div>
-            <div class="value gold">${fmtCoin(myBet.payout)}</div>
-          </div>
-        </div>`;
-    } else {
-      el.innerHTML = `
-        <div class="action-info">
-          <div>
-            <div class="label">관전 중</div>
-            <div class="value" style="color: var(--text-sub);">다음 라운드 베팅</div>
-          </div>
-        </div>`;
-    }
-    return;
-  }
+/** 배수 표시. 서버 값을 향해 부드럽게 다가간다(표시만, 계산은 서버). */
+function paintMult() {
+  const el = $("mult");
+  if (!snap) return;
 
   if (snap.phase === "crashed") {
-    if (myBet) {
-      if (myBet.status === "cashed") {
-        el.innerHTML = `
-          <div class="action-info">
-            <div>
-              <div class="label">결과: 캐시아웃 성공</div>
-              <div class="value pos">+${fmtCoin(myBet.payout - myBet.amount)} 코인 @ ${myBet.cashout_at.toFixed(2)}x</div>
-            </div>
-          </div>`;
-      } else {
-        el.innerHTML = `
-          <div class="action-info">
-            <div>
-              <div class="label">결과: 캐시아웃 실패</div>
-              <div class="value" style="color: var(--red);">-${fmtCoin(myBet.amount)} 코인</div>
-            </div>
-          </div>`;
-      }
-    } else {
-      el.innerHTML = `
-        <div class="action-info">
-          <div>
-            <div class="label">라운드 종료</div>
-            <div class="value" style="color: var(--text-sub);">다음 라운드 곧 시작</div>
-          </div>
-        </div>`;
-    }
+    const cp = snap.crash_point ?? snap.multiplier ?? 1;
+    shownMult = cp;
+    el.innerHTML = cp.toFixed(2) + "<sup>×</sup>";
+    el.style.color = "";
+    el.style.textShadow = "";
+    $("alt").textContent = "고도 0m";
+    return;
+  }
+
+  if (snap.phase === "paused") {
+    el.innerHTML = "—";
+    el.style.color = "";
+    el.style.textShadow = "";
+    $("alt").textContent = `${HOURS_LABEL}에 열려요`;
+    return;
+  }
+
+  const target = snap.phase === "flight" ? (snap.multiplier || 1) : 1;
+  shownMult += (target - shownMult) * .28;
+  if (Math.abs(target - shownMult) < .002) shownMult = target;
+
+  el.innerHTML = shownMult.toFixed(2) + "<sup>×</sup>";
+
+  if (snap.phase === "flight") {
+    const heat = Math.min(1, (shownMult - 1) / 6);
+    el.style.color = `rgb(242,${Math.round(233 - heat * 27)},${Math.round(216 - heat * 110)})`;
+    el.style.textShadow = `0 0 ${20 + shownMult * 9}px rgba(243,206,106,${(.45 + heat * .4).toFixed(3)})`;
+    riserTune(shownMult);
+    const alt = Math.max(0, Math.round(1200 - progress() * 1200));
+    $("alt").textContent = `고도 ${alt.toLocaleString("ko-KR")}m`;
+  } else {
+    el.style.color = "";
+    el.style.textShadow = "";
+    $("alt").textContent = "대기 고도 1,200m";
   }
 }
 
-// ===== 참여자 리스트 =====
-function updateParticipants(snap) {
-  const el = document.getElementById("participants");
-  const countEl = document.getElementById("participant-count");
-  const bets = snap.bets || [];
-  countEl.textContent = bets.length > 0 ? `(${bets.length}명)` : "";
+/** 카운트다운 — 서버 값에서 로컬 경과를 빼서 표시만 매끄럽게 한다. */
+function paintCountdown(ts) {
+  if (!snap || $("cd").hidden) return;
+  const elapsed = (ts - leftStamp) / 1000;
+  const left = Math.max(0, shownLeft - elapsed);
+  const total = snap.phase === "betting" ? (snap.betting_secs || 15) : 5;
+
+  $("cdn").textContent = left.toFixed(1);
+  $("cdb").style.transform = `scaleX(${Math.max(0, Math.min(1, left / total))})`;
+
+  if (snap.phase === "betting" && left <= 5.2 && ts - lastTickSfx > 1000) {
+    lastTickSfx = ts;
+    sfx.tick();
+  }
+}
+
+function paintClock() {
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  $("clk").textContent = `${hh}:${mm} KST`;
+}
+
+/* ============================================================ 베팅 패널 */
+
+function myBet() {
+  if (!snap || !me) return null;
+  return (snap.bets || []).find((b) => b.discord_id === me.sub) || null;
+}
+
+function tiers() {
+  return (snap && snap.bet_tiers && snap.bet_tiers.length)
+    ? snap.bet_tiers
+    : [snap && snap.min_bet].filter(Boolean);
+}
+
+function currentBet() {
+  const list = tiers();
+  if (!list.length) return null;
+  return list.includes(pickedBet) ? pickedBet : list[0];
+}
+
+function paintChips() {
+  const box = $("chips");
+  const list = tiers();
+  if (!list.length) {
+    box.innerHTML = '<div class="skel"></div>';
+    return;
+  }
+
+  const picked = currentBet();
+  const locked = !!myBet() || (snap && snap.phase !== "betting");
+  // 잔액도 키에 넣는다 — 빠뜨리면 코인을 쓴 뒤에도 칩이 살아 있는 것처럼 보인다.
+  const sig = `${list.join(",")}|${picked}|${locked}|${balance}`;
+  if (box.dataset.sig === sig) return;   // 매 틱 다시 그리지 않는다
+  box.dataset.sig = sig;
+
+  box.innerHTML = list.map((v) => {
+    const poor = balance !== null && balance < v;
+    const on = v === picked ? " on" : "";
+    const dis = (locked || poor) ? " disabled" : "";
+    return `<button type="button" class="chip${on}"${dis} data-v="${v}">`
+      + `${fmtCoin(v)}<small>G</small></button>`;
+  }).join("");
+
+  box.querySelectorAll(".chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pickedBet = Number(btn.dataset.v);
+      sfx.tick();
+      paintBetPanel();
+    });
+  });
+}
+
+function paintBetPanel() {
+  if (!snap) return;
+  paintChips();
+
+  const go = $("go");
+  const sub = $("gosub");
+  const why = $("why");
+  const mine = myBet();
+  const amt = currentBet();
+
+  why.hidden = true;
+  go.classList.remove("cash");
+
+  // ── 영업 종료 ──
+  if (snap.phase === "paused") {
+    go.disabled = true;
+    go.firstChild.textContent = "지금은 닫혀 있어요";
+    sub.textContent = `${HOURS_LABEL}에 열려요`;
+    return;
+  }
+
+  // ── 비행 중: 내 베팅이 살아 있으면 회수 ──
+  if (snap.phase === "flight") {
+    if (mine && mine.status === "placed") {
+      const now = Math.round(mine.amount * (snap.multiplier || 1));
+      go.disabled = cashBusy;
+      go.classList.add("cash");
+      go.firstChild.textContent = `${fmtCoin(now)} G 회수`;
+      sub.textContent = "지금 낙하산 전개";
+      return;
+    }
+    if (mine && mine.status === "cashed") {
+      go.disabled = true;
+      go.firstChild.textContent = `${mine.cashout_at.toFixed(2)}× 착지`;
+      sub.textContent = `+${fmtCoin(mine.payout - mine.amount)} G 획득`;
+      return;
+    }
+    go.disabled = true;
+    go.firstChild.textContent = "다음 라운드 대기";
+    sub.textContent = "이번 판은 못 타요";
+    return;
+  }
+
+  // ── 터짐 ──
+  if (snap.phase === "crashed") {
+    go.disabled = true;
+    if (mine && mine.status === "cashed") {
+      go.firstChild.textContent = `${mine.cashout_at.toFixed(2)}× 착지`;
+      sub.textContent = `+${fmtCoin(mine.payout - mine.amount)} G 획득`;
+    } else if (mine) {
+      go.firstChild.textContent = "낙사";
+      sub.textContent = `-${fmtCoin(mine.amount)} G`;
+    } else {
+      go.firstChild.textContent = "다음 라운드 대기";
+      sub.textContent = "곧 새 판이 열려요";
+    }
+    return;
+  }
+
+  // ── 베팅 접수 중 ──
+  if (mine) {
+    go.disabled = true;
+    go.firstChild.textContent = "탑승 완료";
+    sub.textContent = `${fmtCoin(mine.amount)} G · 이탈 대기 중`;
+    return;
+  }
+
+  if (!amt) {
+    go.disabled = true;
+    go.firstChild.textContent = "연결 중";
+    sub.textContent = "라운드 정보를 받는 중이에요";
+    return;
+  }
+
+  // 왜 못 거는지 명시한다 — 버튼만 죽여두지 않는다(§4-1, §5).
+  if (balance !== null && balance < amt) {
+    const need = amt - balance;
+    const cheapest = Math.min(...tiers());
+    go.disabled = true;
+    go.firstChild.textContent = `${fmtCoin(amt)}코인 걸기`;
+    sub.textContent = "코인이 모자라요";
+    why.hidden = false;
+    why.textContent = balance < cheapest
+      ? `코인이 ${fmtCoin(cheapest - balance)} G 부족해요. 배그 인증으로 적립할 수 있어요.`
+      : `코인이 ${fmtCoin(need)} G 부족해요. ${fmtCoin(cheapest)} G부터 탑승할 수 있어요.`;
+    return;
+  }
+
+  go.disabled = betBusy;
+  go.firstChild.textContent = `${fmtCoin(amt)}코인 걸기`;
+  sub.textContent = "터지기 전에 회수하면 배수만큼 받아요";
+}
+
+/* ============================================================ 피드 */
+
+function paintFeed() {
+  const box = $("feed");
+  const cnt = $("cnt");
+  const bets = (snap && snap.bets) || [];
+
+  cnt.textContent = bets.length ? `${bets.length}명 탑승` : "0명 탑승";
 
   if (!bets.length) {
-    el.innerHTML = `<div class="empty" style="text-align:center; padding:16px; color:var(--text-dim);">${snap.phase === "betting" ? "베팅 받는 중" : "참여자 없음"}</div>`;
+    box.innerHTML = '<div class="none"><b>아직 아무도 안 걸었어요.</b>'
+      + `${fmtCoin((tiers()[0]) || 100)} G부터 탑승할 수 있어요.</div>`;
     return;
   }
 
-  // 캐시아웃 한 사람 위로
-  const sorted = bets.slice().sort((a, b) => {
-    const order = { cashed: 0, placed: 1, lost: 2, refunded: 3 };
-    return (order[a.status] || 9) - (order[b.status] || 9);
-  });
+  const order = { cashed: 0, placed: 1, lost: 2, refunded: 3 };
+  const rows = bets.slice().sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
 
-  el.innerHTML = sorted.map(b => {
-    const isMe = b.discord_id === me.sub;
-    const icon = ({
-      cashed: "✅",
-      placed: "🎯",
-      lost: "💥",
-      refunded: "↩️",
-    })[b.status] || "•";
-    let amtHTML, subHTML;
+  box.innerHTML = rows.map((b) => {
+    const isMe = me && b.discord_id === me.sub;
+    let cls = "";
+    let right;
     if (b.status === "cashed") {
-      const profit = b.payout - b.amount;
-      amtHTML = `<div class="amount cashed">+${fmtCoin(profit)}</div>`;
-      subHTML = `<div class="sub">@ ${b.cashout_at.toFixed(2)}x</div>`;
+      cls = " ok";
+      right = `<span class="r">${b.cashout_at.toFixed(2)}×</span>`;
     } else if (b.status === "lost") {
-      amtHTML = `<div class="amount lost">${fmtCoin(b.amount)}</div>`;
-      subHTML = `<div class="sub">패</div>`;
-    } else if (b.status === "placed") {
-      amtHTML = `<div class="amount placed">${fmtCoin(b.amount)}</div>`;
-      subHTML = `<div class="sub">${snap.phase === "flight" ? "비행 중" : "대기"}</div>`;
+      cls = " no";
+      right = '<span class="r">낙사</span>';
+    } else if (b.status === "refunded") {
+      cls = " no";
+      right = '<span class="r">환불</span>';
     } else {
-      amtHTML = `<div class="amount">${fmtCoin(b.amount)}</div>`;
-      subHTML = `<div class="sub">${b.status}</div>`;
+      right = `<span class="a">${snap.phase === "flight" ? "강하 중" : "대기"}</span>`;
     }
-    return `
-      <div class="participant-row ${isMe ? 'me' : ''}">
-        <div class="icon">${icon}</div>
-        <div class="name ${isMe ? 'me' : ''}">${b.name || '?'}${isMe ? ' (나)' : ''}</div>
-        ${amtHTML}
-        ${subHTML}
-      </div>`;
+    return `<div class="ln${cls}"><span class="d"></span>`
+      + `<span class="w">${esc(b.name || "?")}${isMe ? " (나)" : ""}</span>`
+      + `<span class="a">${fmtCoin(b.amount)} G</span>${right}</div>`;
   }).join("");
 }
 
-// ===== 히스토리 =====
-function updateHistory(history) {
-  const el = document.getElementById("history-strip");
-  if (!history || !history.length) {
-    el.innerHTML = `<div style="color: var(--text-dim); font-size: 13px; padding: 8px;">아직 라운드 없음</div>`;
+/* ============================================================ 히스토리 */
+
+function paintHistory() {
+  const box = $("hist");
+  const hist = (snap && snap.history) || [];
+  if (!hist.length) {
+    box.innerHTML = '<div class="none">아직 기록이 없어요. 첫 라운드를 기다리는 중이에요.</div>';
     return;
   }
-  el.innerHTML = history.slice().reverse().map(h => {
-    let cls = "history-chip ";
-    if (h.crash_point < 2.0) cls += "crash-red";
-    else if (h.crash_point < 10.0) cls += "crash-gold";
-    else cls += "crash-green";
-    return `<div class="${cls}">${h.crash_point.toFixed(2)}x</div>`;
+  box.innerHTML = hist.slice(-10).reverse().map((h) => {
+    const v = h.crash_point;
+    const cls = v >= 5 ? " g" : (v >= 2 ? " m" : "");
+    return `<span class="h${cls}">${v.toFixed(2)}×</span>`;
   }).join("");
 }
 
-// ===== 베팅 / 캐시아웃 =====
+/* ============================================================ 내 베팅 이력 */
+
+async function loadMyBets() {
+  const box = $("my-bets");
+  let rows;
+  try {
+    rows = await api("/api/crash/my-bets?limit=15");
+  } catch (e) {
+    box.innerHTML = '<div class="none">이력을 불러오지 못했어요. 잠시 뒤 새로고침해 주세요.</div>';
+    return;
+  }
+
+  if (!rows.length) {
+    box.innerHTML = '<div class="none"><b>아직 베팅한 판이 없어요.</b>'
+      + '위에서 한 판 타보면 여기 쌓여요.</div>';
+    return;
+  }
+
+  box.innerHTML = rows.map((r) => {
+    let res = '<span class="res back">—</span>';
+    let delta = '<span class="delta flat">0</span>';
+    if (r.status === "cashed") {
+      res = `<span class="res win">${r.cashout_at.toFixed(2)}× 착지</span>`;
+      delta = `<span class="delta win">+${fmtCoin(r.payout - r.amount)}</span>`;
+    } else if (r.status === "lost") {
+      const cp = r.crash_point ? `${r.crash_point.toFixed(2)}×` : "";
+      res = `<span class="res lose">낙사 ${cp}</span>`;
+      delta = `<span class="delta lose">-${fmtCoin(r.amount)}</span>`;
+    } else if (r.status === "refunded") {
+      res = '<span class="res back">환불</span>';
+    }
+    return `<div class="row"><span class="rid">#${r.round_id}</span>`
+      + `${res}<span class="stake">${fmtCoin(r.amount)} G</span>${delta}</div>`;
+  }).join("");
+}
+
+/* ============================================================ 액션 */
+
+function onAction() {
+  if (!snap) return;
+  if (snap.phase === "flight") doCashout();
+  else if (snap.phase === "betting") doBet();
+}
 
 async function doBet() {
-  if (betBusy) return;
-  const input = document.getElementById("bet-amount");
-  const amt = parseInt(input.value);
-  if (!amt || amt <= 0) {
-    showToast("베팅액을 입력하세요", "error");
-    return;
-  }
+  if (betBusy || myBet()) return;
+  const amt = currentBet();
+  if (!amt) return;
+
   betBusy = true;
-  const btn = document.getElementById("bet-btn");
-  if (btn) btn.disabled = true;
+  paintBetPanel();
   try {
-    const res = await api("/api/crash/bet", {
-      method: "POST",
-      body: { amount: amt }
-    });
-    showToast(`✅ ${amt} 코인 베팅 완료`, "success");
+    await api("/api/crash/bet", { method: "POST", body: { amount: amt } });
+    sfx.chip();
+    if (balance !== null) balance -= amt;
+    paintPurse();
+    toast(`${fmtCoin(amt)} G 탑승 완료`, "success");
   } catch (e) {
-    showToast(e.message || "베팅 실패", "error");
+    toast(e.message || "베팅하지 못했어요", "error");
+    loadBalance();
   } finally {
     betBusy = false;
-    if (btn) btn.disabled = false;
+    paintBetPanel();
   }
-}
-
-function setBet(v) {
-  const input = document.getElementById("bet-amount");
-  if (input) input.value = v;
 }
 
 async function doCashout() {
-  if (cashoutBusy) return;
-  cashoutBusy = true;
-  const btn = document.getElementById("cashout-btn");
-  if (btn) btn.disabled = true;
+  if (cashBusy) return;
+  const mine = myBet();
+  if (!mine || mine.status !== "placed") return;
+
+  cashBusy = true;
+  paintBetPanel();
   try {
     const res = await api("/api/crash/cashout", { method: "POST" });
-    showToast(
-      `✋ ${res.multiplier.toFixed(2)}x 캐시아웃 (+${res.profit})`,
-      "success"
-    );
+    const profit = Number(res.profit) || 0;
+    sfx.coin();
+    rain(46);
+    const pop = $("pop");
+    pop.querySelector("b").textContent = "+" + fmtCoin(profit);
+    pop.classList.remove("go");
+    void pop.offsetWidth;                 // 애니메이션 재시작
+    pop.classList.add("go");
+    toast(`${res.multiplier.toFixed(2)}× 착지 · +${fmtCoin(profit)} G`, "success");
+    loadBalance();
   } catch (e) {
-    showToast(e.message || "캐시아웃 실패", "error");
+    toast(e.message || "회수하지 못했어요", "error");
   } finally {
-    cashoutBusy = false;
-    if (btn) btn.disabled = false;
+    cashBusy = false;
+    paintBetPanel();
   }
 }
 
-// ===== 내 베팅 이력 =====
-async function loadMyBets() {
+/* ============================================================ 검증 모달 */
+
+function openVerify(open) {
+  $("verify-modal").classList.toggle("hidden", !open);
+  if (open) $("verify-rid").focus();
+}
+
+async function runVerify() {
+  const rid = parseInt($("verify-rid").value, 10);
+  const out = $("verify-result");
+  if (!rid) {
+    out.textContent = "라운드 ID를 넣어주세요.";
+    return;
+  }
+  out.textContent = "확인하는 중…";
   try {
-    const rows = await api("/api/crash/my-bets?limit=15");
-    const tbody = document.querySelector("#my-bets-table tbody");
-    if (!rows.length) {
-      tbody.innerHTML = `<tr><td colspan="4" class="empty">아직 베팅 없음</td></tr>`;
+    const data = await api(`/api/crash/round/${rid}/verify`);
+    if (data.phase && data.phase !== "crashed") {
+      out.textContent = "아직 안 끝난 라운드예요. 끝나면 검증할 수 있어요.";
       return;
     }
-    tbody.innerHTML = rows.map(r => {
-      let resultText, deltaHTML;
-      if (r.status === "cashed") {
-        const profit = r.payout - r.amount;
-        resultText = `<span style="color:var(--green)">✅ ${r.cashout_at.toFixed(2)}x</span>`;
-        deltaHTML = `<span class="pos">+${fmtCoin(profit)}</span>`;
-      } else if (r.status === "lost") {
-        resultText = `<span style="color:var(--red)">💥 ${r.crash_point ? r.crash_point.toFixed(2) + "x" : ""}</span>`;
-        deltaHTML = `<span class="neg">-${fmtCoin(r.amount)}</span>`;
-      } else if (r.status === "refunded") {
-        resultText = `<span style="color:var(--text-sub)">↩️ 환불</span>`;
-        deltaHTML = `<span style="color:var(--text-sub)">0</span>`;
-      } else {
-        resultText = r.status;
-        deltaHTML = "—";
-      }
-      return `
-        <tr>
-          <td>${r.round_id}</td>
-          <td class="amount">${fmtCoin(r.amount)}</td>
-          <td>${resultText}</td>
-          <td class="amount">${deltaHTML}</td>
-        </tr>
-      `;
-    }).join("");
+    out.textContent = JSON.stringify(data, null, 2);
   } catch (e) {
-    console.warn("my-bets load:", e);
+    out.textContent = e.message || "검증하지 못했어요.";
   }
 }
 
-// ===== 토스트 알림 =====
+/* ============================================================ 캔버스 */
+
+function fitCanvas() {
+  if (!cv) return;
+  const r = cv.getBoundingClientRect();
+  const d = window.devicePixelRatio || 1;
+  cv.width = Math.max(1, Math.round(r.width * d));
+  cv.height = Math.max(1, Math.round(r.height * d));
+  ctx.setTransform(d, 0, 0, d, 0, 0);
+  W = r.width;
+  H = r.height;
+
+  city = [];
+  for (let i = 0; i < 190; i++) {
+    city.push({
+      x: Math.random(), y: Math.random(), s: Math.random(),
+      h: .4 + Math.random() * .6, t: Math.random() * 6.28,
+    });
+  }
+  stars = [];
+  for (let i = 0; i < 70; i++) {
+    stars.push({ x: Math.random(), y: Math.random() * .6, a: Math.random() });
+  }
+}
+
+/** 하강 진행도 0~1. 배수가 오를수록 도시가 가까워진다. */
+function progress() {
+  return Math.min(1, Math.max(0, (shownMult - 1) / 9));
+}
+
+function rain(n) {
+  for (let i = 0; i < n && particles.length < MAX_PARTICLES; i++) {
+    particles.push({
+      x: Math.random() * W, y: -20 - Math.random() * 180,
+      v: 1.4 + Math.random() * 3, s: 5 + Math.random() * 8,
+      r: Math.random() * 6, vr: (Math.random() - .5) * .16,
+    });
+  }
+}
+
+function draw(ts) {
+  if (!ctx || !W) return;
+  ctx.clearRect(0, 0, W, H);
+
+  const p = progress();
+  const horizon = H * (.58 + p * .3);
+  const phase = snap ? snap.phase : "paused";
+
+  // 별
+  stars.forEach((s) => {
+    const a = s.a * (1 - p * .8) * (.4 + .6 * Math.abs(Math.sin(ts / 900 + s.a * 9)));
+    ctx.fillStyle = `rgba(242,233,216,${a * .5})`;
+    ctx.fillRect(s.x * W, s.y * horizon, 1.2, 1.2);
+  });
+
+  // 도시 글로우
+  const g = ctx.createLinearGradient(0, horizon - H * .22, 0, H);
+  g.addColorStop(0, "rgba(201,162,39,0)");
+  g.addColorStop(.55, `rgba(201,162,39,${.06 + p * .14})`);
+  g.addColorStop(1, `rgba(255,158,61,${.10 + p * .22})`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, horizon - H * .22, W, H - horizon + H * .22);
+
+  // 도시 불빛
+  city.forEach((c) => {
+    const y = horizon + (H - horizon) * c.y * c.y;
+    const sz = (.7 + c.s * 2.2) * (.5 + p * 1.4);
+    const tw = .55 + .45 * Math.sin(ts / 620 + c.t);
+    ctx.fillStyle = c.h > .72
+      ? `rgba(255,235,190,${(.3 + p * .5) * tw})`
+      : `rgba(243,206,106,${(.22 + p * .45) * tw})`;
+    ctx.fillRect(c.x * W, y, sz, sz * 1.5);
+  });
+
+  // 지평선
+  ctx.strokeStyle = `rgba(201,162,39,${.12 + p * .2})`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, horizon);
+  ctx.lineTo(W, horizon);
+  ctx.stroke();
+
+  // 고도 눈금
+  ctx.font = '600 8.5px "Pretendard Variable", Pretendard, system-ui, sans-serif';
+  ctx.textAlign = "right";
+  for (let i = 0; i <= 4; i++) {
+    const y = H * .18 + (horizon - H * .22) * i / 4;
+    ctx.fillStyle = "rgba(139,154,146,.4)";
+    ctx.fillText(`${1200 - i * 300}m`, W - 16, y + 3);
+    ctx.fillStyle = "rgba(139,154,146,.18)";
+    ctx.fillRect(W - 13, y, 7, 1);
+  }
+
+  if (phase === "flight" || phase === "crashed") {
+    // 강하 궤적 + 인영
+    const mine = myBet();
+    const out = !!(mine && mine.status === "cashed");
+    const dy = H * .16 + (horizon - H * .2) * p;
+    const dx = W * .5;
+    ctx.strokeStyle = "rgba(243,206,106,.22)";
+    ctx.setLineDash([3, 5]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(dx, H * .16);
+    ctx.lineTo(dx, dy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.save();
+    ctx.translate(dx, dy);
+    ctx.fillStyle = out ? "#F3CE6A" : "#F2E9D8";
+    if (out) {
+      ctx.beginPath();
+      ctx.arc(0, -13, 13, Math.PI, 0);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(243,206,106,.6)";
+      ctx.beginPath();
+      ctx.moveTo(-11, -12); ctx.lineTo(0, 0);
+      ctx.moveTo(11, -12); ctx.lineTo(0, 0);
+      ctx.stroke();
+    }
+    ctx.fillRect(-2, -2, 4, 8);
+    ctx.restore();
+  } else {
+    // 수송기 — 탑승 접수 중
+    const fx = (ts / 26) % (W + 120) - 60;
+    ctx.strokeStyle = "rgba(242,233,216,.16)";
+    ctx.setLineDash([2, 6]);
+    ctx.beginPath();
+    ctx.moveTo(fx - 70, H * .15);
+    ctx.lineTo(fx + 260, H * .15);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(242,233,216,.85)";
+    ctx.save();
+    ctx.translate(fx, H * .15);
+    ctx.beginPath();
+    ctx.moveTo(-13, 0); ctx.lineTo(9, -3); ctx.lineTo(15, 0); ctx.lineTo(9, 3);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(-2, 0); ctx.lineTo(-9, -9); ctx.lineTo(-4, -9);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  // 지폐비 — 화면 밖은 즉시 버린다(§6)
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const m = particles[i];
+    m.y += m.v;
+    m.r += m.vr;
+    m.x += Math.sin(m.y / 38) * .7;
+    if (m.y > H + 30) { particles.splice(i, 1); continue; }
+    ctx.save();
+    ctx.translate(m.x, m.y);
+    ctx.rotate(m.r);
+    const w = m.s * 2.1;
+    const h = m.s;
+    const grd = ctx.createLinearGradient(-w, 0, w, 0);
+    grd.addColorStop(0, "#8A6C12");
+    grd.addColorStop(.45, "#F7DE94");
+    grd.addColorStop(1, "#C9A227");
+    ctx.fillStyle = grd;
+    ctx.globalAlpha = Math.abs(Math.cos(m.r)) * .6 + .4;
+    ctx.fillRect(-w / 2, -h / 2, w, h);
+    ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/** 단일 rAF 루프(§6). 탭이 숨으면 멈추고, 돌아오면 다시 붙는다. */
+function loop(ts) {
+  if (document.hidden) return;
+  paintMult();
+  paintCountdown(ts);
+  draw(ts);
+  requestAnimationFrame(loop);
+}
+
+/* ============================================================ 유틸 */
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+  ));
+}
+
 let toastTimer = null;
-function showToast(msg, type = "") {
+function toast(msg, type) {
   let el = document.querySelector(".toast");
   if (!el) {
     el = document.createElement("div");
@@ -563,42 +798,7 @@ function showToast(msg, type = "") {
     document.body.appendChild(el);
   }
   el.textContent = msg;
-  el.className = "toast show " + type;
+  el.className = `toast show ${type || ""}`;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    el.classList.remove("show");
-  }, 2400);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2400);
 }
-
-// ===== Provably-Fair 모달 =====
-document.getElementById("verify-link").addEventListener("click", (e) => {
-  e.preventDefault();
-  document.getElementById("verify-modal").classList.remove("hidden");
-});
-
-function closeVerify() {
-  document.getElementById("verify-modal").classList.add("hidden");
-}
-
-async function doVerify() {
-  const rid = parseInt(document.getElementById("verify-rid").value);
-  if (!rid) return;
-  const result = document.getElementById("verify-result");
-  result.textContent = "검증 중...";
-  try {
-    const data = await api(`/api/crash/round/${rid}/verify`);
-    if (data.phase && data.phase !== "crashed") {
-      result.textContent = "⚠️ 라운드 종료 후에 검증 가능";
-      return;
-    }
-    result.textContent = JSON.stringify(data, null, 2);
-  } catch (e) {
-    result.textContent = "❌ " + e.message;
-  }
-}
-
-window.doBet = doBet;
-window.doCashout = doCashout;
-window.setBet = setBet;
-window.closeVerify = closeVerify;
-window.doVerify = doVerify;

@@ -3,112 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#08080c">
+  <meta name="theme-color" content="#05130F">
   <meta name="gmi-api-base" content="https://worker-production-06b8.up.railway.app">
-  <title>GmI 크래시</title>
+  <title>GmI · 나이트 드롭</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/favicon.png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="style.css?v=2">
-  <link rel="stylesheet" href="crash.css?v=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="tokens.css?v=1">
+  <link rel="stylesheet" href="components.css?v=1">
+  <link rel="stylesheet" href="crash.css?v=2">
 </head>
 <body>
 
-<main class="container">
-
-  <!-- 라운드 헤더 -->
-  <div class="crash-head">
+<header class="bar">
+  <a class="mark" href="casino.html">
+    <i aria-hidden="true">G</i>
     <div>
-      <div class="round-no" id="round-no">라운드 #—</div>
-      <div class="phase-tag" id="phase-tag">대기</div>
+      <small>GMI NIGHT OPERATION</small>
+      <b>나이트 드롭 · 크래시</b>
     </div>
-    <div style="text-align:right;">
-      <div class="meta-label" id="phase-label">로딩 중</div>
-      <div class="meta-time" id="phase-time">—</div>
+  </a>
+  <button type="button" class="sound off" id="snd" aria-pressed="false" aria-label="소리 켜기">♪</button>
+  <div class="purse">
+    <small>보유 코인</small>
+    <b id="bal">—<em>G</em></b>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ── 무대 ── -->
+  <div class="stage" id="stage">
+    <canvas id="cv" aria-hidden="true"></canvas>
+    <div class="hud">
+      <div class="slug" id="slug">ROUND — · STANDBY</div>
+      <div class="clock" id="clk">—</div>
+
+      <div class="center">
+        <div class="mult" id="mult">1.00<sup>×</sup></div>
+        <div class="sub" id="sub" aria-live="polite">연결 중</div>
+        <div class="alt" id="alt">고도 1,200m</div>
+      </div>
+
+      <div class="cd" id="cd" hidden>
+        <b id="cdn">—</b>
+        <span class="trk"><i id="cdb"></i></span>
+        <span id="cdlabel">초 후 이탈</span>
+      </div>
+
+      <div class="pop" id="pop"><b></b><span>낙하산 전개</span></div>
     </div>
   </div>
 
-  <!-- 차트 -->
-  <div class="chart-box">
-    <canvas id="chart" width="800" height="480"></canvas>
-    <div class="chart-overlay" id="chart-overlay">
-      <div class="big-mult" id="big-mult">1.00x</div>
-      <div class="big-mult-label" id="big-mult-label">베팅 진행 중</div>
-    </div>
-  </div>
+  <!-- ── 그리드 ── -->
+  <div class="grid">
+    <div>
+      <div class="card">
+        <h3>강하 금액 <em>고정 베팅</em></h3>
+        <div class="chips" id="chips">
+          <div class="skel"></div>
+        </div>
+        <button type="button" class="go" id="go" disabled>연결 중<small id="gosub">라운드 정보를 받는 중이에요</small></button>
+        <p class="why" id="why" hidden></p>
+      </div>
 
-  <!-- 메인 액션 (베팅 / 캐시아웃) -->
-  <div class="action-area" id="action-area">
-    <!-- JS에서 동적 렌더링 -->
-  </div>
-
-  <!-- 라운드 참여자 -->
-  <section class="section">
-    <div class="section-title">📊 라운드 참여자 <span id="participant-count" style="color:var(--text-dim); font-weight:400; font-size:12px;"></span></div>
-    <div class="card" style="padding:12px 16px;">
-      <div id="participants" class="participants">
-        <div class="empty" style="text-align:center; padding:16px; color:var(--text-dim);">베팅 받는 중</div>
+      <div class="card">
+        <h3>최근 착지 <em>10판</em></h3>
+        <div class="hist" id="hist">
+          <div class="skel w60"></div>
+        </div>
       </div>
     </div>
-  </section>
 
-  <!-- 최근 라운드 히스토리 -->
-  <section class="section">
-    <div class="section-title">최근 라운드</div>
-    <div class="history-strip" id="history-strip">
-      <div style="color: var(--text-dim); font-size: 13px; padding: 8px;">로딩 중</div>
+    <div>
+      <div class="card">
+        <h3>강하 인원 <em id="cnt">—</em></h3>
+        <div class="feed" id="feed">
+          <div class="skel"></div>
+          <div class="skel w60"></div>
+        </div>
+      </div>
+
+      <div class="card rules">
+        <h3>작전 규칙 <em>클랜 전용</em></h3>
+        <dl>
+          <dt>이탈</dt><dd id="rule-bet">베팅 시간 동안 정해진 금액 중 하나를 걸어요.</dd>
+          <dt>강하</dt><dd>배수는 1.00×부터 오르고, 터지는 지점은 매번 달라요.</dd>
+          <dt>전개</dt><dd>터지기 전에 낙하산을 펴면 베팅액 × 현재 배수를 받아요.</dd>
+          <dt>보급</dt><dd>치킨 기프티콘 10,000 G. 코인은 배그 인증으로 적립해요.</dd>
+        </dl>
+      </div>
     </div>
-  </section>
+  </div>
 
-  <!-- 내 베팅 이력 -->
-  <section class="section">
-    <div class="section-title-row">
-      <div class="section-title">내 베팅 이력</div>
-      <a href="#" id="verify-link" style="font-size:12px;">🔐 Provably-Fair 검증</a>
+  <!-- ── 내 베팅 이력 ── -->
+  <div class="card mybets">
+    <h3>
+      내 베팅 이력
+      <em><button type="button" class="linkish" id="verify-link">🔐 Provably-Fair 검증</button></em>
+    </h3>
+    <div class="bets" id="my-bets">
+      <div class="skel"></div>
+      <div class="skel w60"></div>
     </div>
-    <div class="card">
-      <table class="table" id="my-bets-table">
-        <thead>
-          <tr>
-            <th>R#</th>
-            <th class="amount">베팅</th>
-            <th>결과</th>
-            <th class="amount">변동</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td colspan="4" class="empty">로딩 중</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+  </div>
 
-</main>
+</div>
 
-<!-- Provably-Fair 검증 모달 -->
-<div id="verify-modal" class="modal hidden">
-  <div class="modal-bg" onclick="closeVerify()"></div>
+<!-- ── Provably-Fair 검증 모달 ── -->
+<div id="verify-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="verify-title">
+  <button type="button" class="modal-bg" id="verify-bg" aria-label="닫기"></button>
   <div class="modal-box">
     <div class="modal-head">
-      <span>🔐 Provably-Fair 검증</span>
-      <button onclick="closeVerify()" class="modal-close">✕</button>
+      <span id="verify-title">PROVABLY-FAIR 검증</span>
+      <button type="button" class="modal-close" id="verify-close" aria-label="닫기">✕</button>
     </div>
-    <div class="modal-body" id="verify-body">
-      <p style="font-size:13px; color:var(--text-sub);">
-        라운드 ID를 입력하면 폭발 시점이 조작 없이 산출됐는지 직접 확인할 수 있습니다.
+    <div class="modal-body">
+      <p class="t-cap" style="margin:0 0 12px;">
+        라운드 ID를 넣으면 터진 지점이 조작 없이 산출됐는지 직접 확인할 수 있어요.
       </p>
-      <div style="display:flex; gap:8px; align-items:center; margin: 12px 0;">
-        <input type="number" id="verify-rid" placeholder="라운드 ID"
-               style="flex:1; background:var(--panel-2); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:8px; font-size:15px;">
-        <button onclick="doVerify()" class="btn btn-outline" style="padding:8px 14px;">검증</button>
+      <div class="verify-row">
+        <input type="number" id="verify-rid" class="field" inputmode="numeric" placeholder="라운드 ID">
+        <button type="button" class="btn-line" id="verify-run">검증</button>
       </div>
-      <div id="verify-result" style="font-family: monospace; font-size: 12px; color: var(--text-sub); white-space: pre-wrap;"></div>
+      <pre id="verify-result" class="verify-out"></pre>
     </div>
   </div>
 </div>
 
 <script src="app.js?v=5"></script>
-<script src="crash.js?v=1"></script>
+<script src="sound.js?v=1"></script>
+<script src="crash.js?v=2"></script>
 
 </body>
 </html>
