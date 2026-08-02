@@ -1,5 +1,10 @@
 # GmI 클랜컵 작업 규칙
 - 브랜드: 다크+골드(#f5c518), index 스타일 통일.
+- **브랜드는 두 갈래다 (2026-08 확정).** 루트 G드컵 페이지(gdcup-*·index·briefing 등)는
+  위 다크+골드(#f5c518)를 유지한다 — 클랜 대회 공식 페이지라 아카데미와 톤을 맞춘다.
+  `app/`(카지노 PWA)만 "NIGHT OPERATION" 신규 브랜드(펠트그린 #05130F·황동 #C9A227·
+  골드 #F3CE6A)를 쓴다. 카지노는 별도 세계관이다. 토큰 정본은 `app/tokens.css` 하나뿐이고
+  **두 갈래를 서로 섞지 말 것.**
 - **디자인 계약: mri-academy의 DESIGN.md v2·PRODUCT.md 준수** (2026-07 리디자인 확정).
   AI 티 5대 패턴 금지, 페이지 작업 후 impeccable detect 무출력까지 수정
   (`node <mri-academy>/.claude/skills/impeccable/scripts/detect.mjs <파일>` — v4, 인라인 예외 지원).

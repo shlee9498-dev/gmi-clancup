@@ -16,8 +16,9 @@
   top: 0;
   z-index: 60;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
+  gap: 10px 14px;
   padding: 13px 18px;
   background: rgba(5, 19, 15, .82);
   backdrop-filter: blur(16px);
@@ -62,6 +63,45 @@
   font-size: 14.5px;
   font-weight: 800;
   letter-spacing: .02em;
+}
+
+/* 페이지 이동 링크.
+   좁은 화면에서는 바 아래쪽에 한 줄로 흘려서 가로 스크롤한다 —
+   숨기면 이동 경로가 사라진다. 넓어지면 마크 옆 한 줄로 합류한다. */
+.links {
+  order: 3;
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.links::-webkit-scrollbar { display: none; }
+
+.links a {
+  color: var(--smoke);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color .2s ease;
+}
+
+.links a:hover { color: var(--ivory); }
+
+.links a.active { color: var(--gold); }
+
+@media (min-width: 780px) {
+  .links {
+    order: 0;
+    flex-basis: auto;
+    margin-left: 4px;
+    overflow-x: visible;
+  }
 }
 
 /* 사운드 토글 — 기본 OFF(§3). */
