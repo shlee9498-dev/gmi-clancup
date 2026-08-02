@@ -4,7 +4,7 @@
    - API는 항상 네트워크 (실시간 데이터)
    ============================================ */
 
-const CACHE_VERSION = "gmi-v4";
+const CACHE_VERSION = "gmi-v5";
 const STATIC_ASSETS = [
   "index.html",
   "casino.html",
@@ -14,12 +14,14 @@ const STATIC_ASSETS = [
   "htable.html",
   "crash.html",
   "login.html",
+  "shop.html",
   "style.css?v=2",
   "holdem.css?v=1",
   "htable.css?v=1",
   "crash.css?v=1",
   "casino.css?v=1",
-  "app.js?v=4",
+  "shop.css?v=1",
+  "app.js?v=5",
   "holdem.js?v=1",
   "htable.js?v=1",
   "crash.js?v=1",
