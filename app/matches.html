@@ -20,15 +20,15 @@
 
   <div class="card" style="margin-bottom: 20px;">
     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
-      <button class="btn btn-outline game-btn active" data-game="all" style="padding:6px 14px; font-size:13px;">전체</button>
-      <button class="btn btn-outline game-btn" data-game="duel" style="padding:6px 14px; font-size:13px;">🎯 1:1 인디언 포커</button>
-      <button class="btn btn-outline game-btn" data-game="holdem" style="padding:6px 14px; font-size:13px;">🎴 헤즈업 홀덤</button>
+      <button class="btn btn-outline game-btn active" data-game="all" style="padding:6px 14px; font-size:14px;">전체</button>
+      <button class="btn btn-outline game-btn" data-game="duel" style="padding:6px 14px; font-size:14px;">🎯 1:1 인디언 포커</button>
+      <button class="btn btn-outline game-btn" data-game="holdem" style="padding:6px 14px; font-size:14px;">🎴 헤즈업 홀덤</button>
     </div>
     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-      <button class="btn btn-outline filter-btn active" data-status="" style="padding:6px 14px; font-size:13px;">모든 상태</button>
-      <button class="btn btn-outline filter-btn" data-status="in_progress" style="padding:6px 14px; font-size:13px;">진행 중</button>
-      <button class="btn btn-outline filter-btn" data-status="ended" style="padding:6px 14px; font-size:13px;">종료</button>
-      <button class="btn btn-outline filter-btn" data-status="pending" style="padding:6px 14px; font-size:13px;">대기</button>
+      <button class="btn btn-outline filter-btn active" data-status="" style="padding:6px 14px; font-size:14px;">모든 상태</button>
+      <button class="btn btn-outline filter-btn" data-status="in_progress" style="padding:6px 14px; font-size:14px;">진행 중</button>
+      <button class="btn btn-outline filter-btn" data-status="ended" style="padding:6px 14px; font-size:14px;">종료</button>
+      <button class="btn btn-outline filter-btn" data-status="pending" style="padding:6px 14px; font-size:14px;">대기</button>
     </div>
   </div>
 
@@ -55,6 +55,14 @@
 
 <script src="app.js?v=4"></script>
 <script>
+// ⚠️ 이 두 선언은 requireAuth() 블록보다 **위**에 있어야 한다.
+// loadMatches()가 두 값을 읽는데, let은 호이스팅돼도 초기화 전 접근이
+// 금지된다(TDZ). 아래 블록에서 먼저 호출하면
+// "Cannot access 'currentGame' before initialization"으로 히스토리가
+// 통째로 로드되지 않는다.
+let currentFilter = "";
+let currentGame = "all";
+
 const me = requireAuth();
 if (me) {
   renderNav("matches");
@@ -62,9 +70,6 @@ if (me) {
   loadMatches();
   loadDuelWins();
 }
-
-let currentFilter = "";
-let currentGame = "all";
 
 document.querySelectorAll(".filter-btn").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -128,7 +133,7 @@ function matchCardHTML(m) {
   const cName = m.challenger_name || "도전자";
   const oName = m.opponent_name || "상대";
   const winInfo = m.winner_id
-    ? `<span style="color:var(--gold); font-size:12px">+${m.payout}</span>`
+    ? `<span style="color:var(--gold); font-size:11px">+${m.payout}</span>`
     : "";
   return `
     <a href="duel.html?id=${m.id}" class="match-card">
