@@ -273,7 +273,10 @@ function downloadObsCsv(){
   ]).then(function(res){
     var teams=((res[0]&&res[0].teams)||[]).filter(function(t){return t.status==='confirmed';});
     if(!teams.length){alert('확정된 팀이 없습니다.');return;}
-    var B={}; ((res[1]&&res[1].brands)||[]).forEach(function(b){B[b.team_name]=b;});
+    // 팀명 중복 시 먼저 온 행(=updated_at 최신)이 이긴다. results·overlay·kill-mvp와 같은 규칙.
+    var B={}; ((res[1]&&res[1].brands)||[]).forEach(function(b){
+      if(!Object.prototype.hasOwnProperty.call(B,b.team_name)) B[b.team_name]=b;
+    });
     var rows=teams.map(function(t,i){
       var b=B[t.name||t.team_name]||{};
       var nm=t.team_name||t.name||'';
