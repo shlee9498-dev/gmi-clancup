@@ -184,7 +184,10 @@
   function loadBrands(){
     if(qp('demo')==='1') return;
     fetch(GAPI+'/api/gdcup-team-brands').then(function(r){return r.json();}).then(function(d){
-      ((d&&d.brands)||[]).forEach(function(b){ BRANDS[b.team_name]=b; });
+      // 팀명 중복 시 먼저 온 행(=updated_at 최신)이 이긴다. results.html과 같은 규칙.
+      ((d&&d.brands)||[]).forEach(function(b){
+        if(!Object.prototype.hasOwnProperty.call(BRANDS,b.team_name)) BRANDS[b.team_name]=b;
+      });
       if(LASTS) renderStandings(LASTS);
     }).catch(function(){});
   }
