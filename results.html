@@ -172,7 +172,12 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   async function loadBrands(){
     if(DEMO){ BRANDS.__loaded=true; return; }
     try{ var r=await fetch(GAPI+"/api/gdcup-team-brands"); var d=await r.json();
-      ((d&&d.brands)||[]).forEach(function(b){ BRANDS[b.team_name]=b; }); }catch(e){}
+      // 팀명이 겹치면 먼저 온 행이 이긴다 — 서버가 updated_at.desc라 항상 최신이 남는다.
+      // (지금은 team_name UNIQUE라 겹칠 일이 없지만, season 컬럼이 붙어 유니크가
+      //  (team_name,season)으로 풀리면 시즌2 잔존 행이 현재 시즌 색을 덮어쓴다.)
+      ((d&&d.brands)||[]).forEach(function(b){
+        if(!Object.prototype.hasOwnProperty.call(BRANDS,b.team_name)) BRANDS[b.team_name]=b;
+      }); }catch(e){}
     BRANDS.__loaded=true;
   }
   var SAMPLE=[

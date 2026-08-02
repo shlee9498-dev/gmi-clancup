@@ -108,7 +108,10 @@
   async function loadBrands(){
     if(DEMO){ BRANDS.__loaded=true; return; }
     try{ var r=await fetch(GAPI+"/api/gdcup-team-brands"); var d=await r.json();
-      ((d&&d.brands)||[]).forEach(function(b){ BRANDS[b.team_name]=b; }); }catch(e){}
+      // 팀명 중복 시 먼저 온 행(=updated_at 최신)이 이긴다. results.html과 같은 규칙.
+      ((d&&d.brands)||[]).forEach(function(b){
+        if(!Object.prototype.hasOwnProperty.call(BRANDS,b.team_name)) BRANDS[b.team_name]=b;
+      }); }catch(e){}
     BRANDS.__loaded=true;
   }
   function tmCol(name){ var b=BRANDS[name]; return (b&&b.color)?(' style="color:'+b.color+'"'):''; }
