@@ -166,7 +166,9 @@
     var isMatch=/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-/.test(who);
     var q=isMatch?("matchId="+encodeURIComponent(who)):("player="+encodeURIComponent(who));
     if(!opts.silent){ var bb=$("apBtn"); bb.disabled=true; bb.textContent="불러오는 중…"; }
-    return fetch(GAPI+"/api/gdcup-match-pull?platform="+encodeURIComponent(plat)+"&"+q,{headers:{"x-admin-key":key()}})
+    // season 필수 — 없으면 서버가 전 시즌 신청서로 IGN→팀명 인덱스를 만들어
+    // 이번 시즌 로스터가 구 시즌 팀명으로 잡힐 수 있다.
+    return fetch(GAPI+"/api/gdcup-match-pull?platform="+encodeURIComponent(plat)+"&season="+season+"&"+q,{headers:{"x-admin-key":key()}})
       .then(function(r){ return r.json().then(function(d){ return {ok:r.ok,d:d}; }); })
       .then(function(res){
         if(!opts.silent){ var b=$("apBtn"); b.disabled=false; b.textContent="불러오기"; }
@@ -175,6 +177,11 @@
           var em={pubg_disabled:"PUBG 키 미설정",match_not_found:"매치 못 찾음",no_recent_match:"최근 매치 없음",rate_limit:"잠시 후 다시(레이트리밋)",unauthorized:"키 오류",need_match_or_player:"닉/매치ID 입력"};
           if(!opts.silent) toast("실패: "+(em[d.error]||d.error||"오류"));
           return null;
+        }
+        // 서버가 실제로 쓴 시즌을 되돌려준다. 다르면 구 배포가 season을 무시한 것이라
+        // 프리필이 엉뚱한 시즌 로스터로 만들어졌을 수 있다 — 방송 중이면 바로 알아야 한다.
+        if(d.season!=null && Number(d.season)!==Number(season)){
+          toast("⚠ 서버가 시즌 "+d.season+"로 조회했습니다 (현재 화면 시즌 "+season+") — 입력값을 확인하세요");
         }
         var filled = opts.peek ? 0 : fillFromPull(d);
         if(!opts.silent){
