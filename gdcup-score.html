@@ -55,7 +55,9 @@
 <div class="wrap">
 
   <div class="gate" id="gate">
-    <div class="kick">G드컵 SEASON 2</div>
+    <!-- 로그인 전이라 서버에서 시즌을 받을 수 없다 — 숫자를 적지 않는다.
+         (입장 후 #kick을 season 값으로 채운다.) -->
+    <div class="kick">G드컵</div>
     <h1>점수 입력 — 관리자 확인</h1>
     <input type="password" id="keyInput" placeholder="관리자 키">
     <div><button id="keyBtn">입장</button></div>
@@ -64,7 +66,8 @@
 
   <div id="app" class="hidden">
     <div class="top">
-      <div class="kick" id="kick">G드컵 SEASON 3</div>
+      <!-- render()가 season 값으로 채운다 (아래 $("kick").textContent). 숫자를 적지 말 것. -->
+      <div class="kick" id="kick">G드컵</div>
       <h1>본매치 점수 입력</h1>
       <div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap;">
         <label style="font-size:12px;color:var(--faint);">시즌</label>
