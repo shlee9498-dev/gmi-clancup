@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>G드컵 시즌2 방송 오버레이</title>
+<title>G드컵 방송 오버레이</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -88,7 +88,8 @@
 <body data-type="standby">
 
   <div class="badge" id="badge">
-    <div class="kick">G드컵 SEASON 2</div>
+    <!-- 시즌 번호는 서버 응답이 채운다 (setSeason). 여기 숫자를 적지 말 것. -->
+    <div class="kick" id="kick">G드컵</div>
     <div class="pill">
       <div class="rno" id="rno"><small>ROUND</small>—</div>
       <div class="rinfo">
@@ -164,9 +165,27 @@
   // ── 대기화면 라이브 순위표 ──
   var GAPI = qp('api') || "https://mri-academy-production.up.railway.app";
   var BRANDS = {}, LASTS = null;
+
+  // ── 시즌 라벨 ──
+  // 서버 응답(/api/gdcup-scores 의 season)이 정본이다. 화면에 시즌 번호를 하드코딩하지 않는다.
+  // (시즌3 본선을 "SEASON 2"로 송출할 뻔한 사고가 있었다 — kill-mvp.html과 같은 규칙.)
+  // ?season=N 지정 시 그 시즌, 미지정 = 서버 현재 시즌 폴백.
+  // 서버가 알려주기 전에는 숫자를 비워둔다 — 틀린 숫자를 띄우느니 안 띄우는 게 낫다.
+  var SEASON = qp('season') || '';
+  var seasonQ = SEASON ? ('?season=' + encodeURIComponent(SEASON)) : '';
+  function setSeason(n){
+    n = String(n == null ? '' : n).trim();
+    if(!n) return;
+    SEASON = n;
+    document.getElementById('kick').textContent = 'G드컵 SEASON ' + n;
+    document.title = 'G드컵 시즌' + n + ' 방송 오버레이';
+  }
+  setSeason(SEASON);   // ?season=N이면 즉시, 아니면 첫 응답에서 채워진다
+
   function esc(s){ return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
   function renderStandings(d){
     LASTS = d;
+    if(d && d.season) setSeason(d.season);   // 순위가 비어 있어도(아래 early return) 라벨은 먼저 맞춘다
     var rows=document.getElementById('srows'), empty=document.getElementById('sempty'), foot=document.getElementById('sfoot');
     var st=(d&&d.standings)||[];
     if(!st.length){ rows.innerHTML=''; empty.style.display='block'; foot.textContent=''; return; }
@@ -197,7 +216,7 @@
       {name:'세휘',points:31,kills:13},{name:'메르시',points:28,kills:11},
       {name:'알파',points:24,kills:9},{name:'브라보',points:21,kills:8},
       {name:'찰리',points:17,kills:6},{name:'델타',points:12,kills:4}]}); }
-    fetch(GAPI+'/api/gdcup-scores').then(function(r){return r.json();}).then(renderStandings).catch(function(){});
+    fetch(GAPI+'/api/gdcup-scores'+seasonQ).then(function(r){return r.json();}).then(renderStandings).catch(function(){});
   }
   loadBrands(); loadStandings(); setInterval(loadStandings, 12000); setInterval(loadBrands, 60000);
 </script>
