@@ -1,0 +1,163 @@
+/* ============================================================
+   GmI NIGHT OPERATION — 디자인 토큰
+   지시서 §1. app/ 전 페이지가 이 파일 하나만 참조한다.
+
+   ⚠️ 적용 범위는 app/ (클랜 카지노 PWA) 뿐이다.
+   저장소 루트의 G드컵 공개 페이지(gdcup-*.html·index.html)는
+   mri-academy DESIGN.md v2 계약(#0a0a0c + #f5c518)을 그대로 유지한다.
+   두 표면은 브랜드가 다르다 — 여기 토큰을 루트 페이지에 쓰지 말 것.
+   ============================================================ */
+
+:root {
+  /* ── 바탕 ── */
+  --deep: #05130F;        /* 페이지 배경, 밤 */
+  --felt: #0C2A22;        /* 카드/패널, 카지노 펠트 */
+  --felt-2: #123B30;      /* 인터랙티브 표면 */
+
+  /* ── 금속 ── */
+  --brass: #C9A227;       /* 라벨·보더·구조선 */
+  --gold: #F3CE6A;        /* 코인 금액 전용 */
+  --amber: #FF9E3D;       /* 진행 중·긴급 액션 */
+
+  /* ── 상태 ── */
+  --crimson: #C2334D;     /* 실패·손실·경고 */
+  --ivory: #F2E9D8;       /* 본문 */
+  --smoke: #8B9A92;       /* 보조 텍스트 */
+  --line: rgba(201, 162, 39, .18);
+
+  /* ── 타이포 ── */
+  --f-num: "Playfair Display", Georgia, serif;
+  --f-ui: "Pretendard Variable", Pretendard, system-ui, -apple-system, sans-serif;
+
+  /* ── 레이아웃 ── */
+  --wrap: 940px;
+  --r-card: 5px;
+  --r-stage: 6px;
+}
+
+/* ============================================================ 기본 */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding-bottom: 36px;
+  position: relative;
+  background: var(--deep);
+  color: var(--ivory);
+  font-family: var(--f-ui);
+  font-size: 13.5px;
+  line-height: 1.65;
+  font-variant-numeric: tabular-nums;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── 질감: 비네트 + 필름 그레인 (지시서 §1) ──
+   그레인은 CSS 애니메이션이다. JS로 매 프레임 그리지 않는다(§6). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 45%, transparent 40%, rgba(0, 0, 0, .62) 100%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  z-index: 98;
+  opacity: .05;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 1.1s steps(3) infinite;
+}
+
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  33% { transform: translate(-3%, 2%); }
+  66% { transform: translate(2%, -3%); }
+}
+
+/* ============================================================ 타이포 스케일 */
+
+/* 읽기값 — 배수·잔액·가격. 세리프 획 대비가 "돈"을 만든다. */
+.t-read {
+  font-family: var(--f-num);
+  font-weight: 900;
+  letter-spacing: -.02em;
+  line-height: .94;
+}
+
+/* 섹션 라벨 — 작전 문서 톤. 영문 대문자에만 쓴다(§5). */
+.t-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .22em;
+  color: var(--brass);
+}
+
+.t-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+
+.t-cap {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--smoke);
+}
+
+/* 코인 금액. --gold는 오직 여기에만 붙는다(§1 색 규칙). */
+.t-coin {
+  font-family: var(--f-num);
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: -.01em;
+}
+
+.t-coin em {
+  font-family: var(--f-ui);
+  font-style: normal;
+  font-size: .52em;
+  color: var(--brass);
+  margin-left: 2px;
+}
+
+/* ============================================================ 접근성 */
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* 그레인·맥동·파티클·지속음 전부 정지(§6). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+
+  body::after { animation: none; opacity: .035; }
+}
