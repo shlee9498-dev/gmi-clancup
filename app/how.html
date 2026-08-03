@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#05130F">
+  <meta name="gmi-api-base" content="https://worker-production-06b8.up.railway.app">
+  <title>GmI · 게임 방법</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="tokens.css?v=1">
+  <link rel="stylesheet" href="components.css?v=2">
+  <link rel="stylesheet" href="how.css?v=1">
+</head>
+<body>
+
+<header class="bar">
+  <a class="mark" href="index.html">
+    <i aria-hidden="true">G</i>
+    <div>
+      <small>GMI NIGHT OPERATION</small>
+      <b>게임 방법</b>
+    </div>
+  </a>
+  <nav class="links" aria-label="주요 메뉴">
+    <a href="index.html">홈</a>
+    <a href="casino.html">🎰 카지노</a>
+    <a href="matches.html">매치</a>
+    <a href="shop.html">🛒 G샵</a>
+    <a href="how.html" class="active">❓ 방법</a>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <h1>게임 방법</h1>
+    <p>
+      전부 <b>직접 해볼 수 있는 연습</b>이에요. 여기서 눌러도 코인은 안 나가요.
+      한 번 해보고 감이 오면 그때 진짜로 하면 됩니다.
+    </p>
+  </div>
+
+  <nav class="gamenav">
+    <a href="#crash">🪂 크래시</a>
+    <a href="#mbet">🎯 매치 베팅</a>
+    <a href="#indian">🃏 인디언 포커</a>
+    <a href="#bw">⚫ 흑과백</a>
+    <a href="#htable">♠️ 홀덤 테이블</a>
+    <a href="#heads">🂡 1:1 홀덤</a>
+  </nav>
+
+  <!-- ══════════════════ 크래시 ══════════════════ -->
+  <section class="game" id="crash">
+    <h2>🪂 크래시 <span class="badge soon">8/9 오픈</span></h2>
+    <p class="one">
+      숫자가 <b>1.00×에서 계속 올라가요.</b> 아무 때나 «회수»를 누르면 그 배수만큼 받습니다.
+      그런데 <b>언제 터질지 몰라요.</b> 터지기 전에 눌러야 해요.
+    </p>
+
+    <div class="demo">
+      <div class="demo-head">
+        <span>연습해 보기 — 직접 눌러보세요</span>
+        <button type="button" class="replay" data-replay="crash">다시</button>
+      </div>
+      <div class="demo-body">
+        <div class="cr-stage">
+          <canvas data-cv="crash" aria-hidden="true"></canvas>
+          <div class="cr-mult" data-el="crash-mult">1.00×</div>
+        </div>
+        <p class="say" data-el="crash-say"></p>
+        <button type="button" class="go" data-el="crash-go">100코인 걸기<small data-el="crash-gosub">눌러서 시작</small></button>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><b>얼마 걸지 고르기</b> — 100 · 200 · 500 G 중 하나예요. 그 외 금액은 못 걸어요.</li>
+      <li><b>숫자가 올라가요</b> — 1.00×부터 점점 빨라져요.</li>
+      <li><b>«회수»를 누르기</b> — 그 순간 배수로 정산돼요. 100 G를 걸고 2.50×에 눌렀으면 250 G.</li>
+      <li><b>안 누르면 터져요</b> — 터지는 순간 건 돈은 사라집니다. 늦게 누를수록 크지만 위험해요.</li>
+    </ol>
+
+    <div class="wl">
+      <div class="good"><b>이럴 때 딴다</b>터지기 전에 «회수»를 눌렀을 때. 건 돈 × 그때 배수.</div>
+      <div class="bad"><b>이럴 때 잃는다</b>못 누른 채 터졌을 때. 건 돈만 잃어요. 그 이상은 안 잃습니다.</div>
+    </div>
+
+    <div class="where">
+      <b>어디서</b> 웹에서 바로 —
+      <a href="crash.html">크래시 열기</a> · 매일 18:00~03:00에만 열려요.
+    </div>
+  </section>
+
+  <!-- ══════════════════ 매치 베팅 ══════════════════ -->
+  <section class="game" id="mbet">
+    <h2>🎯 매치 베팅 <span class="badge open">매치 있을 때</span></h2>
+    <p class="one">
+      배그 매치에서 <b>어느 팀이 이길지</b> 코인을 걸어요.
+      배당이 정해져 있지 않고, <b>진 쪽에 모인 코인을 맞힌 사람들이 나눠 갖습니다.</b>
+    </p>
+
+    <div class="demo">
+      <div class="demo-head">
+        <span>왜 인기 없는 쪽이 더 많이 먹나</span>
+        <button type="button" class="replay" data-replay="mbet">다시</button>
+      </div>
+      <div class="demo-body">
+        <p class="say" data-el="mbet-say"></p>
+        <div class="pots">
+          <div class="pot mine" data-el="mbet-a">
+            <div class="t"><span>A팀에 걸린 돈</span><b data-el="mbet-a-n">0</b></div>
+            <div class="bar"><i data-el="mbet-a-bar"></i></div>
+          </div>
+          <div class="pot" data-el="mbet-b">
+            <div class="t"><span>B팀에 걸린 돈</span><b data-el="mbet-b-n">0</b></div>
+            <div class="bar"><i data-el="mbet-b-bar"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><b>디스코드에 베팅 글이 올라와요</b> — 팀 버튼을 눌러요.</li>
+      <li><b>금액을 골라요</b> — 100 · 200 · 500 G. <b>한 사람당 한 번, 바꿀 수 없어요.</b></li>
+      <li><b>매치가 끝나면</b> 운영진이 결과를 넣어요.</li>
+      <li><b>맞힌 사람끼리 나눠 가져요</b> — 원금 + (내가 건 돈 ÷ 맞힌 사람들 총액) × 진 쪽 돈.</li>
+    </ol>
+
+    <div class="wl">
+      <div class="good"><b>이럴 때 딴다</b>맞혔을 때. 특히 <b>남들이 안 고른 쪽</b>이 이기면 나눠 갖는 사람이 적어서 크게 먹어요.</div>
+      <div class="bad"><b>이럴 때 잃는다</b>틀렸을 때. 단, 모두가 같은 쪽에 걸었거나 아무도 못 맞히면 <b>전액 돌려줍니다.</b></div>
+    </div>
+
+    <div class="where">
+      <b>어디서</b> 디스코드 베팅 글의 버튼 — 낮에도 열려요(카지노 시간과 무관).
+      현황은 <a href="matches.html">매치</a>에서 봐요.
+    </div>
+  </section>
+
+  <!-- ══════════════════ 인디언 포커 ══════════════════ -->
+  <section class="game" id="indian">
+    <h2>🃏 1:1 인디언 포커 <span class="badge soon">8/9 오픈</span></h2>
+    <p class="one">
+      카드를 <b>이마에 붙인다</b>고 생각하면 돼요.
+      <b>상대 카드는 보이는데 내 카드만 안 보여요.</b> 상대 반응을 보고 내 카드를 짐작하는 게임이에요.
+    </p>
+
+    <div class="demo">
+      <div class="demo-head">
+        <span>내 카드는 나만 못 본다</span>
+        <button type="button" class="replay" data-replay="indian">다시</button>
+      </div>
+      <div class="demo-body">
+        <div class="hands">
+          <div class="hand">
+            <span>내 카드</span>
+            <div class="card back" data-el="in-me">?</div>
+          </div>
+          <div class="hand">
+            <span>상대 카드</span>
+            <div class="card" data-el="in-you">?</div>
+          </div>
+        </div>
+        <p class="say" data-el="in-say"></p>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><b>1~10 카드를 한 장씩</b> 받아요. 상대 것만 보여요.</li>
+      <li><b>기본으로 100씩 걸고 시작</b>해요. 콜 · 레이즈 · 폴드 중에 골라요.</li>
+      <li><b>높은 숫자가 이겨요</b> — 딱 하나 예외: <b>1은 10을 이깁니다.</b></li>
+      <li><b>5라운드</b> 하고, 시작할 때보다 코인이 늘었으면 그만큼 진짜 코인으로 받아요.</li>
+    </ol>
+
+    <div class="wl">
+      <div class="good"><b>이럴 때 딴다</b>상대가 낮은 카드를 들고 있는데 세게 걸었을 때. 상대가 겁먹고 폴드해도 이겨요.</div>
+      <div class="bad"><b>이럴 때 잃는다</b>내 카드가 낮은데 크게 걸었을 때. 상대 표정(베팅)이 유일한 힌트예요.</div>
+    </div>
+
+    <div class="where">
+      <b>어디서</b> 디스코드 — <code>/1대1도전 @상대</code> 로 시작.
+      현황은 <a href="duel.html">듀얼</a>에서 봐요.
+    </div>
+  </section>
+
+  <!-- ══════════════════ 흑과백 ══════════════════ -->
+  <section class="game" id="bw">
+    <h2>⚫ 흑과백 <span class="badge closed">이벤트 전용</span></h2>
+    <p class="one">
+      <b>운이 하나도 안 들어가는 게임이에요.</b> 둘 다 0~8 아홉 장을 똑같이 갖고 시작해요.
+      매 판 한 장씩 동시에 내고 <b>높은 쪽이 1점.</b> 낸 카드는 <b>없어져요.</b>
+    </p>
+
+    <div class="demo">
+      <div class="demo-head">
+        <span>한 번 쓴 카드는 돌아오지 않는다</span>
+        <button type="button" class="replay" data-replay="bw">다시</button>
+      </div>
+      <div class="demo-body">
+        <p class="say" data-el="bw-say"></p>
+        <div class="hand" style="min-width:0">
+          <span>내 손패</span>
+          <div class="strip" data-el="bw-me"></div>
+        </div>
+        <div class="hand" style="min-width:0; margin-top:14px">
+          <span>상대 손패</span>
+          <div class="strip" data-el="bw-you"></div>
+        </div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><b>둘 다 0~8 아홉 장</b>으로 시작해요. 완전히 똑같아요.</li>
+      <li><b>동시에 한 장씩</b> 몰래 내요. 높은 쪽이 1점, 같으면 둘 다 그냥 사라져요.</li>
+      <li><b>낸 카드는 없어져요</b> — 8을 지금 쓰면 다음엔 못 써요.</li>
+      <li><b>먼저 5점</b>이면 이겨요. 9판을 다 하면 점수 많은 쪽이 이겨요.</li>
+    </ol>
+
+    <div class="wl">
+      <div class="good"><b>이럴 때 딴다</b>상대가 큰 카드를 다 쓰게 만들고, 내 큰 카드를 아껴뒀을 때.</div>
+      <div class="bad"><b>이럴 때 잃는다</b>초반에 8·7을 다 써버렸을 때. 뒤로 갈수록 낼 게 없어져요.</div>
+    </div>
+
+    <div class="where">
+      <b>어디서</b> 디스코드 — 이벤트로 열릴 때만 해요.
+    </div>
+  </section>
+
+  <!-- ══════════════════ 홀덤 테이블 ══════════════════ -->
+  <section class="game" id="htable">
+    <h2>♠️ 홀덤 테이블 <span class="badge closed">시즌말 전용</span></h2>
+    <p class="one">
+      <b>여러 명이 같이 앉는 텍사스 홀덤</b>이에요. 아무 때나 앉고 아무 때나 일어날 수 있어요.
+      내 카드 2장 + 바닥 카드 5장으로 <b>제일 좋은 5장</b>을 만들어요.
+    </p>
+
+    <div class="demo">
+      <div class="demo-head">
+        <span>한 판이 어떻게 흘러가나</span>
+        <button type="button" class="replay" data-replay="htable">다시</button>
+      </div>
+      <div class="demo-body">
+        <p class="say" data-el="ht-say"></p>
+        <div class="seats" data-el="ht-seats"></div>
+        <div class="hands" style="margin-top:16px" data-el="ht-board"></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><b>자리에 앉아요</b> — 앉을 때 정해진 금액을 칩으로 바꿔요.</li>
+      <li><b>카드 2장</b>을 받아요. 나만 봐요.</li>
+      <li><b>바닥에 카드가 3 → 4 → 5장</b> 순서로 깔려요. 깔릴 때마다 걸지 말지 정해요.</li>
+      <li><b>안 되겠다 싶으면 폴드</b> — 그때까지 건 것만 잃고 빠져요. 끝까지 가면 좋은 패가 이겨요.</li>
+    </ol>
+
+    <div class="wl">
+      <div class="good"><b>이럴 때 딴다</b>제일 좋은 패로 끝까지 갔거나, 남들이 다 폴드했을 때.</div>
+      <div class="bad"><b>이럴 때 잃는다</b>안 좋은 패로 끝까지 갔을 때. <b>30초 동안 안 누르면 자동 폴드</b>돼요.</div>
+    </div>
+
+    <div class="where">
+      <b>어디서</b> 웹 — <a href="htable.html">홀덤 테이블</a>.
+      지금은 정규 시즌이라 닫혀 있어요(시즌 끝날 때 열려요).
+    </div>
+  </section>
+
+  <!-- ══════════════════ 1:1 홀덤 ══════════════════ -->
+  <section class="game" id="heads">
+    <h2>🂡 1:1 헤즈업 홀덤 <span class="badge closed">시즌말 전용</span></h2>
+    <p class="one">
+      위 홀덤을 <b>둘이서만</b> 하는 거예요. 규칙은 같고, 디스코드 명령으로 주고받아요.
+      한쪽 칩이 0이 되거나 50판이 지나면 끝나요.
+    </p>
+
+    <div class="demo">
+      <div class="demo-head">
+        <span>명령어 순서</span>
+        <button type="button" class="replay" data-replay="heads">다시</button>
+      </div>
+      <div class="demo-body">
+        <p class="say" data-el="hd-say"></p>
+        <div class="seats" data-el="hd-seats"></div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><b>도전해요</b> — <code>/홀덤도전 @상대</code>. 상대가 <code>/홀덤수락</code> 하면 시작.</li>
+      <li><b>내 차례에 하나 고르기</b> — <code>/홀덤체크</code> · <code>/홀덤콜</code> · <code>/홀덤레이즈</code> · <code>/홀덤폴드</code> · <code>/홀덤올인</code>.</li>
+      <li><b>지금 뭐가 어떤지</b>는 <code>/홀덤현황</code>으로 봐요.</li>
+      <li><b>끝나면</b> 남은 칩만큼 진짜 코인으로 돌려받아요.</li>
+    </ol>
+
+    <div class="wl">
+      <div class="good"><b>이럴 때 딴다</b>상대 칩을 다 가져오거나, 50판째에 내가 더 많을 때.</div>
+      <div class="bad"><b>이럴 때 잃는다</b>칩을 다 잃었을 때. 중간에 그만두면 <b>5%를 더 뗍니다.</b></div>
+    </div>
+
+    <div class="where">
+      <b>어디서</b> 디스코드 — <code>/홀덤도전</code>.
+      현황은 <a href="holdem.html">홀덤</a>에서 봐요.
+    </div>
+  </section>
+
+  <div class="where" style="margin-top:26px">
+    <b>코인은 어디서</b> 배그 인증으로 적립해요. 카지노로는 못 벌어요 — 있는 코인을 걸 뿐이에요.
+  </div>
+
+</div>
+
+<script src="app.js?v=6"></script>
+<script src="how.js?v=1"></script>
+
+</body>
+</html>

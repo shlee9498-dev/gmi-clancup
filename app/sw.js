@@ -4,7 +4,7 @@
    - API는 항상 네트워크 (실시간 데이터)
    ============================================ */
 
-const CACHE_VERSION = "gmi-v7";
+const CACHE_VERSION = "gmi-v8";
 const STATIC_ASSETS = [
   "index.html",
   "casino.html",
@@ -15,6 +15,7 @@ const STATIC_ASSETS = [
   "crash.html",
   "login.html",
   "shop.html",
+  "how.html",
   "style.css?v=2",
   // NIGHT OPERATION 디자인 시스템 — 현재는 crash.html만 쓴다.
   // 나머지 페이지가 넘어오면 style.css를 걷어낸다.
@@ -25,11 +26,13 @@ const STATIC_ASSETS = [
   "crash.css?v=2",
   "casino.css?v=1",
   "shop.css?v=1",
-  "app.js?v=5",
+  "how.css?v=1",
+  "app.js?v=6",
   "sound.js?v=1",
   "holdem.js?v=1",
   "htable.js?v=1",
   "crash.js?v=3",
+  "how.js?v=1",
   "manifest.json",
   "icons/icon-192.png",
   "icons/icon-512.png",
