@@ -168,6 +168,7 @@ function renderNav(currentPage = "") {
         <a href="matches.html" class="${currentPage === 'matches' ? 'active' : ''}">매치</a>
         <a href="shop.html" class="${currentPage === 'shop' ? 'active' : ''}">🛒 G샵</a>
         <a href="https://shlee9498-dev.github.io/gmi-clancup/gdcup-s3.html">G드컵</a>
+        <a href="how.html" class="${currentPage === 'how' ? 'active' : ''}">❓ 방법</a>
       </div>
       ${me ? `
         <div class="me">
