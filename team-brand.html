@@ -84,7 +84,8 @@
 <body>
 <div class="wrap">
   <div class="top">
-    <div class="kick">G드컵 SEASON 2</div>
+    <!-- 시즌 번호는 /api/gdcup-meta가 채운다. 여기 숫자를 적지 말 것. -->
+    <div class="kick" id="kick">G드컵</div>
     <h1>팀 브랜드 등록</h1>
     <div class="sub">우리 팀 <b>컬러</b>와 <b>엠블럼(마크)</b>을 등록하면<br>중계 순위·결과 화면에 그대로 박혀서 나옵니다.<br>없으면 색만 골라도 OK!</div>
   </div>
@@ -221,6 +222,12 @@
     }catch(err){ showMsg('네트워크 오류로 등록하지 못했습니다. 다시 시도해주세요.', false); }
     go.disabled=false; go.textContent='등록하기';
   });
+
+  // 시즌 라벨 — 서버가 정본. 화면 하드코딩 금지 (이 페이지가 시즌3 운영 중 "SEASON 2"를 달고 있었다).
+  // 실패해도 숫자 없이 "G드컵"으로 남을 뿐이라 등록 기능에는 영향이 없다.
+  fetch(API_BASE+"/api/gdcup-meta").then(function(r){ return r.json(); }).then(function(d){
+    if(d && d.currentSeason) document.getElementById('kick').textContent = 'G드컵 SEASON ' + d.currentSeason;
+  }).catch(function(){});
 </script>
 </body>
 </html>
