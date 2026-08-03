@@ -314,10 +314,26 @@
   color: var(--smoke);
 }
 
+.lim[hidden] { display: none; }
+
 .lim .t b {
   font-weight: 800;
   color: var(--gold);
 }
+
+/* 적립(수입) 게이지.
+   ⚠️ 강하 한도(지출)와 이름만 비슷하고 완전히 다른 값이다 —
+   기본값이 둘 다 1,800이라 눈으로는 구분이 안 된다. 색으로 가른다.
+   지출 = --gold(코인이 나가는 쪽) · 수입 = --brass(구조·보조). */
+.lim .t.earn {
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, .05);
+}
+
+.lim .t.earn b { color: var(--brass); }
+
+.trk i.earn { background: linear-gradient(90deg, #6E5A18, var(--brass)); }
 
 /* 트랙은 transform으로 채운다 — width 트랜지션은 레이아웃을 다시 계산한다(§6). */
 .trk {
@@ -327,9 +343,11 @@
   background: rgba(255, 255, 255, .07);
 }
 
+/* 기본이 scaleX(0)이다 — JS가 값을 넣기 전에 가득 찬 채로 번쩍이지 않게. */
 .trk i {
   display: block;
   height: 100%;
+  transform: scaleX(0);
   transform-origin: left center;
   background: linear-gradient(90deg, var(--brass), var(--gold));
   transition: transform .18s linear;

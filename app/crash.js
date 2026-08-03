@@ -64,6 +64,7 @@ if (me) {
   wire();
   fitCanvas();
   loadBalance();
+  loadLimits();
   loadMyBets();
   connect();
   requestAnimationFrame(loop);
@@ -100,6 +101,45 @@ async function loadBalance() {
     balance = null;
   }
   paintPurse();
+}
+
+/* ============================================================ 주간 한도 */
+
+/**
+ * GET /api/me/limits — 이번주 두 상한.
+ *
+ * ⚠️ earning(인증으로 **버는** 쪽)과 betting(카지노에 **거는** 쪽)은
+ *    완전히 다른 값이다. 기본값이 둘 다 1,800이라 눈으로는 구분이 안 되므로
+ *    라벨과 색으로 갈라 보여준다. 서로 섞어 쓰지 말 것.
+ *
+ * 실패해도 조용히 접는다 — 게임 자체는 이 값 없이도 돌아간다.
+ */
+async function loadLimits() {
+  let d;
+  try {
+    d = await api("/api/me/limits");
+  } catch (e) {
+    $("lim").hidden = true;
+    return;
+  }
+  if (!d || !d.betting || !d.earning) { $("lim").hidden = true; return; }
+
+  // betting.enforced=false면 CASINO_GATE가 꺼져 있다 — 집계는 되지만 막지는
+  // 않으므로 "한도"라고 단정하지 않는다.
+  $("lim-bet-label").textContent = d.betting.enforced
+    ? "이번 주 강하 한도" : "이번 주 강하";
+  gauge("lim-bet", d.betting.used, d.betting.cap);
+  gauge("lim-earn", d.earning.used, d.earning.cap);
+  $("lim").hidden = false;
+}
+
+function gauge(id, used, cap) {
+  const u = Number(used) || 0;
+  const c = Number(cap) || 0;
+  $(id + "-used").textContent = fmtCoin(u);
+  $(id + "-cap").textContent = fmtCoin(c);
+  const ratio = c > 0 ? Math.min(1, Math.max(0, u / c)) : 0;
+  $(id + "-bar").style.transform = `scaleX(${ratio})`;
 }
 
 function paintPurse() {
@@ -539,6 +579,7 @@ async function doBet() {
     sfx.chip();
     if (balance !== null) balance -= amt;
     paintPurse();
+    loadLimits();          // 강하 사용액이 방금 늘었다
     toast(`${fmtCoin(amt)} G 탑승 완료`, "success");
   } catch (e) {
     toast(e.message || "베팅하지 못했어요", "error");
