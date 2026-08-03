@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="tokens.css?v=1">
-  <link rel="stylesheet" href="components.css?v=1">
+  <link rel="stylesheet" href="components.css?v=2">
   <link rel="stylesheet" href="crash.css?v=2">
 </head>
 <body>
@@ -76,6 +76,22 @@
         </div>
         <button type="button" class="go" id="go" disabled>연결 중<small id="gosub">라운드 정보를 받는 중이에요</small></button>
         <p class="why" id="why" hidden></p>
+
+        <!-- 주간 한도 2종. 이름이 비슷하지만 완전히 다른 개념이라 색과 자리로 갈라둔다.
+             지출(강하) = 골드 · 수입(적립) = 황동. -->
+        <div class="lim" id="lim" hidden>
+          <div class="t">
+            <span id="lim-bet-label">이번 주 강하</span>
+            <span><b id="lim-bet-used">—</b> / <span id="lim-bet-cap">—</span></span>
+          </div>
+          <span class="trk"><i id="lim-bet-bar"></i></span>
+
+          <div class="t earn">
+            <span>이번 주 인증 적립</span>
+            <span><b id="lim-earn-used">—</b> / <span id="lim-earn-cap">—</span></span>
+          </div>
+          <span class="trk"><i id="lim-earn-bar" class="earn"></i></span>
+        </div>
       </div>
 
       <div class="card">
@@ -144,7 +160,7 @@
 
 <script src="app.js?v=5"></script>
 <script src="sound.js?v=1"></script>
-<script src="crash.js?v=2"></script>
+<script src="crash.js?v=3"></script>
 
 </body>
 </html>
