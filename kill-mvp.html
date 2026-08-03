@@ -66,7 +66,10 @@
         <div class="title">킬 MVP<small>KILL LEADERS</small></div>
       </div>
       <div class="rstat">
-        <div class="r" id="roundStat">ROUND 3 종료</div>
+        <!-- 초기값은 반드시 중립 문구 — render()가 실패하면(catch가 roundStat을 안 건드린다)
+             이 값이 그대로 방송에 남는다. 종전 "ROUND 3 종료"는 API 장애 시 틀린 확정
+             문구가 고정됐다. JS 폴백(:집계 대기)과 같은 값으로 맞춘다. results.html도 동일 규칙. -->
+        <div class="r" id="roundStat">집계 대기</div>
         <div class="s" id="subStat">본매치 누적 킬 기준</div>
       </div>
     </div>

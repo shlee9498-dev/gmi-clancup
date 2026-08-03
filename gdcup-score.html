@@ -121,6 +121,21 @@
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
   function toast(t){ var m=$("msg"); m.textContent=t; m.classList.add("show"); clearTimeout(m._t); m._t=setTimeout(function(){m.classList.remove("show");},2200); }
 
+  // 세션 중 401 = 키가 교체됐거나 만료됐다(운영 중 키 로테이션 등).
+  // 조용히 빈 화면을 보여주면 운영자가 "저장이 안 됐다"고 오해해 다시 입력하게 되고,
+  // 그 재입력도 전부 401로 떨어지므로 게이트로 되돌려 확실히 알린다.
+  var gated=false;
+  function toGate(msg){
+    if(gated) return;                       // 동시 요청이 여러 건 401이어도 한 번만
+    gated=true;
+    try{ sessionStorage.removeItem(KEYNAME); }catch(e){}
+    setAuto(false);                         // 자동 감지 정지 (함수 선언이라 호이스팅됨)
+    $("app").classList.add("hidden");
+    $("gate").classList.remove("hidden");
+    $("keyInput").value="";
+    $("gateMsg").textContent = msg || "🔑 관리자 키가 만료됐습니다. 새 키를 입력해주세요.";
+  }
+
   // ---- 게이트 ----
   function enter(){
     var k=$("keyInput").value.trim(); if(!k){return;}
@@ -128,7 +143,7 @@
     // 키 검증 겸 데이터 로드
     fetch(GAPI+"/api/gdcup-round-scores?season=3",{headers:{"x-admin-key":k}})
       .then(function(r){ if(r.status===401){throw new Error("키 오류");} return r.json(); })
-      .then(function(){ $("gate").classList.add("hidden"); $("app").classList.remove("hidden"); boot(); })
+      .then(function(){ gated=false; $("gate").classList.add("hidden"); $("app").classList.remove("hidden"); boot(); })
       .catch(function(){ $("gateMsg").textContent="❌ 관리자 키가 올바르지 않습니다."; sessionStorage.removeItem(KEYNAME); });
   }
   $("keyBtn").addEventListener("click",enter);
@@ -172,10 +187,13 @@
     // season 필수 — 없으면 서버가 전 시즌 신청서로 IGN→팀명 인덱스를 만들어
     // 이번 시즌 로스터가 구 시즌 팀명으로 잡힐 수 있다.
     return fetch(GAPI+"/api/gdcup-match-pull?platform="+encodeURIComponent(plat)+"&season="+season+"&"+q,{headers:{"x-admin-key":key()}})
-      .then(function(r){ return r.json().then(function(d){ return {ok:r.ok,d:d}; }); })
+      .then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ return {ok:r.ok,status:r.status,d:d}; }); })
       .then(function(res){
         if(!opts.silent){ var b=$("apBtn"); b.disabled=false; b.textContent="불러오기"; }
         var d=res.d||{};
+        // 401은 silent 모드에서도 반드시 노출한다 — 자동 감지가 조용히 죽어 있으면
+        // 라운드가 통째로 기록되지 않은 채 본선이 끝난다.
+        if(res.status===401){ toGate(); return null; }
         if(!res.ok || !d.ok){
           var em={pubg_disabled:"PUBG 키 미설정",match_not_found:"매치 못 찾음",no_recent_match:"최근 매치 없음",rate_limit:"잠시 후 다시(레이트리밋)",unauthorized:"키 오류",need_match_or_player:"닉/매치ID 입력"};
           if(!opts.silent) toast("실패: "+(em[d.error]||d.error||"오류"));
@@ -239,7 +257,13 @@
   }
   function loadScores(){
     return fetch(GAPI+"/api/gdcup-round-scores?season="+season+"&round="+round,{headers:{"x-admin-key":key()}})
-      .then(function(r){return r.json();}).then(function(d){
+      .then(function(r){
+        // 상태코드를 먼저 본다 — 401 바디를 그대로 파싱하면 scores가 undefined가 되어
+        // SCORES={}로 떨어지고, 이미 저장된 점수가 통째로 사라진 것처럼 보였다(무성 실패).
+        if(r.status===401){ toGate(); return null; }
+        return r.json();
+      }).then(function(d){
+        if(d===null) return;                 // 게이트로 되돌아감 — 렌더 생략
         SCORES={}; ((d&&d.scores)||[]).forEach(function(s){ SCORES[s.team_name]=s; });
       });
   }
@@ -309,14 +333,17 @@
   function saveTeam(card,i){
     var body=teamPayload(card,i);
     if(body.placement==null && (body.team_kills==null||body.team_kills===0) && !(body.players&&body.players.some(function(p){return p.kills>0;}))){
-      toast("순위나 킬을 입력해주세요"); return;
+      toast("순위나 킬을 입력해주세요"); return Promise.resolve(false);
     }
-    var btn=card.querySelector('.save'); btn.textContent='저장중'; 
+    var btn=card.querySelector('.save'); btn.textContent='저장중';
+    // 성공 여부를 boolean으로 돌려준다 — 전체저장이 실패를 성공으로 세던 문제 때문.
     return fetch(GAPI+"/api/gdcup-score",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":key()},body:JSON.stringify(body)})
-      .then(function(r){return r.json();}).then(function(d){
-        if(d&&d.ok){ btn.classList.add('done'); btn.textContent='✓ 저장됨'; toast(body.team_name+" 저장됨"); }
-        else { btn.textContent='저장'; toast("실패: "+((d&&d.error)||"")); }
-      }).catch(function(){ btn.textContent='저장'; toast("네트워크 오류"); });
+      .then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ return {status:r.status, d:d}; }); })
+      .then(function(res){
+        if(res.status===401){ btn.textContent='저장'; toGate(); return false; }
+        if(res.d && res.d.ok){ btn.classList.add('done'); btn.textContent='✓ 저장됨'; toast(body.team_name+" 저장됨"); return true; }
+        btn.textContent='저장'; toast("실패: "+((res.d&&res.d.error)||res.status)); return false;
+      }).catch(function(){ btn.textContent='저장'; toast("네트워크 오류"); return false; });
   }
   function saveAllNow(){
     var cards=Array.prototype.slice.call($("list").querySelectorAll('.tcard'));
@@ -326,10 +353,19 @@
     });
     if(!todo.length){ toast("입력된 팀이 없습니다"); return Promise.resolve(0); }
     return new Promise(function(resolve){
-      var n=0;
+      // 성공·실패를 따로 센다. 종전에는 실패해도 n++이라 전건 401이어도
+      // "✅ 5팀 저장 완료"가 떴고, 개별 실패 토스트는 이 최종 토스트가 덮었다.
+      var okN=0, failN=0;
       (function next(idx){
-        if(idx>=todo.length){ toast("✅ "+n+"팀 저장 완료"); resolve(n); return; }
-        Promise.resolve(saveTeam(todo[idx],+todo[idx].getAttribute('data-i'))).then(function(){ n++; setTimeout(function(){next(idx+1);},120); });
+        if(gated){ toast("🔑 키 만료로 중단 — "+okN+"팀만 저장됨"); resolve(okN); return; }
+        if(idx>=todo.length){
+          toast(failN ? ("✅ "+okN+"팀 저장 · ❌ "+failN+"팀 실패") : ("✅ "+okN+"팀 저장 완료"));
+          resolve(okN); return;
+        }
+        Promise.resolve(saveTeam(todo[idx],+todo[idx].getAttribute('data-i'))).then(function(good){
+          if(good) okN++; else failN++;
+          setTimeout(function(){next(idx+1);},120);
+        });
       })(0);
     });
   }

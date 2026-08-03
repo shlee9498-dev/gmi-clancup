@@ -35,6 +35,8 @@
   .tag.main{background:rgba(245,197,24,.16);color:var(--gold);border:1px solid var(--line);}
   .tag.final{background:rgba(230,57,70,.18);color:#ff8a93;border:1px solid rgba(230,57,70,.5);}
   /* 타입별 좌측 바 색 */
+  /* type:"ev" = 이벤트 매치. 시즌3에서는 이벤트가 솔로로 분리돼 이 분기를 쓰지 않는다
+     (ROUNDS 상수에 ev가 없다). 이벤트 라운드가 본선에 다시 들어올 때를 위해 남겨둔다. */
   body[data-type="ev"] .pill{border-left-color:var(--blue);}
   body[data-type="ev"] .rno{color:var(--blue);}
   body[data-type="final"] .pill{border-left-color:var(--red);}
@@ -111,10 +113,12 @@
   </div>
 
   <div id="ctrl">
+    <!-- 라벨은 아래 ROUNDS 상수와 짝이다 — 시즌 구성이 바뀌면 양쪽을 같이 고칠 것.
+         (시즌3: R1~R5 전부 스쿼드 본선. 이벤트매치는 솔로라 여기 없다 — "대기"를 쓴다) -->
     <span class="lab">라운드</span>
     <button data-r="0">대기</button>
-    <button data-r="1">R1 자전거</button>
-    <button data-r="2">R2 프라이팬</button>
+    <button data-r="1">R1 본매치</button>
+    <button data-r="2">R2 본매치</button>
     <button data-r="3">R3 본매치</button>
     <button data-r="4">R4 본매치</button>
     <button data-r="5">R5 FINAL</button>
@@ -124,10 +128,23 @@
   </div>
 
 <script>
+  // ── 라운드 구성 = 시즌3 (R1~R5 전부 스쿼드 본선) ──
+  // ⚠️ 시즌마다 라운드 배치가 바뀐다. 시즌2는 이벤트 2판(R1·R2) + 본매치 3판(R3~R5)이라
+  //    서버 rounds가 [3,4,5]였다. 시즌3은 이벤트가 솔로 경쟁전으로 분리(20:00, 점수 무관,
+  //    별도 보상)되고 본선이 스쿼드 5판(21:00)이 되면서 서버 rounds가 [1,2,3,4,5]가 됐다.
+  //    이 표가 시즌2 배치로 남아 있어서 본선 1·2라운드가 "자전거 레이싱 / 프라이팬 매치 ·
+  //    이벤트 매치"로 송출될 뻔했다. 집계(gdcup-score·results·kill-mvp)는 전부 맞았고
+  //    이 표만 어긋난 상태였다.
+  //    정본은 server.js의 GDCUP_SEASONS[n].rounds — 시즌이 바뀌면 여기와 아래 #ctrl 버튼
+  //    라벨을 같이 고칠 것.
+  //    후속 과제(본선 후): GET /api/gdcup-meta 의 rounds를 받아 이 표와 버튼을 생성하면
+  //    시즌 전환 때 프론트를 안 고쳐도 된다. D-4라 이번엔 상수 교체로 끝낸다.
+  // 이벤트매치(솔로 2판)는 이 오버레이의 대상이 아니다. 진행 중엔 "대기"(0)를 쓴다.
+  // → type:"ev" 분기는 시즌3에서 미사용 (CSS는 남겨둠, 향후 이벤트 라운드 복귀 대비)
   var ROUNDS = {
     0:{no:"—", small:"STANDBY", name:"잠시 후 시작", meta:"곧 시작합니다", tag:"", type:"standby"},
-    1:{no:"1", small:"ROUND", name:"🚲 자전거 레이싱", meta:"ERANGEL · 에란겔", tag:"이벤트 매치", tagcls:"ev", type:"ev"},
-    2:{no:"2", small:"ROUND", name:"🍳 프라이팬 매치", meta:"KARAKIN · 카라킨", tag:"이벤트 매치", tagcls:"ev", type:"ev"},
+    1:{no:"1", small:"ROUND", name:"e스포츠 본매치", meta:"TPP · 3인칭 정규전", tag:"본매치", tagcls:"main", type:"main"},
+    2:{no:"2", small:"ROUND", name:"e스포츠 본매치", meta:"TPP · 3인칭 정규전", tag:"본매치", tagcls:"main", type:"main"},
     3:{no:"3", small:"ROUND", name:"e스포츠 본매치", meta:"TPP · 3인칭 정규전", tag:"본매치", tagcls:"main", type:"main"},
     4:{no:"4", small:"ROUND", name:"e스포츠 본매치", meta:"TPP · 3인칭 정규전", tag:"본매치", tagcls:"main", type:"main"},
     5:{no:"5", small:"ROUND", name:"e스포츠 본매치", meta:"TPP · 마지막 라운드", tag:"FINAL", tagcls:"final", type:"final"}
