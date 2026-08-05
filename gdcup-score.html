@@ -114,7 +114,7 @@
   var KEYNAME="gdcupKey";
   var SEASON_ROUNDS={2:[3,4,5],3:[1,2,3,4,5]};
   var season=3;
-  var TEAMS=[]; var SCORES={}; var round=SEASON_ROUNDS[3][0];
+  var TEAMS=[]; var TEAMS_HIDDEN=0; var SCORES={}; var round=SEASON_ROUNDS[3][0];
   function readOnly(){ return season===2; }   // 시즌2는 조회 전용(기록 동결)
   var $=function(id){return document.getElementById(id);};
   function key(){ return sessionStorage.getItem(KEYNAME)||""; }
@@ -283,8 +283,17 @@
     for(var i=1;i<=16;i++){ o+='<option value="'+i+'"'+(String(sel)===String(i)?' selected':'')+'>'+i+'위</option>'; }
     return o;
   }
+  // 점수 입력 대상은 확정팀만이다. /api/gdcup-list는 status=neq.cancelled 전부를 내려준다 —
+  // 그 엔드포인트는 공개 참가팀 명단도 겸해서 미확정 신청도 보여야 하므로, 거르는 건 이쪽 몫이다.
+  // 강제확정(force)도 status='confirmed'라 함께 잡힌다(verified_at만 null).
+  // 숨긴 수를 화면에 남기는 이유: 조용히 빼면 확정 처리를 빠뜨린 팀이 있을 때
+  // 본선 중에 "왜 이 팀이 안 보이지"를 알아챌 방법이 없다.
   function loadTeams(){
-    return fetch(GAPI+"/api/gdcup-list").then(function(r){return r.json();}).then(function(d){ TEAMS=(d&&d.teams)||[]; });
+    return fetch(GAPI+"/api/gdcup-list").then(function(r){return r.json();}).then(function(d){
+      var all=(d&&d.teams)||[];
+      TEAMS = all.filter(function(t){ return t.status==='confirmed'; });
+      TEAMS_HIDDEN = all.length - TEAMS.length;
+    });
   }
   function loadScores(){
     return fetch(GAPI+"/api/gdcup-round-scores?season="+season+"&round="+round,{headers:{"x-admin-key":key()}})
@@ -300,7 +309,12 @@
   }
   function render(){
     var el=$("list"); 
-    if(!TEAMS.length){ el.innerHTML='<div class="note">신청한 팀이 없습니다.</div>'; return; }
+    if(!TEAMS.length){
+      el.innerHTML='<div class="note">'+(TEAMS_HIDDEN
+        ? '확정된 팀이 없습니다. 미확정 '+TEAMS_HIDDEN+'팀은 gdcup-admin에서 확정해주세요.'
+        : '신청한 팀이 없습니다.')+'</div>';
+      return;
+    }
     el.innerHTML=TEAMS.map(function(t,i){
       var sc=SCORES[t.team_name]||{};
       var pk=sc.player_kills||[];
@@ -322,7 +336,9 @@
           +(members.length?'<button class="ptoggle">▸ 선수별 킬 ('+members.length+'명)</button>':'')
           +'<div class="players'+(hasPlayers?' show':'')+'">'+prows+'<div class="psum"></div></div>'
         +'</div></div>';
-    }).join('');
+    }).join('')
+      // 숨긴 팀이 있으면 밝힌다 — 확정 누락을 조용히 감추지 않기 위해서다.
+      + (TEAMS_HIDDEN ? '<div class="note">확정 '+TEAMS.length+'팀만 표시 중 · 미확정 '+TEAMS_HIDDEN+'팀 숨김 (gdcup-admin에서 확정)</div>' : '');
     // 이벤트 바인딩
     Array.prototype.forEach.call(el.querySelectorAll('.tcard'),function(card){
       var i=+card.getAttribute('data-i');
