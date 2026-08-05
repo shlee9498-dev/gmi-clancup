@@ -194,10 +194,37 @@
         // 401은 silent 모드에서도 반드시 노출한다 — 자동 감지가 조용히 죽어 있으면
         // 라운드가 통째로 기록되지 않은 채 본선이 끝난다.
         if(res.status===401){ toGate(); return null; }
+        // 429도 silent 모드에서 노출한다 — 401과 같은 이유다. 자동 감지가 조용히 멈춰
+        // 있으면 라운드가 통째로 기록되지 않은 채 본선이 끝난다. 종전엔 아래 일반 분기로
+        // 떨어져 silent면 아무 표시가 없었고, 화면엔 "새 매치 감지 중…"이 그대로 남았다.
+        // 출처 2가지: PUBG 상류 10 RPM(rate_limit) · 우리 리미터(too_many_requests, retry_after 동반).
+        // 게이트로 되돌리지 않는 이유: 키 문제가 아니라 일시적이고, PUBG 창이 굴러가면
+        // 다음 tick(30초)에서 스스로 복구된다. 알리기만 하고 폴링은 계속한다.
+        if(res.status===429 || d.error==="rate_limit" || d.error==="too_many_requests"){
+          var wait = Number(d.retry_after) || 0;
+          if(opts.silent){
+            apRateLimited = true;
+            // 기본색(--faint)은 방송 중 눈에 안 띈다. 알아채게 하는 게 이 표시의 목적이라
+            // 골드로 올린다(브랜드 단일 강조색). 복구 시 원래대로 되돌린다.
+            $("apAutoMsg").style.color = "var(--gold)";
+            $("apAutoMsg").textContent = "⚠ 레이트리밋 — 자동 저장 대기"
+              + (wait ? (" 약 "+wait+"초") : "") + " · " + new Date().toLocaleTimeString('ko-KR');
+          } else {
+            toast("레이트리밋 — 잠시 후 다시" + (wait ? (" ("+wait+"초)") : ""));
+          }
+          return null;
+        }
         if(!res.ok || !d.ok){
           var em={pubg_disabled:"PUBG 키 미설정",match_not_found:"매치 못 찾음",no_recent_match:"최근 매치 없음",rate_limit:"잠시 후 다시(레이트리밋)",unauthorized:"키 오류",need_match_or_player:"닉/매치ID 입력"};
           if(!opts.silent) toast("실패: "+(em[d.error]||d.error||"오류"));
           return null;
+        }
+        // 레이트리밋에서 빠져나온 첫 성공 — 경고를 지운다. tick()은 새 매치가 있을 때만
+        // apAutoMsg를 쓰므로, 여기서 복구하지 않으면 경고가 라운드 내내 남는다.
+        if(apRateLimited && opts.silent){
+          apRateLimited = false;
+          $("apAutoMsg").style.color = "";
+          $("apAutoMsg").textContent = "새 매치 감지 중… · 레이트리밋 해제 " + new Date().toLocaleTimeString('ko-KR');
         }
         // 서버가 실제로 쓴 시즌을 되돌려준다. 다르면 구 배포가 season을 무시한 것이라
         // 프리필이 엉뚱한 시즌 로스터로 만들어졌을 수 있다 — 방송 중이면 바로 알아야 한다.
@@ -220,13 +247,17 @@
     autoPull().then(function(res){ if(res && res.filled){ saveAllNow(); } });
   });
   // 자동 감지: 새 매치가 뜨면 자동으로 불러와 저장 (옵션 · 라운드 탭을 맞게 둘 것)
-  var apTimer=null, apLastMatch=null;
+  // apRateLimited: 429 경고를 apAutoMsg에 띄운 상태인지. autoPull이 세우고, 다음 성공에서
+  // 스스로 내린다(위 autoPull 참조). var 호이스팅으로 autoPull 정의 시점에도 접근 가능.
+  var apTimer=null, apLastMatch=null, apRateLimited=false;
   function setAuto(on){
     var b=$("apAuto");
     if(on){
       if(!$("apWho").value.trim()){ toast("먼저 참가 선수 닉을 입력하세요"); return; }
       if(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-/.test($("apWho").value.trim())){ toast("자동 감지는 매치ID 말고 선수 닉으로"); return; }
       b.textContent="🟢 자동 감지 ON"; b.style.borderColor="var(--green)"; b.style.color="var(--green)";
+      apRateLimited=false;                    // 재시작 시 이전 경고 상태를 끌고 가지 않는다
+      $("apAutoMsg").style.color="";
       $("apAutoMsg").textContent="새 매치 감지 중…";
       apLastMatch=null;
       var tick=function(){
