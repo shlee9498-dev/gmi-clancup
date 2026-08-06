@@ -875,7 +875,7 @@ function copyApplication(){
         if(out)out.innerHTML='✅ <b>'+(best.platform==='kakao'?'카카오':'스팀')+'</b> · 티어 <b>'+(s.tier||'?')+'</b>'
           +(samp.avgDamage!=null?(' · 평딜 '+Math.round(samp.avgDamage)):'')
           +' · BPI <b>'+(s.bpi!=null?s.bpi:'?')+'</b>'
-          +(s.tier==='S'?' <span style="color:var(--gold)">· S급 (팀당 1명 제한)</span>':'')
+          +(s.tier==='S'?' <span style="color:var(--gold)">· S급 (권장 팀당 1명 · 초과해도 신청 가능)</span>':'')
           +' <span style="color:var(--ink-faint);font-size:11px">현시즌 기준</span>';
         renderBadge();
       })
