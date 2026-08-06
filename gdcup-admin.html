@@ -244,6 +244,9 @@ function render(teams){
       +'<div class="contact">📞 연락/입금자: '+esc(t.contact||'-')+'</div>'
       +'<div class="acts">'
       +'<button class="ok" onclick="saveTiers(\''+t.id+'\')">💾 닉·티어 저장 → 재검증</button>'
+      // 운영진 판정을 그대로 굳히는 경로. 위 버튼은 저장 후 서버가 PUBG로 티어를 다시
+      // 판정해 덮어쓰므로, 손으로 정한 티어가 되돌아간다 — 최종 판정용으로는 이쪽을 쓴다.
+      +'<button class="wait" onclick="saveTiers(\''+t.id+'\',0,1)">🔒 판정 고정 저장</button>'
       +'<button class="ok" onclick="setStatus(\''+t.id+'\',\'confirmed\')">✅ 입금확정</button>'
       +'<button class="wait" onclick="setStatus(\''+t.id+'\',\'applied\')">↩️ 신청대기</button>'
       +'<button class="del" onclick="setStatus(\''+t.id+'\',\'cancelled\')">🗑 취소</button>'
@@ -451,7 +454,10 @@ function downloadObsCsv(enc){
 }
 
 // skipConfirm: 자동 재시도로 다시 들어온 호출. 확인창을 또 띄우지 않는다.
-function saveTiers(teamId,skipConfirm){
+// manual: 서버 재판정 없이 저장(verify:false). 운영진이 정한 티어를 그대로 굳힌다.
+//   기본 저장은 전원 조회 성공 시 서버 판정 티어로 덮어쓰기 때문에, 경계선 인원을
+//   손으로 정하는 흐름에서는 그 판정이 저장 직후 사라진다. PUBG 호출이 없어 즉시 끝난다.
+function saveTiers(teamId,skipConfirm,manual){
   var k=getKey(); if(!k){alert('키를 입력하세요');return;}
   var sels=document.querySelectorAll('.tier-edit[data-team="'+teamId+'"]');
   if(!sels.length)return;
@@ -465,10 +471,14 @@ function saveTiers(teamId,skipConfirm){
   });
   // 닉이 비면 서버가 그 멤버를 빈 슬롯으로 저장해 팀이 조용히 줄어든다 — 미리 막는다.
   if(blank){alert('빈 닉이 있어요. 모든 멤버의 인게임 닉을 채워주세요.');return;}
-  if(!skipConfirm && !window.confirm('저장 후 서버가 PUBG에서 각 멤버를 재조회해 티어를 다시 판정합니다.\n(멤버당 20초 — 4명이면 1분 정도, 창을 닫지 마세요)'))return;
-  var btns=document.querySelectorAll('button[onclick*="saveTiers(\''+teamId+'\')"]');
-  btns.forEach(function(b){b.disabled=true;b.textContent='⏳ 검증 중…';});
-  fetch(GAPI+"/api/gdcup-edit",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify({id:teamId,members:members,verify:true})})
+  var ask=manual
+    ? '입력한 티어를 그대로 저장합니다. 서버 재판정을 하지 않으므로 이 값이 최종으로 굳습니다.\n(BPI·가중치는 이 티어 기준으로 다시 계산됩니다)'
+    : '저장 후 서버가 PUBG에서 각 멤버를 재조회해 티어를 다시 판정합니다.\n(멤버당 20초 — 4명이면 1분 정도, 창을 닫지 마세요)';
+  if(!skipConfirm && !window.confirm(ask))return;
+  // 두 버튼 모두 잡아야 한다 — 인자가 붙은 호출까지 포함하도록 여는 따옴표까지만 맞춘다.
+  var btns=document.querySelectorAll('button[onclick*="saveTiers(\''+teamId+'\'"]');
+  btns.forEach(function(b){b.disabled=true;b.textContent=manual?'⏳ 저장 중…':'⏳ 검증 중…';});
+  fetch(GAPI+"/api/gdcup-edit",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify({id:teamId,members:members,verify:!manual})})
   // HTTP status를 함께 읽는다. 예전엔 r.json()만 봐서 429·500이 전부 '저장 실패'로
   // 뭉뚱그려졌고, 그 문구를 보고 다시 누르는 흐름이 만들어졌다.
   .then(function(r){return r.json().then(function(d){return {status:r.status,d:d};});})
@@ -479,7 +489,7 @@ function saveTiers(teamId,skipConfirm){
       var retryOnce=!rlAutoRetried[rk];
       rlAutoRetried[rk]=true;
       // 저장은 멤버 배열을 통째로 덮어쓰므로 같은 요청을 다시 보내도 결과가 같다(멱등).
-      rlHold(d.retry_after, '티어 저장이 대기 중입니다.', retryOnce?function(){ saveTiers(teamId,true); }:function(){ loadAdmin(); });
+      rlHold(d.retry_after, '티어 저장이 대기 중입니다.', retryOnce?function(){ saveTiers(teamId,true,manual); }:function(){ loadAdmin(); });
       return;
     }
     rlClear();
@@ -494,7 +504,10 @@ function saveTiers(teamId,skipConfirm){
     else if(v&&v.applied){
       msg+='\n\n✅ 전원 조회 성공 — 서버 판정 티어를 반영했습니다.'
         +'\n'+v.members.map(function(m){return '· '+m.ign+' → '+m.serverTier+(m.mismatch?' (신고 '+m.clientTier+'에서 변경)':'');}).join('\n');
-      if(v.teamOk===false){ msg+='\n\n⚠ 팀 구성 규칙 위반: '+(v.teamReasons||[]).map(function(r){return r.code||r;}).join(', '); }
+    }
+    // 상한은 권장값이라 저장을 막지 않는다 — 대신 초과 사실을 여기서 보여준다.
+    if(d.capOk===false && d.capWarnings && d.capWarnings.length){
+      msg+='\n\n⚠ 권장 초과 (저장은 됐습니다)\n· '+d.capWarnings.join('\n· ');
     }
     alert(msg); loadAdmin();
   })
