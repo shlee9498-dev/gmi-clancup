@@ -169,7 +169,12 @@
   // 최고티어가 보장하는 최소 등급 — 서버 gdcupRankedFloor와 같은 매핑.
   // "마스터 + 현시즌 RP 3700+ → S"는 RP가 필요해 여기서 재현할 수 없다(서버 판정 전용).
   function tierFloor(peak){
-    if(peak === '서바이버' || peak === '마스터') return 'T0';
+    // 서바이버는 S가 보장 등급이다. 종전에 마스터와 함께 T0으로 내려서, 이 화면으로
+    // 들어온 최상위 인원이 전부 T0으로 뭉개졌다(세휘네치킨집 687딜이 T0으로 등록된 경로).
+    // 서버 gdcupRankedFloor는 "마스터 + RP 3700+ → S"인데 RP를 여기서 못 읽으므로,
+    // 신고 최고티어가 '서바이버'인 경우만 S로 본다. 최종 판정은 운영진이 admin에서 한다.
+    if(peak === '서바이버') return 'S';
+    if(peak === '마스터') return 'T0';
     if(peak === '다이아' || peak === '크리스탈') return 'T1';
     return null;
   }
