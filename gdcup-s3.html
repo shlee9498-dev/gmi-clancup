@@ -395,11 +395,19 @@ function teamCheck(members){
     msg:'권장 초과 — '+over.join(' · ')+'. 신청은 가능하며 운영진이 조율할 수 있습니다'};
   return {sum:sum,sCnt:sCnt,blocked:false,warn:false,msg:'신청 가능 (합산 '+sum+'/'+(cap!=null?cap:'—')+')'};
 }
-function getWeight(b){
+// sCnt: 팀 내 S등급 인원. 서버 gdcupWeight와 같은 식으로 2명째부터 차감한다 —
+// 빼지 않으면 화면 배율과 서버가 저장하는 weight가 어긋난다(신청자에게 틀린 배율 표시).
+// 차감폭은 meta.sPenaltyPerExtraS가 정본. 여기 숫자를 적지 말 것.
+function getWeight(b, sCnt){
   if(!META||!META.weightTable) return {mult:1,label:'—'};
   for(var i=0;i<META.weightTable.length;i++){
     var r=META.weightTable[i];
-    if(b>=r[0]&&b<=r[1]) return {mult:r[2], label:weightLabel(r[2])};
+    if(b>=r[0]&&b<=r[1]){
+      var per=Number(META.sPenaltyPerExtraS)||0;
+      var extra=Math.max(0,(Number(sCnt)||0)-1);
+      var mult=Math.max(0, Math.round((r[2]-per*extra)*100)/100);
+      return {mult:mult, label:weightLabel(r[2]), sPenalty:+(per*extra).toFixed(2)};
+    }
   }
   return {mult:1,label:'—'};
 }
@@ -500,7 +508,7 @@ function updateBPI(){
   document.getElementById('bpiBreakdown').textContent=parts.join(' + ')+' = '+sum+(parts.some(function(p){return String(p).indexOf('*')>=0;})?'  (* T0 팀장 +1)':'');
   var st=document.getElementById('bpiStatus');
   if(sum===0){st.innerHTML='전적 입력 시 자동 계산';}
-  else{var w=getWeight(sum);var c=w.mult===1.0?'var(--gold)':(w.mult>1?'var(--green)':'var(--orange)');
+  else{var w=getWeight(sum, readMembers().filter(function(m){return m.tier==='S';}).length);var c=w.mult===1.0?'var(--gold)':(w.mult>1?'var(--green)':'var(--orange)');
     st.innerHTML='<span class="label" style="color:'+c+'">'+w.label+'</span><br><span class="mult" style="color:'+c+'">×'+w.mult.toFixed(1)+'</span>';}
 }
 document.addEventListener('input',function(e){ if(e.target.classList.contains('member-peak')||e.target.classList.contains('member-dmg'))updateBPI(); });
@@ -562,7 +570,7 @@ function generateApplication(){
   var fm=members.filter(function(m){return m.name&&m.ign&&m.tier;});
   var bpiSum=0;
   fm.forEach(function(m,i){var v=BPI_MAP[m.tier]; if(i===0&&m.tier==='T0')v+=1; bpiSum+=v;});
-  var weight=getWeight(bpiSum);
+  var weight=getWeight(bpiSum, fm.filter(function(m){return m.tier==='S';}).length);
   var recruiting=4-fm.length;
 
   var L=[];
@@ -770,7 +778,7 @@ function copyApplication(){
   function renderBadge(){
     var b=ensureBadge(); if(!b)return;
     var v=teamCheck(readMembers());
-    var w=getWeight(v.sum);
+    var w=getWeight(v.sum, v.sCnt);
     if(v.blocked){
       b.style.background='rgba(220,60,60,.12)'; b.style.color='#ff9c9c';
       b.innerHTML='❌ '+v.msg;

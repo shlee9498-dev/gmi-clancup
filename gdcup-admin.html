@@ -182,7 +182,9 @@ function render(teams){
                   :'<span class="badge b-confirmed" title="강제확정 — 서버 검증 생략됨">✅ 확정 · ⚠️ 미검증</span>')
       :(st==='cancelled'?'<span class="badge b-cancelled">🗑 취소</span>':'<span class="badge b-applied">⏳ 신청 · 미검증</span>');
     var memEdit=(t.members||[]).filter(function(m){return m.ign;}).map(function(m,mi){
-      var opts=['T0','T1','T2','T3','T4','T5'].map(function(tt){return '<option value="'+tt+'"'+(m.tier===tt?' selected':'')+'>'+tt+'</option>';}).join('');
+      // S를 맨 앞에 둔다. 종전엔 T0~T5뿐이라 운영진이 최상위 인원을 S로 지정할 방법이
+      // 아예 없었고, 서버·BPI 스케일(S=13)에는 S가 있는데 이 화면에서만 막혀 있었다.
+      var opts=['S','T0','T1','T2','T3','T4','T5'].map(function(tt){return '<option value="'+tt+'"'+(m.tier===tt?' selected':'')+'>'+tt+'</option>';}).join('');
       // 닉은 인라인 편집 — 닉변·오타로 PUBG 조회가 실패하면 ⚠ 미검증이 뜨는데,
       // 여기서 못 고치면 SQL 말고는 방법이 없었다. 저장 시 서버가 재검증까지 돌린다.
       // pubgOk: 마지막 재검증에서 PUBG 조회가 됐는지. null = 아직 검증 안 함.
