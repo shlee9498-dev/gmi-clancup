@@ -278,9 +278,39 @@ function confirmDenied(d){
 }
 // opts.skipConfirm: 자동 재시도로 다시 들어온 호출. 확인창을 또 띄우지 않는다.
 // opts.forceReason: 강제확정 사유를 이미 받아둔 경우 재입력을 생략한다.
+// ── 확정 진행 표시 ──
+// 확정은 서버에서 최소 60초 걸린다 — verifyTeamTiers가 멤버마다 VERIFY_PACE_MS(20초)로
+// PUBG를 조회하기 때문이다(4인팀 = 20초 x 3). 그동안 화면에 아무 변화가 없어서
+// "버튼이 렉으로 안 눌린다"로 읽혔고, 운영자가 연타하게 만들었다.
+// 경과 초를 세어 보여주고, 끝날 때까지 재진입을 막는다.
+var _confirmBusy = false, _busyEl = null, _busyTimer = null;
+function busyOn(msg){
+  _confirmBusy = true;
+  if(!_busyEl){
+    _busyEl = document.createElement('div');
+    _busyEl.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:99;'
+      + 'background:#1a1a20;border:1px solid #f5c518;color:#f5c518;padding:12px 20px;border-radius:10px;'
+      + 'font-weight:700;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.6);';
+    document.body.appendChild(_busyEl);
+  }
+  var t0 = Date.now();
+  var tick = function(){
+    var s = Math.round((Date.now()-t0)/1000);
+    _busyEl.textContent = msg + ' — ' + s + '초 경과 (최대 1분 이상, 창을 닫지 마세요)';
+  };
+  tick(); _busyEl.style.display='block';
+  clearInterval(_busyTimer); _busyTimer = setInterval(tick, 1000);
+}
+function busyOff(){
+  _confirmBusy = false;
+  clearInterval(_busyTimer); _busyTimer = null;
+  if(_busyEl) _busyEl.style.display='none';
+}
 function setStatus(id,status,force,opts){
   opts=opts||{};
   var k=getKey(); if(!k)return;
+  // 진행 중 재진입 차단 — 연타하면 같은 팀에 확정 요청이 겹쳐 PUBG 쿼터만 태운다.
+  if(_confirmBusy){ alert('이전 확정 처리가 아직 진행 중입니다.\n완료될 때까지 기다려주세요.'); return; }
   if(!opts.skipConfirm){
     if(status==='cancelled' && !confirm('이 팀을 취소(명단에서 제외)할까요?'))return;
     if(status==='confirmed'&&!force){
@@ -296,9 +326,12 @@ function setStatus(id,status,force,opts){
     }
     body.force=1; body.force_reason=why;
   }
+  // 확정(PUBG 재검증)만 오래 걸린다. 취소·되돌리기·강제확정은 쿼터를 안 타서 즉시 끝난다.
+  if(status==='confirmed' && !force) busyOn('팀 전적 재검증 중');
   fetch(GAPI+"/api/gdcup-confirm",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify(body)})
   .then(function(r){return r.json().then(function(d){return {status:r.status,d:d};});})
   .then(function(res){
+    busyOff();
     var d=res.d||{};
     if(res.status===429){
       // 자동 재시도는 팀+동작 조합당 1회까지만. 그 뒤에는 사람이 판단한다.
@@ -320,7 +353,7 @@ function setStatus(id,status,force,opts){
     }
     alert('처리 실패: '+(d.error||res.status));
   })
-  .catch(function(){rlClear();alert('네트워크 오류 — 검증이 오래 걸리는 중일 수 있어요. 새로고침 후 상태를 확인해주세요.');});
+  .catch(function(){busyOff();rlClear();alert('네트워크 오류 — 검증이 오래 걸리는 중일 수 있어요. 새로고침 후 상태를 확인해주세요.');});
 }
 
 // ── 옵저버 CSV — 확정 팀만. 태그는 results.html과 같은 규칙을 쓴다(한 번 정해 두 곳 사용).
