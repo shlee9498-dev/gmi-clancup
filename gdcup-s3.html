@@ -181,7 +181,7 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
     <div class="tl-item"><div class="tl-date">8/6 (목)</div><div class="tl-body"><div class="tl-title">신청 마감 · 최종 확정</div><div class="tl-desc">솔로 매칭 마무리 · 최종 16팀 확정</div></div></div>
     <div class="tl-item"><div class="tl-date">8/7 (금)</div><div class="tl-body"><div class="tl-title">당일 — 19:30 대기</div><div class="tl-desc">⚡ 20:00 이벤트매치(솔로 2판, 오픈) · 🏆 21:00 본선(스쿼드 5판) · 본선은 5판이라 자정 이후 종료 가능</div></div></div>
   </div>
-  <div class="callout"><strong>📌 시즌3 변경점</strong> — ① 신청 시 <strong>멤버별 실명·계좌(본인 명의)</strong>를 받아 상금을 개별 자동 정산합니다(시즌2는 팀장 수기 취합). ② <strong>S급 신설</strong> + 팀 합산 BPI 상한·S급 인원 제한이 적용되어, 초과 팀은 접수되지 않습니다.</div>
+  <div class="callout"><strong>📌 시즌3 변경점</strong> — ① 신청 시 <strong>멤버별 실명·계좌(본인 명의)</strong>를 받아 상금을 개별 자동 정산합니다(시즌2는 팀장 수기 취합). ② <strong>S급 신설</strong> + 팀 합산 BPI·S급 인원 <strong>권장 기준</strong>이 생겼습니다. 초과해도 접수되며, 밸런스 조정을 위해 운영진이 팀 구성을 조율할 수 있습니다.</div>
 </section>
 
 <!-- EVENT MATCH (솔로 경쟁전 2판 · 오픈) — 보상 확정으로 복원(2026-07-31).
@@ -206,7 +206,9 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
 <!-- BPI SYSTEM -->
 <section id="rules" class="anchor">
   <div class="section-head"><div class="section-kicker">BPI SYSTEM</div><h2 class="section-title">티어 · BPI</h2>
-  <p class="section-desc">배그 닉으로 <b style="color:var(--gold)">전적 자동조회</b>를 누르면 현시즌 기준으로 티어·BPI가 산정됩니다. 팀 합산 BPI <b style="color:var(--gold)" id="capProse">—</b>이 상한이며 <b style="color:var(--gold)" id="sCapProse">S급은 팀당 1명</b>까지입니다. <span style="color:var(--ink-faint);">가중치는 서버 기준으로 실시간 표시됩니다.</span></p></div>
+  <!-- 상한 → 권장 (2026-08-06 오너 방침). 숫자는 여전히 meta가 채운다(capProse·sCapProse) —
+       본문에 38을 적어두면 서버 상한이 바뀔 때 어긋난다(과거 구표 노출 사고). -->
+  <p class="section-desc">배그 닉으로 <b style="color:var(--gold)">전적 자동조회</b>를 누르면 현시즌 기준으로 티어·BPI가 산정됩니다. 팀 합산 BPI <b style="color:var(--gold)" id="capProse">—</b> 이하, <b style="color:var(--gold)" id="sCapProse">S급은 팀당 1명</b>을 권장합니다. 밸런스 조정을 위해 운영진이 팀 구성을 조율할 수 있습니다. <span style="color:var(--ink-faint);">가중치는 서버 기준으로 실시간 표시됩니다.</span></p></div>
   <div class="card">
     <table class="tier-table">
       <thead><tr><th>티어</th><th>기준 (최고티어 · 평균딜)</th><th>BPI</th><th>역할</th></tr></thead>
@@ -277,7 +279,7 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
 
     <div class="bpi-live">
       <div class="bpi-live-head">
-        <div><div style="font-size:11px;color:var(--ink-faint);letter-spacing:0.05em;">팀 BPI 합계</div><div class="bpi-sum"><span id="bpiSum">0</span><span class="max" id="bpiCapLabel"> / 상한 —</span></div></div>
+        <div><div style="font-size:11px;color:var(--ink-faint);letter-spacing:0.05em;">팀 BPI 합계</div><div class="bpi-sum"><span id="bpiSum">0</span><span class="max" id="bpiCapLabel"> / 권장 —</span></div></div>
         <div class="bpi-status" id="bpiStatus" style="text-align:right;">전적 입력 시 자동 계산</div>
       </div>
       <div class="bpi-breakdown" id="bpiBreakdown">_ + _ + _ + _ = 0</div>
@@ -382,10 +384,16 @@ function teamCheck(members){
   var sum=0; fm.forEach(function(m,i){var v=BPI_MAP[m.tier]||0; if(i===0&&m.tier==='T0')v+=1; sum+=v;});
   var sCnt=fm.filter(function(m){return m.tier==='S';}).length;
   var cap=teamCap(), sCap=sTierCap();
-  if(!META) return {sum:sum,sCnt:sCnt,blocked:true,msg:'룰 정보를 불러오지 못했습니다 — 새로고침해주세요'};
-  if(sCap!=null&&sCnt>sCap) return {sum:sum,sCnt:sCnt,blocked:true,msg:'S급은 팀당 '+sCap+'명만 가능합니다 (현재 '+sCnt+'명)'};
-  if(cap!=null&&sum>cap)   return {sum:sum,sCnt:sCnt,blocked:true,msg:'합산 '+sum+' — 상한 '+cap+' 초과. '+(sum-cap)+'점 낮춰야 합니다'};
-  return {sum:sum,sCnt:sCnt,blocked:false,msg:'신청 가능 (합산 '+sum+'/'+(cap!=null?cap:'—')+')'};
+  // blocked = 제출 자체가 불가능한 상태. warn = 접수는 되지만 운영진 조율 대상.
+  // 상한이 권장으로 바뀌면서(2026-08-06) BPI·S급은 blocked에서 warn으로 내려왔다.
+  // META 미로드만 blocked로 남는다 — 룰을 모르는 채 계산하면 틀린 BPI로 제출된다.
+  if(!META) return {sum:sum,sCnt:sCnt,blocked:true,warn:false,msg:'룰 정보를 불러오지 못했습니다 — 새로고침해주세요'};
+  var over=[];
+  if(sCap!=null&&sCnt>sCap) over.push('S급 '+sCnt+'명 (권장 팀당 '+sCap+'명)');
+  if(cap!=null&&sum>cap)    over.push('합산 '+sum+' (권장 '+cap+' 이하, +'+(sum-cap)+')');
+  if(over.length) return {sum:sum,sCnt:sCnt,blocked:false,warn:true,
+    msg:'권장 초과 — '+over.join(' · ')+'. 신청은 가능하며 운영진이 조율할 수 있습니다'};
+  return {sum:sum,sCnt:sCnt,blocked:false,warn:false,msg:'신청 가능 (합산 '+sum+'/'+(cap!=null?cap:'—')+')'};
 }
 function getWeight(b){
   if(!META||!META.weightTable) return {mult:1,label:'—'};
@@ -629,7 +637,16 @@ function copyApplication(){
           alert('신청이 접수되지 않았습니다.\n\n'+(why||d.message||d.error||'서버 검증 실패')); return;
         }
         _sent=true; if(d.teams!=null)setCount(d.teams);
-        if(d.warnings&&d.warnings.length){
+        // 권장 초과로 접수된 경우 — 서버가 capWarnings를 준다. 접수는 됐다는 걸 먼저 말하고
+        // 조율 가능성을 덧붙인다. 등록계 경고(d.warnings)와 성격이 달라 문구를 분리한다.
+        if(d.capWarnings&&d.capWarnings.length){
+          var cw=document.getElementById('regWarn');
+          if(cw){ cw.innerHTML='신청이 접수됐습니다. <b style="color:var(--gold)">권장 기준 초과</b> — '
+            +d.capWarnings.map(function(t){return t.replace(/[<>&]/g,'');}).join(' · ')
+            +'. <span style="opacity:.8">밸런스 조정을 위해 운영진이 팀 구성을 조율할 수 있습니다.</span>';
+            cw.style.display='block'; }
+        }
+        else if(d.warnings&&d.warnings.length){
           var w=document.getElementById('regWarn');
           if(w){ w.innerHTML='신청은 접수됐습니다. <span style="opacity:.8">참고: 클랜원은 전적관리 ID(<code>/등록계</code>) 등록 대상입니다 — 용병은 해당 없습니다.</span>'; w.style.display='block'; }
         }
@@ -757,6 +774,10 @@ function copyApplication(){
     if(v.blocked){
       b.style.background='rgba(220,60,60,.12)'; b.style.color='#ff9c9c';
       b.innerHTML='❌ '+v.msg;
+    }else if(v.warn){
+      // 권장 초과 — 제출은 열어두되 눈에 띄게. 빨강(차단)과 구분해 골드 계열로.
+      b.style.background='rgba(245,197,24,.14)'; b.style.color='var(--gold)';
+      b.innerHTML='⚠ '+v.msg+' · 가중치 ×'+w.mult.toFixed(2)+' ('+w.label+')';
     }else{
       b.style.background='rgba(245,197,24,.10)'; b.style.color='var(--gold)';
       b.innerHTML='✅ '+v.msg+' · 가중치 ×'+w.mult.toFixed(2)+' ('+w.label+')';
@@ -768,7 +789,7 @@ function copyApplication(){
   function applyMeta(){
     BPI_MAP = META.bpiScale || {};
     var lab=document.getElementById('bpiCapLabel');
-    if(lab) lab.textContent=' / 상한 '+(META.cap&&META.cap.team!=null?META.cap.team:'—');
+    if(lab) lab.textContent=' / 권장 '+(META.cap&&META.cap.team!=null?META.cap.team:'—');
     // 안내 문구의 상한·S급 인원도 meta에서 — 숫자를 본문에 적어두면 서버와 어긋난다.
     var cp=document.getElementById('capProse');
     if(cp) cp.textContent=(META.cap&&META.cap.team!=null?META.cap.team:'—');
