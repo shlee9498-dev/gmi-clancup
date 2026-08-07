@@ -118,6 +118,8 @@
         <span id="apAutoMsg" style="font-size:12px;color:var(--faint);"></span>
       </div>
       <div style="font-size:12px;color:var(--faint);margin-top:8px;"><b>불러오기</b>=폼만 채움(검토용) · <b>불러와서 저장</b>=채우고 바로 저장 · <b>자동 감지</b>=새 매치 뜰 때마다 알아서 저장(라운드 탭 맞춰두기). (PUBG 키 필요)</div>
+      <!-- 킬 미귀속 색출. 로스터에 있는데 이 매치에 안 잡힌 선수 = 킬이 통째로 빈다. -->
+      <div id="apMissing" style="display:none;margin-top:10px;"></div>
     </div>
     <div id="list"></div>
   </div>
@@ -194,6 +196,33 @@
     });
     return filled;
   }
+  // 로스터에 있는데 이 매치에 안 잡힌 선수 = 킬이 통째로 빈다(카카오 등록 ↔ 스팀 접속,
+  // 닉 오탈자). unmatched 의 뒷면이라 "누구 킬이 비었나"에 바로 답한다.
+  // 교체로 빠진 건 서버가 roster_log 로 걸러 substituted 로 내려주므로 아래로 내린다 —
+  // R3 교체가 걸린 팀 때문에 가짜 경보가 뜨면 목록 자체를 안 보게 된다.
+  function renderMissing(d){
+    var box=$("apMissing"); if(!box) return;
+    var rows=(d&&d.missing)||[];
+    if(!rows.length){ box.style.display="none"; box.innerHTML=""; return; }
+    var bad=[], ok=[];
+    rows.forEach(function(r){ (r.substituted?ok:bad).push(r); });
+    var h="";
+    if(bad.length){
+      h+='<div style="background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.45);border-radius:10px;padding:10px 12px;">'
+        +'<div style="color:#fca5a5;font-weight:700;font-size:13px;">⚠ 킬 미귀속 '+bad.length+'명 — 이 선수들의 킬은 집계에 안 들어갑니다</div>'
+        +'<div style="font-size:12px;color:var(--faint);margin:6px 0 8px;">로스터 닉이 이 매치에 없습니다. 플랫폼 불일치(카카오 등록 ↔ 스팀 접속)이거나 닉 오탈자입니다.</div>'
+        +bad.map(function(r){
+            var ex=(r.reservesInMatch&&r.reservesInMatch.length)?' · 예비 출전 중: '+r.reservesInMatch.map(esc).join(", "):'';
+            return '<div style="font-size:13px;padding:2px 0;"><b>'+esc(r.team_name)+'</b> — <code>'+esc(r.ign)+'</code>'+(r.tier?' ('+esc(r.tier)+')':'')+ex+'</div>';
+          }).join('')
+        +'</div>';
+    }
+    if(ok.length){
+      h+='<div style="font-size:12px;color:var(--faint);margin-top:'+(bad.length?'8px':'0')+';">교체로 설명됨 '+ok.length+'명 — '
+        +ok.map(function(r){ return esc(r.team_name)+' '+esc(r.ign)+'→'+esc(r.replacedBy||'?'); }).join(' · ')+'</div>';
+    }
+    box.innerHTML=h; box.style.display="";
+  }
   function autoPull(opts){
     opts=opts||{};
     var plat=$("apPlat").value, who=$("apWho").value.trim();
@@ -249,9 +278,11 @@
           toast("⚠ 서버가 시즌 "+d.season+"로 조회했습니다 (현재 화면 시즌 "+season+") — 입력값을 확인하세요");
         }
         var filled = opts.peek ? 0 : fillFromPull(d);
+        if(!opts.peek) renderMissing(d);
         if(!opts.silent){
           var msg="✅ "+filled+"팀 자동 입력 ("+(d.mode||"")+")";
           if(d.unmatched && d.unmatched.length) msg+=" · 미매칭 "+d.unmatched.length+"명";
+          if(d.missingUnexplained) msg+=" · ⚠ 킬 미귀속 "+d.missingUnexplained+"명";
           if(!filled) msg="매칭된 팀 없음 · 닉/플랫폼 확인";
           toast(msg);
         }
