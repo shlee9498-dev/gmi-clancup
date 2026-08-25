@@ -105,6 +105,7 @@
       <label>신청한 팀 <span class="req">*</span></label>
       <select id="teamSelect"><option value="">팀 목록 불러오는 중…</option></select>
       <div class="hint">팀명이 안 보이면 아직 신청이 안 된 상태예요. 먼저 <a href="gdcup-s3.html" style="color:var(--gold)">팀 신청</a>을 해주세요.</div>
+      <div class="hint" id="bpiNotice" style="display:none;"></div>
       <div class="roster" id="roster">
         <div id="rosterLines"></div>
         <div class="r-meta">
@@ -384,6 +385,15 @@
       if(d && d.currentSeason){
         $('kick').textContent = 'G드컵 SEASON ' + d.currentSeason;
         $('foot-season').textContent = 'G드컵 시즌' + d.currentSeason;
+      }
+      /* BPI 산정 기준 시점 — 서버 meta.bpi가 정본. 날짜·시즌을 이 파일에 하드코딩하지 말 것
+         (구 표 ×1.0 갈라짐 사고와 같은 형태 방지 · 관제탑 8/25). 값이 없으면 표시하지 않는다. */
+      if (d && d.bpi && d.bpi.asOf) {
+        var bn = document.getElementById("bpiNotice");
+        if (bn) {
+          bn.textContent = "BPI 기준: " + d.bpi.asOf + " 시점 " + d.bpi.season + "시즌 최종 전적 (대회 시점의 새 시즌 전적은 반영되지 않습니다)";
+          bn.style.display = "";
+        }
       }
     }).catch(function(){
       var s = $('msg');
