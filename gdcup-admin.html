@@ -48,8 +48,17 @@ h1{font-size:20px;margin-bottom:4px;}
   <button class="btn btn-gold" onclick="saveKeyAndLoad()">불러오기</button>
 </div>
 <div id="warn"></div>
+<!-- 레이트리밋 안내 배너 — 429일 때만 보인다. 문구는 상태 고지에 한정하고
+     재시도를 권하는 표현을 쓰지 않는다. 안내를 보고 연타하면 대회 운영이 막힌다. -->
+<div id="rlBanner" style="display:none;margin-bottom:10px;padding:10px 12px;border-radius:8px;
+     background:#3a2a12;border:1px solid #7a5a1e;font-size:13px;line-height:1.55;"></div>
 <button class="btn btn-ghost" style="width:100%;margin-bottom:8px;" onclick="postBoard()">📋 디코에 '현재 모집현황' 게시</button>
-<button class="btn btn-ghost" style="width:100%;margin-bottom:14px;" onclick="downloadObsCsv()">⬇️ 옵저버 CSV 내려받기 (확정 팀)</button>
+<button class="btn btn-ghost" style="width:100%;margin-bottom:6px;" onclick="downloadObsCsv('utf8')">⬇️ 옵저버 CSV 내려받기 (확정 팀)</button>
+<div style="display:flex;gap:6px;margin-bottom:6px;">
+  <button class="btn btn-ghost" style="flex:1;" onclick="downloadObsCsv('cp949')">CP949로</button>
+  <button class="btn btn-ghost" style="flex:1;" onclick="downloadObsCsv('ascii')">영문 태그로</button>
+</div>
+<p class="sub" style="margin-bottom:14px;">기본은 BOM 없는 UTF-8. 옵저버에서 한글이 깨지면 CP949 → 그래도 깨지면 영문 태그 순으로 시도하세요.</p>
 <div class="stat" id="stat"></div>
 <div id="list"><div class="msg">키를 입력하고 불러오기를 누르세요.</div></div>
 
@@ -64,6 +73,55 @@ h1{font-size:20px;margin-bottom:4px;}
 
 <script>
 var GAPI="https://mri-academy-production.up.railway.app";
+
+// ─── 레이트리밋(429) 처리 ────────────────────────────────────────────────
+// 서버가 429와 함께 retry_after(초)를 준다. 그동안 버튼을 잠그고 남은 시간을 세어
+// 보여준다. 잠그는 이유는 안내가 아니라 차단이다 — 예전에 "재시도해주세요" 안내를
+// 보고 4번 눌러 40판이 중복 기록된 적이 있다. 문구도 행동을 유도하지 않는 형태로만
+// 쓴다("n초 후 다시 시도할 수 있습니다"). 자동 재시도는 딱 1회까지만 하고, 그 뒤에는
+// 사람이 판단하도록 넘긴다 — 자동으로 계속 두드리면 차단이 길어질 뿐이다.
+var rlTimer=null, rlAutoRetried={};
+function rlLockButtons(lock){
+  var btns=document.querySelectorAll('button');
+  for(var i=0;i<btns.length;i++){
+    var b=btns[i];
+    if(lock){ if(!b.disabled){ b.disabled=true; b.setAttribute('data-rl-locked','1'); } }
+    else if(b.getAttribute('data-rl-locked')==='1'){ b.disabled=false; b.removeAttribute('data-rl-locked'); }
+  }
+}
+// what: 무엇이 대기 중인지 사람이 읽을 문구. onReady: 카운트다운이 끝났을 때 실행(자동 재시도 1회).
+function rlHold(retryAfter, what, onReady){
+  var left=Math.max(1, Number(retryAfter)||60);
+  var el=document.getElementById('rlBanner');
+  if(rlTimer){clearInterval(rlTimer);rlTimer=null;}
+  rlLockButtons(true);
+  el.style.display='block';
+  function paint(){
+    el.innerHTML='⏳ <b>요청이 잠시 제한되었습니다</b> — '+what+
+      '<br><span style="opacity:.85">'+left+'초 후 다시 시도할 수 있습니다. 그동안 버튼은 잠겨 있습니다.</span>';
+  }
+  paint();
+  rlTimer=setInterval(function(){
+    left--;
+    if(left>0){paint();return;}
+    clearInterval(rlTimer); rlTimer=null;
+    rlLockButtons(false);
+    if(onReady){
+      el.innerHTML='🔄 <b>제한이 풀렸습니다</b> — '+what+' 자동으로 한 번 이어서 진행합니다.';
+      onReady();
+    }else{
+      el.innerHTML='✅ <b>제한이 풀렸습니다</b> — '+what+
+        '<br><span style="opacity:.85">진행 상황은 목록에서 확인하세요.</span>';
+      setTimeout(function(){ el.style.display='none'; },6000);
+    }
+  },1000);
+}
+function rlClear(){
+  if(rlTimer){clearInterval(rlTimer);rlTimer=null;}
+  rlLockButtons(false);
+  var el=document.getElementById('rlBanner');
+  if(el) el.style.display='none';
+}
 // 시즌 목록·기본값은 서버(/api/gdcup-meta)에서 받는다. 여기에 하드코딩하면
 // 시즌이 늘 때마다 프론트를 고쳐야 하고, 서버와 어긋나면 조회 시즌이 틀어진다.
 var SEASON=null;
@@ -111,6 +169,8 @@ function loadAdmin(){
 }
 
 function render(teams){
+  // 예비·교체 편집이 현재 값 위에서 이뤄져야 해서 id로 찾을 수 있게 캐싱한다.
+  TEAMS_BY_ID={}; teams.forEach(function(t){ TEAMS_BY_ID[String(t.id)]=t; });
   var applied=0,confirmed=0;
   teams.forEach(function(t){ if(t.status==='confirmed')confirmed++; else if(t.status!=='cancelled')applied++; });
   document.getElementById('stat').innerHTML='✅ 확정 <b>'+confirmed+'</b> · ⏳ 신청 <b>'+applied+'</b> / 16팀';
@@ -123,8 +183,15 @@ function render(teams){
       ?(t.verified?'<span class="badge b-confirmed">✅ 확정 · 검증됨</span>'
                   :'<span class="badge b-confirmed" title="강제확정 — 서버 검증 생략됨">✅ 확정 · ⚠️ 미검증</span>')
       :(st==='cancelled'?'<span class="badge b-cancelled">🗑 취소</span>':'<span class="badge b-applied">⏳ 신청 · 미검증</span>');
-    var memEdit=(t.members||[]).filter(function(m){return m.ign;}).map(function(m,mi){
-      var opts=['T0','T1','T2','T3','T4','T5'].map(function(tt){return '<option value="'+tt+'"'+(m.tier===tt?' selected':'')+'>'+tt+'</option>';}).join('');
+    // 🔴 닉이 빈 멤버도 반드시 그린다. 종전엔 filter(m=>m.ign)로 빼버려서,
+    // 아직 IGN을 못 받은 멤버가 편집기에 아예 안 뜨고 → saveTiers가 그 멤버를
+    // 빼고 저장 → 팀이 4인에서 3인으로 조용히 줄고 BPI·가중치가 어긋났다.
+    // 아래 blank 가드는 "그려진 칸이 비었을 때"만 걸려서 이 경로를 못 잡았다.
+    // (실제 사고: 현태팀 대승 IGN 미수신 상태에서 티어 저장 → 4인이 3인이 됨)
+    var memEdit=(t.members||[]).map(function(m,mi){
+      // S를 맨 앞에 둔다. 종전엔 T0~T5뿐이라 운영진이 최상위 인원을 S로 지정할 방법이
+      // 아예 없었고, 서버·BPI 스케일(S=13)에는 S가 있는데 이 화면에서만 막혀 있었다.
+      var opts=['S','T0','T1','T2','T3','T4','T5'].map(function(tt){return '<option value="'+tt+'"'+(m.tier===tt?' selected':'')+'>'+tt+'</option>';}).join('');
       // 닉은 인라인 편집 — 닉변·오타로 PUBG 조회가 실패하면 ⚠ 미검증이 뜨는데,
       // 여기서 못 고치면 SQL 말고는 방법이 없었다. 저장 시 서버가 재검증까지 돌린다.
       // pubgOk: 마지막 재검증에서 PUBG 조회가 됐는지. null = 아직 검증 안 함.
@@ -166,7 +233,9 @@ function render(teams){
         +'<span style="font-size:13px;flex:0 0 auto;">'+(mi===0?'👑':'&nbsp;&nbsp;')+mark
         +'</span>'
         +'<input class="ign-edit" type="text" value="'+esc(m.ign||'')+'" maxlength="40" spellcheck="false" autocomplete="off"'
-        +' data-team="'+t.id+'" data-idx="'+mi+'" title="인게임 닉 — 고친 뒤 💾 저장하면 서버가 재검증합니다" style="'+inpStyle+'">'
+        +(m.ign?'':' placeholder="IGN 미수신 — 채워야 저장됩니다"')
+        +' data-team="'+t.id+'" data-idx="'+mi+'" title="인게임 닉 — 고친 뒤 💾 저장하면 서버가 재검증합니다" style="'+inpStyle
+        +(m.ign?'':';border-color:var(--gold)')+'">'
         +(m.peak?'<span title="본인이 신청서에 적은 값 — 판정 근거가 아닙니다" style="color:var(--ink-faint);font-size:11px;flex:0 0 auto;">신고 '+esc(m.peak)+'/'+esc(m.dmg||'?')+'딜</span>':'')
         +judgeBasis(m)
         +'<select class="tier-edit" data-team="'+t.id+'" data-idx="'+mi+'" data-name="'+esc(m.name||'')+'" data-peak="'+esc(m.peak||'')+'" data-dmg="'+esc(m.dmg||'')+'" style="background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:5px 8px;border-radius:6px;font-size:13px;flex:0 0 auto;">'+opts+'</select>'
@@ -177,13 +246,19 @@ function render(teams){
       +(t.slogan?'<div class="meta">“'+esc(t.slogan)+'”</div>':'')
       +'<div class="meta" style="margin-bottom:2px;">멤버 — 티어 바꾸면 💾 저장</div>'
       +(memEdit||'<div class="meta">-</div>')
-      +'<div class="meta">팀 BPI: <b>'+esc(t.bpi)+'</b>'+(t.weight!=null?' (가중치 ×'+esc(t.weight)+')':'')+'</div>'
+      // "확정 4인 기준"을 붙인다 — 예비가 보이기 시작하면 BPI에 포함된 걸로 읽힌다.
+      +'<div class="meta">팀 BPI: <b>'+esc(t.bpi)+'</b>'+(t.weight!=null?' (가중치 ×'+esc(t.weight)+')':'')
+        +' <span style="color:var(--ink-faint);">— 확정 4인 기준(예비 미반영)</span></div>'
+      +reserveBlock(t)
       // 조치가 필요한 건 not_found 뿐. no_season은 정상 상태라 정보성으로만 적는다.
       +(t.pubgFailed?'<div class="meta" style="color:#f87171;">❌ 닉 조회 실패 '+t.pubgFailed+'명 — 정확한 인게임 닉으로 고친 뒤 💾 저장하세요</div>':'')
       +(t.pubgNoSeason?'<div class="meta" style="color:#fbbf24;">⚠ 시즌 기록 없음 '+t.pubgNoSeason+'명 — 계정은 확인됨, 참가 가능(티어는 신고값 유지)</div>':'')
       +'<div class="contact">📞 연락/입금자: '+esc(t.contact||'-')+'</div>'
       +'<div class="acts">'
       +'<button class="ok" onclick="saveTiers(\''+t.id+'\')">💾 닉·티어 저장 → 재검증</button>'
+      // 운영진 판정을 그대로 굳히는 경로. 위 버튼은 저장 후 서버가 PUBG로 티어를 다시
+      // 판정해 덮어쓰므로, 손으로 정한 티어가 되돌아간다 — 최종 판정용으로는 이쪽을 쓴다.
+      +'<button class="wait" onclick="saveTiers(\''+t.id+'\',0,1)">🔒 판정 고정 저장</button>'
       +'<button class="ok" onclick="setStatus(\''+t.id+'\',\'confirmed\')">✅ 입금확정</button>'
       +'<button class="wait" onclick="setStatus(\''+t.id+'\',\'applied\')">↩️ 신청대기</button>'
       +'<button class="del" onclick="setStatus(\''+t.id+'\',\'cancelled\')">🗑 취소</button>'
@@ -218,22 +293,74 @@ function confirmDenied(d){
   }
   alert(lines.join('\n'));
 }
-function setStatus(id,status,force){
+// opts.skipConfirm: 자동 재시도로 다시 들어온 호출. 확인창을 또 띄우지 않는다.
+// opts.forceReason: 강제확정 사유를 이미 받아둔 경우 재입력을 생략한다.
+// ── 확정 진행 표시 ──
+// 확정은 서버에서 최소 60초 걸린다 — verifyTeamTiers가 멤버마다 VERIFY_PACE_MS(20초)로
+// PUBG를 조회하기 때문이다(4인팀 = 20초 x 3). 그동안 화면에 아무 변화가 없어서
+// "버튼이 렉으로 안 눌린다"로 읽혔고, 운영자가 연타하게 만들었다.
+// 경과 초를 세어 보여주고, 끝날 때까지 재진입을 막는다.
+var _confirmBusy = false, _busyEl = null, _busyTimer = null;
+function busyOn(msg){
+  _confirmBusy = true;
+  if(!_busyEl){
+    _busyEl = document.createElement('div');
+    _busyEl.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:99;'
+      + 'background:#1a1a20;border:1px solid #f5c518;color:#f5c518;padding:12px 20px;border-radius:10px;'
+      + 'font-weight:700;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.6);';
+    document.body.appendChild(_busyEl);
+  }
+  var t0 = Date.now();
+  var tick = function(){
+    var s = Math.round((Date.now()-t0)/1000);
+    _busyEl.textContent = msg + ' — ' + s + '초 경과 (최대 1분 이상, 창을 닫지 마세요)';
+  };
+  tick(); _busyEl.style.display='block';
+  clearInterval(_busyTimer); _busyTimer = setInterval(tick, 1000);
+}
+function busyOff(){
+  _confirmBusy = false;
+  clearInterval(_busyTimer); _busyTimer = null;
+  if(_busyEl) _busyEl.style.display='none';
+}
+function setStatus(id,status,force,opts){
+  opts=opts||{};
   var k=getKey(); if(!k)return;
-  if(status==='cancelled' && !confirm('이 팀을 취소(명단에서 제외)할까요?'))return;
-  if(status==='confirmed'&&!force){
-    if(!window.confirm('확정 시 서버가 멤버 전적을 재검증합니다.\n(최대 1분 정도 걸릴 수 있어요 — 창을 닫지 마세요)'))return;
+  // 진행 중 재진입 차단 — 연타하면 같은 팀에 확정 요청이 겹쳐 PUBG 쿼터만 태운다.
+  if(_confirmBusy){ alert('이전 확정 처리가 아직 진행 중입니다.\n완료될 때까지 기다려주세요.'); return; }
+  if(!opts.skipConfirm){
+    if(status==='cancelled' && !confirm('이 팀을 취소(명단에서 제외)할까요?'))return;
+    if(status==='confirmed'&&!force){
+      if(!window.confirm('확정 시 서버가 멤버 전적을 재검증합니다.\n(최대 1분 정도 걸릴 수 있어요 — 창을 닫지 마세요)'))return;
+    }
   }
   var body={id:id,status:status};
   if(force){
-    var why=window.prompt('강제확정 사유 (감사 기록에 남습니다):','PUBG API 장애');
-    if(why===null)return;
+    var why=opts.forceReason;
+    if(why==null){
+      why=window.prompt('강제확정 사유 (감사 기록에 남습니다):','PUBG API 장애');
+      if(why===null)return;
+    }
     body.force=1; body.force_reason=why;
   }
+  // 확정(PUBG 재검증)만 오래 걸린다. 취소·되돌리기·강제확정은 쿼터를 안 타서 즉시 끝난다.
+  if(status==='confirmed' && !force) busyOn('팀 전적 재검증 중');
   fetch(GAPI+"/api/gdcup-confirm",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify(body)})
   .then(function(r){return r.json().then(function(d){return {status:r.status,d:d};});})
   .then(function(res){
+    busyOff();
     var d=res.d||{};
+    if(res.status===429){
+      // 자동 재시도는 팀+동작 조합당 1회까지만. 그 뒤에는 사람이 판단한다.
+      var rk='confirm:'+id+':'+status+':'+(force?1:0);
+      var retryOnce=!rlAutoRetried[rk];
+      rlAutoRetried[rk]=true;
+      rlHold(d.retry_after, '팀 확정 처리가 대기 중입니다.', retryOnce?function(){
+        setStatus(id,status,force,{skipConfirm:true,forceReason:body.force_reason});
+      }:null);
+      return;
+    }
+    rlClear();
     if(d.ok){loadAdmin();return;}
     if(res.status===409){confirmDenied(d);return;}
     if(res.status===503){
@@ -243,12 +370,14 @@ function setStatus(id,status,force){
     }
     alert('처리 실패: '+(d.error||res.status));
   })
-  .catch(function(){alert('네트워크 오류 — 검증이 오래 걸리는 중일 수 있어요. 새로고침 후 상태를 확인해주세요.');});
+  .catch(function(){busyOff();rlClear();alert('네트워크 오류 — 검증이 오래 걸리는 중일 수 있어요. 새로고침 후 상태를 확인해주세요.');});
 }
 
 // ── 옵저버 CSV — 확정 팀만. 태그는 results.html과 같은 규칙을 쓴다(한 번 정해 두 곳 사용).
 //    시즌2에서 한글 팀명이 옵저버에서 ??????로 깨졌으므로, 표시용 식별자는 태그가 담당한다.
-//    열: 번호, 팀명, 짧은태그, png, 색FF
+//    열: 번호, 팀명, 짧은태그, png, 색FF (헤더 행 없음 · CRLF · BOM 없음)
+//    인코딩 3종: utf8(기본) · cp949 · ascii(팀명 자리도 태그). 옵저버가 무엇을 먹는지
+//    확정될 때까지 셋 다 남긴다 — 본선 당일 바꿔 끼울 수 있어야 한다.
 function obsTag(name, b){
   if(b && b.tag) return String(b.tag).toUpperCase().slice(0,4);
   return String(name||'').replace(/\s+/g,'').slice(0,2) || '?';
@@ -265,7 +394,41 @@ function obsColor(name, b){
   var hx=function(v){ return ('0'+Math.round((v+m)*255).toString(16)).slice(-2).toUpperCase(); };
   return hx(r)+hx(g)+hx(bl)+'FF';
 }
-function downloadObsCsv(){
+// CP949(EUC-KR) 인코더 — 브라우저 자신의 디코더에서 역표를 만든다.
+// TextEncoder는 UTF-8만 되고 레거시 인코딩은 지원하지 않지만, TextDecoder('euc-kr')는
+// 표준(WHATWG Encoding)이라 쓸 수 있다. 2바이트 조합을 전수 디코드해 문자→바이트를
+// 뒤집어 두면 외부 라이브러리 없이 변환이 된다(약 8,400자 · 생성 20ms대 · 최초 1회).
+var CP949=null;
+function cp949Map(){
+  if(CP949) return CP949;
+  var dec; try{ dec=new TextDecoder('euc-kr'); }catch(e){ return (CP949={}); }
+  var m={}, buf=new Uint8Array(2);
+  for(var hi=0x81; hi<=0xFE; hi++){
+    for(var lo=0x41; lo<=0xFE; lo++){
+      buf[0]=hi; buf[1]=lo;
+      var ch=dec.decode(buf);
+      // 첫 매핑만 채택 — 같은 글자에 조합이 여럿이면 낮은 코드가 표준 조합이다.
+      if(ch.length===1 && ch!=='�' && !Object.prototype.hasOwnProperty.call(m,ch)) m[ch]=[hi,lo];
+    }
+  }
+  return (CP949=m);
+}
+function cp949Bytes(str){
+  var m=cp949Map(), out=[], bad=[];
+  for(var i=0;i<str.length;i++){
+    var cc=str.charCodeAt(i);
+    if(cc<0x80){ out.push(cc); continue; }
+    // 서로게이트 쌍(이모지 등)은 한 글자로 묶어 '?' 하나로 떨어뜨린다.
+    var c=str[i];
+    if(cc>=0xD800 && cc<=0xDBFF && i+1<str.length){ c=str[i]+str[i+1]; i++; }
+    var p=Object.prototype.hasOwnProperty.call(m,c) ? m[c] : null;
+    if(p){ out.push(p[0],p[1]); } else { out.push(0x3F); bad.push(c); }
+  }
+  return { bytes:new Uint8Array(out), bad:bad, ok:Object.keys(m).length>0 };
+}
+// enc: 'utf8'(기본) | 'cp949' | 'ascii'(팀명 자리에 영문 태그)
+function downloadObsCsv(enc){
+  enc = enc || 'utf8';
   var k=getKey(); if(!k){alert('키를 입력하세요');return;}
   Promise.all([
     fetch(GAPI+"/api/gdcup-admin-list"+seasonQS(),{headers:{"x-admin-key":k}}).then(function(r){return r.json();}),
@@ -273,22 +436,156 @@ function downloadObsCsv(){
   ]).then(function(res){
     var teams=((res[0]&&res[0].teams)||[]).filter(function(t){return t.status==='confirmed';});
     if(!teams.length){alert('확정된 팀이 없습니다.');return;}
-    var B={}; ((res[1]&&res[1].brands)||[]).forEach(function(b){B[b.team_name]=b;});
+    // 슬롯 순서 = BPI 내림차순(동점은 등록순). 화면 목록 순서와 무관하게 여기서 정한다 —
+    // 배포한 CSV와 이 버튼이 다른 순서를 뱉으면 옵저버 슬롯이 통째로 어긋난다.
+    teams.sort(function(a,b){
+      var ab=Number(a.bpi)||0, bb=Number(b.bpi)||0;
+      if(ab!==bb) return bb-ab;
+      var ac=String(a.created_at||''), bc=String(b.created_at||'');
+      return ac<bc ? -1 : ac>bc ? 1 : 0;
+    });
+    // 팀명 중복 시 먼저 온 행(=updated_at 최신)이 이긴다. results·overlay·kill-mvp와 같은 규칙.
+    var B={}; ((res[1]&&res[1].brands)||[]).forEach(function(b){
+      if(!Object.prototype.hasOwnProperty.call(B,b.team_name)) B[b.team_name]=b;
+    });
     var rows=teams.map(function(t,i){
       var b=B[t.name||t.team_name]||{};
       var nm=t.team_name||t.name||'';
-      return [i+1, nm, obsTag(nm,b), '', obsColor(nm,b)].join(',');
+      var tag=obsTag(nm,b);
+      // ascii: 옵저버가 한글을 아예 못 그릴 때의 최후 폴백 — 팀명 자리도 태그로 채운다.
+      return [i+1, (enc==='ascii' ? tag : nm), tag, '', obsColor(nm,b)].join(',');
     });
-    // BOM — 엑셀·옵저버가 UTF-8로 읽게 한다(없으면 한글이 깨진다)
-    var blob=new Blob(["﻿"+rows.join('\r\n')+'\r\n'],{type:'text/csv;charset=utf-8;'});
+    // BOM 없음 — 옵저버가 첫 필드를 BOM+"1"로 읽어 깨질 수 있다(엑셀 호환보다 옵저버 우선).
+    var text=rows.join('\r\n')+'\r\n', blob, suffix='';
+    if(enc==='cp949'){
+      var r=cp949Bytes(text);
+      if(!r.ok){ alert('이 브라우저는 CP949 변환을 지원하지 않습니다. UTF-8 또는 영문 태그로 받아주세요.'); return; }
+      if(r.bad.length) alert('CP949로 표현할 수 없는 문자가 있어 ?로 바뀝니다: '+r.bad.join(' ')+'\n\n영문 태그 버전을 권장합니다.');
+      blob=new Blob([r.bytes],{type:'text/csv;charset=euc-kr;'}); suffix='-cp949';
+    }else{
+      blob=new Blob([text],{type:'text/csv;charset=utf-8;'});
+      if(enc==='ascii') suffix='-en';
+    }
     var a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download='gdcup-observer-s'+(SEASON||'')+'.csv';
+    a.download='gdcup-observer-s'+(SEASON||'')+suffix+'.csv';
     a.click(); URL.revokeObjectURL(a.href);
   }).catch(function(){ alert('CSV 생성 실패 — 네트워크/키를 확인하세요.'); });
 }
 
-function saveTiers(teamId){
+// ── 예비인원 · 교체 일정 ─────────────────────────────────────────────
+// BPI는 확정 4인 동결이라 이 블록은 순수 운영 정보다. 서버도 members·bpi·weight를
+// 건드리지 않는 별도 라우트(/api/gdcup-reserves)로 받는다.
+function reserveBlock(t){
+  var res=t.reserves||[], log=t.rosterLog||[];
+  var h='<div style="margin:8px 0;padding:8px;background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;">'
+   +'<div class="meta" style="margin-bottom:4px;">🔄 예비 · 교체 일정</div>';
+
+  h+= res.length
+    ? res.map(function(r,i){
+        return '<div class="meta" style="display:flex;gap:6px;align-items:center;">'
+          +'<span>· <b>'+esc(r.ign)+'</b> '+esc(r.tier||'?')+(r.dmg?'/'+esc(r.dmg):'')
+          +(r.availFrom?' — '+esc(r.availFrom)+'~ 가능':'')+(r.note?' <span style="color:var(--ink-faint);">('+esc(r.note)+')</span>':'')+'</span>'
+          +'<button class="del" style="padding:1px 6px;font-size:11px;" onclick="delReserve(\''+t.id+'\','+i+')">삭제</button>'
+          +'</div>';
+      }).join('')
+    : '<div class="meta" style="color:var(--ink-faint);">예비 없음</div>';
+
+  h+= log.length
+    ? log.map(function(r){
+        var done=r.type==='done';
+        var line=(r.out&&r.in) ? esc(r.out)+' out → '+esc(r.in)+' in'
+               : r.in          ? esc(r.in)+' in'
+               : r.out         ? esc(r.out)+' out' : '(내용 없음)';
+        return '<div class="meta" style="display:flex;gap:6px;align-items:center;'+(done?'opacity:.6;':'')+'">'
+          +'<span>'+(done?'✅':'⏳')+' <b>'+esc(r.at||'시각미정')+'</b> '+line
+          +(r.note?' <span style="color:var(--ink-faint);">('+esc(r.note)+')</span>':'')+'</span>'
+          +(done?'':'<button class="ok" style="padding:1px 6px;font-size:11px;" onclick="swapDone(\''+t.id+'\',\''
+              +esc(r.at)+'\',\''+esc(r.out)+'\',\''+esc(r.in)+'\')">교체 완료</button>')
+          +'<button class="del" style="padding:1px 6px;font-size:11px;" onclick="delSwap(\''+t.id+'\',\''
+              +esc(r.at)+'\',\''+esc(r.out)+'\',\''+esc(r.in)+'\')">삭제</button>'
+          +'</div>';
+      }).join('')
+    : '<div class="meta" style="color:var(--ink-faint);">교체 예정 없음</div>';
+
+  h+='<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;">'
+   +'<button class="wait" style="padding:2px 8px;font-size:11px;" onclick="addReserve(\''+t.id+'\')">+ 예비 추가</button>'
+   +'<button class="wait" style="padding:2px 8px;font-size:11px;" onclick="addSwap(\''+t.id+'\')">+ 교체 예정 추가</button>'
+   +'</div></div>';
+  return h;
+}
+
+// 현재 값을 서버에서 다시 읽지 않고 화면에 렌더된 팀 객체에서 가져온다 —
+// loadAdmin()이 매번 전체를 새로 받으므로 TEAMS_BY_ID가 항상 최신이다.
+var TEAMS_BY_ID={};
+function teamById(id){ return TEAMS_BY_ID[String(id)]||{reserves:[],rosterLog:[]}; }
+
+function postReserves(id, body, okMsg){
+  var k=getKey(); if(!k){alert('키를 입력하세요');return;}
+  body.id=id;
+  fetch(GAPI+"/api/gdcup-reserves",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify(body)})
+  .then(function(r){return r.json().then(function(d){return {status:r.status,d:d};});})
+  .then(function(res){
+    if(res.status===401){alert('키가 틀렸어요.');return;}
+    if(!res.d||!res.d.ok){alert('실패: '+((res.d&&res.d.error)||res.status));return;}
+    if(okMsg) alert(okMsg);
+    loadAdmin();
+  }).catch(function(){alert('네트워크 오류');});
+}
+
+function addReserve(id){
+  var ign=prompt('예비 인원 인게임 닉'); if(!ign)return;
+  var tier=prompt('신고 티어 (S·T0~T5)','T1')||'';
+  var dmg=prompt('신고 평딜 (숫자만, 모르면 비워두기)','')||'';
+  var av=prompt('합류 가능 시각 (예: 22:30)','')||'';
+  var note=prompt('메모 (누구와 교체 예정인지 등)','')||'';
+  var cur=(teamById(id).reserves||[]).slice();
+  cur.push({ign:ign.trim(),tier:tier.trim(),dmg:dmg.trim(),availFrom:av.trim(),note:note.trim()});
+  postReserves(id,{reserves:cur});
+}
+function delReserve(id,i){
+  var cur=(teamById(id).reserves||[]).slice();
+  if(i<0||i>=cur.length)return;
+  if(!window.confirm('예비 "'+(cur[i].ign||'')+'" 삭제할까요?'))return;
+  cur.splice(i,1);
+  postReserves(id,{reserves:cur});
+}
+function addSwap(id){
+  var at=prompt('교체 시각 (예: 22:30)'); if(!at)return;
+  var out=prompt('빠지는 인원 닉 (없으면 비워두기 — 합류만)','')||'';
+  var inn=prompt('들어오는 인원 닉 (없으면 비워두기 — 이탈만)','')||'';
+  if(!out&&!inn){alert('빠지는 인원이나 들어오는 인원 중 하나는 있어야 합니다.');return;}
+  var note=prompt('메모','')||'';
+  var cur=(teamById(id).rosterLog||[]).slice();
+  cur.push({type:'planned',at:at.trim(),out:out.trim(),in:inn.trim(),note:note.trim()});
+  postReserves(id,{rosterLog:cur});
+}
+// 삭제·완료는 인덱스가 아니라 내용(at|out|in)으로 찾는다 — 서버가 시간순으로
+// 다시 정렬해 내려주기 때문에 화면 인덱스와 저장 순서가 어긋난다.
+function delSwap(id,at,out,inn){
+  var cur=(teamById(id).rosterLog||[]).slice();
+  var i=cur.findIndex(function(r){return (r.at||'')===at&&(r.out||'')===out&&(r.in||'')===inn;});
+  if(i<0){alert('항목을 찾지 못했어요 — 새로고침 후 다시 시도하세요.');return;}
+  if(!window.confirm('이 교체 일정을 삭제할까요?'))return;
+  cur.splice(i,1);
+  postReserves(id,{rosterLog:cur});
+}
+function swapDone(id,at,out,inn){
+  var k=getKey(); if(!k){alert('키를 입력하세요');return;}
+  if(!window.confirm('교체를 실행 완료로 기록할까요?\n(지금 시각이 로그에 남습니다)'))return;
+  fetch(GAPI+"/api/gdcup-swap-done",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify({id:id,at:at,out:out,in:inn})})
+  .then(function(r){return r.json().then(function(d){return {status:r.status,d:d};});})
+  .then(function(res){
+    if(!res.d||!res.d.ok){alert('실패: '+((res.d&&res.d.message)||(res.d&&res.d.error)||res.status));return;}
+    loadAdmin();
+  }).catch(function(){alert('네트워크 오류');});
+}
+
+// skipConfirm: 자동 재시도로 다시 들어온 호출. 확인창을 또 띄우지 않는다.
+// manual: 서버 재판정 없이 저장(verify:false). 운영진이 정한 티어를 그대로 굳힌다.
+//   기본 저장은 전원 조회 성공 시 서버 판정 티어로 덮어쓰기 때문에, 경계선 인원을
+//   손으로 정하는 흐름에서는 그 판정이 저장 직후 사라진다. PUBG 호출이 없어 즉시 끝난다.
+function saveTiers(teamId,skipConfirm,manual){
   var k=getKey(); if(!k){alert('키를 입력하세요');return;}
   var sels=document.querySelectorAll('.tier-edit[data-team="'+teamId+'"]');
   if(!sels.length)return;
@@ -302,13 +599,29 @@ function saveTiers(teamId){
   });
   // 닉이 비면 서버가 그 멤버를 빈 슬롯으로 저장해 팀이 조용히 줄어든다 — 미리 막는다.
   if(blank){alert('빈 닉이 있어요. 모든 멤버의 인게임 닉을 채워주세요.');return;}
-  if(!window.confirm('저장 후 서버가 PUBG에서 각 멤버를 재조회해 티어를 다시 판정합니다.\n(멤버당 20초 — 4명이면 1분 정도, 창을 닫지 마세요)'))return;
-  var btns=document.querySelectorAll('button[onclick*="saveTiers(\''+teamId+'\')"]');
-  btns.forEach(function(b){b.disabled=true;b.textContent='⏳ 검증 중…';});
-  fetch(GAPI+"/api/gdcup-edit",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify({id:teamId,members:members,verify:true})})
-  .then(function(r){return r.json();})
-  .then(function(d){
-    if(!d||!d.ok){alert('저장 실패: '+((d&&d.error)||''));loadAdmin();return;}
+  var ask=manual
+    ? '입력한 티어를 그대로 저장합니다. 서버 재판정을 하지 않으므로 이 값이 최종으로 굳습니다.\n(BPI·가중치는 이 티어 기준으로 다시 계산됩니다)'
+    : '저장 후 서버가 PUBG에서 각 멤버를 재조회해 티어를 다시 판정합니다.\n(멤버당 20초 — 4명이면 1분 정도, 창을 닫지 마세요)';
+  if(!skipConfirm && !window.confirm(ask))return;
+  // 두 버튼 모두 잡아야 한다 — 인자가 붙은 호출까지 포함하도록 여는 따옴표까지만 맞춘다.
+  var btns=document.querySelectorAll('button[onclick*="saveTiers(\''+teamId+'\'"]');
+  btns.forEach(function(b){b.disabled=true;b.textContent=manual?'⏳ 저장 중…':'⏳ 검증 중…';});
+  fetch(GAPI+"/api/gdcup-edit",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":k},body:JSON.stringify({id:teamId,members:members,verify:!manual})})
+  // HTTP status를 함께 읽는다. 예전엔 r.json()만 봐서 429·500이 전부 '저장 실패'로
+  // 뭉뚱그려졌고, 그 문구를 보고 다시 누르는 흐름이 만들어졌다.
+  .then(function(r){return r.json().then(function(d){return {status:r.status,d:d};});})
+  .then(function(res){
+    var d=res.d||{};
+    if(res.status===429){
+      var rk='edit:'+teamId;
+      var retryOnce=!rlAutoRetried[rk];
+      rlAutoRetried[rk]=true;
+      // 저장은 멤버 배열을 통째로 덮어쓰므로 같은 요청을 다시 보내도 결과가 같다(멱등).
+      rlHold(d.retry_after, '티어 저장이 대기 중입니다.', retryOnce?function(){ saveTiers(teamId,true,manual); }:function(){ loadAdmin(); });
+      return;
+    }
+    rlClear();
+    if(!d||!d.ok){alert('저장 실패: '+((d&&d.error)||res.status));loadAdmin();return;}
     var v=d.verify, msg='저장 완료 — 팀 BPI '+d.bpi+' (가중치 ×'+d.weight+')';
     if(v&&v.error){ msg+='\n\n⚠ 재검증 실패: '+(v.message||'')+'\n닉 수정은 저장됐어요. 확정 시 다시 검증됩니다.'; }
     else if(v&&v.apiFailed){ msg+='\n\n⚠ PUBG API 장애로 재검증 보류. 닉 수정은 저장됐어요.'; }
@@ -319,11 +632,14 @@ function saveTiers(teamId){
     else if(v&&v.applied){
       msg+='\n\n✅ 전원 조회 성공 — 서버 판정 티어를 반영했습니다.'
         +'\n'+v.members.map(function(m){return '· '+m.ign+' → '+m.serverTier+(m.mismatch?' (신고 '+m.clientTier+'에서 변경)':'');}).join('\n');
-      if(v.teamOk===false){ msg+='\n\n⚠ 팀 구성 규칙 위반: '+(v.teamReasons||[]).map(function(r){return r.code||r;}).join(', '); }
+    }
+    // 상한은 권장값이라 저장을 막지 않는다 — 대신 초과 사실을 여기서 보여준다.
+    if(d.capOk===false && d.capWarnings && d.capWarnings.length){
+      msg+='\n\n⚠ 권장 초과 (저장은 됐습니다)\n· '+d.capWarnings.join('\n· ');
     }
     alert(msg); loadAdmin();
   })
-  .catch(function(){alert('네트워크 오류 — 재검증이 오래 걸리는 중일 수 있어요. 새로고침 후 상태를 확인해주세요.');loadAdmin();});
+  .catch(function(){rlClear();alert('네트워크 오류 — 재검증이 오래 걸리는 중일 수 있어요. 새로고침 후 상태를 확인해주세요.');loadAdmin();});
 }
 
 function postBoard(){

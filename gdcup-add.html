@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>G드컵 시즌2 — 팀원 추가신청</title>
+<title>G드컵 시즌3 — 팀원 추가신청</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
@@ -88,13 +88,13 @@
     <span class="brand">GmI CLANCUP</span>
     <span class="sp"></span>
     <a href="index.html">메인</a>
-    <a href="gdcup-s2.html">신청 · 룰</a>
-    <a href="briefing.html">브리핑</a>
+    <a href="gdcup-s3.html">신청 · 룰</a>
     <a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드</a>
   </div>
 
   <div class="hero">
-    <div class="kick">G드컵 SEASON 2</div>
+    <!-- 시즌 번호는 /api/gdcup-meta가 채운다. 여기 숫자를 적지 말 것. -->
+    <div class="kick" id="kick">G드컵</div>
     <h1>팀원 추가신청</h1>
     <p>이미 신청한 팀에 빈자리(용병)를 채우거나 멤버를 추가합니다. 한 팀은 최대 4명이에요.</p>
   </div>
@@ -104,7 +104,7 @@
     <div class="card">
       <label>신청한 팀 <span class="req">*</span></label>
       <select id="teamSelect"><option value="">팀 목록 불러오는 중…</option></select>
-      <div class="hint">팀명이 안 보이면 아직 신청이 안 된 상태예요. 먼저 <a href="gdcup-s2.html" style="color:var(--gold)">팀 신청</a>을 해주세요.</div>
+      <div class="hint">팀명이 안 보이면 아직 신청이 안 된 상태예요. 먼저 <a href="gdcup-s3.html" style="color:var(--gold)">팀 신청</a>을 해주세요.</div>
       <div class="hint" id="bpiNotice" style="display:none;"></div>
       <div class="roster" id="roster">
         <div id="rosterLines"></div>
@@ -143,8 +143,8 @@
   </div>
 
   <footer>
-    GmI 클랜 · G드컵 시즌2 · 2026<br>
-    <a href="gdcup-s2.html">신청·룰</a> · <a href="briefing.html">브리핑</a> · <a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드</a>
+    GmI 클랜 · <span id="foot-season">G드컵</span> · 2026<br>
+    <a href="gdcup-s3.html">신청·룰</a> · <a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드</a>
   </footer>
 
 </div>
@@ -170,7 +170,12 @@
   // 최고티어가 보장하는 최소 등급 — 서버 gdcupRankedFloor와 같은 매핑.
   // "마스터 + 현시즌 RP 3700+ → S"는 RP가 필요해 여기서 재현할 수 없다(서버 판정 전용).
   function tierFloor(peak){
-    if(peak === '서바이버' || peak === '마스터') return 'T0';
+    // 서바이버는 S가 보장 등급이다. 종전에 마스터와 함께 T0으로 내려서, 이 화면으로
+    // 들어온 최상위 인원이 전부 T0으로 뭉개졌다(세휘네치킨집 687딜이 T0으로 등록된 경로).
+    // 서버 gdcupRankedFloor는 "마스터 + RP 3700+ → S"인데 RP를 여기서 못 읽으므로,
+    // 신고 최고티어가 '서바이버'인 경우만 S로 본다. 최종 판정은 운영진이 admin에서 한다.
+    if(peak === '서바이버') return 'S';
+    if(peak === '마스터') return 'T0';
     if(peak === '다이아' || peak === '크리스탈') return 'T1';
     return null;
   }
@@ -185,10 +190,9 @@
   }
   function teamBpi(members){
     var sum = 0;
-    (members||[]).forEach(function(m,i){
-      var v = GD_BPI[m && m.tier] || 0;
-      if(i===0 && m && m.tier==='T0') v += 1; // T0 팀장 +1 (S급 가산 없음)
-      sum += v;
+    // T0 팀장 +1 은 2026-08-07 폐지 — server.js gdcupBpi 와 같은 식이어야 한다.
+    (members||[]).forEach(function(m){
+      sum += GD_BPI[m && m.tier] || 0;
     });
     return sum;
   }
@@ -376,6 +380,12 @@
     // BPI 스케일·평딜 경계·가중치표는 서버가 정본 — 팀 목록보다 먼저 받아둔다.
     fetch(GAPI + "/api/gdcup-meta").then(function(r){ return r.json(); }).then(function(d){
       META = d; GD_BPI = (d && d.bpiScale) || {};
+      // 시즌 라벨도 서버가 정본 — 화면 하드코딩 금지 (시즌3 페이지가 "SEASON 2"를 달고 있었다).
+      // 못 받으면 숫자 없이 "G드컵"으로 남는다 — 틀린 시즌을 띄우는 것보다 낫다.
+      if(d && d.currentSeason){
+        $('kick').textContent = 'G드컵 SEASON ' + d.currentSeason;
+        $('foot-season').textContent = 'G드컵 시즌' + d.currentSeason;
+      }
       /* BPI 산정 기준 시점 — 서버 meta.bpi가 정본. 날짜·시즌을 이 파일에 하드코딩하지 말 것
          (구 표 ×1.0 갈라짐 사고와 같은 형태 방지 · 관제탑 8/25). 값이 없으면 표시하지 않는다. */
       if (d && d.bpi && d.bpi.asOf) {

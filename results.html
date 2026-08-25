@@ -52,6 +52,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   .datechip.on{display:inline-flex;}
   .datechip::before{content:"";width:7px;height:7px;background:var(--gold);}
   .rstat{text-align:right;}
+  .ctxline{margin-top:10px;font-size:15px;line-height:1.5;color:var(--ink-dim);max-width:760px;}
   .rstat .brand{font-family:var(--disp);font-weight:600;font-size:15px;letter-spacing:.26em;color:var(--ink-dim);text-transform:uppercase;}
   .rstat .r{font-family:var(--disp);font-weight:800;font-size:44px;letter-spacing:.06em;color:var(--gold);margin-top:2px;}
   .rstat .s{font-size:17px;font-weight:600;color:var(--ink-dim);margin-top:6px;}
@@ -64,6 +65,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   /* 팀이 적을 때(≤8) 행을 키워 세로를 채운다 — 5팀에서 헤더와 1위 사이가 비던 문제.
      16팀이면 자동으로 기본 높이로 돌아간다. */
   .cols.sparse .row{padding-top:30px;padding-bottom:30px;}
+  /* ≤8팀이면 전원이 colA로 가고 colB가 빈다(render의 i<8 분기) — 2열을 유지하면
+     방송 화면 오른쪽 절반이 통째로 비었다. 같은 조건에서 1열로 접어 가로를 채운다.
+     행 수는 그대로라 세로 레이아웃에는 영향이 없다. */
+  .cols.sparse{grid-template-columns:1fr;}
   .row .rk{font-family:var(--disp);font-weight:800;font-size:34px;text-align:center;color:var(--ink-dim);
     font-variant-numeric:tabular-nums;}
   .row .em{width:64px;height:44px;object-fit:contain;background:var(--surface-1);}
@@ -128,7 +133,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         <div class="kick"><span class="tick"></span><span id="kick">GDCUP · STANDINGS</span></div>
         <div class="title">누적 순위<small>OFFICIAL STANDINGS</small></div>
         <!-- 이벤트 고정 표기(시즌 규칙 아님) — 다음 시즌 본선 때 날짜만 갱신. 현재 시즌에서만 표시 -->
-        <div class="datechip" id="dateChip">본선 2026.08.07 (금) 20:00 · GmI 클랜컵</div>
+        <div class="datechip" id="dateChip">2026.08.07 (금) · 솔로 이벤트 20:00 · 본선(팀전) 21:00 · GmI 클랜컵</div>
+        <!-- 신규 시청자용 컨텍스트. 배율 범위는 설명 문구지 판정값이 아니다 —
+             가중치 커브를 바꾸면 이 줄도 같이 손봐야 한다(룰북 정합과 같은 이유). -->
+        <div class="ctxline">GmI 클랜 자체 토너먼트 · 팀 전력(BPI)에 따라 점수 가중치(×0.73~×1.20) 차등 적용 — 강팀은 더 많이 이겨야 합니다</div>
       </div>
       <div class="rstat">
         <div class="brand">MRI ACADEMY × GmI</div>
@@ -172,7 +180,12 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   async function loadBrands(){
     if(DEMO){ BRANDS.__loaded=true; return; }
     try{ var r=await fetch(GAPI+"/api/gdcup-team-brands"); var d=await r.json();
-      ((d&&d.brands)||[]).forEach(function(b){ BRANDS[b.team_name]=b; }); }catch(e){}
+      // 팀명이 겹치면 먼저 온 행이 이긴다 — 서버가 updated_at.desc라 항상 최신이 남는다.
+      // (지금은 team_name UNIQUE라 겹칠 일이 없지만, season 컬럼이 붙어 유니크가
+      //  (team_name,season)으로 풀리면 시즌2 잔존 행이 현재 시즌 색을 덮어쓴다.)
+      ((d&&d.brands)||[]).forEach(function(b){
+        if(!Object.prototype.hasOwnProperty.call(BRANDS,b.team_name)) BRANDS[b.team_name]=b;
+      }); }catch(e){}
     BRANDS.__loaded=true;
   }
   var SAMPLE=[
@@ -256,7 +269,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   function rowHtml(t, rank){
     var cls = rank<=4 ? (' t'+rank) : '';
     var b = BRANDS[t.name] || {};
-    var em = b.emblem ? '<img class="em" src="'+b.emblem+'" alt="">'
+    var em = b.emblem ? '<img class="em" src="'+escapeHtml(b.emblem)+'" alt="">'
            : (function(c){ return '<span class="tg" style="background:'+c+';color:'+textOn(c)+'">'
                +escapeHtml(teamTag(t.name, b))+'</span>'; })(teamColor(t.name, b));
     var stl = (b.color && rank>4) ? ' style="box-shadow:inset 4px 0 0 '+escapeHtml(b.color)+'"' : '';
@@ -298,7 +311,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         '본매치 '+rds[0]+'~'+rds[rds.length-1]+'R 누적 · BPI 가중치 반영';
       var finalR = rds ? rds[rds.length-1] : 5;
 
-      var data = (d.standings||[]).slice().sort(function(a,b){ return b.points - a.points; });
+      var data = (d.standings||[]).slice().sort(function(a,b){ return (b.points - a.points) || (b.kills - a.kills); });
       var colA=document.getElementById('colA'), colB=document.getElementById('colB');
       var cols=document.getElementById('cols');
 

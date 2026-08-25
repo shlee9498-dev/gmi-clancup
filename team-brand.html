@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>G드컵 시즌2 · 팀 브랜드 등록</title>
+<title>G드컵 시즌3 · 팀 브랜드 등록</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -84,7 +84,8 @@
 <body>
 <div class="wrap">
   <div class="top">
-    <div class="kick">G드컵 SEASON 2</div>
+    <!-- 시즌 번호는 /api/gdcup-meta가 채운다. 여기 숫자를 적지 말 것. -->
+    <div class="kick" id="kick">G드컵</div>
     <h1>팀 브랜드 등록</h1>
     <div class="sub">우리 팀 <b>컬러</b>와 <b>엠블럼(마크)</b>을 등록하면<br>중계 순위·결과 화면에 그대로 박혀서 나옵니다.<br>없으면 색만 골라도 OK!</div>
   </div>
@@ -104,6 +105,12 @@
       <label>팀명 <span class="req">*</span></label>
       <input type="text" id="team" placeholder="예: 파워 / 광부 / 세휘 …" maxlength="40" autocomplete="off">
       <div class="hint">신청서에 적은 <b>팀명과 똑같이</b> 적어주세요. (다르면 화면에 안 붙습니다)</div>
+    </div>
+
+    <div class="fld">
+      <label>팀 태그</label>
+      <input type="text" id="tag" placeholder="예: PWR" maxlength="4" autocomplete="off">
+      <div class="hint">방송 화면·옵저버가 쓰는 <b>영문/숫자 2~4자</b>. 비우면 팀명 앞 2글자를 씁니다.</div>
     </div>
 
     <div class="fld">
@@ -138,7 +145,7 @@
   </div>
 
   <div class="pii-note">제출한 정보는 G드컵 방송 연출 용도로만 사용됩니다.</div>
-  <a class="back" href="./gdcup-s2.html">← G드컵 시즌2 안내로</a>
+  <a class="back" href="./gdcup-s3.html">← G드컵 시즌3 안내로</a>
 </div>
 
 <script>
@@ -213,6 +220,7 @@
       var r = await fetch(API_BASE+"/api/gdcup-team-brand", {
         method:"POST", headers:{"content-type":"application/json"},
         body: JSON.stringify({ team_name:team, color:state.color, emblem:state.emblem,
+          tag:document.getElementById('tag').value.trim(),
           captain:document.getElementById('captain').value.trim() })
       });
       var d = await r.json().catch(function(){return {};});
@@ -221,6 +229,12 @@
     }catch(err){ showMsg('네트워크 오류로 등록하지 못했습니다. 다시 시도해주세요.', false); }
     go.disabled=false; go.textContent='등록하기';
   });
+
+  // 시즌 라벨 — 서버가 정본. 화면 하드코딩 금지 (이 페이지가 시즌3 운영 중 "SEASON 2"를 달고 있었다).
+  // 실패해도 숫자 없이 "G드컵"으로 남을 뿐이라 등록 기능에는 영향이 없다.
+  fetch(API_BASE+"/api/gdcup-meta").then(function(r){ return r.json(); }).then(function(d){
+    if(d && d.currentSeason) document.getElementById('kick').textContent = 'G드컵 SEASON ' + d.currentSeason;
+  }).catch(function(){});
 </script>
 </body>
 </html>

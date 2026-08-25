@@ -1,0 +1,504 @@
+/* ============================================================
+   게임 방법 — 시청각 안내
+   tokens.css · components.css 이후에 로드한다.
+
+   원칙: 한 화면에 한 가지만 가르친다.
+   글로 설명하지 않고 **움직여서 보여준다.** 읽지 않아도 알게.
+   ============================================================ */
+
+/* ============================================================ 머리 */
+
+.hero {
+  padding: 26px 0 6px;
+  text-align: center;
+}
+
+.hero h1 {
+  margin: 0;
+  font-family: var(--f-num);
+  font-size: clamp(30px, 7vw, 46px);
+  font-weight: 900;
+  letter-spacing: -.02em;
+  color: var(--ivory);
+}
+
+.hero p {
+  margin: 9px auto 0;
+  max-width: 30em;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--smoke);
+}
+
+/* 게임 바로가기 */
+.gamenav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px;
+  margin: 18px 0 4px;
+}
+
+.gamenav a {
+  padding: 7px 13px;
+  border: 1px solid var(--line);
+  border-radius: 40px;
+  color: var(--smoke);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color .2s ease, border-color .2s ease;
+}
+
+.gamenav a:hover {
+  color: var(--gold);
+  border-color: rgba(243, 206, 106, .45);
+}
+
+/* ============================================================ 게임 블록 */
+
+.game {
+  margin-top: 28px;
+  scroll-margin-top: 76px;
+}
+
+.game > h2 {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 0 0 6px;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: var(--ivory);
+}
+
+/* 지금 할 수 있나 — 한눈에 */
+.badge {
+  padding: 4px 9px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  white-space: nowrap;
+}
+
+.badge.open {
+  color: #0C2A22;
+  background: var(--gold);
+}
+
+.badge.soon {
+  color: var(--amber);
+  border: 1px solid rgba(255, 158, 61, .45);
+}
+
+.badge.closed {
+  color: var(--smoke);
+  border: 1px solid rgba(255, 255, 255, .12);
+}
+
+/* 한 줄 정의 — 이거 하나만 읽어도 되게 */
+.one {
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.65;
+  color: #D8CEB8;
+}
+
+.one b { color: var(--gold); }
+
+/* ============================================================ 데모 무대 */
+
+.demo {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: linear-gradient(180deg, rgba(18, 59, 48, .5), rgba(12, 42, 34, .35));
+  overflow: hidden;
+}
+
+.demo-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, .05);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  color: var(--brass);
+}
+
+.demo-body { padding: 16px 14px 18px; }
+
+/* 지금 무슨 일이 일어나는지 말해주는 자막 */
+.say {
+  min-height: 44px;
+  margin: 0 0 14px;
+  text-align: center;
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: var(--ivory);
+}
+
+.say b { color: var(--gold); }
+.say .bad { color: var(--crimson); }
+.say small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--smoke);
+}
+
+.replay {
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--brass);
+  font-family: var(--f-ui);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color .2s ease, background-color .2s ease;
+}
+
+.replay:hover {
+  background: rgba(201, 162, 39, .1);
+  color: var(--gold);
+}
+
+/* ============================================================ 크래시 데모 */
+
+.cr-stage {
+  position: relative;
+  height: 170px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #04100D, #0B2018);
+}
+
+.cr-stage canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cr-mult {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  font-family: var(--f-num);
+  font-size: 46px;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  color: var(--ivory);
+  pointer-events: none;
+}
+
+.cr-mult.dead { color: #4A5751 !important; text-shadow: none !important; }
+
+/* ============================================================ 카드 */
+
+.hands {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.hand {
+  text-align: center;
+  min-width: 92px;
+}
+
+.hand > span {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  color: var(--brass);
+}
+
+.card {
+  width: 62px;
+  height: 88px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  border: 1px solid rgba(243, 206, 106, .4);
+  background: linear-gradient(160deg, #F7F1E0, #D9CDB0);
+  color: #1A1206;
+  font-family: var(--f-num);
+  font-size: 34px;
+  font-weight: 900;
+  transition: transform .28s ease;
+}
+
+/* 뒷면 — 인디언 포커의 핵심이다. 내 카드는 나만 못 본다. */
+.card.back {
+  border-color: rgba(201, 162, 39, .3);
+  background: repeating-linear-gradient(45deg, #0E3227, #0E3227 5px, #123B30 5px, #123B30 10px);
+  color: var(--brass);
+  font-size: 26px;
+}
+
+.card.win {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(243, 206, 106, .5), 0 10px 30px -12px rgba(243, 206, 106, .8);
+}
+
+.card.lose { filter: grayscale(1); opacity: .5; }
+
+.card.flip { transform: rotateY(180deg); }
+
+/* 흑과백 손패 */
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.pip {
+  width: 34px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  border: 1px solid rgba(243, 206, 106, .35);
+  background: linear-gradient(160deg, #F7F1E0, #D9CDB0);
+  color: #1A1206;
+  font-family: var(--f-num);
+  font-size: 17px;
+  font-weight: 900;
+  transition: opacity .3s ease, transform .3s ease;
+}
+
+/* 쓴 카드는 사라진다 — 이게 이 게임의 전부다. */
+.pip.used {
+  opacity: .18;
+  transform: scale(.86);
+  filter: grayscale(1);
+}
+
+.pip.pick {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(243, 206, 106, .5);
+}
+
+/* ============================================================ 팟배팅 */
+
+.pots {
+  display: grid;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.pot .t {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #C3CDC5;
+}
+
+.pot .t b {
+  font-family: var(--f-num);
+  font-size: 15px;
+  color: var(--gold);
+}
+
+.pot .bar {
+  height: 26px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .05);
+}
+
+.pot .bar i {
+  display: block;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(90deg, #6E5A18, var(--brass));
+  transition: transform .6s cubic-bezier(.2, .7, .3, 1);
+}
+
+.pot.mine .bar i { background: linear-gradient(90deg, #9C7A15, var(--gold)); }
+.pot.win .t b { color: var(--gold); }
+.pot.lose .t b { color: var(--crimson); }
+
+/* ============================================================ 좌석 */
+
+.seats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.seat {
+  width: 58px;
+  padding: 8px 0;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--smoke);
+  transition: border-color .25s ease, color .25s ease;
+}
+
+.seat.on {
+  border-color: rgba(243, 206, 106, .5);
+  color: var(--ivory);
+}
+
+/* 지금 액션할 차례 — 앰버. 전 페이지 공통 규칙이다. */
+.seat.turn {
+  border-color: var(--amber);
+  color: var(--amber);
+  animation: urge .9s ease-in-out infinite;
+}
+
+.seat small {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--f-num);
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--gold);
+}
+
+/* ============================================================ 단계 */
+
+.steps {
+  display: grid;
+  gap: 9px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: s;
+}
+
+.steps li {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 11px;
+  align-items: start;
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: #B7C2BA;
+}
+
+.steps li::before {
+  counter-increment: s;
+  content: counter(s);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(201, 162, 39, .14);
+  color: var(--brass);
+  font-family: var(--f-num);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.steps b { color: var(--ivory); }
+
+/* ============================================================ 승패 · 위치 */
+
+.wl {
+  display: grid;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+@media (min-width: 620px) {
+  .wl { grid-template-columns: 1fr 1fr; }
+}
+
+.wl div {
+  padding: 11px 13px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, .06);
+  font-size: 13px;
+  line-height: 1.6;
+  color: #B7C2BA;
+}
+
+.wl div b {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+
+.wl .good { border-color: rgba(243, 206, 106, .28); }
+.wl .good b { color: var(--gold); }
+.wl .bad { border-color: rgba(194, 51, 77, .3); }
+.wl .bad b { color: var(--crimson); }
+
+.where {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 11px 13px;
+  border-radius: 4px;
+  background: rgba(5, 19, 15, .5);
+  border: 1px solid var(--line);
+  font-size: 13px;
+  color: #B7C2BA;
+}
+
+.where b {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .16em;
+  color: var(--brass);
+}
+
+.where code {
+  padding: 3px 7px;
+  border-radius: 3px;
+  background: rgba(201, 162, 39, .12);
+  color: var(--gold);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.where a {
+  color: var(--gold);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(243, 206, 106, .4);
+}
+
+/* ============================================================ 좁은 화면 */
+
+@media (max-width: 420px) {
+  .card { width: 54px; height: 78px; font-size: 29px; }
+  .pip { width: 30px; height: 39px; font-size: 15px; }
+  .cr-mult { font-size: 38px; }
+  .seat { width: 52px; }
+}

@@ -181,7 +181,7 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
     <div class="tl-item"><div class="tl-date">8/6 (목)</div><div class="tl-body"><div class="tl-title">신청 마감 · 최종 확정</div><div class="tl-desc">솔로 매칭 마무리 · 최종 16팀 확정</div></div></div>
     <div class="tl-item"><div class="tl-date">8/7 (금)</div><div class="tl-body"><div class="tl-title">당일 — 19:30 대기</div><div class="tl-desc">⚡ 20:00 이벤트매치(솔로 2판, 오픈) · 🏆 21:00 본선(스쿼드 5판) · 본선은 5판이라 자정 이후 종료 가능</div></div></div>
   </div>
-  <div class="callout"><strong>📌 시즌3 변경점</strong> — ① 신청 시 <strong>멤버별 실명·계좌(본인 명의)</strong>를 받아 상금을 개별 자동 정산합니다(시즌2는 팀장 수기 취합). ② <strong>S급 신설</strong> + 팀 합산 BPI 상한·S급 인원 제한이 적용되어, 초과 팀은 접수되지 않습니다.</div>
+  <div class="callout"><strong>📌 시즌3 변경점</strong> — ① 신청 시 <strong>멤버별 실명·계좌(본인 명의)</strong>를 받아 상금을 개별 자동 정산합니다(시즌2는 팀장 수기 취합). ② <strong>S급 신설</strong> + 팀 합산 BPI·S급 인원 <strong>권장 기준</strong>이 생겼습니다. 초과해도 접수되며, 밸런스 조정을 위해 운영진이 팀 구성을 조율할 수 있습니다.</div>
 </section>
 
 <!-- EVENT MATCH (솔로 경쟁전 2판 · 오픈) — 보상 확정으로 복원(2026-07-31).
@@ -206,7 +206,9 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
 <!-- BPI SYSTEM -->
 <section id="rules" class="anchor">
   <div class="section-head"><div class="section-kicker">BPI SYSTEM</div><h2 class="section-title">티어 · BPI</h2>
-  <p class="section-desc">배그 닉으로 <b style="color:var(--gold)">전적 자동조회</b>를 누르면 현시즌 기준으로 티어·BPI가 산정됩니다. 팀 합산 BPI <b style="color:var(--gold)" id="capProse">—</b>이 상한이며 <b style="color:var(--gold)" id="sCapProse">S급은 팀당 1명</b>까지입니다. <span style="color:var(--ink-faint);">가중치는 서버 기준으로 실시간 표시됩니다.</span></p></div>
+  <!-- 상한 → 권장 (2026-08-06 오너 방침). 숫자는 여전히 meta가 채운다(capProse·sCapProse) —
+       본문에 38을 적어두면 서버 상한이 바뀔 때 어긋난다(과거 구표 노출 사고). -->
+  <p class="section-desc">배그 닉으로 <b style="color:var(--gold)">전적 자동조회</b>를 누르면 현시즌 기준으로 티어·BPI가 산정됩니다. 팀 합산 BPI <b style="color:var(--gold)" id="capProse">—</b> 이하, <b style="color:var(--gold)" id="sCapProse">S급은 팀당 1명</b>을 권장합니다. 밸런스 조정을 위해 운영진이 팀 구성을 조율할 수 있습니다. <span style="color:var(--ink-faint);">가중치는 서버 기준으로 실시간 표시됩니다.</span></p></div>
   <div class="card">
     <table class="tier-table">
       <thead><tr><th>티어</th><th>기준 (최고티어 · 평균딜)</th><th>BPI</th><th>역할</th></tr></thead>
@@ -224,14 +226,57 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
     <p style="font-size:12.5px;color:var(--ink-dim);margin:10px 2px 2px;line-height:1.75;">
       평균딜 기준으로 1차 산정한 뒤, 역대 최고 티어가 더 높은 등급을 보장하면 그쪽으로 올립니다
       (서바이버·마스터 → 최소 T0 · 다이아·크리스탈 → 최소 T1).
-      마스터 이상이면서 현시즌 RP 3700+인 경우의 S 판정은 자동조회(서버)에서만 이뤄집니다.
+      <strong style="color:var(--gold)">S 판정 기준은 평균딜 400+ 또는 최고티어 서바이버</strong>입니다.
+      자동조회가 1차 산정하고 <strong>최종 판정은 운영진이 합니다</strong> — 자동조회가 되지 않는 계정도
+      운영진 확인을 거쳐 S 판정을 받을 수 있습니다.
     </p>
   </div>
-  <div class="callout"><strong>👑 T0 팀장 페널티</strong>: T0(괴물)이 팀장이면 BPI <strong>+1</strong> (10 → 11).</div>
   <div class="card">
     <div class="card-title">⚖️ 가중치 (계단식 · 시즌3 재산정)</div>
     <!-- 가중치표는 서버 meta가 정본 — 여기에 표를 두지 않는다(구표 하드코딩 표시 사고 재발 방지). 로드 실패 시 표를 비워둔다. -->
     <div id="weightRows"><div class="weight-row"><span class="weight-name" style="grid-column:1 / -1;color:var(--ink-faint);">서버 기준 가중치 불러오는 중…</span></div></div>
+    <!-- 차감폭은 meta.sPenaltyPerExtraS가 정본 — 숫자를 본문에 적지 않는다. -->
+    <p id="sPenaltyNote" style="font-size:12.5px;color:var(--ink-dim);margin:10px 2px 2px;line-height:1.75;"></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="card">
+    <div class="card-title">🏅 순위 점수</div>
+    <div class="weight-row"><span class="weight-bpi">1위</span><span class="weight-mult">10점</span><span class="weight-name">치킨</span></div>
+    <div class="weight-row"><span class="weight-bpi">2위</span><span class="weight-mult">6점</span><span class="weight-name"></span></div>
+    <div class="weight-row"><span class="weight-bpi">3위</span><span class="weight-mult">5점</span><span class="weight-name"></span></div>
+    <div class="weight-row"><span class="weight-bpi">4위</span><span class="weight-mult">4점</span><span class="weight-name">연속 보너스 사정권</span></div>
+    <div class="weight-row"><span class="weight-bpi">5위</span><span class="weight-mult">3점</span><span class="weight-name"></span></div>
+    <div class="weight-row"><span class="weight-bpi">6위</span><span class="weight-mult">2점</span><span class="weight-name"></span></div>
+    <div class="weight-row"><span class="weight-bpi">7~8위</span><span class="weight-mult">1점</span><span class="weight-name"></span></div>
+    <div class="weight-row standard"><span class="weight-bpi">9위 이하</span><span class="weight-mult">0점</span><span class="weight-name">킬 점수는 그대로 반영</span></div>
+    <p style="font-size:12.5px;color:var(--ink-dim);margin:10px 2px 2px;line-height:1.75;">
+      라운드 점수 = <strong>순위점 + 팀 킬 + 연속 보너스</strong>, 여기에 팀 BPI 가중치를 곱합니다.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="card">
+    <div class="card-title">🎮 진행 방식 · 인게임 설정</div>
+    <p style="font-size:13.5px;color:var(--ink);margin:2px 2px 12px;line-height:1.85;">
+      본 대회는 <strong style="color:var(--gold)">커스텀 e스포츠 모드</strong>로 진행됩니다.
+      차량 등 커스텀 스킨은 적용되지 않습니다. <strong>맵은 대회 진행 순서에 따릅니다.</strong>
+    </p>
+    <div class="weight-row"><span class="weight-bpi">R1</span><span class="weight-mult">21:00</span><span class="weight-name"></span></div>
+    <div class="weight-row"><span class="weight-bpi">R2</span><span class="weight-mult">21:35</span><span class="weight-name"></span></div>
+    <div class="weight-row"><span class="weight-bpi">R3</span><span class="weight-mult">22:10</span><span class="weight-name"></span></div>
+    <div class="weight-row"><span class="weight-bpi">R4</span><span class="weight-mult">22:45</span><span class="weight-name"></span></div>
+    <div class="weight-row standard"><span class="weight-bpi">R5</span><span class="weight-mult">23:20</span><span class="weight-name">종료 23:50 예정</span></div>
+    <p style="font-size:12.5px;color:var(--ink-dim);margin:10px 2px 2px;line-height:1.75;">
+      팀전 총 <strong>5라운드</strong> · 판당 30분 · 휴식 5분.
+      <strong style="color:var(--gold)">멤버 교체는 라운드 사이 휴식 시간에만</strong> 가능합니다 —
+      라운드 진행 중 교체는 인정되지 않습니다.<br>
+      팀 BPI는 <strong>확정 4인 기준으로 동결</strong>되며 예비·교체 인원은 BPI에 반영되지 않습니다.<br>
+      20:00 솔로 이벤트는 <strong>팀 순위·킬 MVP 집계에 포함되지 않습니다.</strong><br>
+      티어 최종 판정 및 팀 구성 조율 권한은 <strong>운영진</strong>에게 있습니다.
+    </p>
   </div>
 </section>
 
@@ -240,6 +285,7 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
     <div class="card-title">🔥 연속 보너스 <span style="color:var(--gold);font-size:11px;">NEW · 42시즌 공식 패치 오마주</span></div>
     <div class="weight-row"><span class="weight-bpi">Top4</span><span class="weight-mult">+2점</span><span class="weight-name">2판 연속 Top4 시 해당 판</span></div>
     <div class="weight-row standard"><span class="weight-bpi">치킨</span><span class="weight-mult">+4점</span><span class="weight-name">2판 연속 <strong style="color:var(--gold)">우승</strong> 시 해당 판 (+2 대체)</span></div>
+    <div class="weight-row"><span class="weight-bpi">3판+</span><span class="weight-mult">묶음마다</span><span class="weight-name">3판 이상 이어가면 묶음마다 붙습니다 — 3연속 +4, 4연속 +6, 5연속 +8 (치킨은 각각 +8·+12·+16)</span></div>
     <div class="weight-row"><span class="weight-bpi" style="font-size:11px">규칙</span><span class="weight-mult" style="font-size:12px">—</span><span class="weight-name">높은 것 하나만 적용 · 기록 없는 판(불참) 시 연속 초기화 · BPI 가중 전 합산 · 순위표 자동 반영</span></div>
   </div>
 </section>
@@ -260,7 +306,8 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
 <!-- APPLY FORM -->
 <section id="apply" class="anchor">
   <div class="section-head"><div class="section-kicker">APPLY</div><h2 class="section-title">팀 신청</h2>
-  <p class="section-desc">양식 작성 → 신청서 생성 → 운영진 자동 전달 (참가비 무료)</p></div>
+  <p class="section-desc">양식 작성 → 신청서 생성 → 운영진 자동 전달 (참가비 무료)
+    <b id="applyDeadlineNote" style="color:var(--gold);display:block;margin-top:6px;"></b></p></div>
 
   <div class="form-section">
     <div class="callout" style="margin-bottom:12px;border-color:var(--gold-soft);background:linear-gradient(135deg,rgba(245,197,24,.06),transparent);">
@@ -277,7 +324,7 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
 
     <div class="bpi-live">
       <div class="bpi-live-head">
-        <div><div style="font-size:11px;color:var(--ink-faint);letter-spacing:0.05em;">팀 BPI 합계</div><div class="bpi-sum"><span id="bpiSum">0</span><span class="max" id="bpiCapLabel"> / 상한 —</span></div></div>
+        <div><div style="font-size:11px;color:var(--ink-faint);letter-spacing:0.05em;">팀 BPI 합계</div><div class="bpi-sum"><span id="bpiSum">0</span><span class="max" id="bpiCapLabel"> / 권장 —</span></div></div>
         <div class="bpi-status" id="bpiStatus" style="text-align:right;">전적 입력 시 자동 계산</div>
       </div>
       <div class="bpi-breakdown" id="bpiBreakdown">_ + _ + _ + _ = 0</div>
@@ -341,7 +388,7 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
 <section class="anchor">
   <div class="section-head"><div class="section-kicker">FAQ</div><h2 class="section-title">자주 묻는 질문</h2></div>
   <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 계좌는 꼭 적어야 하나요?</div><div class="faq-a"><strong>네, 시즌3부터 필수</strong>입니다. 상금을 팀장 취합 없이 멤버 개인에게 바로 입금하기 위해서예요. <strong>반드시 본인(해당 멤버) 명의</strong> 계좌만 적어주세요. 계좌·실명은 상금 지급 목적으로만 쓰이고 운영진(오너)만 조회할 수 있으며, 공개 팀 목록에는 절대 노출되지 않습니다.</div></div>
-  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 내 티어를 모르겠어요</div><div class="faq-a">배그 닉을 넣고 <b>전적 자동조회</b>를 누르면 서버가 <b>현시즌</b> 기록으로 티어·평딜·BPI를 자동 산정합니다. 닉을 못 찾을 때만 역대 최고 티어·평균딜을 직접 입력하시면 대략값으로 폴백됩니다(이 경우 S급은 판정되지 않습니다).</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 내 티어를 모르겠어요</div><div class="faq-a">배그 닉을 넣고 <b>전적 자동조회</b>를 누르면 서버가 <b>현시즌</b> 기록으로 티어·평딜·BPI를 자동 산정합니다. 닉을 못 찾을 때만 역대 최고 티어·평균딜을 직접 입력하시면 대략값으로 폴백됩니다. 이 경우에도 <b>운영진 확인을 거쳐 S 판정을 받을 수 있습니다</b>.</div></div>
   <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 친구가 없어요 (솔로 신청)</div><div class="faq-a">솔로 신청 OK. 운영진이 BPI 맞춰 자동 매칭합니다.</div></div>
   <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 참가비가 있나요?</div><div class="faq-a">완전 무료입니다. 보증금도 없어요. 대신 8/7(금) 참가 확정 체크인에 응답해주세요.</div></div>
 </section>
@@ -382,16 +429,30 @@ function teamCheck(members){
   var sum=0; fm.forEach(function(m,i){var v=BPI_MAP[m.tier]||0; if(i===0&&m.tier==='T0')v+=1; sum+=v;});
   var sCnt=fm.filter(function(m){return m.tier==='S';}).length;
   var cap=teamCap(), sCap=sTierCap();
-  if(!META) return {sum:sum,sCnt:sCnt,blocked:true,msg:'룰 정보를 불러오지 못했습니다 — 새로고침해주세요'};
-  if(sCap!=null&&sCnt>sCap) return {sum:sum,sCnt:sCnt,blocked:true,msg:'S급은 팀당 '+sCap+'명만 가능합니다 (현재 '+sCnt+'명)'};
-  if(cap!=null&&sum>cap)   return {sum:sum,sCnt:sCnt,blocked:true,msg:'합산 '+sum+' — 상한 '+cap+' 초과. '+(sum-cap)+'점 낮춰야 합니다'};
-  return {sum:sum,sCnt:sCnt,blocked:false,msg:'신청 가능 (합산 '+sum+'/'+(cap!=null?cap:'—')+')'};
+  // blocked = 제출 자체가 불가능한 상태. warn = 접수는 되지만 운영진 조율 대상.
+  // 상한이 권장으로 바뀌면서(2026-08-06) BPI·S급은 blocked에서 warn으로 내려왔다.
+  // META 미로드만 blocked로 남는다 — 룰을 모르는 채 계산하면 틀린 BPI로 제출된다.
+  if(!META) return {sum:sum,sCnt:sCnt,blocked:true,warn:false,msg:'룰 정보를 불러오지 못했습니다 — 새로고침해주세요'};
+  var over=[];
+  if(sCap!=null&&sCnt>sCap) over.push('S급 '+sCnt+'명 (권장 팀당 '+sCap+'명)');
+  if(cap!=null&&sum>cap)    over.push('합산 '+sum+' (권장 '+cap+' 이하, +'+(sum-cap)+')');
+  if(over.length) return {sum:sum,sCnt:sCnt,blocked:false,warn:true,
+    msg:'권장 초과 — '+over.join(' · ')+'. 신청은 가능하며 운영진이 조율할 수 있습니다'};
+  return {sum:sum,sCnt:sCnt,blocked:false,warn:false,msg:'신청 가능 (합산 '+sum+'/'+(cap!=null?cap:'—')+')'};
 }
-function getWeight(b){
+// sCnt: 팀 내 S등급 인원. 서버 gdcupWeight와 같은 식으로 2명째부터 차감한다 —
+// 빼지 않으면 화면 배율과 서버가 저장하는 weight가 어긋난다(신청자에게 틀린 배율 표시).
+// 차감폭은 meta.sPenaltyPerExtraS가 정본. 여기 숫자를 적지 말 것.
+function getWeight(b, sCnt){
   if(!META||!META.weightTable) return {mult:1,label:'—'};
   for(var i=0;i<META.weightTable.length;i++){
     var r=META.weightTable[i];
-    if(b>=r[0]&&b<=r[1]) return {mult:r[2], label:weightLabel(r[2])};
+    if(b>=r[0]&&b<=r[1]){
+      var per=Number(META.sPenaltyPerExtraS)||0;
+      var extra=Math.max(0,(Number(sCnt)||0)-1);
+      var mult=Math.max(0, Math.round((r[2]-per*extra)*100)/100);
+      return {mult:mult, label:weightLabel(r[2]), sPenalty:+(per*extra).toFixed(2)};
+    }
   }
   return {mult:1,label:'—'};
 }
@@ -483,16 +544,16 @@ function memberTier(i){
 function updateBPI(){
   var sum=0,parts=[];
   for(var i=0;i<4;i++){
-    var t=memberTier(i); var v=t?BPI_MAP[t]:0; var lead=(i===0&&t==='T0'); if(lead)v+=1; sum+=v;
+    var t=memberTier(i); var v=t?BPI_MAP[t]:0; sum+=v;
     var au=document.querySelector('.member-auto[data-idx="'+i+'"]');
-    if(au)au.innerHTML=t?('→ <strong style="color:var(--gold)">'+t+'</strong> · BPI '+v+(lead?' (팀장 +1)':'')):'전적 입력 시 티어 자동 산정';
-    parts.push(t?(v+(lead?'*':'')):'_');
+    if(au)au.innerHTML=t?('→ <strong style="color:var(--gold)">'+t+'</strong> · BPI '+v):'전적 입력 시 티어 자동 산정';
+    parts.push(t?v:'_');
   }
   document.getElementById('bpiSum').textContent=sum;
-  document.getElementById('bpiBreakdown').textContent=parts.join(' + ')+' = '+sum+(parts.some(function(p){return String(p).indexOf('*')>=0;})?'  (* T0 팀장 +1)':'');
+  document.getElementById('bpiBreakdown').textContent=parts.join(' + ')+' = '+sum;
   var st=document.getElementById('bpiStatus');
   if(sum===0){st.innerHTML='전적 입력 시 자동 계산';}
-  else{var w=getWeight(sum);var c=w.mult===1.0?'var(--gold)':(w.mult>1?'var(--green)':'var(--orange)');
+  else{var w=getWeight(sum, readMembers().filter(function(m){return m.tier==='S';}).length);var c=w.mult===1.0?'var(--gold)':(w.mult>1?'var(--green)':'var(--orange)');
     st.innerHTML='<span class="label" style="color:'+c+'">'+w.label+'</span><br><span class="mult" style="color:'+c+'">×'+w.mult.toFixed(1)+'</span>';}
 }
 document.addEventListener('input',function(e){ if(e.target.classList.contains('member-peak')||e.target.classList.contains('member-dmg'))updateBPI(); });
@@ -554,7 +615,7 @@ function generateApplication(){
   var fm=members.filter(function(m){return m.name&&m.ign&&m.tier;});
   var bpiSum=0;
   fm.forEach(function(m,i){var v=BPI_MAP[m.tier]; if(i===0&&m.tier==='T0')v+=1; bpiSum+=v;});
-  var weight=getWeight(bpiSum);
+  var weight=getWeight(bpiSum, fm.filter(function(m){return m.tier==='S';}).length);
   var recruiting=4-fm.length;
 
   var L=[];
@@ -568,9 +629,9 @@ function generateApplication(){
   L.push('▎멤버 ('+fm.length+'/4명)');
   fm.forEach(function(m,i){
     var role=i===0?'👑 팀장':'멤버 '+(i+1);
-    var v=BPI_MAP[m.tier]; var t0=(i===0&&m.tier==='T0'); if(t0)v+=1;
+    var v=BPI_MAP[m.tier];
     L.push('  '+role);
-    L.push('    └ '+m.name+' (배그: '+m.ign+') · '+m.tier+' · BPI '+v+(t0?' (T0 팀장 +1)':''));
+    L.push('    └ '+m.name+' (배그: '+m.ign+') · '+m.tier+' · BPI '+v);
     L.push('       (신고: '+m.peak+' / 평균 '+m.dmg+'딜)');
     if(m.bank&&m.account){ var _ac=String(m.account).replace(/\D/g,''); var _mask=_ac.length>4?('****'+_ac.slice(-4)):'****'; L.push('       💳 '+m.bank+' '+_mask+(m.holder?' ('+m.holder+')':'')+' · 계좌 입력됨(본인명의)'); }
     else { L.push('       💳 계좌 미입력 — 수상 시 취합'); }
@@ -623,13 +684,22 @@ function copyApplication(){
           // 서버 검증이 정본 — 클라 판정을 통과해도 여기서 막힐 수 있다
           var why=(d.reasons||[]).map(function(x){
             if(x.code==='bpi_cap_exceeded')return '합산 '+x.teamBpi+' — 상한 '+x.cap+' 초과 ('+x.over+'점 낮춰야 함)';
-            if(x.code==='s_tier_limit')return 'S급 '+x.count+'명 — 팀당 '+x.max+'명까지';
+            if(x.code==='s_tier_limit')return 'S급 '+x.count+'명 — 권장 팀당 '+x.max+'명';
             return x.code;
           }).join('\n');
           alert('신청이 접수되지 않았습니다.\n\n'+(why||d.message||d.error||'서버 검증 실패')); return;
         }
         _sent=true; if(d.teams!=null)setCount(d.teams);
-        if(d.warnings&&d.warnings.length){
+        // 권장 초과로 접수된 경우 — 서버가 capWarnings를 준다. 접수는 됐다는 걸 먼저 말하고
+        // 조율 가능성을 덧붙인다. 등록계 경고(d.warnings)와 성격이 달라 문구를 분리한다.
+        if(d.capWarnings&&d.capWarnings.length){
+          var cw=document.getElementById('regWarn');
+          if(cw){ cw.innerHTML='신청이 접수됐습니다. <b style="color:var(--gold)">권장 기준 초과</b> — '
+            +d.capWarnings.map(function(t){return t.replace(/[<>&]/g,'');}).join(' · ')
+            +'. <span style="opacity:.8">밸런스 조정을 위해 운영진이 팀 구성을 조율할 수 있습니다.</span>';
+            cw.style.display='block'; }
+        }
+        else if(d.warnings&&d.warnings.length){
           var w=document.getElementById('regWarn');
           if(w){ w.innerHTML='신청은 접수됐습니다. <span style="opacity:.8">참고: 클랜원은 전적관리 ID(<code>/등록계</code>) 등록 대상입니다 — 용병은 해당 없습니다.</span>'; w.style.display='block'; }
         }
@@ -753,10 +823,14 @@ function copyApplication(){
   function renderBadge(){
     var b=ensureBadge(); if(!b)return;
     var v=teamCheck(readMembers());
-    var w=getWeight(v.sum);
+    var w=getWeight(v.sum, v.sCnt);
     if(v.blocked){
       b.style.background='rgba(220,60,60,.12)'; b.style.color='#ff9c9c';
       b.innerHTML='❌ '+v.msg;
+    }else if(v.warn){
+      // 권장 초과 — 제출은 열어두되 눈에 띄게. 빨강(차단)과 구분해 골드 계열로.
+      b.style.background='rgba(245,197,24,.14)'; b.style.color='var(--gold)';
+      b.innerHTML='⚠ '+v.msg+' · 가중치 ×'+w.mult.toFixed(2)+' ('+w.label+')';
     }else{
       b.style.background='rgba(245,197,24,.10)'; b.style.color='var(--gold)';
       b.innerHTML='✅ '+v.msg+' · 가중치 ×'+w.mult.toFixed(2)+' ('+w.label+')';
@@ -768,12 +842,27 @@ function copyApplication(){
   function applyMeta(){
     BPI_MAP = META.bpiScale || {};
     var lab=document.getElementById('bpiCapLabel');
-    if(lab) lab.textContent=' / 상한 '+(META.cap&&META.cap.team!=null?META.cap.team:'—');
+    if(lab) lab.textContent=' / 권장 '+(META.cap&&META.cap.team!=null?META.cap.team:'—');
     // 안내 문구의 상한·S급 인원도 meta에서 — 숫자를 본문에 적어두면 서버와 어긋난다.
     var cp=document.getElementById('capProse');
     if(cp) cp.textContent=(META.cap&&META.cap.team!=null?META.cap.team:'—');
     var sp=document.getElementById('sCapProse');
     if(sp&&META.cap&&META.cap.sTier!=null) sp.textContent='S급은 팀당 '+META.cap.sTier+'명';
+    // S 누진 차감 안내 — 차감폭도 meta가 정본이라 여기서 문장을 만든다.
+    var pen=Number(META.sPenaltyPerExtraS)||0, pn=document.getElementById('sPenaltyNote');
+    if(pn) pn.innerHTML = pen>0
+      ? 'S급이 <strong>2명 이상</strong>이면 1명당 가중치 <strong style="color:var(--gold)">−'+pen.toFixed(2)
+        +'</strong>가 추가로 붙습니다. BPI 구간만으로는 S 편중이 잡히지 않아 인원수로 따로 조정합니다.'
+      : '';
+    // 신청 마감도 서버 값을 그대로 쓴다 — 본문에 시각을 적으면 env를 바꿀 때 어긋난다.
+    var dl=document.getElementById('applyDeadlineNote');
+    if(dl && META.applyDeadline){
+      var t=new Date(META.applyDeadline);
+      dl.textContent = isNaN(t) ? '' : ('신청 마감 ' + t.toLocaleString('ko-KR',
+        {timeZone:'Asia/Seoul', month:'numeric', day:'numeric', weekday:'short',
+         hour:'2-digit', minute:'2-digit', hour12:false}) + ' (KST)'
+        + (META.applyOpen===false ? ' — 마감됨' : ''));
+    }
     // ── 표시 레이어: 정보 섹션의 티어 BPI·가중치표·정석 팩트를 meta로 렌더 ──
     // (검증 로직과 무관한 표시 전용. 과거 구표 하드코딩이 신청자에게 노출된 사고 재발 방지)
     try{
@@ -854,7 +943,7 @@ function copyApplication(){
         if(out)out.innerHTML='✅ <b>'+(best.platform==='kakao'?'카카오':'스팀')+'</b> · 티어 <b>'+(s.tier||'?')+'</b>'
           +(samp.avgDamage!=null?(' · 평딜 '+Math.round(samp.avgDamage)):'')
           +' · BPI <b>'+(s.bpi!=null?s.bpi:'?')+'</b>'
-          +(s.tier==='S'?' <span style="color:var(--gold)">· S급 (팀당 1명 제한)</span>':'')
+          +(s.tier==='S'?' <span style="color:var(--gold)">· S급 (권장 팀당 1명 · 초과해도 신청 가능)</span>':'')
           +' <span style="color:var(--ink-faint);font-size:11px">현시즌 기준</span>';
         renderBadge();
       })

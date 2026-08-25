@@ -1,0 +1,277 @@
+/* G샵 — 모바일 우선. style.css의 토큰(--gold/--panel/--border 등)을 그대로 쓴다. */
+
+/* ---------------- 상단 고정 바 ---------------- */
+.shop-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+.shop-bar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+.shop-bar-label { font-size: 12px; color: var(--text-sub); }
+.shop-bar-balance {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.shop-bar-weekly {
+  font-size: 12px;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+.gauge {
+  height: 5px;
+  background: var(--panel-2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+/* width가 아니라 transform으로 채운다 — width 애니메이션은 레이아웃을 다시
+   계산시켜 저사양 폰에서 끊긴다(모바일 우선이라 특히 중요). */
+.gauge-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--gold);
+  border-radius: 3px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform .35s ease;
+}
+
+/* ---------------- 탭 ---------------- */
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.tab {
+  flex: 1;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-sub);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.tab.active {
+  color: #1a1310;
+  background: var(--gold);
+  border-color: var(--gold);
+  font-weight: 700;
+}
+
+/* ---------------- 상품 그리드 ---------------- */
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .item-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.item-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+/* 재고 0 → 흑백 + 품절 뱃지 (작업지시서 §2-4) */
+.item-card.is-sold-out { filter: grayscale(1); opacity: .55; }
+.sold-badge {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: var(--red);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.item-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  background: var(--panel-2);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.item-emoji { font-size: 40px; line-height: 1; }
+.item-name { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.item-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.4;
+  margin-bottom: 8px;
+  min-height: 2.8em;
+}
+.item-price {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 8px;
+}
+.item-price span {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-sub);
+  margin-left: 2px;
+}
+.stock-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.stock-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--panel-2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.stock-fill { height: 100%; background: var(--green); border-radius: 2px; }
+.stock-text {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.btn.buy { width: 100%; margin-top: auto; padding: 9px; font-size: 14px; }
+.btn.buy:disabled { opacity: .45; cursor: not-allowed; }
+
+/* 스켈레톤 */
+.item-card.skel { min-height: 230px; }
+.skel-box {
+  flex: 1;
+  border-radius: 8px;
+  background: linear-gradient(90deg,
+    var(--panel-2) 25%, #22222c 50%, var(--panel-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skel-box { animation: none; }
+  .gauge-fill { transition: none; }
+  .item-card.skel { min-height: 230px; }
+}
+
+/* ---------------- 주문 내역 ---------------- */
+.order-list {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.order-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.order-row:last-child { border-bottom: none; }
+.order-main { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.order-emoji { font-size: 22px; }
+.order-name { font-size: 14px; font-weight: 600; }
+.order-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.order-note { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+.st {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.st-paid   { background: rgba(90,130,220,.18); color: var(--blue); }
+.st-done   { background: rgba(93,187,99,.18);  color: var(--green); }
+.st-refund { background: rgba(255,180,40,.18); color: var(--warn); }
+.st-cancel { background: rgba(90,90,106,.25);  color: var(--text-sub); }
+
+/* ---------------- 모달 ---------------- */
+.modal-back {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+.modal-back[hidden] { display: none; }
+.modal {
+  width: 100%;
+  max-width: 340px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+.modal-title { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
+.confirm-item { font-size: 15px; margin-bottom: 6px; }
+.confirm-price { font-size: 13px; color: var(--gold); margin-bottom: 10px; }
+.confirm-note { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+.modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+.modal-actions .btn { flex: 1; padding: 10px; }
+
+/* ---------------- 토스트 ---------------- */
+.toast-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 200;
+  width: min(92vw, 380px);
+}
+.toast {
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .45);
+  transition: opacity .3s ease, transform .3s ease;
+}
+.toast.out { opacity: 0; transform: translateY(8px); }
+.toast-ok  { border-color: var(--green); }
+.toast-err { border-color: var(--red); }
+@media (prefers-reduced-motion: reduce) {
+  .toast { transition: none; }
+}
+
+/* ---------------- 에러 상태 ---------------- */
+.err-detail {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+  word-break: break-all;
+}
+.btn.retry { margin-top: 10px; padding: 7px 16px; font-size: 13px; }
