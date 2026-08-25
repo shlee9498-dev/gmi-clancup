@@ -933,18 +933,38 @@ function copyApplication(){
           return;
         }
         var best=res.d.found[0];
-        var s=best.suggested||{}, samp=best.sample||{};
+        var s=best.suggested||{}, samp=best.sample||{}, basis=best.basis||{};
+        var dmgEl=document.querySelector('.member-dmg[data-idx="'+i+'"]');
+        if(dmgEl&&samp.avgDamage!=null)dmgEl.value=Math.round(samp.avgDamage);
         var hid=document.querySelector('.member-tier[data-idx="'+i+'"]');
+        // ── 판정 보류 — 표본 부족 상태의 S급 딜은 서버가 suggested를 비워 내려보낸다.
+        //    신고값(역대 최고 티어) 흐름으로 폴백하고, 확정 단계 서버 재검증이 정본으로 다시 본다.
+        if(best.judgmentPending){
+          if(hid){ hid.value=''; hid.setAttribute('data-src',''); }
+          setFallbackLocked(i, false);
+          if(out)out.innerHTML='⏸ <b>판정 보류</b> — 표본이 부족한 상태의 S급 딜량이라 자동 판정을 보류했어요. '
+            +'아래 <b>역대 최고 티어</b>를 골라 신청해주세요 (신청 가능 · S급은 운영진 확정 판정에서만 인정됩니다)';
+          renderBadge(); return;
+        }
         if(hid){ hid.value=s.tier||''; hid.setAttribute('data-src','api'); }   // 서버 판정 = 정본(S급 포함)
         // 폴백 입력(역대 최고 티어)은 판정에 쓰이지 않으므로 잠근다 — 근거처럼 보이는 혼란 제거
         setFallbackLocked(i, true);
-        var dmgEl=document.querySelector('.member-dmg[data-idx="'+i+'"]');
-        if(dmgEl&&samp.avgDamage!=null)dmgEl.value=Math.round(samp.avgDamage);
+        // 딜량 표기 — 판정에 실제 쓰인 소스를 명시(관제탑 8/25 확정 문구). 시즌 번호·판수 기준은
+        // 전부 서버 응답에서 파생한다(seasonId 말미 숫자 · basis.minRounds) — 화면 하드코딩 금지.
+        var sm=String(best.seasonId||'').match(/(\d+)$/), seasonN=sm?sm[1]:null, mr=basis.minRounds;
+        var dmgTxt='';
+        if(basis.damageSource==='ranked'&&basis.avgDamage!=null){
+          dmgTxt=' · '+(seasonN?seasonN+'시즌 ':'')+'평균 딜량 '+Math.round(basis.avgDamage)
+            +' (경쟁전'+(basis.rankedRounds!=null?' '+basis.rankedRounds+'판':'')+')';
+        }else if(samp.avgDamage!=null){
+          dmgTxt=' · '+(seasonN?seasonN+'시즌 ':'')+'평균 딜량 '+Math.round(samp.avgDamage)
+            +' <span style="color:var(--ink-faint);font-size:11px">일반게임 기준'
+            +(mr!=null?' · 경쟁전 '+mr+'판 이상부터 정확해집니다':'')+'</span>';
+        }
         if(out)out.innerHTML='✅ <b>'+(best.platform==='kakao'?'카카오':'스팀')+'</b> · 티어 <b>'+(s.tier||'?')+'</b>'
-          +(samp.avgDamage!=null?(' · 평딜 '+Math.round(samp.avgDamage)):'')
+          +dmgTxt
           +' · BPI <b>'+(s.bpi!=null?s.bpi:'?')+'</b>'
-          +(s.tier==='S'?' <span style="color:var(--gold)">· S급 (권장 팀당 1명 · 초과해도 신청 가능)</span>':'')
-          +' <span style="color:var(--ink-faint);font-size:11px">현시즌 기준</span>';
+          +(s.tier==='S'?' <span style="color:var(--gold)">· S급 (권장 팀당 1명 · 초과해도 신청 가능)</span>':'');
         renderBadge();
       })
       .catch(function(){ if(out)out.textContent='조회 실패 — 잠시 후 다시 시도해주세요'; });
