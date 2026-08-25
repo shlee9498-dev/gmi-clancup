@@ -23,6 +23,7 @@
     background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 13px;
     backdrop-filter:blur(8px);box-shadow:0 6px 24px rgba(0,0,0,.45);}
   .pill{display:flex;align-items:center;gap:14px;background:var(--panel);
+  /* impeccable-disable-next-line side-tab -- 방송 오버레이 타입 색 코딩(기본 골드·ev 파랑·final 빨강)의 앵커 — 송출 그래픽 사양, 제거 시 방송 화면 변경 */
     border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:14px;
     padding:14px 20px;backdrop-filter:blur(8px);box-shadow:0 12px 40px rgba(0,0,0,.45);min-width:300px;}
   .rno{font-family:var(--display);font-size:30px;line-height:1;color:var(--gold);}
@@ -35,6 +36,7 @@
   .tag.main{background:rgba(245,197,24,.16);color:var(--gold);border:1px solid var(--line);}
   .tag.final{background:rgba(230,57,70,.18);color:#ff8a93;border:1px solid rgba(230,57,70,.5);}
   /* 타입별 좌측 바 색 */
+  /* impeccable-disable-next-line side-tab -- 방송 오버레이 타입 색 코딩(ev 파랑·final 빨강)의 앵커 — 송출 그래픽 사양, 제거 시 방송 화면 변경 */
   body[data-type="ev"] .pill{border-left-color:var(--blue);}
   body[data-type="ev"] .rno{color:var(--blue);}
   body[data-type="final"] .pill{border-left-color:var(--red);}
@@ -163,6 +165,15 @@
 
   // ── 대기화면 라이브 순위표 ──
   var GAPI = qp('api') || "https://mri-academy-production.up.railway.app";
+  /* BPI 기준 캡션 — 서버 meta.bpi가 정본(하드코딩 금지 · 관제탑 8/25). 방송 화면이라
+     우측 하단 고정 소형 캡션으로만, 값이 없으면 아무것도 그리지 않는다. */
+  fetch(GAPI+'/api/gdcup-meta').then(function(r){return r.json();}).then(function(d){
+    if(!d || !d.bpi || !d.bpi.asOf) return;
+    var el = document.createElement('div');
+    el.textContent = 'BPI 기준: ' + d.bpi.asOf + ' · ' + d.bpi.season + '시즌 최종 전적';
+    el.style.cssText = 'position:fixed;right:24px;bottom:16px;font:700 14px/1 var(--body);color:var(--ink-dim);letter-spacing:.04em;';
+    document.body.appendChild(el);
+  }).catch(function(){});
   var BRANDS = {}, LASTS = null;
   function esc(s){ return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
   function renderStandings(d){
@@ -174,6 +185,7 @@
     rows.innerHTML = st.slice(0,16).map(function(t,i){
       var b = BRANDS[t.name] || {};
       var em = b.emblem ? '<img class="em" src="'+b.emblem+'">' : '';
+  // impeccable-disable-next-line side-tab -- 팀 브랜드 색 표시(방송 스탠딩) — 팀별 색이 정보 그 자체라 제거 불가
       var stl = (b.color && i!==0) ? ' style="border-left:4px solid '+b.color+'"' : '';
       return '<div class="srow'+(i===0?' lead':'')+'"'+stl+'><span class="rk">'+(i+1)+'</span>'+
              em+'<span class="tm">'+esc(t.name)+'</span>'+
