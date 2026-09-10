@@ -689,7 +689,7 @@ function copyApplication(){
         if(!res.ok){
           // 서버 검증이 정본 — 클라 판정을 통과해도 여기서 막힐 수 있다
           var why=(d.reasons||[]).map(function(x){
-            if(x.code==='bpi_cap_exceeded')return '합산 '+x.teamBpi+' — 상한 '+x.cap+' 초과 ('+x.over+'점 낮춰야 함)';
+            if(x.code==='bpi_cap_exceeded')return '합산 '+x.teamBpi+' — 권장 '+x.cap+' 대비 +'+x.over+' (권장 기준 · 초과해도 접수되며 운영진이 조율할 수 있어요)';
             if(x.code==='s_tier_limit')return 'S급 '+x.count+'명 — 권장 팀당 '+x.max+'명';
             return x.code;
           }).join('\n');
