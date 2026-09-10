@@ -232,6 +232,7 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
       · S 해당 시 스크린샷을 첨부해 주세요. 운영진이 확인합니다<br>
       · 42시즌 경쟁전 10판 미만이면 운영진이 직접 판정합니다<br>
       · S급은 팀당 1명까지입니다<br>
+      · <strong>평균 딜량은 42시즌 경쟁전 기준입니다. 일반게임 전적은 반영하지 않습니다.</strong><br>
       전적 자동조회는 <strong>참고값</strong>입니다 — <strong>최종 판정은 운영진이 위 기준으로 합니다.</strong>
       자동조회가 되지 않는 계정도 운영진 확인을 거쳐 판정받을 수 있습니다.
     </p>
@@ -392,7 +393,7 @@ footer a{color:var(--ink-dim);text-decoration:none;}footer a:hover{color:var(--g
 <section class="anchor">
   <div class="section-head"><div class="section-kicker">FAQ</div><h2 class="section-title">자주 묻는 질문</h2></div>
   <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 계좌는 꼭 적어야 하나요?</div><div class="faq-a"><strong>네, 시즌3부터 필수</strong>입니다. 상금을 팀장 취합 없이 멤버 개인에게 바로 입금하기 위해서예요. <strong>반드시 본인(해당 멤버) 명의</strong> 계좌만 적어주세요. 계좌·실명은 상금 지급 목적으로만 쓰이고 운영진(오너)만 조회할 수 있으며, 공개 팀 목록에는 절대 노출되지 않습니다.</div></div>
-  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 내 티어를 모르겠어요</div><div class="faq-a">배그 닉을 넣고 <b>전적 자동조회</b>를 누르면 티어·평딜·BPI <b>참고값</b>이 채워집니다. 시즌4 최종 티어는 <b>운영진이 42시즌 최종 전적·경쟁전 기준</b>(위 티어표)으로 판정합니다. 닉이 조회되지 않아도 역대 최고 티어·평균딜을 직접 입력해 신청할 수 있어요 — 역시 운영진 확인을 거쳐 판정됩니다.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 내 티어를 모르겠어요</div><div class="faq-a">배그 닉을 넣고 <b>전적 자동조회</b>를 누르면 티어·평딜·BPI <b>참고값이 표시만</b> 됩니다(입력칸에 자동으로 들어가지 않아요 — 일반게임 전적이 섞여 실제 경쟁전 딜량보다 높게 나올 수 있습니다). 시즌4 최종 티어는 <b>운영진이 42시즌 최종 전적·경쟁전 기준</b>(위 티어표)으로 판정합니다. 닉이 조회되지 않아도 역대 최고 티어·평균딜을 직접 입력해 신청할 수 있어요 — 역시 운영진 확인을 거쳐 판정됩니다.</div></div>
   <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 친구가 없어요 (솔로 신청)</div><div class="faq-a">솔로 신청 OK. 운영진이 BPI 맞춰 자동 매칭합니다.</div></div>
   <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Q. 참가비가 있나요?</div><div class="faq-a">완전 무료입니다. 보증금도 없어요. 대신 9/12(토) 참가 확정 체크인에 응답해주세요.</div></div>
 </section>
@@ -509,14 +510,15 @@ function memberCardHTML(i){
       +'<div class="form-group"><label class="form-label">배그 닉네임 <span class="req">*</span></label><input type="text" class="form-input member-ign" data-idx="'+i+'"></div>'
       +'<div class="form-group"><label class="form-label">역대 최고 티어 <span class="req">*</span> <span class="opt">운영진 판정 참고</span></label><select class="form-select member-peak" data-idx="'+i+'">'
         +'<option value="">선택</option><option value="서바이버">서바이버</option><option value="마스터">마스터</option><option value="다이아">다이아</option><option value="크리스탈">크리스탈</option><option value="플래이하">플래티넘 이하</option></select></div>'
-      +'<div class="form-group"><label class="form-label">시즌 최고 평균딜 <span class="req">*</span></label><input type="number" inputmode="numeric" class="form-input member-dmg" data-idx="'+i+'" placeholder="예: 320"></div>'
+      +'<div class="form-group"><label class="form-label">42시즌 경쟁전 평균 딜량 <span class="req">*</span></label><input type="number" inputmode="numeric" class="form-input member-dmg" data-idx="'+i+'" placeholder="42시즌 경쟁전 기준">'
+      +'<div style="font-size:11.5px;color:var(--ink-faint);margin-top:4px;line-height:1.6;">42시즌 경쟁전 기준으로 입력해 주세요. 42시즌 기록이 없으면 역대 최고 점수를 달성했을 때의 딜량을 적어주세요.</div></div>'
     +'</div>'
     +'<div class="form-row">'
       +'<div class="form-group"><label class="form-label">실명 <span class="req">*</span> <span class="opt">상금 지급용</span></label><input type="text" class="form-input member-realname" data-idx="'+i+'" placeholder="예: 홍길동"></div>'
       +'<div class="form-group"><label class="form-label">디스코드 ID <span class="opt">(선택)</span></label><input type="text" class="form-input member-discord" data-idx="'+i+'" placeholder="예: gmi_user"></div>'
     +'</div>'
     +'<input type="hidden" class="member-tier" data-idx="'+i+'">'
-    +'<div class="member-auto" data-idx="'+i+'" style="font-size:12px;color:var(--ink-faint);margin-top:10px;">배그 닉 입력 후 <b>자동조회</b>를 누르면 티어·평딜·BPI가 채워집니다 (참고값 — 최종 판정은 운영진)</div>'
+    +'<div class="member-auto" data-idx="'+i+'" style="font-size:12px;color:var(--ink-faint);margin-top:10px;">배그 닉 입력 후 <b>자동조회</b>를 누르면 티어·평딜·BPI가 <b>표시만</b> 됩니다 (참고값 — 최종 판정은 운영진). ⚠️ 일반게임 전적이 섞여 실제 경쟁전 딜량보다 높게 나올 수 있어요 — 딜량은 직접 확인 후 입력해 주세요</div>'
     +'<button type="button" class="btn member-lookup" data-idx="'+i+'" style="margin-top:8px;padding:7px 14px;font-size:12px;">🔍 전적 자동조회</button>'
     +'<div class="acct-box">'
       +'<div class="acct-h">💳 상금 정산 계좌 <b>(필수 · 본인 명의만)</b> — 수상 시 개별 자동 입금됩니다.</div>'
@@ -928,8 +930,10 @@ function copyApplication(){
         }
         var best=res.d.found[0];
         var s=best.suggested||{}, samp=best.sample||{}, basis=best.basis||{};
-        var dmgEl=document.querySelector('.member-dmg[data-idx="'+i+'"]');
-        if(dmgEl&&samp.avgDamage!=null)dmgEl.value=Math.round(samp.avgDamage);
+        // 시즌4 긴급 정정(2026-09-10): 자동 채움 전면 해제 — 표시만 한다.
+        // 일겜 표본 평딜이 입력칸에 들어가 실제 경쟁전 딜량보다 부풀려 제출되는 사고
+        // (신청자 문의 330→450), 구 로직 티어(S·T0)가 hidden으로 그대로 저장되는 사고
+        // (시즌4 첫 접수팀 T0×3)가 실측됐다. 제출값은 신청자 직접 입력만 쓴다.
         var hid=document.querySelector('.member-tier[data-idx="'+i+'"]');
         // ── 판정 보류 — 표본 부족 상태의 S급 딜은 서버가 suggested를 비워 내려보낸다.
         //    신고값(역대 최고 티어) 흐름으로 폴백하고, 확정 단계 서버 재검증이 정본으로 다시 본다.
@@ -940,8 +944,7 @@ function copyApplication(){
             +'아래 <b>역대 최고 티어</b>를 골라 신청해주세요 (신청 가능 · S급은 운영진 확정 판정에서만 인정됩니다)';
           renderBadge(); return;
         }
-        if(hid){ hid.value=s.tier||''; hid.setAttribute('data-src','api'); }   // 시즌4: 자동조회는 참고값 — 최종 판정은 운영진(수동 모드)
-        // 시즌4: 역대 최고 티어는 운영진 판정 재료라 잠그지 않는다(참고값 전환, 2026-09-05)
+        // hidden tier에 api 값을 넣지 않는다 — 제출 티어는 신고(peak·딜량) 기반만.
         setFallbackLocked(i, false);
         // 딜량 표기 — 판정에 실제 쓰인 소스를 명시(관제탑 8/25 확정 문구). 시즌 번호·판수 기준은
         // 전부 서버 응답에서 파생한다(seasonId 말미 숫자 · basis.minRounds) — 화면 하드코딩 금지.
@@ -952,13 +955,14 @@ function copyApplication(){
             +' (경쟁전'+(basis.rankedRounds!=null?' '+basis.rankedRounds+'판':'')+')';
         }else if(samp.avgDamage!=null){
           dmgTxt=' · '+(seasonN?seasonN+'시즌 ':'')+'평균 딜량 '+Math.round(samp.avgDamage)
-            +' <span style="color:var(--ink-faint);font-size:11px">일반게임 기준'
-            +(mr!=null?' · 경쟁전 '+mr+'판 이상부터 정확해집니다':'')+'</span>';
+            +' <span style="color:var(--orange,#e8963c);font-size:11px">일반게임 기준 — 경쟁전 표본 부족, 운영진 확인 필요'
+            +(mr!=null?' (경쟁전 '+mr+'판 미만)':'')+'</span>';
         }
         if(out)out.innerHTML='📊 <b>참고값</b> · <b>'+(best.platform==='kakao'?'카카오':'스팀')+'</b> · 티어 <b>'+(s.tier||'?')+'</b>'
           +dmgTxt
           +' · BPI <b>'+(s.bpi!=null?s.bpi:'?')+'</b>'
-          +' <span style="color:var(--ink-faint);font-size:11px">— 시즌4 최종 티어는 운영진이 신 기준으로 판정합니다</span>';
+          +' <span style="color:var(--ink-faint);font-size:11px">— 시즌4 최종 티어는 운영진이 신 기준으로 판정합니다</span>'
+          +'<br><span style="color:var(--orange,#e8963c);font-size:11px">⚠️ 자동조회는 일반게임 전적이 섞일 수 있어 실제 경쟁전 딜량보다 높게 나올 수 있습니다. 입력칸에는 반영되지 않으니, 반드시 직접 확인 후 입력해 주세요.</span>';
         renderBadge();
       })
       .catch(function(){ if(out)out.textContent='조회 실패 — 잠시 후 다시 시도해주세요'; });
