@@ -108,6 +108,17 @@ details p{font-size:13.5px;color:var(--ink-dim);margin-top:6px;line-height:1.7;}
 
 footer{text-align:center;font-size:12px;color:var(--ink-faint);padding:18px 16px 28px;}
 footer a{color:var(--ink-dim);}
+.roster{display:grid;gap:10px;}
+.team{background:var(--bg);border-radius:var(--r-md);padding:12px 12px 10px;}
+.team-h{font-size:15px;font-weight:800;margin-bottom:8px;}
+.slot{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:14px;}
+.slot:first-of-type{border-top:none;}
+.slot-no{flex:0 0 auto;font-size:11.5px;font-weight:700;color:var(--ink-dim);background:var(--field);border-radius:999px;padding:3px 8px;}
+.slot-pen{flex:0 0 auto;font-size:11.5px;font-weight:700;color:var(--red);background:var(--red-soft);border-radius:999px;padding:3px 7px;}
+.slot-ign{font-weight:600;word-break:break-all;}
+.slot-rec{font-size:11.5px;color:var(--ink-faint);}
+.team-sum{margin-top:8px;padding-top:7px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-dim);text-align:right;}
+.team-sum b{color:var(--red);}
 @media(max-width:340px){.row2{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -164,6 +175,12 @@ footer a{color:var(--ink-dim);}
       <button type="button" class="btn btn-main submit">팀 신청 보내기</button>
       <div class="msg" role="status" aria-live="polite"></div>
     </div>
+  </section>
+
+  <section class="card" id="roster" aria-labelledby="rosterTitle">
+    <h2 class="card-h" id="rosterTitle">👥 참가 팀</h2>
+    <p class="card-sub">마감 전까지 변동될 수 있어요 — 최종 명단은 마감 뒤에 올려요.</p>
+    <div class="roster" id="rosterList"></div>
   </section>
 
   <section class="card" id="rules" aria-labelledby="rulesTitle">
@@ -316,6 +333,46 @@ function submit(root){
       setMsg(res.d.updated?"✏️ 신청 내용을 고쳤어요!":"🎉 신청 완료! 운영진이 슬롯을 배정해서 디스코드로 알려 드려요.","var(--green)");loadCounts();done();
     }).catch(function(){setMsg("신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요.","var(--red)");done();});
 }
+// ── 참가 팀 (오너 확정 배정 · 마감 뒤 최종본으로 교체) ──
+// 슬롯 감점은 1번 −4 ~ 4번 −1 고정이라 위치로 정해진다 — 팀마다 합 10점.
+// rec = 전적(경쟁전 100판 이상만). 값이 없으면 줄에 아무것도 넣지 않는다 —
+//   「기록 없음」 같은 문구는 표시하지 않는다(관제탑 2026-09-26).
+//   신청 폼의 자동조회는 화면 표시용이라 DB에 남지 않는다(gdcup_solos 에 딜량·판수 칸 없음).
+//   그래서 여기 값은 손으로 채운다 — 화면 로드마다 PUBG 를 조회하지 않기 위해서다(분당 10회 제한).
+const PENALTY = [-4, -3, -2, -1];
+const TEAMS = [
+  { name: "A팀", slots: [
+    { ign: "Munmakgunslinger", rec: "" },
+    { ign: "gmi_mkmk",         rec: "" },
+    { ign: "GmI_ESTP",         rec: "" },
+    { ign: "WkfgoqhfRkdy",     rec: "" } ] },
+  { name: "B팀", slots: [
+    { ign: "GmI_mri",    rec: "" },
+    { ign: "pxychopath", rec: "" },
+    { ign: "joonsunmom", rec: "" },
+    { ign: "yeopomalgo", rec: "" } ] },
+  { name: "C팀", slots: [
+    { ign: "GmI_HYE0N", rec: "" },
+    { ign: "GmI_HJ",    rec: "" },
+    { ign: "GmI_Eve",   rec: "" },
+    { ign: "naver_net", rec: "" } ] },
+];
+function renderRoster(){
+  var wrap=document.getElementById("rosterList"); if(!wrap) return;
+  wrap.innerHTML=TEAMS.map(function(t){
+    var sum=0;
+    var rows=t.slots.map(function(s,i){
+      var pen=PENALTY[i]!=null?PENALTY[i]:0; sum+=pen;
+      return '<div class="slot"><span class="slot-no">'+(i+1)+'번</span>'
+        +'<span class="slot-pen">'+pen+'</span>'
+        +'<span class="slot-ign">'+esc(s.ign)+'</span>'
+        +(s.rec?'<span class="slot-rec">'+esc(s.rec)+'</span>':'')
+        +'</div>';
+    }).join("");
+    return '<div class="team"><div class="team-h">'+esc(t.name)+'</div>'+rows
+      +'<div class="team-sum">팀 감점 합 <b>'+Math.abs(sum)+'점</b></div></div>';
+  }).join("");
+}
 function loadCounts(){
   fetch(GAPI+"/api/gdcup-count?season="+EVENT_KEY).then(function(r){return r.json();}).then(function(d){if(d&&d.teams!=null)document.getElementById("killTeamNum").textContent=d.teams;}).catch(function(){});
   fetch(GAPI+"/api/gdcup-solo-list?season="+EVENT_KEY).then(function(r){return r.json();}).then(function(d){if(d&&d.count!=null)document.getElementById("killSoloNum").textContent=d.count;}).catch(function(){});
@@ -337,6 +394,7 @@ function loadCounts(){
     el.textContent=closed?"신청이 마감됐어요. 디스코드 신청 채널에 남겨 주시면 운영진이 확인해요.":"⏰ 신청 마감 9/26(토) 20:00";
   });
   if(closed) forms.forEach(function(root){var b=root.querySelector(".submit");b.disabled=true;b.textContent="신청 마감";});
+  renderRoster();
   loadCounts();
 })();
 </script>
