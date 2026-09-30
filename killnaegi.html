@@ -134,7 +134,9 @@ footer a{color:var(--ink-dim);}
       <span class="chip">🏆 1등 팀 <b>24만</b> · 2등 팀 <b>6만</b></span>
       <span class="chip" data-deadline-chip>⏰ 마감 <b>오늘 20:00</b></span>
     </div>
-    <div class="count">지금 솔로 <b id="killSoloNum">–</b>명 · 팀 <b id="killTeamNum">–</b>팀 신청했어요</div>
+    <!-- 이 숫자는 이 폼으로 들어온 건수다. 디스코드로 받는 접수는 여기 안 잡히므로
+         「참가자 수」로 읽히지 않게 「이 폼으로」를 문구에 박아 둔다(관제탑 9/30). -->
+    <div class="count">지금 이 폼으로 솔로 <b id="killSoloNum">–</b>명 · 팀 <b id="killTeamNum">–</b>팀 접수됐어요<br><span style="color:var(--ink-faint)">디스코드로 주신 신청은 여기 안 세요</span></div>
   </div>
 </header>
 
@@ -243,7 +245,22 @@ footer a{color:var(--ink-dim);}
  *   meta.currentSeason 을 읽으면 안 된다 — 그러면 시즌4 표에 들어간다(시즌4 SEASON=3 사고와 같은 경로).
  * 마감은 이 화면에서만 건다 — 서버 GDCUP_APPLY_DEADLINE 은 G드컵 전역값이라 건드리지 않는다.
  *   서버는 마감 뒤에도 신규 신청을 받으므로, 마감 강제는 이 상수가 유일하다.
- * 솔로·팀 폼은 화면에서 따로 떨어져 있고 같은 submit(root)을 쓴다 — 필드·검증·전송값은 두 폼 공통. */
+ * 솔로·팀 폼은 화면에서 따로 떨어져 있고 같은 submit(root)을 쓴다 — 필드·검증·전송값은 두 폼 공통.
+ *
+ * ⚠️ season=9 행은 「이 폼으로 들어온 접수」뿐이다. 1회 실제 참가자 18명은 대부분 디스코드로 받았고
+ *   그 인원은 DB 에 없다 — 그래서 결과 카드의 18명 6팀은 정본 값을 그대로 적었고, 조회값이 아니다.
+ *   어디에서도 season=9 행 수를 참가자 수로 쓰지 말 것(관제탑 9/30).
+ *
+ * 2회차 전환 — 이 화면에서 고칠 곳은 네 군데다.
+ *   ① DEADLINE → 2회차 마감 ISO
+ *   ② 히어로 h1 「1회」 · 일정·상금 칩
+ *   ③ 결과 카드 — 1회분은 아래로 내리거나 별 페이지로 뺀다
+ *   ④ 룰 요약·FAQ 의 회차·상금 문구
+ * EVENT_KEY 는 그냥 올릴 수 없다. 서버가 9 를 킬내기로 못박아 뒀다 —
+ *   mri-academy server.js: gdSeason() 상한 9 · KILLNAEGI_SEASON = 9 · isKillnaegi() 는 === 9.
+ *   10 을 쓰려면 저 세 곳을 함께 고쳐야 하고, 안 고치면 웹훅이 G드컵 문구로 나가고
+ *   gdSeason() 이 현재 시즌으로 폴백해 G드컵 표에 섞인다. 서버를 안 고칠 거면 9 를 그대로 쓰고
+ *   1회 잔존 행(유효 5건)을 먼저 cancelled 로 내린다. 판단은 오너 몫이다. */
 const EVENT_KEY = 9;
 const DEADLINE = "2026-09-26T11:00:00Z";   // 20:00 KST
 const GAPI = "https://mri-academy-production.up.railway.app";
@@ -324,8 +341,12 @@ function submit(root){
     if(cl==="Y") clan.push(i+1);
     members.push(m);
   }
-  var btn=root.querySelector(".submit"); btn.disabled=true; setMsg("보내는 중이에요…");
-  var done=function(){btn.disabled=false;};
+  // 중복 접수 방지(9/26 같은 닉 중복 2쌍 — 간격 3.9초 · 5.5초). 보내는 동안 잠그고, 성공하면 잠근 채로 둔다 —
+  // 종전에는 성공 뒤에도 풀려서 한 번 더 눌리면 그대로 한 건이 더 들어갔다.
+  var btn=root.querySelector(".submit"), label=btn.textContent;
+  btn.disabled=true; btn.textContent="보내는 중"; setMsg("보내는 중이에요");
+  var done=function(){ btn.disabled=false; btn.textContent=label; };      // 실패했을 때만 되돌린다
+  var lock=function(){ btn.textContent="신청 완료"; };                     // 성공 — 잠근 채로 둔다
   if(solo){
     var memo=root.querySelector(".soloNote").value.trim();
     var note=("킬내기1 · "+platKo+" · "+(clan.length?"클랜원":"외부")+" · 방송동의"+(memo?" · "+memo:"")).slice(0,200);
@@ -333,8 +354,11 @@ function submit(root){
       body:JSON.stringify({season:EVENT_KEY,kind:"solo",ign:members[0].ign,tier:"",discord:members[0].discord,note:note})})
       .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
       .then(function(res){
-        if(!res.ok||!res.d.ok){setMsg("신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요. 계속 안 되면 디스코드 신청 채널에 남겨 주세요.","var(--red)");done();return;}
-        setMsg("🙋 솔로 신청 완료! 운영진이 팀과 슬롯을 배정해서 디스코드로 알려 드려요.","var(--green)");loadCounts();done();
+        if(!res.ok||!res.d.ok){
+          // 서버가 같은 닉 중복을 거르면 already_applied 로 돌려준다 — 다시 누를 일이 아니라 잠근다.
+          if(res.d&&res.d.error==="already_applied"){setMsg("이미 신청하셨어요. 바꾸실 게 있으면 디스코드로 알려 주세요","var(--ink-dim)");lock();return;}
+          setMsg("신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요. 계속 안 되면 디스코드 신청 채널에 남겨 주세요.","var(--red)");done();return;}
+        setMsg("🙋 솔로 신청 완료! 운영진이 팀과 슬롯을 배정해서 디스코드로 알려 드려요.","var(--green)");loadCounts();lock();
       }).catch(function(){setMsg("신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요.","var(--red)");done();});
     return;
   }
@@ -347,11 +371,17 @@ function submit(root){
     body:JSON.stringify({season:EVENT_KEY,team_name:team,slogan:slogan,members:members,contact:root.querySelector(".contact").value.trim(),leader_discord:members[0].discord})})
     .then(function(r){return r.json().then(function(d){return {ok:r.ok,status:r.status,d:d};});})
     .then(function(res){
-      if(!res.ok||!res.d.ok){setMsg(res.status===403?"신청이 마감돼서 수정은 운영진에게 부탁드려요.":"신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요. 계속 안 되면 디스코드 신청 채널에 남겨 주세요.","var(--red)");done();return;}
-      setMsg(res.d.updated?"✏️ 신청 내용을 고쳤어요!":"🎉 신청 완료! 운영진이 슬롯을 배정해서 디스코드로 알려 드려요.","var(--green)");loadCounts();done();
+      if(!res.ok||!res.d.ok){
+        // 팀장 닉이 이미 유효한 팀에 올라가 있으면 서버가 already_applied 로 거른다 — 다시 누를 일이 아니다.
+        if(res.d&&res.d.error==="already_applied"){setMsg("이미 신청된 팀이에요. 고치실 게 있으면 디스코드로 알려 주세요","var(--ink-dim)");lock();return;}
+        setMsg(res.status===403?"신청이 마감돼서 수정은 운영진에게 부탁드려요.":"신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요. 계속 안 되면 디스코드 신청 채널에 남겨 주세요.","var(--red)");done();return;}
+      // 수정(updated)은 같은 행을 고치는 것이라 중복이 안 생긴다 — 또 고칠 수 있게 버튼을 되돌린다.
+      if(res.d.updated){setMsg("✏️ 신청 내용을 고쳤어요!","var(--green)");loadCounts();done();return;}
+      setMsg("🎉 신청 완료! 운영진이 슬롯을 배정해서 디스코드로 알려 드려요.","var(--green)");loadCounts();lock();
     }).catch(function(){setMsg("신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요.","var(--red)");done();});
 }
 function loadCounts(){
+  if(!isOpen()) return;   // 마감 뒤엔 .count 를 다음 회차 안내로 갈아끼웠다 — 채울 칸이 없다
   fetch(GAPI+"/api/gdcup-count?season="+EVENT_KEY).then(function(r){return r.json();}).then(function(d){if(d&&d.teams!=null)document.getElementById("killTeamNum").textContent=d.teams;}).catch(function(){});
   fetch(GAPI+"/api/gdcup-solo-list?season="+EVENT_KEY).then(function(r){return r.json();}).then(function(d){if(d&&d.count!=null)document.getElementById("killSoloNum").textContent=d.count;}).catch(function(){});
 }
