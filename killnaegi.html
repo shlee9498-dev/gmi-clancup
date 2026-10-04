@@ -157,22 +157,16 @@ footer a{color:var(--ink-dim);}
 
   <section class="card" id="apply" aria-labelledby="applyTitle">
     <h2 class="card-h" id="applyTitle">솔로 신청</h2>
-    <p class="card-sub">혼자 신청해요. 팀은 대회 날 20:30 경매로 정해져요</p>
+    <p class="card-sub">혼자 신청해요. 스팀으로만 진행하고 팀은 대회 날 20:30 경매로 정해져요</p>
 
     <form id="form" novalidate>
       <div class="field"><label class="label" for="discord">디스코드 닉 <span class="req">*</span></label>
         <input type="text" class="input" id="discord" maxlength="40" autocomplete="off" placeholder="GmI 서버에서 쓰는 닉"></div>
 
-      <div class="field"><label class="label" for="ign">배그 닉 <span class="req">*</span></label>
-        <div class="ign-row"><input type="text" class="input" id="ign" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="대소문자까지 똑같이">
+      <div class="field"><label class="label" for="ign">스팀 닉 <span class="req">*</span></label>
+        <div class="ign-row"><input type="text" class="input" id="ign" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="스팀 배그 닉 · 대소문자까지 똑같이">
           <button type="button" class="btn btn-soft" id="lookupBtn">전적 조회</button></div>
         <div class="found" id="found" role="status" aria-live="polite"></div></div>
-
-      <div class="field"><span class="label">플랫폼 <span class="req">*</span></span>
-        <div class="seg" role="radiogroup" aria-label="플랫폼">
-          <label><input type="radio" name="platform" value="steam"><span>스팀</span></label>
-          <label><input type="radio" name="platform" value="kakao"><span>카카오</span></label>
-        </div></div>
 
       <div class="acct">
         <div class="acct-h">상금 받을 계좌 <span class="req">*</span></div>
@@ -227,13 +221,14 @@ footer a{color:var(--ink-dim);}
       <li>살아 있는데 판을 나가면 <span class="minus">−10</span> <span class="note">(킬이 있어도요)</span></li>
       <li>튕겨서 낙하를 못 한 사람이 있으면 그 판은 무효 <span class="note">(0점 · 감점 없음)</span></li>
       <li>낙하한 뒤에 튕기면 그 판은 그대로 인정해요</li>
-      <li>22:35 이후 처음 시작한 판은 <b>1.5배</b> <span class="note">(팀마다 한 판 · 소수점 올림)</span></li>
+      <li>22:35 이후 처음 시작한 판은 <b>1.5배</b> <span class="note">(팀마다 한 판 · 소수점 올림 · 마이너스 판은 감점도 1.5배)</span></li>
       <li>동점이면 총 킬이 많은 팀, 그래도 같으면 치킨이 많은 팀</li>
     </ul>
   </section>
 
   <section class="card" id="faq" aria-labelledby="faqTitle">
     <h2 class="card-h" id="faqTitle" style="margin-bottom:12px;">자주 묻는 질문</h2>
+    <details><summary>카카오 배그로도 되나요?</summary><p>이번에는 스팀으로만 진행해요. 스팀 닉으로 신청해 주세요.</p></details>
     <details><summary>팀으로 신청할 수 있나요?</summary><p>이번에는 솔로 신청만 받아요. 팀은 20:30 경매에서 팀장이 뽑아요.</p></details>
     <details><summary>슬롯 번호는 어떻게 정해져요?</summary><p>경매가 끝나면 진행자가 1번부터 4번까지 정해서 알려 드려요.</p></details>
     <details><summary>20명이 넘으면요?</summary><p>대기로 받아요. 빈자리가 나면 신청한 순서대로 디스코드로 알려 드려요.</p></details>
@@ -271,53 +266,49 @@ footer a{color:var(--ink-dim);}
  * 1회 폼이 쓰던 G드컵 신청 API(/api/gdcup-solo · season 9)는 더 쓰지 않는다 — 1회 기록과 섞이지 않게 저장 자리가 따로다.
  * 정원 · 마감 · 중복 판정은 전부 서버가 한다. 이 화면은 서버가 준 값(count · cap · closed)만 그린다.
  * 계좌는 보내기만 하고 어디에도 다시 받아 오지 않는다(공개 응답에 없다). 브라우저에도 저장하지 않는다.
- * 전적 조회는 기존 /api/bpi-suggest-auto 를 쓴다 — 닉을 다 치고 0.9초 쉬면 한 번, 같은 닉은 다시 묻지 않는다. */
+ * 전적 조회는 기존 /api/bpi-suggest-auto 를 쓴다 — 닉을 다 치고 0.9초 쉬면 한 번, 같은 닉은 다시 묻지 않는다.
+ * 2회는 스팀 전용이다(오너 10/4 밤). 플랫폼 칸은 없고 조회도 스팀만 한다. 서버도 스팀이 아닌 값은 거절한다. */
 var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
 var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
 var BANKS = ["국민","신한","우리","하나","농협","기업","카카오뱅크","토스뱅크","케이뱅크","새마을","우체국","신협","수협","부산","대구","경남","광주","전북","SC제일","산업"];
-var PLAT_KO = { steam: "스팀", kakao: "카카오" };
 var $ = function (id) { return document.getElementById(id); };
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]; }); }
-function platform() { var r = document.querySelector('input[name="platform"]:checked'); return r ? r.value : ""; }
-function setPlatform(p) { var r = document.querySelector('input[name="platform"][value="' + p + '"]'); if (r) r.checked = true; }
 
 var closed = false, lastLookup = "", lookupTimer = null, lookupSeq = 0;
 
 function setFound(text, kind) { var el = $("found"); el.textContent = text; el.className = "found" + (kind ? " " + kind : ""); }
 function lookup(force) {
   var ign = $("ign").value.trim();
-  if (ign.length < 3) { if (force) setFound("배그 닉을 먼저 적어 주세요", "bad"); return; }
+  if (ign.length < 3) { if (force) setFound("스팀 닉을 먼저 적어 주세요", "bad"); return; }
   if (!force && ign === lastLookup) return;
   lastLookup = ign;
   var seq = ++lookupSeq;
   setFound("찾아보는 중이에요");
-  fetch(GAPI + "/api/bpi-suggest-auto?nickname=" + encodeURIComponent(ign))
+  fetch(GAPI + "/api/bpi-suggest-auto?platforms=steam&nickname=" + encodeURIComponent(ign))
     .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
     .then(function (res) {
       if (seq !== lookupSeq) return;
       var f = res.status === 200 && res.d && res.d.found;
-      if (res.status === 404 || (f && !f.length)) { setFound("닉을 못 찾았어요. 대소문자까지 똑같은지 봐 주세요", "bad"); return; }
-      if (!f) { setFound("지금은 조회가 안 돼요. 플랫폼만 골라서 신청해도 돼요"); return; }
+      if (res.status === 404 || (f && !f.length)) { setFound("스팀에서 그 닉을 못 찾았어요. 대소문자까지 똑같은지 봐 주세요", "bad"); return; }
+      if (!f) { setFound("지금은 조회가 안 돼요. 그대로 신청해도 돼요"); return; }
       var b = f[0], basis = b.basis || {}, samp = b.sample || {};
       var dmg = basis.avgDamage != null ? basis.avgDamage : samp.avgDamage;
-      setPlatform(b.platform);
-      setFound("찾았어요 · " + (PLAT_KO[b.platform] || b.platform) + (dmg != null ? " · 평딜 " + Math.round(dmg) : "")
-        + (f.length > 1 ? " · 다른 플랫폼에도 같은 닉이 있어요. 아래에서 골라 주세요" : ""), "ok");
+      setFound("찾았어요 · 스팀" + (dmg != null ? " · 평딜 " + Math.round(dmg) : ""), "ok");
     })
-    .catch(function () { if (seq === lookupSeq) setFound("지금은 조회가 안 돼요. 플랫폼만 골라서 신청해도 돼요"); });
+    .catch(function () { if (seq === lookupSeq) setFound("지금은 조회가 안 돼요. 그대로 신청해도 돼요"); });
 }
 
 var ERR = {
   no_discord: "디스코드 닉을 적어 주세요",
-  no_ign: "배그 닉을 띄어쓰기 없이 적어 주세요",
-  no_platform: "플랫폼을 골라 주세요",
+  no_ign: "스팀 닉을 띄어쓰기 없이 적어 주세요",
+  steam_only: "이번에는 스팀 닉으로만 신청할 수 있어요",
   no_bank: "은행을 골라 주세요",
   bad_account: "계좌번호를 다시 봐 주세요",
   no_holder: "예금주를 적어 주세요",
   no_agree: "계좌 안내에 체크해 주세요",
   dup_discord: "이미 신청한 디스코드 닉이에요. 바꿀 게 있으면 디스코드로 알려 주세요",
-  dup_ign: "이미 신청한 배그 닉이에요. 바꿀 게 있으면 디스코드로 알려 주세요",
-  ign_not_found: "고른 플랫폼에서 그 닉을 못 찾았어요. 대소문자와 플랫폼을 다시 봐 주세요",
+  dup_ign: "이미 신청한 스팀 닉이에요. 바꿀 게 있으면 디스코드로 알려 주세요",
+  ign_not_found: "스팀에서 그 닉을 못 찾았어요. 대소문자까지 똑같은지 봐 주세요",
   closed: "신청이 마감됐어요. 디스코드 신청 채널에 남겨 주세요",
   too_many_requests: "잠깐 몰렸어요. 1분 뒤에 다시 보내 주세요"
 };
@@ -327,11 +318,11 @@ function submit(e) {
   e.preventDefault();
   if (closed) { setMsg(ERR.closed, true); return; }
   var body = {
-    discord: $("discord").value.trim(), ign: $("ign").value.trim(), platform: platform(),
+    discord: $("discord").value.trim(), ign: $("ign").value.trim(), platform: "steam",
     bank: $("bank").value, accountNo: $("accountNo").value.replace(/[^0-9]/g, ""), holder: $("holder").value.trim(),
     agree: $("agree").checked
   };
-  var miss = !body.discord ? "no_discord" : !body.ign || /\s/.test(body.ign) ? "no_ign" : !body.platform ? "no_platform"
+  var miss = !body.discord ? "no_discord" : !body.ign || /\s/.test(body.ign) ? "no_ign"
     : !body.bank ? "no_bank" : body.accountNo.length < 8 ? "bad_account" : !body.holder ? "no_holder" : !body.agree ? "no_agree" : "";
   if (miss) { setMsg(ERR[miss], true); return; }
   var btn = $("submitBtn");
