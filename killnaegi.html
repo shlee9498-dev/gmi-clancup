@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>대승배 GmI 킬내기 1회 | 최종 결과</title>
-<meta name="description" content="대승배 GmI 킬내기 1회 최종 결과. 1위 2팀 이무리 55점 · 2위 3팀 현태 47점. 18명 6팀 · 2026년 9월 26일 · 대승님 후원.">
-<meta property="og:title" content="대승배 GmI 킬내기 1회">
-<meta property="og:description" content="1위 2팀 이무리 55점 · 2위 3팀 현태 47점 · 18명 6팀 · 대승님 후원">
+<title>대승배 GmI 킬내기 2회 | 솔로 신청</title>
+<meta name="description" content="대승배 GmI 킬내기 2회 솔로 신청. 10월 8일 목요일 21:00 · 4인 스쿼드 5팀 · 팀은 경매로 정해요 · 1등 팀 24만 2등 팀 6만.">
+<meta property="og:title" content="대승배 GmI 킬내기 2회 솔로 신청">
+<meta property="og:description" content="10월 8일 목요일 21:00 · 20명 선착순 · 팀은 경매로 정해요">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#F5F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -121,6 +121,21 @@ footer a{color:var(--ink-dim);}
 .res-row .res-name{font-weight:600;font-size:14.5px;}
 .res-row .res-score{font-size:16px;font-weight:700;}
 @media(max-width:340px){.row2{grid-template-columns:1fr;}}
+
+/* ── 2회 솔로 신청(2026-10-04) ── */
+.found{font-size:13px;margin-top:6px;color:var(--ink-dim);min-height:20px;}
+.found.ok{color:var(--green);font-weight:700;}
+.found.bad{color:var(--red);}
+.acct-row{display:grid;grid-template-columns:118px 1fr;gap:8px;}
+.sched{list-style:none;font-size:14.5px;line-height:1.9;}
+.sched b{display:inline-block;min-width:52px;font-variant-numeric:tabular-nums;color:var(--accent-ink);}
+.people{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.person{background:var(--field);border-radius:999px;padding:5px 11px;font-size:12.5px;color:var(--ink-dim);}
+.person b{color:var(--ink);font-weight:700;}
+.person.wait{background:#fff;border:1px dashed var(--line);}
+.done{background:var(--accent-soft);border-radius:var(--r-md);padding:14px;font-size:15px;font-weight:700;color:var(--accent-ink);line-height:1.6;}
+.done span{display:block;font-size:13px;font-weight:500;color:var(--ink-dim);margin-top:2px;}
+@media(max-width:340px){.acct-row{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -128,284 +143,239 @@ footer a{color:var(--ink-dim);}
 <header class="hero">
   <div class="wrap">
     <div class="hero-top"><span class="kicker">대승배 · 대승님 후원</span><a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드 ↗</a></div>
-    <h1>GmI 킬내기 <span class="sun">1회</span></h1>
+    <h1>GmI 킬내기 <span class="sun">2회</span></h1>
     <div class="chips">
-      <span class="chip">📅 <b>9/26(토) 21:10~23:10</b></span>
-      <span class="chip">🏆 1등 팀 <b>24만</b> · 2등 팀 <b>6만</b></span>
-      <span class="chip" data-deadline-chip>⏰ 마감 <b>오늘 20:00</b></span>
+      <span class="chip"><b>10/8(목) 21:00~23:00</b></span>
+      <span class="chip">1등 팀 <b>24만</b> · 2등 팀 <b>6만</b></span>
+      <span class="chip" id="deadlineChip">신청 마감 <b>10/8(목) 20:00</b></span>
     </div>
-    <!-- 이 숫자는 이 폼으로 들어온 건수다. 디스코드로 받는 접수는 여기 안 잡히므로
-         「참가자 수」로 읽히지 않게 「이 폼으로」를 문구에 박아 둔다(관제탑 9/30). -->
-    <div class="count">지금 이 폼으로 솔로 <b id="killSoloNum">–</b>명 · 팀 <b id="killTeamNum">–</b>팀 접수됐어요<br><span style="color:var(--ink-faint)">디스코드로 주신 신청은 여기 안 세요</span></div>
+    <div class="count" id="countLine">20명 선착순이에요</div>
   </div>
 </header>
 
 <main class="wrap">
 
-  <!-- 🏆 1회 결과 — 9/27 정정 반영 최종값(관제탑 정본). 대회가 끝나 첫 화면은 결과가 먼저다. -->
-  <section class="card" id="result" aria-labelledby="resultTitle">
-    <h2 class="card-h" id="resultTitle">🏆 1회 최종 결과</h2>
-    <p class="card-sub">2026년 9월 26일 · 18명 6팀 · 대승님 후원</p>
+  <section class="card" id="apply" aria-labelledby="applyTitle">
+    <h2 class="card-h" id="applyTitle">솔로 신청</h2>
+    <p class="card-sub">혼자 신청해요. 팀은 대회 날 20:30 경매로 정해져요</p>
 
-    <div class="result-top win">
-      <span class="res-medal">🥇</span><span class="res-name">2팀 이무리</span><span class="res-score">55</span>
-    </div>
-    <p class="res-sub">킬 42 · 딜점 62 · 치킨 1 🐔<span class="res-prize">상금 24만원</span></p>
+    <form id="form" novalidate>
+      <div class="field"><label class="label" for="discord">디스코드 닉 <span class="req">*</span></label>
+        <input type="text" class="input" id="discord" maxlength="40" autocomplete="off" placeholder="GmI 서버에서 쓰는 닉"></div>
 
-    <div class="result-top">
-      <span class="res-medal">🥈</span><span class="res-name">3팀 현태</span><span class="res-score">47</span>
-    </div>
-    <p class="res-sub">킬 39 · 딜점 56 · 치킨 2 🐔🐔<span class="res-prize">상금 6만원</span></p>
+      <div class="field"><label class="label" for="ign">배그 닉 <span class="req">*</span></label>
+        <div class="ign-row"><input type="text" class="input" id="ign" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="대소문자까지 똑같이">
+          <button type="button" class="btn btn-soft" id="lookupBtn">전적 조회</button></div>
+        <div class="found" id="found" role="status" aria-live="polite"></div></div>
 
-    <div class="res-row"><span class="res-rk">3</span><span class="res-name">5팀 스노우</span><span class="res-score">35</span></div>
-    <div class="res-row"><span class="res-rk">4</span><span class="res-name">6팀 뿌뿌</span><span class="res-score">33</span></div>
-    <div class="res-row"><span class="res-rk">5</span><span class="res-name">4팀 동주</span><span class="res-score">−6</span></div>
-    <div class="res-row"><span class="res-rk">6</span><span class="res-name">1팀 뽕식</span><span class="res-score">−43</span></div>
-
-    <p class="note" style="margin-top:12px;">9월 27일에 치킨 판 사망 감점을 반영해 순위를 정정했어요. 판별 점수는 디스코드 공지에서 볼 수 있어요.</p>
-  </section>
-
-  <!-- 🙋 솔로 신청 — 2회차에 그대로 재사용한다. 마감 뒤에는 상수(DEADLINE)가 버튼을 잠근다. -->
-  <section class="card" id="solo" data-mode="solo" aria-labelledby="soloTitle">
-    <h2 class="card-h" id="soloTitle">🙋 솔로 신청</h2>
-    <p class="card-sub">혼자 오셔도 돼요 — 운영진이 팀·슬롯 맞춰드려요</p>
-    <div class="field"><span class="label">플랫폼 <span class="req">*</span></span>
-      <div class="seg" role="radiogroup" aria-label="플랫폼">
-        <label><input type="radio" name="platform-solo" value="steam"><span>스팀</span></label>
-        <label><input type="radio" name="platform-solo" value="kakao"><span>카카오</span></label>
-      </div></div>
-    <div class="cards"></div>
-    <div class="field"><label class="label" for="soloNote">한마디 <span class="opt">(선택)</span></label><input type="text" class="input soloNote" id="soloNote" maxlength="80" placeholder="예: 21시 이후 가능"></div>
-    <label class="check"><input type="checkbox" class="stream"><span><b>방송 송출에 동의해요</b> <span class="note">(경기 화면·닉네임 노출)</span></span></label>
-    <button type="button" class="btn btn-main submit">솔로로 신청하기</button>
-    <div class="msg" role="status" aria-live="polite"></div>
-  </section>
-
-  <!-- 👥 팀 신청 — 한 단계 아래. 버튼을 눌러야 펼친다. -->
-  <section class="card" aria-labelledby="teamTitle">
-    <h2 class="card-h" id="teamTitle">👥 팀으로 신청하기</h2>
-    <p class="card-sub" style="margin-bottom:12px;">4명이 이미 모였다면 여기서 한 번에 신청해요.</p>
-    <button type="button" class="btn btn-line" id="teamOpen" aria-expanded="false" aria-controls="team">팀으로 신청하기</button>
-    <div id="team" data-mode="team" hidden style="margin-top:16px;">
-      <p class="deadline" data-deadline></p>
-      <div class="field"><span class="label">플랫폼 <span class="req">*</span> <span class="opt">팀 안에서 섞을 수 없어요</span></span>
-        <div class="seg" role="radiogroup" aria-label="팀 플랫폼">
-          <label><input type="radio" name="platform-team" value="steam"><span>스팀</span></label>
-          <label><input type="radio" name="platform-team" value="kakao"><span>카카오</span></label>
+      <div class="field"><span class="label">플랫폼 <span class="req">*</span></span>
+        <div class="seg" role="radiogroup" aria-label="플랫폼">
+          <label><input type="radio" name="platform" value="steam"><span>스팀</span></label>
+          <label><input type="radio" name="platform" value="kakao"><span>카카오</span></label>
         </div></div>
-      <div class="field"><label class="label" for="teamName">팀명 <span class="req">*</span></label><input type="text" class="input teamName" id="teamName" maxlength="40" placeholder="예: 광부, 메르시 …"></div>
-      <div class="cards"></div>
-      <div class="field" style="margin-top:14px;"><label class="label" for="leaderContact">팀장 연락처 <span class="opt">(선택 · 운영진만 봐요)</span></label><input type="text" class="input contact" id="leaderContact" maxlength="60" placeholder="카카오톡 ID 등"></div>
-      <label class="check"><input type="checkbox" class="stream"><span><b>방송 송출에 동의해요</b> <span class="note">(경기 화면·닉네임 노출)</span></span></label>
-      <label class="check"><input type="checkbox" class="acctCheck"><span><b>본인 명의 계좌를 적었어요</b> — 상금은 적어 주신 계좌로 한 사람씩 보내드려요.</span></label>
-      <button type="button" class="btn btn-main submit">팀 신청 보내기</button>
-      <div class="msg" role="status" aria-live="polite"></div>
-    </div>
+
+      <div class="acct">
+        <div class="acct-h">상금 받을 계좌 <span class="req">*</span></div>
+        <div class="acct-row">
+          <div class="field"><label class="label" for="bank">은행</label><select class="select" id="bank"></select></div>
+          <div class="field"><label class="label" for="accountNo">계좌번호</label><input type="text" inputmode="numeric" class="input" id="accountNo" maxlength="24" autocomplete="off" placeholder="숫자만"></div>
+        </div>
+        <div class="field" style="margin-bottom:0;"><label class="label" for="holder">예금주</label><input type="text" class="input" id="holder" maxlength="20" autocomplete="off" placeholder="통장에 적힌 이름"></div>
+      </div>
+
+      <label class="check" style="margin-top:12px;"><input type="checkbox" id="agree"><span><b>계좌는 상금 보낼 때만 써요</b> <span class="note">진행자만 봐요</span></span></label>
+      <button type="submit" class="btn btn-main" id="submitBtn">신청하기</button>
+      <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    </form>
+    <div class="done" id="done" hidden></div>
+  </section>
+
+  <section class="card" aria-labelledby="peopleTitle">
+    <h2 class="card-h" id="peopleTitle">신청한 사람</h2>
+    <p class="card-sub" id="peopleSub">불러오는 중이에요</p>
+    <div class="people" id="people"></div>
+  </section>
+
+  <section class="card" aria-labelledby="dayTitle">
+    <h2 class="card-h" id="dayTitle">10월 8일 순서</h2>
+    <p class="card-sub">4인 스쿼드 5팀이에요. 12명부터 열려요</p>
+    <ul class="sched">
+      <li><b>20:15</b> 디스코드 음성 채널 집합</li>
+      <li><b>20:30</b> 팀 경매</li>
+      <li><b>21:00</b> 시작</li>
+      <li><b>23:00</b> 이 시각 전에 시작한 판까지 인정</li>
+    </ul>
+    <p class="note" style="margin-top:10px;">팀장 5명이 100포인트로 팀원을 뽑아요. 다 쓰지 않고 남긴 10포인트마다 팀 점수 +1이에요.</p>
+    <p class="note" style="margin-top:6px;">점수판은 끝까지 공개해요. 판이 끝나면 자동으로 올라가요.</p>
   </section>
 
   <section class="card" id="rules" aria-labelledby="rulesTitle">
-    <h2 class="card-h" id="rulesTitle">📋 룰 요약</h2>
-    <p class="card-sub">판마다 점수를 매기고, 모든 판 점수를 더해 순위를 정해요.</p>
+    <h2 class="card-h" id="rulesTitle">룰 요약</h2>
+    <p class="card-sub">판마다 점수를 매기고 모든 판을 더해 순위를 정해요</p>
     <ul class="rule-list">
       <li>1킬마다 <b>+1</b></li>
-      <li>딜 100마다 <b>+1</b> <span class="note">(판별로 계산하고 100 미만은 버려요)</span></li>
-      <li>🐔 치킨하면 <b>+8</b></li>
+      <li>팀 딜 100마다 <b>+1</b> <span class="note">(판별로 계산하고 100 미만은 버려요)</span></li>
+      <li>치킨하면 <b>+8</b></li>
     </ul>
     <p style="font-size:14.5px;font-weight:700;margin-top:10px;">사망 슬롯 감점</p>
     <div class="pen-row">
       <div class="pen">1번<b>−4</b></div><div class="pen">2번<b>−3</b></div><div class="pen">3번<b>−2</b></div><div class="pen">4번<b>−1</b></div>
     </div>
     <ul class="rule-list">
-      <li>블루칩으로 살아나 치킨까지 살아남으면 그 사람은 감점 없음</li>
+      <li>감점은 한 판에 한 사람 한 번이에요</li>
+      <li>블루칩으로 살아나 끝까지 살면 그 사람은 감점 없음</li>
+      <li>4명이 다 뛴 판만 인정해요. 3명 이하로 뛴 판은 0점</li>
       <li>이탈한 판은 <span class="minus">−10</span></li>
-      <li>노래방 룰 — 21:10 ~ 23:10</li>
+      <li>22:35 이후 처음 시작한 판은 <b>1.5배</b> <span class="note">(팀마다 한 판 · 소수점 올림)</span></li>
+      <li>동점이면 총 킬이 많은 팀, 그래도 같으면 치킨이 많은 팀</li>
     </ul>
   </section>
 
   <section class="card" id="faq" aria-labelledby="faqTitle">
-    <h2 class="card-h" id="faqTitle" style="margin-bottom:12px;">❓ 자주 묻는 질문</h2>
-    <details><summary>점수는 어떻게 매겨요?</summary><p>1킬 +1 · 딜 100당 +1 · 치킨 +8 · 사망 슬롯 감점 1번 −4 ~ 4번 −1. 판마다 계산해서 모두 더해요.</p></details>
-    <details><summary>치킨 먹으면 감점 없어요?</summary><p>아니요. 치킨 판에서도 죽은 사람은 감점돼요. 블루칩으로 살아나서 마지막까지 살아남은 사람만 감점이 빠져요.</p></details>
-    <details><summary>혼자 신청해도 되나요?</summary><p>그럼요! 솔로로 신청하면 운영진이 팀과 슬롯(1~4번)을 맞춰서 디스코드로 알려 드려요.</p></details>
-    <details><summary>슬롯 번호와 티어는 어떻게 정해져요?</summary><p>신청할 때 적지 않아요. 운영진이 배정해요.</p></details>
-    <details><summary>팀원끼리 플랫폼이 달라도 되나요?</summary><p>한 팀은 스팀이나 카카오 중 하나로만 신청할 수 있어요.</p></details>
-    <details><summary>상금은 어떻게 받나요?</summary><p>팀 신청은 신청서에 적은 본인 명의 계좌로 한 사람씩 보내드려요. 솔로 신청은 팀이 정해진 뒤 수상하면 운영진이 계좌를 따로 받아요.</p></details>
-    <details><summary>마감 뒤에도 신청할 수 있나요?</summary><p>이 화면은 9/26(토) 20:00에 닫혀요. 그 뒤에는 디스코드 신청 채널에 남겨 주시면 운영진이 확인해요.</p></details>
+    <h2 class="card-h" id="faqTitle" style="margin-bottom:12px;">자주 묻는 질문</h2>
+    <details><summary>팀으로 신청할 수 있나요?</summary><p>이번에는 솔로 신청만 받아요. 팀은 20:30 경매에서 팀장이 뽑아요.</p></details>
+    <details><summary>슬롯 번호는 어떻게 정해져요?</summary><p>경매가 끝나면 진행자가 1번부터 4번까지 정해서 알려 드려요.</p></details>
+    <details><summary>20명이 넘으면요?</summary><p>대기로 받아요. 빈자리가 나면 신청한 순서대로 디스코드로 알려 드려요.</p></details>
+    <details><summary>치킨 먹으면 감점 없어요?</summary><p>아니요. 치킨 판에서도 죽은 사람은 감점돼요. 블루칩으로 살아나 끝까지 산 사람만 감점이 빠져요. 살아났다가 다시 죽어도 감점은 한 번이에요.</p></details>
+    <details><summary>중간에 사람을 바꿀 수 있나요?</summary><p>판과 판 사이에만 바꿀 수 있어요. 바꾸기 전에 진행자에게 먼저 알려 주세요.</p></details>
+    <details><summary>핵한테 죽으면요?</summary><p>벽뚫이나 스피드핵에 죽은 게 리플레이로 확인되면 그 사망은 감점하지 않아요.</p></details>
+    <details><summary>계좌는 왜 받아요?</summary><p>상금을 한 사람씩 바로 보내려고요. 진행자만 보고 신청 명단이나 방송 화면에는 나오지 않아요.</p></details>
+    <details><summary>신청을 바꾸거나 취소하려면요?</summary><p>디스코드 신청 채널에 남겨 주세요.</p></details>
+  </section>
+
+  <section class="card" id="result" aria-labelledby="resultTitle">
+    <h2 class="card-h" id="resultTitle">1회 결과</h2>
+    <p class="card-sub">2026년 9월 26일 · 18명 6팀</p>
+    <div class="res-row" style="border-top:none;"><span class="res-rk">1</span><span class="res-name">2팀 이무리</span><span class="res-score">55</span></div>
+    <div class="res-row"><span class="res-rk">2</span><span class="res-name">3팀 현태</span><span class="res-score">47</span></div>
+    <div class="res-row"><span class="res-rk">3</span><span class="res-name">5팀 스노우</span><span class="res-score">35</span></div>
+    <div class="res-row"><span class="res-rk">4</span><span class="res-name">6팀 뿌뿌</span><span class="res-score">33</span></div>
+    <div class="res-row"><span class="res-rk">5</span><span class="res-name">4팀 동주</span><span class="res-score">−6</span></div>
+    <div class="res-row"><span class="res-rk">6</span><span class="res-name">1팀 뽕식</span><span class="res-score">−43</span></div>
   </section>
 </main>
 
 <footer>
-  <div>GmI 클랜 · 대승배 킬내기 1회 · 2026 · 비영리 친목 대회</div>
+  <div>GmI 클랜 · 대승배 킬내기 2회 · 2026 · 비영리 친목 대회</div>
   <div style="margin-top:6px;"><a href="https://shlee9498-dev.github.io/gmi-clancup/">메인</a> · <a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드</a></div>
 </footer>
 
 <script>
-/* 킬내기 1회 신청 폼 — G드컵 신청 API(/api/gdcup-apply·/api/gdcup-solo)를 재사용한다.
- * 격리 키: G드컵 시즌 값(1~4)과 섞이지 않게 예약 키 9를 쓴다. 서버 gdSeason()은 1~9를 그대로 받는다.
- *   meta.currentSeason 을 읽으면 안 된다 — 그러면 시즌4 표에 들어간다(시즌4 SEASON=3 사고와 같은 경로).
- * 마감은 이 화면에서만 건다 — 서버 GDCUP_APPLY_DEADLINE 은 G드컵 전역값이라 건드리지 않는다.
- *   서버는 마감 뒤에도 신규 신청을 받으므로, 마감 강제는 이 상수가 유일하다.
- * 솔로·팀 폼은 화면에서 따로 떨어져 있고 같은 submit(root)을 쓴다 — 필드·검증·전송값은 두 폼 공통.
- *
- * ⚠️ season=9 행은 「이 폼으로 들어온 접수」뿐이다. 1회 실제 참가자 18명은 대부분 디스코드로 받았고
- *   그 인원은 DB 에 없다 — 그래서 결과 카드의 18명 6팀은 정본 값을 그대로 적었고, 조회값이 아니다.
- *   어디에서도 season=9 행 수를 참가자 수로 쓰지 말 것(관제탑 9/30).
- *
- * 2회차 전환 — 이 화면에서 고칠 곳은 네 군데다.
- *   ① DEADLINE → 2회차 마감 ISO
- *   ② 히어로 h1 「1회」 · 일정·상금 칩
- *   ③ 결과 카드 — 1회분은 아래로 내리거나 별 페이지로 뺀다
- *   ④ 룰 요약·FAQ 의 회차·상금 문구
- * EVENT_KEY 는 그냥 올릴 수 없다. 서버가 9 를 킬내기로 못박아 뒀다 —
- *   mri-academy server.js: gdSeason() 상한 9 · KILLNAEGI_SEASON = 9 · isKillnaegi() 는 === 9.
- *   10 을 쓰려면 저 세 곳을 함께 고쳐야 하고, 안 고치면 웹훅이 G드컵 문구로 나가고
- *   gdSeason() 이 현재 시즌으로 폴백해 G드컵 표에 섞인다. 서버를 안 고칠 거면 9 를 그대로 쓰고
- *   1회 잔존 행(유효 5건)을 먼저 cancelled 로 내린다. 판단은 오너 몫이다. */
-const EVENT_KEY = 9;
-const DEADLINE = "2026-09-26T11:00:00Z";   // 20:00 KST
-const GAPI = "https://mri-academy-production.up.railway.app";
+/* 킬내기 2회 솔로 신청 — mri-academy `killrace-apply.cjs`(/api/killrace/apply)로 보낸다.
+ * 1회 폼이 쓰던 G드컵 신청 API(/api/gdcup-solo · season 9)는 더 쓰지 않는다 — 1회 기록과 섞이지 않게 저장 자리가 따로다.
+ * 정원 · 마감 · 중복 판정은 전부 서버가 한다. 이 화면은 서버가 준 값(count · cap · closed)만 그린다.
+ * 계좌는 보내기만 하고 어디에도 다시 받아 오지 않는다(공개 응답에 없다). 브라우저에도 저장하지 않는다.
+ * 전적 조회는 기존 /api/bpi-suggest-auto 를 쓴다 — 닉을 다 치고 0.9초 쉬면 한 번, 같은 닉은 다시 묻지 않는다. */
+var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
+var BANKS = ["국민","신한","우리","하나","농협","기업","카카오뱅크","토스뱅크","케이뱅크","새마을","우체국","신협","수협","부산","대구","경남","광주","전북","SC제일","산업"];
+var PLAT_KO = { steam: "스팀", kakao: "카카오" };
+var $ = function (id) { return document.getElementById(id); };
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]; }); }
+function platform() { var r = document.querySelector('input[name="platform"]:checked'); return r ? r.value : ""; }
+function setPlatform(p) { var r = document.querySelector('input[name="platform"][value="' + p + '"]'); if (r) r.checked = true; }
 
-function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
-function isOpen(){return Date.now()<Date.parse(DEADLINE);}
-function platformOf(root){var r=root.querySelector('input[type="radio"][name^="platform"]:checked');return r?r.value:"";}
-function bankOptions(){
-  var banks=['','국민','신한','우리','하나','농협','기업','카카오뱅크','토스뱅크','새마을','부산','전북','SC제일','케이뱅크','대구','경남','광주','수협','우체국','신협','산업'];
-  return banks.map(function(b){return '<option value="'+b+'">'+(b||'은행 선택')+'</option>';}).join('');
-}
-function memberCardHTML(i, solo){
-  var id=(solo?"s":"t")+i;
-  var acct=solo?'<p class="note" style="margin:-2px 0 10px;">💳 계좌는 수상하면 운영진이 따로 받아요</p>'
-    :'<div class="acct"><div class="acct-h">💳 상금 계좌 (필수 · 본인 명의만)</div>'
-      +'<div class="row2">'
-        +'<div class="field"><label class="label" for="real'+id+'">실명 <span class="req">*</span></label><input type="text" class="input m-real" id="real'+id+'" data-idx="'+i+'" maxlength="30" placeholder="예: 홍길동"></div>'
-        +'<div class="field"><label class="label" for="bank'+id+'">은행 <span class="req">*</span></label><select class="select m-bank" id="bank'+id+'" data-idx="'+i+'">'+bankOptions()+'</select></div>'
-      +'</div>'
-      +'<div class="field" style="margin-bottom:0;"><label class="label" for="acct'+id+'">계좌번호 <span class="req">*</span></label><input type="text" inputmode="numeric" class="input m-acct" id="acct'+id+'" data-idx="'+i+'" maxlength="30" placeholder="- 없이 숫자만"></div>'
-    +'</div>';
-  return '<div class="member">'
-    +(solo?'':'<div class="member-h">멤버 '+(i+1)+(i===0?'<span class="lead">팀장</span>':'')+'</div>')
-    +'<div class="field"><label class="label" for="ign'+id+'">배그 닉네임 <span class="req">*</span></label>'
-      +'<div class="ign-row"><input type="text" class="input m-ign" id="ign'+id+'" data-idx="'+i+'" maxlength="40">'
-      +'<button type="button" class="btn btn-soft member-lookup" data-idx="'+i+'">🔍 전적 조회</button></div>'
-      +'<div class="auto m-auto" data-idx="'+i+'" aria-live="polite"></div></div>'
-    +'<div class="row2">'
-      +'<div class="field"><label class="label" for="disc'+id+'">디스코드 사용자명 <span class="req">*</span></label><input type="text" class="input m-disc" id="disc'+id+'" data-idx="'+i+'" maxlength="40" placeholder="예: gmi_user"></div>'
-      +'<div class="field"><label class="label" for="clan'+id+'">GmI 클랜원? <span class="req">*</span></label><select class="select m-clan" id="clan'+id+'" data-idx="'+i+'"><option value="">선택</option><option value="Y">네, 클랜원</option><option value="N">아니요</option></select></div>'
-    +'</div>'
-    +acct
-  +'</div>';
-}
-function renderCards(root){
-  var solo=root.dataset.mode==="solo", n=solo?1:4, h="";
-  for(var i=0;i<n;i++) h+=memberCardHTML(i, solo);
-  root.querySelector(".cards").innerHTML=h;
-  root.querySelectorAll(".member-lookup").forEach(function(b){b.addEventListener("click",function(){lookup(root,+b.dataset.idx);});});
-}
-function val(root,cls,i){var el=root.querySelector("."+cls+'[data-idx="'+i+'"]');return el?String(el.value||"").trim():"";}
+var closed = false, lastLookup = "", lookupTimer = null, lookupSeq = 0;
 
-function lookup(root,i){
-  var out=root.querySelector('.m-auto[data-idx="'+i+'"]'), ign=val(root,"m-ign",i);
-  if(!ign){out.textContent="배그 닉네임을 먼저 적어 주세요!";return;}
-  out.textContent="찾아보는 중이에요…";
-  fetch(GAPI+"/api/bpi-suggest-auto?nickname="+encodeURIComponent(ign))
-    .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
-    .then(function(res){
-      var f=res.ok&&res.d&&res.d.found;
-      if(!f||!f.length){out.innerHTML='닉네임을 못 찾았어요. 철자를 한 번 더 볼까요? <a href="https://dak.gg/pubg" target="_blank" rel="noopener">dak.gg</a>에서 확인할 수 있어요.';return;}
-      var b=f[0], basis=b.basis||{}, samp=b.sample||{}, plat=platformOf(root);
-      var dmg=(basis.damageSource==="ranked"&&basis.avgDamage!=null)?("경쟁전 평균 딜량 "+Math.round(basis.avgDamage))
-             :(samp.avgDamage!=null?("평균 딜량 "+Math.round(samp.avgDamage)+" (일반게임 포함)"):"");
-      out.innerHTML="📊 참고만 해요(신청서엔 안 들어가요) · <b>"+(b.platform==="kakao"?"카카오":"스팀")+"</b>"+(dmg?" · "+esc(dmg):"")
-        +(plat&&b.platform&&b.platform!==plat?' <span style="color:var(--red)">— 고른 플랫폼과 달라요. 한 번 확인해 주세요</span>':"");
+function setFound(text, kind) { var el = $("found"); el.textContent = text; el.className = "found" + (kind ? " " + kind : ""); }
+function lookup(force) {
+  var ign = $("ign").value.trim();
+  if (ign.length < 3) { if (force) setFound("배그 닉을 먼저 적어 주세요", "bad"); return; }
+  if (!force && ign === lastLookup) return;
+  lastLookup = ign;
+  var seq = ++lookupSeq;
+  setFound("찾아보는 중이에요");
+  fetch(GAPI + "/api/bpi-suggest-auto?nickname=" + encodeURIComponent(ign))
+    .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+    .then(function (res) {
+      if (seq !== lookupSeq) return;
+      var f = res.status === 200 && res.d && res.d.found;
+      if (res.status === 404 || (f && !f.length)) { setFound("닉을 못 찾았어요. 대소문자까지 똑같은지 봐 주세요", "bad"); return; }
+      if (!f) { setFound("지금은 조회가 안 돼요. 플랫폼만 골라서 신청해도 돼요"); return; }
+      var b = f[0], basis = b.basis || {}, samp = b.sample || {};
+      var dmg = basis.avgDamage != null ? basis.avgDamage : samp.avgDamage;
+      setPlatform(b.platform);
+      setFound("찾았어요 · " + (PLAT_KO[b.platform] || b.platform) + (dmg != null ? " · 평딜 " + Math.round(dmg) : "")
+        + (f.length > 1 ? " · 다른 플랫폼에도 같은 닉이 있어요. 아래에서 골라 주세요" : ""), "ok");
     })
-    .catch(function(){out.textContent="지금은 조회가 안 돼요. 잠시 뒤 다시 눌러 주세요.";});
+    .catch(function () { if (seq === lookupSeq) setFound("지금은 조회가 안 돼요. 플랫폼만 골라서 신청해도 돼요"); });
 }
 
-function submit(root){
-  var msgEl=root.querySelector(".msg");
-  var setMsg=function(html,color){msgEl.innerHTML=html;msgEl.style.color=color||"var(--ink)";};
-  if(!isOpen()){setMsg("신청이 마감됐어요. 디스코드 신청 채널에 남겨 주시면 운영진이 확인해요.","var(--red)");return;}
-  var solo=root.dataset.mode==="solo", plat=platformOf(root), platKo=plat==="kakao"?"카카오":"스팀";
-  if(!plat){setMsg("플랫폼을 골라 주세요!","var(--red)");return;}
-  if(!root.querySelector(".stream").checked){setMsg("방송 송출 동의에 체크해 주세요!","var(--red)");return;}
-  var n=solo?1:4, members=[], clan=[];
-  for(var i=0;i<n;i++){
-    var ign=val(root,"m-ign",i), disc=val(root,"m-disc",i), cl=val(root,"m-clan",i);
-    if(!ign||!disc||!cl){setMsg((solo?"":"멤버 "+(i+1)+"의 ")+"배그 닉네임·디스코드·클랜원 여부를 채워 주세요!","var(--red)");return;}
-    var m={name:disc, ign:ign, discord:disc, tier:"", peak:"", dmg:""};
-    if(!solo){
-      var real=val(root,"m-real",i), bank=val(root,"m-bank",i), acct=val(root,"m-acct",i).replace(/[^0-9]/g,"");
-      if(!real||!bank||!acct){setMsg("멤버 "+(i+1)+"의 실명·은행·계좌번호를 채워 주세요.","var(--red)");return;}
-      m.real_name=real; m.bank=bank; m.account_no=acct; m.holder=real;   // 본인 명의만 받으므로 예금주 = 실명
+var ERR = {
+  no_discord: "디스코드 닉을 적어 주세요",
+  no_ign: "배그 닉을 띄어쓰기 없이 적어 주세요",
+  no_platform: "플랫폼을 골라 주세요",
+  no_bank: "은행을 골라 주세요",
+  bad_account: "계좌번호를 다시 봐 주세요",
+  no_holder: "예금주를 적어 주세요",
+  no_agree: "계좌 안내에 체크해 주세요",
+  dup_discord: "이미 신청한 디스코드 닉이에요. 바꿀 게 있으면 디스코드로 알려 주세요",
+  dup_ign: "이미 신청한 배그 닉이에요. 바꿀 게 있으면 디스코드로 알려 주세요",
+  ign_not_found: "고른 플랫폼에서 그 닉을 못 찾았어요. 대소문자와 플랫폼을 다시 봐 주세요",
+  closed: "신청이 마감됐어요. 디스코드 신청 채널에 남겨 주세요",
+  too_many_requests: "잠깐 몰렸어요. 1분 뒤에 다시 보내 주세요"
+};
+function setMsg(text, bad) { var el = $("msg"); el.textContent = text; el.style.color = bad ? "var(--red)" : "var(--ink)"; }
+
+function submit(e) {
+  e.preventDefault();
+  if (closed) { setMsg(ERR.closed, true); return; }
+  var body = {
+    discord: $("discord").value.trim(), ign: $("ign").value.trim(), platform: platform(),
+    bank: $("bank").value, accountNo: $("accountNo").value.replace(/[^0-9]/g, ""), holder: $("holder").value.trim(),
+    agree: $("agree").checked
+  };
+  var miss = !body.discord ? "no_discord" : !body.ign || /\s/.test(body.ign) ? "no_ign" : !body.platform ? "no_platform"
+    : !body.bank ? "no_bank" : body.accountNo.length < 8 ? "bad_account" : !body.holder ? "no_holder" : !body.agree ? "no_agree" : "";
+  if (miss) { setMsg(ERR[miss], true); return; }
+  var btn = $("submitBtn");
+  btn.disabled = true; btn.textContent = "보내는 중"; setMsg("");
+  var retry = function (text) { btn.disabled = false; btn.textContent = "신청하기"; setMsg(text, true); };
+  fetch(GAPI + "/api/killrace/apply", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+    .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+    .then(function (res) {
+      if (!res.ok || !res.d.ok) {
+        var code = res.d && res.d.error;
+        // 이미 신청된 닉이면 다시 누를 일이 아니다 — 잠근 채로 둔다
+        if (code === "dup_discord" || code === "dup_ign") { btn.textContent = "신청돼 있어요"; setMsg(ERR[code]); return; }
+        retry(ERR[code] || "신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요"); return;
+      }
+      var d = res.d, done = $("done");
+      done.innerHTML = (d.waiting
+        ? "정원이 차서 대기 " + (d.order - d.cap) + "번으로 받았어요<span>자리가 나면 디스코드로 알려 드려요</span>"
+        : esc(d.ign) + " 님 신청됐어요 · " + d.order + "번째<span>10월 8일 20:15에 디스코드 음성 채널에서 만나요</span>");
+      $("form").hidden = true; done.hidden = false;
+      load();
+    })
+    .catch(function () { retry("신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요"); });
+}
+
+function load() {
+  fetch(GAPI + "/api/killrace/apply").then(function (r) { return r.ok ? r.json() : Promise.reject(); }).then(function (d) {
+    closed = !!d.closed;
+    $("countLine").innerHTML = closed ? "신청이 마감됐어요"
+      : d.count >= d.cap ? "정원 " + d.cap + "명이 찼어요 · 지금 신청하면 <b>대기 " + (d.waiting + 1) + "번</b>"
+      : "지금 <b>" + d.count + "</b> / " + d.cap + "명";
+    if (closed) {
+      $("deadlineChip").innerHTML = "<b>신청 마감</b>";
+      $("submitBtn").disabled = true; $("submitBtn").textContent = "신청 마감";
+    } else if (!$("submitBtn").disabled) {
+      $("submitBtn").textContent = d.count >= d.cap ? "대기로 신청하기" : "신청하기";
     }
-    if(cl==="Y") clan.push(i+1);
-    members.push(m);
-  }
-  // 중복 접수 방지(9/26 같은 닉 중복 2쌍 — 간격 3.9초 · 5.5초). 보내는 동안 잠그고, 성공하면 잠근 채로 둔다 —
-  // 종전에는 성공 뒤에도 풀려서 한 번 더 눌리면 그대로 한 건이 더 들어갔다.
-  var btn=root.querySelector(".submit"), label=btn.textContent;
-  btn.disabled=true; btn.textContent="보내는 중"; setMsg("보내는 중이에요");
-  var done=function(){ btn.disabled=false; btn.textContent=label; };      // 실패했을 때만 되돌린다
-  var lock=function(){ btn.textContent="신청 완료"; };                     // 성공 — 잠근 채로 둔다
-  if(solo){
-    var memo=root.querySelector(".soloNote").value.trim();
-    var note=("킬내기1 · "+platKo+" · "+(clan.length?"클랜원":"외부")+" · 방송동의"+(memo?" · "+memo:"")).slice(0,200);
-    fetch(GAPI+"/api/gdcup-solo",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({season:EVENT_KEY,kind:"solo",ign:members[0].ign,tier:"",discord:members[0].discord,note:note})})
-      .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
-      .then(function(res){
-        if(!res.ok||!res.d.ok){
-          // 서버가 같은 닉 중복을 거르면 already_applied 로 돌려준다 — 다시 누를 일이 아니라 잠근다.
-          if(res.d&&res.d.error==="already_applied"){setMsg("이미 신청하셨어요. 바꾸실 게 있으면 디스코드로 알려 주세요","var(--ink-dim)");lock();return;}
-          setMsg("신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요. 계속 안 되면 디스코드 신청 채널에 남겨 주세요.","var(--red)");done();return;}
-        setMsg("🙋 솔로 신청 완료! 운영진이 팀과 슬롯을 배정해서 디스코드로 알려 드려요.","var(--green)");loadCounts();lock();
-      }).catch(function(){setMsg("신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요.","var(--red)");done();});
-    return;
-  }
-  var team=root.querySelector(".teamName").value.trim();
-  if(!team){btn.disabled=false;setMsg("팀명을 적어 주세요!","var(--red)");return;}
-  if(!root.querySelector(".acctCheck").checked){btn.disabled=false;setMsg("본인 명의 계좌 확인에 체크해 주세요.","var(--red)");return;}
-  // 슬로건 칸을 킬내기 구분·플랫폼·클랜원·방송동의 기록에 쓴다(서버 60자 · 개인정보 없음).
-  var slogan=("킬내기1 · "+platKo+" · 방송동의 · 클랜원 "+(clan.length?clan.join(",")+"번":"없음")).slice(0,60);
-  fetch(GAPI+"/api/gdcup-apply",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({season:EVENT_KEY,team_name:team,slogan:slogan,members:members,contact:root.querySelector(".contact").value.trim(),leader_discord:members[0].discord})})
-    .then(function(r){return r.json().then(function(d){return {ok:r.ok,status:r.status,d:d};});})
-    .then(function(res){
-      if(!res.ok||!res.d.ok){
-        // 팀장 닉이 이미 유효한 팀에 올라가 있으면 서버가 already_applied 로 거른다 — 다시 누를 일이 아니다.
-        if(res.d&&res.d.error==="already_applied"){setMsg("이미 신청된 팀이에요. 고치실 게 있으면 디스코드로 알려 주세요","var(--ink-dim)");lock();return;}
-        setMsg(res.status===403?"신청이 마감돼서 수정은 운영진에게 부탁드려요.":"신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요. 계속 안 되면 디스코드 신청 채널에 남겨 주세요.","var(--red)");done();return;}
-      // 수정(updated)은 같은 행을 고치는 것이라 중복이 안 생긴다 — 또 고칠 수 있게 버튼을 되돌린다.
-      if(res.d.updated){setMsg("✏️ 신청 내용을 고쳤어요!","var(--green)");loadCounts();done();return;}
-      setMsg("🎉 신청 완료! 운영진이 슬롯을 배정해서 디스코드로 알려 드려요.","var(--green)");loadCounts();lock();
-    }).catch(function(){setMsg("신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요.","var(--red)");done();});
+    $("peopleSub").textContent = d.list.length ? "참가 " + d.count + "명" + (d.waiting ? " · 대기 " + d.waiting + "명" : "") : "아직 없어요. 첫 번째로 신청해 보세요";
+    $("people").innerHTML = d.list.map(function (x) {
+      return '<span class="person' + (x.waiting ? " wait" : "") + '"><b>' + esc(x.ign) + "</b> " + esc(x.tier) + (x.waiting ? " · 대기" : "") + "</span>";
+    }).join("");
+  }).catch(function () { $("peopleSub").textContent = "명단을 못 불러왔어요. 신청은 그대로 할 수 있어요"; });
 }
-function loadCounts(){
-  if(!isOpen()) return;   // 마감 뒤엔 .count 를 다음 회차 안내로 갈아끼웠다 — 채울 칸이 없다
-  fetch(GAPI+"/api/gdcup-count?season="+EVENT_KEY).then(function(r){return r.json();}).then(function(d){if(d&&d.teams!=null)document.getElementById("killTeamNum").textContent=d.teams;}).catch(function(){});
-  fetch(GAPI+"/api/gdcup-solo-list?season="+EVENT_KEY).then(function(r){return r.json();}).then(function(d){if(d&&d.count!=null)document.getElementById("killSoloNum").textContent=d.count;}).catch(function(){});
-}
-(function init(){
-  var forms=[document.getElementById("solo"), document.getElementById("team")];
-  forms.forEach(function(root){
-    renderCards(root);
-    root.querySelector(".submit").addEventListener("click",function(){submit(root);});
-  });
-  var open=document.getElementById("teamOpen"), team=document.getElementById("team");
-  open.addEventListener("click",function(){
-    team.hidden=!team.hidden; open.setAttribute("aria-expanded",String(!team.hidden));
-    open.textContent=team.hidden?"팀으로 신청하기":"접기";
-  });
-  var closed=!isOpen();
-  var chip=document.querySelector("[data-deadline-chip]"); if(closed&&chip) chip.innerHTML="⏰ <b>1회 종료</b>";
-  // 대회가 끝나면 신청자 수는 뜻이 없다 — 숨기고 다음 회차 안내로 바꾼다.
-  var cnt=document.querySelector(".count");
-  if(closed&&cnt) cnt.innerHTML="2회차는 준비되는 대로 디스코드에 올려요 🌕";
-  document.querySelectorAll("[data-deadline]").forEach(function(el){
-    el.textContent=closed?"신청이 마감됐어요. 디스코드 신청 채널에 남겨 주시면 운영진이 확인해요.":"⏰ 신청 마감 9/26(토) 20:00";
-  });
-  if(closed) forms.forEach(function(root){var b=root.querySelector(".submit");b.disabled=true;b.textContent="1회 신청 마감";});
-  loadCounts();
+
+(function init() {
+  $("bank").innerHTML = '<option value="">선택</option>' + BANKS.map(function (b) { return '<option value="' + b + '">' + b + "</option>"; }).join("");
+  $("form").addEventListener("submit", submit);
+  $("lookupBtn").addEventListener("click", function () { lookup(true); });
+  $("ign").addEventListener("input", function () { clearTimeout(lookupTimer); lookupTimer = setTimeout(function () { lookup(false); }, 900); });
+  $("ign").addEventListener("change", function () { clearTimeout(lookupTimer); lookup(false); });
+  load();
 })();
 </script>
 </body>
