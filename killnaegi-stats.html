@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>킬내기 2회 | 개인 기록</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F5F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* 방송 전환용 전체 화면(OBS 장면을 바꿔 1920 × 1080 을 꽉 채운다 · 불투명 배경). 킬내기 라이트 테마 토큰 그대로.
+   글자 크기는 화면 폭에 맞춰 커진다(1920 에서 1rem = 23px). 폰에서는 팀 카드가 세로로 쌓인다 */
+:root{
+  --bg:#F5F6F8; --card:#FFFFFF; --field:#F0F2F5; --line:#E3E6EB;
+  --ink:#172033; --ink-dim:#4E5869; --ink-faint:#6B7484;
+  --accent:#2F6FEB; --accent-soft:#EAF1FF; --accent-ink:#1D4FB8;
+  --red:#D93A2B; --red-soft:#FDECEA; --cream:#FFF4E0; --cream-line:#F1E3C4; --sun:#F59E0B;
+  --display:'Saira Condensed','Pretendard Variable',sans-serif;
+  --body:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:clamp(13px,1.2vw,32px);}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.4;-webkit-font-smoothing:antialiased;min-height:100vh;}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums;font-weight:800;}
+.top{background:var(--cream);border-bottom:1px solid var(--cream-line);padding:.9rem 2rem;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.4rem 1.5rem;}
+.top h1{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;}
+.top h1 span{color:var(--sun);}
+.top h1 small{font-family:var(--body);font-size:1.15rem;font-weight:700;color:var(--ink-dim);margin-left:.8rem;}
+.when{font-size:1rem;color:var(--ink-dim);}
+.when b{color:var(--ink);}
+main{padding:1.2rem 2rem 1.6rem;min-height:calc(100vh - 4.6rem);display:grid;align-content:center;}
+.empty{text-align:center;padding:6rem 1rem;font-size:1.4rem;color:var(--ink-faint);}
+
+/* 팀별 */
+.teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:.9rem;}
+.team{background:var(--card);border:1px solid var(--line);border-radius:1rem;padding:1rem 1.1rem 1.1rem;}
+.team.first{border-color:var(--sun);border-width:2px;}
+.team-h{display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;}
+.rk{font-size:2.4rem;line-height:1;min-width:1.6rem;text-align:center;}
+.team.first .rk{color:var(--sun);}
+.tname{flex:1;min-width:0;font-weight:800;font-size:1.25rem;line-height:1.2;overflow-wrap:anywhere;}
+.tname small{display:block;font-size:.8rem;font-weight:500;color:var(--ink-faint);}
+.tscore{font-size:2.8rem;line-height:1;}
+.tscore.minus{color:var(--red);}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:.62rem .2rem;text-align:right;border-top:1px solid var(--line);font-size:1rem;white-space:nowrap;}
+th{font-size:.75rem;font-weight:600;color:var(--ink-faint);border-top:0;}
+th:first-child,td:first-child{text-align:left;white-space:normal;overflow-wrap:anywhere;}
+td.k{font-size:1.45rem;line-height:1;}
+td.d{font-size:1.15rem;line-height:1;color:var(--ink-dim);}
+td .slot{color:var(--ink-faint);font-size:.8rem;margin-right:.3rem;}
+tr.sum td{font-weight:800;background:var(--field);}
+tr.sum td:first-child{border-radius:.5rem 0 0 .5rem;padding-left:.5rem;}
+tr.sum td:last-child{border-radius:0 .5rem .5rem 0;padding-right:.5rem;}
+
+/* 개인 순위 */
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(22rem,1fr));gap:1.2rem;}
+.board{background:var(--card);border:1px solid var(--line);border-radius:1rem;padding:1.1rem 1.4rem;}
+.board h2{font-size:1.5rem;font-weight:800;margin-bottom:.5rem;}
+.board h2 small{font-size:.9rem;font-weight:500;color:var(--ink-faint);margin-left:.5rem;}
+.line{display:grid;grid-template-columns:2.4rem 1fr auto;align-items:center;gap:.8rem;padding:.5rem 0;border-top:1px solid var(--line);}
+.line:first-of-type{border-top:0;}
+.line .pos{font-size:1.7rem;line-height:1;text-align:center;color:var(--ink-faint);}
+.line.top1 .pos{color:var(--sun);}
+.line .who{min-width:0;font-weight:700;font-size:1.2rem;overflow-wrap:anywhere;}
+.line .who small{display:block;font-weight:500;font-size:.8rem;color:var(--ink-faint);}
+.line .val{font-size:2rem;line-height:1;}
+.line.top1 .val{color:var(--accent-ink);}
+
+/* 시상식 */
+.award{display:grid;grid-template-columns:1.25fr 1fr;gap:1.2rem;}
+.win{background:var(--cream);border:2px solid var(--sun);border-radius:1.2rem;padding:1.4rem 1.8rem;}
+.win .tag,.sec .tag,.mini .tag{display:inline-block;font-weight:800;font-size:.95rem;border-radius:999px;padding:.15rem .8rem;background:var(--sun);color:#3B2A00;}
+.win h2{font-size:3.2rem;font-weight:800;line-height:1.1;margin:.4rem 0 .2rem;overflow-wrap:anywhere;}
+.win .pts{font-size:4.4rem;line-height:1;}
+.win p,.sec p{font-size:1.05rem;color:var(--ink-dim);margin-top:.5rem;overflow-wrap:anywhere;}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:1.2rem;padding:1.2rem 1.8rem;margin-top:1rem;}
+.sec .tag{background:var(--field);color:var(--ink-dim);}
+.sec h2{font-size:2rem;font-weight:800;line-height:1.15;margin-top:.3rem;display:flex;justify-content:space-between;align-items:baseline;gap:1rem;}
+.side{display:grid;gap:1rem;align-content:start;}
+.mini{background:var(--card);border:1px solid var(--line);border-radius:1.2rem;padding:1.1rem 1.5rem;}
+.mini .tag{background:var(--accent-soft);color:var(--accent-ink);}
+.mini h3{font-size:1.7rem;font-weight:800;margin-top:.3rem;display:flex;justify-content:space-between;align-items:baseline;gap:1rem;overflow-wrap:anywhere;}
+.mini h3 .num{font-size:2.6rem;line-height:1;color:var(--accent-ink);}
+.mini p{font-size:.9rem;color:var(--ink-faint);}
+.mini.last .tag{background:var(--field);color:var(--ink-dim);}
+.rest{font-size:1.05rem;color:var(--ink-dim);}
+.rest b{color:var(--ink);}
+@media (max-width:900px){ .award{grid-template-columns:1fr;} main{padding:1rem;} .top{padding:.8rem 1rem;} }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>킬내기 <span>2회</span><small id="viewName"></small></h1>
+  <div class="when" id="when"></div>
+</header>
+<main id="main" aria-live="polite"></main>
+
+<script>
+/* 킬내기 2회 개인 기록 — 방송 전환용 전체 화면. 서버(/api/killrace/players)가 준 확정 판 기준 값만 그린다(10초마다 갱신).
+ * 보기: ?view=team(팀별) · rank(개인 순위 = 킬왕 · 딜왕) · award(시상식) · 안 적으면 팀별 ↔ 개인 순위를 15초마다 번갈아.
+ * 판 중간의 잠정 킬은 팀 단위라 여기에는 없다. 계좌 · 디스코드 닉은 이 응답에 아예 없다. */
+(function(){
+  "use strict";
+  var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
+  var fixed = new URLSearchParams(location.search).get("view");
+  if (["team", "rank", "award"].indexOf(fixed) < 0) fixed = null;
+  var view = fixed || "team", D = null;
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); };
+  var hm = function(ms){ var d = new Date(ms + 9 * 3600000); return ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + d.getUTCMinutes()).slice(-2); };
+  var NAMES = { team: "팀별 개인 기록", rank: "개인 순위", award: "시상식" };
+
+  function teamView(){
+    return '<div class="teams">' + D.teams.map(function(t){
+      return '<section class="team' + (t.rank === 1 ? " first" : "") + '"><div class="team-h"><span class="rk num">' + t.rank + '</span>' +
+        '<span class="tname">' + esc(t.name) + "<small>" + t.games + "판 · 치킨 " + t.chickens + (t.bonus ? " · 보너스 +" + t.bonus : "") + '</small></span>' +
+        '<span class="tscore num' + (t.total < 0 ? " minus" : "") + '">' + t.total + "</span></div>" +
+        "<table><thead><tr><th>선수</th><th>킬</th><th>딜</th><th>사망</th><th>판</th></tr></thead><tbody>" +
+        t.players.map(function(p){
+          return '<tr><td><span class="slot">' + p.slot + "번</span>" + esc(p.ign) + '</td><td class="k num">' + p.kills + '</td><td class="d num">' + p.damage + "</td><td>" + p.deaths + "</td><td>" + p.games + "</td></tr>";
+        }).join("") +
+        '<tr class="sum"><td>팀 합계</td><td class="k num">' + t.kills + '</td><td class="d num">' + t.damage + "</td><td>" + t.deaths + "</td><td>" + t.games + "</td></tr>" +
+        "</tbody></table></section>";
+    }).join("") + "</div>";
+  }
+  function list(title, note, rows, key){
+    return '<section class="board"><h2>' + title + "<small>" + note + "</small></h2>" + rows.slice(0, 8).map(function(p){
+      return '<div class="line' + (p.rank === 1 ? " top1" : "") + '"><span class="pos num">' + p.rank + '</span><span class="who">' + esc(p.ign) +
+        "<small>" + esc(p.team) + " · " + p.games + "판 · 사망 " + p.deaths + '</small></span><span class="val num">' + p[key] + "</span></div>";
+    }).join("") + "</section>";
+  }
+  function rankView(){ return '<div class="two">' + list("킬왕", "순수 킬", D.byKills, "kills") + list("딜왕", "순수 딜", D.byDamage, "damage") + "</div>"; }
+  function awardView(){
+    var ts = D.teams, first = ts[0], second = ts[1], last = ts.length > 2 ? ts[ts.length - 1] : null;
+    var names = function(t){ return t.players.map(function(p){ return esc(p.ign); }).join(" · "); };
+    var kk = D.byKills[0], dk = D.byDamage[0];
+    var rest = ts.slice(2, last ? ts.length - 1 : ts.length).map(function(t){ return t.rank + "위 <b>" + esc(t.name) + "</b> " + t.total + "점"; }).join(" · ");
+    return '<div class="award"><div>' +
+      (first ? '<section class="win"><span class="tag">1등</span><h2>' + esc(first.name) + '</h2><div class="pts num">' + first.total + "점</div><p>" + names(first) + "</p><p>킬 " + first.kills + " · 딜 " + first.damage + " · 치킨 " + first.chickens + "</p></section>" : "") +
+      (second ? '<section class="sec"><span class="tag">2등</span><h2><span>' + esc(second.name) + '</span><span class="num">' + second.total + "점</span></h2><p>" + names(second) + "</p></section>" : "") +
+      (rest ? '<section class="sec"><p class="rest">' + rest + "</p></section>" : "") +
+      '</div><div class="side">' +
+      (kk ? '<section class="mini"><span class="tag">킬왕</span><h3><span>' + esc(kk.ign) + '</span><span class="num">' + kk.kills + "킬</span></h3><p>" + esc(kk.team) + " · " + kk.games + "판</p></section>" : "") +
+      (dk ? '<section class="mini"><span class="tag">딜왕</span><h3><span>' + esc(dk.ign) + '</span><span class="num">' + dk.damage + "</span></h3><p>" + esc(dk.team) + " · " + dk.games + "판</p></section>" : "") +
+      (last ? '<section class="mini last"><span class="tag">' + last.rank + "위</span><h3><span>" + esc(last.name) + '</span><span class="num">' + last.total + "점</span></h3><p>" + names(last) + "</p></section>" : "") +
+      "</div></div>";
+  }
+
+  function render(){
+    $("viewName").textContent = NAMES[view];
+    if (!D) { $("main").innerHTML = '<div class="empty">아직 열리지 않았어요</div>'; $("when").textContent = ""; return; }
+    var last = D.run && D.run.ok && D.run.at ? D.run.at : D.updatedAt ? Date.parse(D.updatedAt) : null;
+    $("when").innerHTML = (last ? "<b>" + hm(last) + "</b> 갱신 · " : "") + "끝난 판 기준" + (view === "award" && !D.ended ? " · 아직 진행 중이에요" : "");
+    if (!D.teams.length) { $("main").innerHTML = '<div class="empty">팀이 아직 없어요</div>'; return; }
+    $("main").innerHTML = view === "team" ? teamView() : view === "rank" ? rankView() : awardView();
+  }
+  function load(){
+    fetch(GAPI + "/api/killrace/players", { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){ if (j) D = j; render(); })
+      .catch(function(){});
+  }
+  load();
+  setInterval(load, 10000);
+  if (!fixed) setInterval(function(){ view = view === "team" ? "rank" : "team"; render(); }, 15000);
+})();
+</script>
+</body>
+</html>
