@@ -135,6 +135,7 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
   .card-h{font-size:20px;}
   .lot{font-size:16px;}
 }
+.slot{display:inline-block;margin:2px 10px 2px 0;white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -189,6 +190,7 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
         <textarea class="input" id="roster" spellcheck="false" placeholder="닉네임, 스팀, T1, 3.2, 410, 돌격, 55"></textarea>
         <div class="row" style="margin-top:10px;">
           <button type="button" class="btn main" data-act="create">경매 만들기</button>
+          <button type="button" class="btn" data-act="applicants">신청자 불러오기</button>
           <button type="button" class="btn" data-act="demo">연습용 15명 채우기</button>
         </div>
       </div>
@@ -223,7 +225,7 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
         </details>
         <details class="host" id="registerBox">
           <summary>킬내기 팀 등록으로 보내기</summary>
-          <p class="muted" style="margin:8px 0;">경매를 마감한 뒤 눌러요. 슬롯1이 가장 높은 티어, 팀장이 마지막 슬롯이에요</p>
+          <p class="muted" style="margin:8px 0;">경매를 마감하면 사망 감점 슬롯이 낙찰가 높은 순으로 채워져요. 팀장은 마지막이에요. ▲ 로 순서를 고친 뒤 보내 주세요</p>
           <div id="plan"></div>
           <button type="button" class="btn main" data-act="register" style="margin-top:10px;">팀 등록 보내기</button>
           <div id="registerResult" style="margin-top:10px;"></div>
@@ -462,10 +464,13 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
     $("links").innerHTML = (S.tokens || []).map(function(t){
       return '<div class="row" style="margin-bottom:6px;"><b style="flex:0 0 110px;">' + esc(t.ign) + '</b><span class="link" style="flex:1 1 200px;">' + esc(base + "#c=" + t.token) + '</span><button type="button" class="btn sm" data-act="copy" data-text="' + esc(base + "#c=" + t.token) + '">복사</button></div>';
     }).join("");
-    $("plan").innerHTML = '<div style="overflow-x:auto"><table><thead><tr><th>팀명</th><th>슬롯 순서</th><th>플랫폼</th><th class="r">보너스</th></tr></thead><tbody>' +
+    $("plan").innerHTML = '<div style="overflow-x:auto"><table><thead><tr><th>팀명</th><th>슬롯 (1번 −4 … 4번 −1)</th><th>플랫폼</th><th class="r">보너스</th></tr></thead><tbody>' +
       (S.registerPlan || []).map(function(p){
         var plat = p.mixed ? "섞임" : p.platform ? (PLATFORM[p.platform] || p.platform) : "없음";
-        return "<tr><td>" + esc(p.teamName) + ' <button type="button" class="btn sm" data-act="rename" data-cap="' + esc(p.captainId) + '">이름</button></td><td>' + p.igns.map(esc).join(" → ") + (p.full ? "" : " (덜 참)") + "</td><td>" + esc(plat) + '</td><td class="r num">+' + p.bonus + "</td></tr>";
+        return "<tr><td>" + esc(p.teamName) + ' <button type="button" class="btn sm" data-act="rename" data-cap="' + esc(p.captainId) + '">이름</button></td><td>' + (p.slots || []).map(function(m, i){
+          return '<span class="slot">' + (i && S.phase === "done" ? '<button type="button" class="btn sm" data-act="slotUp" data-cap="' + esc(p.captainId) + '" data-i="' + i + '" aria-label="' + esc(m.ign) + ' 한 칸 위로">▲</button> ' : "") +
+            "<b>" + m.slot + "번</b> " + esc(m.ign) + (m.captain ? " (팀장)" : " (" + m.price + ")") + "</span>";
+        }).join("") + (p.edited ? '<span class="muted"> 고친 순서</span>' : "") + (p.full ? "" : " (덜 참)") + "</td><td>" + esc(plat) + '</td><td class="r num">+' + p.bonus + "</td></tr>";
       }).join("") + "</tbody></table></div>";
   }
 
@@ -489,6 +494,21 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
   function parseRoster(text){
     var rows = text.split(/\r?\n/).map(parseLine).filter(Boolean);
     return { players: rows.map(function(r){ return r.player; }), captains: rows.filter(function(r){ return r.captain; }).map(function(r){ return r.player.ign; }) };
+  }
+  // 신청 폼으로 들어온 참가자(대기 · 취소 제외)를 목록 칸에 채운다. 티어 칸은 비워 둔다 — T1 · T2 · T3 · 팀장은 진행자가 적는다
+  function loadApplicants(){
+    var msg = $("hostMsg");
+    fetch(GAPI + "/api/killrace/apply", { headers: { "x-admin-key": adminKey }, cache: "no-store" })
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+      .then(function(d){
+        var rows = (d.list || []).filter(function(x){ return x.status !== "cancelled" && !x.waiting; });
+        $("roster").value = rows.map(function(x){
+          return [x.ign, x.platform === "kakao" ? "카카오" : "스팀", "", x.kda == null ? "" : x.kda, x.avgDamage == null ? "" : x.avgDamage, "", ""].join(", ");
+        }).join(String.fromCharCode(10));
+        msg.className = "msg ok";
+        msg.textContent = rows.length ? rows.length + "명을 불러왔어요. 세 번째 칸에 T1 · T2 · T3 나 팀장을 적어 주세요" : "신청자가 아직 없어요";
+      })
+      .catch(function(){ msg.className = "msg"; msg.textContent = "신청자를 못 불러왔어요. 잠시 뒤 다시 눌러 주세요"; });
   }
   function demoRoster(){
     var lines = [];
@@ -537,6 +557,14 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
     if (act === "startGems") { if (confirm("입찰을 끝내고 숨은 보석 지명으로 넘어갈까요? 올리지 않은 매물도 지명 대상이 돼요")) admin("startGems"); return; }
     if (act === "finish") { if (confirm("경매를 마감할까요?")) admin("finish"); return; }
     if (act === "reset") { admin("reset", { confirm: $("resetWord").value.trim() }).then(function(r){ if (r.ok) $("resetWord").value = ""; }); return; }
+    if (act === "slotUp") {
+      var plan = (S.registerPlan || []).filter(function(p){ return p.captainId === b.getAttribute("data-cap"); })[0];
+      var i = Number(b.getAttribute("data-i"));
+      if (!plan || !(i > 0)) return;
+      var order = plan.igns.slice(); var tmp = order[i - 1]; order[i - 1] = order[i]; order[i] = tmp;
+      admin("slots", { captainId: plan.captainId, order: order }); return;
+    }
+    if (act === "applicants") { loadApplicants(); return; }
     if (act === "register") {
       b.disabled = true; $("registerResult").textContent = "팀 등록을 보내는 중이에요. 한 팀에 몇 초씩 걸려요";
       admin("register").then(function(r){
