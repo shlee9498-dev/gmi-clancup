@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>킬내기 2회 | 방송 오버레이</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* OBS 브라우저 소스용 — 배경 투명. 게임 화면 위에 얹으므로 판은 어두운 불투명에 흰 글씨(킬내기 라이트 테마를 여기만 뒤집는다).
+   권장 크기 460 × 640. 더 크게 쓰려면 주소 뒤에 ?scale=1.3 */
+:root{
+  --panel:#101724; --panel-2:#1A2333; --ink:#FFFFFF; --dim:#B6C0D0; --faint:#8894A8;
+  --sun:#FFB020; --up:#3DDC97; --down:#FF6B5E; --accent:#6EA0FF;
+  --display:'Saira Condensed','Pretendard Variable',sans-serif;
+  --body:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:transparent;}
+body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden;}
+.board{width:460px;transform-origin:top left;padding:6px;}
+.head{background:var(--panel);border-radius:14px 14px 0 0;padding:12px 16px 10px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
+.title{font-family:var(--display);font-weight:800;font-size:26px;line-height:1;}
+.title span{color:var(--sun);}
+.clock{font-size:14px;color:var(--dim);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.clock b{color:var(--ink);}
+.rows{background:var(--panel);padding:0 10px 4px;}
+.row{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;background:var(--panel-2);border-radius:10px;padding:9px 14px 9px 6px;margin-top:5px;min-height:58px;}
+.row.first{outline:2px solid var(--sun);outline-offset:-2px;}
+.rk{font-family:var(--display);font-weight:800;font-size:30px;line-height:1;text-align:center;}
+.row.first .rk{color:var(--sun);}
+.name{font-weight:800;font-size:19px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.meta{font-size:13px;color:var(--faint);margin-top:1px;white-space:nowrap;}
+.meta b{font-size:15px;color:var(--ink);font-weight:800;}
+.move{font-size:13px;font-weight:800;margin-left:6px;}
+.move.up{color:var(--up);} .move.down{color:var(--down);}
+.score{text-align:right;line-height:1;white-space:nowrap;}
+.total{font-family:var(--display);font-weight:800;font-size:36px;font-variant-numeric:tabular-nums;}
+.prov{font-family:var(--display);font-weight:700;font-size:20px;color:var(--faint);margin-left:6px;}
+.foot{background:var(--panel);border-radius:0 0 14px 14px;padding:10px 16px 12px;font-size:13.5px;color:var(--dim);display:flex;justify-content:space-between;gap:12px;white-space:nowrap;}
+.foot b{color:var(--accent);}
+.toast{margin-top:12px;background:var(--sun);color:#1B1300;border-radius:12px;padding:10px 14px;font-weight:800;font-size:22px;display:flex;justify-content:space-between;align-items:baseline;opacity:0;transform:translateY(-6px);}
+.toast.show{opacity:1;transform:none;}
+.toast .num{font-family:var(--display);font-size:32px;line-height:1;}
+.toast.down{background:var(--down);color:#fff;}
+@media (prefers-reduced-motion:no-preference){ .toast{transition:opacity .25s ease-out,transform .25s ease-out;} }
+[hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<div class="board" id="board" hidden>
+  <div class="head"><div class="title">킬내기 <span>2회</span></div><div class="clock" id="clock"></div></div>
+  <div class="rows" id="rows"></div>
+  <div class="foot"><span id="footL"></span><span id="footR"></span></div>
+  <div class="toast" id="toast" aria-live="polite"><span id="toastName"></span><span class="num" id="toastNum"></span></div>
+</div>
+
+<script>
+/* 킬내기 2회 방송 오버레이 — 점수판과 같은 서버 값(/api/killrace/board)을 5초마다 받아 세로 순위표로 그린다.
+ * 상시 오버레이 「팀 킬 현황」 — 순위 · 팀명 · 확정 점수 · 확정 킬 합계 · 이번 판 잠정 킬 · 순위 변동. 개인 기록은 killnaegi-stats.html(전환용 전체 화면).
+ * 회색 숫자 = 팀이 누른 잠정 킬(총점에 안 들어간다). 순위가 바뀌면 3분 동안 화살표, 점수가 오르면 「○팀 +14」 를 6초 띄운다.
+ * 계좌 · 디스코드 닉 같은 것은 이 응답에 아예 없다. */
+(function(){
+  "use strict";
+  var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
+  var q = new URLSearchParams(location.search);
+  var scale = Math.min(3, Math.max(0.5, Number(q.get("scale")) || 1));
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); };
+  var hm = function(ms){ var d = new Date(ms + 9 * 3600000); return ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + d.getUTCMinutes()).slice(-2); };
+  var mins = function(ms){ return Math.max(0, Math.ceil(ms / 60000)); };
+  var B = null, skew = 0, seenGain = null, queue = [], showing = false;
+  $("board").style.transform = "scale(" + scale + ")";
+
+  function render(){
+    if (!B) return;
+    $("board").hidden = false;
+    var t = Date.now() + skew;
+    $("clock").innerHTML = t < B.event.start ? "시작까지 <b>" + mins(B.event.start - t) + "분</b>"
+      : t < B.event.end ? "끝까지 <b>" + mins(B.event.end - t) + "분</b>" : "<b>" + hm(B.event.end) + "</b> 마감";
+    var showMove = B.rankChangedAt && t - B.rankChangedAt < 3 * 60000;
+    $("rows").innerHTML = B.teams.map(function(x){
+      var move = showMove && x.prevRank && x.prevRank !== x.rank
+        ? '<span class="move ' + (x.prevRank > x.rank ? "up" : "down") + '">' + (x.prevRank > x.rank ? "▲" : "▼") + Math.abs(x.prevRank - x.rank) + "</span>" : "";
+      return '<div class="row' + (x.rank === 1 ? " first" : "") + '"><div class="rk">' + x.rank + '</div>' +
+        '<div style="min-width:0;"><div class="name">' + esc(x.name) + move + '</div><div class="meta"><b>킬 ' + x.kills + "</b> · " + x.games + "판 · 치킨 " + x.chickens + "</div></div>" +
+        '<div class="score"><span class="total">' + x.total + "</span>" + (x.provisional ? '<span class="prov">+' + x.provisional + "</span>" : "") + "</div></div>";
+    }).join("");
+    var last = B.run && B.run.ok && B.run.at ? B.run.at : B.updatedAt ? Date.parse(B.updatedAt) : null;
+    $("footL").innerHTML = B.boostAt == null || t >= B.event.end ? "회색 숫자는 잠정 킬"
+      : t < B.boostAt ? "1.5배 판까지 <b>" + mins(B.boostAt - t) + "분</b>" : "<b>지금 시작하는 판 " + B.boostMul + "배</b>";
+    $("footR").textContent = last ? hm(last) + " 갱신" : "집계 전";
+  }
+
+  function nextToast(){
+    if (showing || !queue.length) return;
+    var g = queue.shift(), el = $("toast");
+    showing = true;
+    $("toastName").textContent = g.team;
+    $("toastNum").textContent = (g.delta > 0 ? "+" : "−") + Math.abs(g.delta);
+    el.className = "toast show" + (g.delta < 0 ? " down" : "");
+    setTimeout(function(){ el.className = "toast" + (g.delta < 0 ? " down" : ""); setTimeout(function(){ showing = false; nextToast(); }, 400); }, 6000);
+  }
+
+  function load(){
+    fetch(GAPI + "/api/killrace/board", { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){
+        if (!j) return;
+        B = j; skew = j.serverNow - Date.now();
+        // 처음 열었을 때는 지난 득점을 다시 띄우지 않는다
+        if (seenGain === null) seenGain = j.gains.reduce(function(m, g){ return Math.max(m, g.at); }, 0);
+        j.gains.filter(function(g){ return g.at > seenGain; }).forEach(function(g){ queue.push(g); seenGain = Math.max(seenGain, g.at); });
+        render(); nextToast();
+      })
+      .catch(function(){});
+  }
+  load();
+  setInterval(load, 5000);
+  setInterval(render, 15000);
+})();
+</script>
+</body>
+</html>

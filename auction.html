@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대승배 GmI 킬내기 2회 | 팀 경매</title>
+<meta name="description" content="대승배 GmI 킬내기 2회 팀 경매. 팀장이 100포인트로 선수를 뽑아요. 10월 8일 20:30.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F5F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* 킬내기 전용 라이트 테마 — killnaegi.html 과 같은 토큰. G드컵 루트의 다크+골드와 섞지 않는다. */
+:root{
+  --bg:#F5F6F8; --card:#FFFFFF; --field:#F0F2F5; --line:#E3E6EB;
+  --ink:#172033; --ink-dim:#4E5869; --ink-faint:#6B7484;
+  --accent:#2F6FEB; --accent-soft:#EAF1FF; --accent-ink:#1D4FB8;
+  --red:#D93A2B; --red-soft:#FDECEA; --green:#1E8E5A; --green-soft:#E6F5EC;
+  --cream:#FFF4E0; --cream-line:#F1E3C4; --sun:#F59E0B;
+  --display:'Saira Condensed','Pretendard Variable',sans-serif;
+  --body:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;
+  --r-lg:20px; --r-md:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.5;-webkit-font-smoothing:antialiased;}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;}
+.wrap{max-width:1840px;margin:0 auto;padding:0 16px 32px;}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums;}
+
+.top{background:var(--cream);border-bottom:1px solid var(--cream-line);padding:12px 0;}
+.top-in{max-width:1840px;margin:0 auto;padding:0 16px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;}
+.top h1{font-family:var(--display);font-weight:800;font-size:clamp(24px,5vw,40px);line-height:1.05;}
+.top h1 span{color:var(--sun);}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{background:#fff;border:1px solid var(--cream-line);border-radius:999px;padding:4px 11px;font-size:13px;color:var(--ink-dim);}
+.chip b{color:var(--ink);}
+.chip.me{background:var(--accent-soft);border-color:var(--accent-soft);color:var(--accent-ink);font-weight:700;}
+
+.grid{display:grid;gap:14px;margin-top:14px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;}
+.card-h{font-size:17px;font-weight:800;margin-bottom:10px;display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.card-h small{font-size:13px;font-weight:500;color:var(--ink-faint);}
+.muted{color:var(--ink-faint);font-size:14px;}
+
+/* 지금 매물 */
+.live-name{font-family:var(--display);font-weight:800;font-size:clamp(34px,9vw,84px);line-height:1;word-break:break-all;}
+.live-meta{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px;}
+.tag{border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700;background:var(--field);color:var(--ink-dim);}
+.tag.t1{background:var(--red-soft);color:var(--red);}
+.tag.t2{background:var(--accent-soft);color:var(--accent-ink);}
+.tag.t3{background:var(--green-soft);color:var(--green);}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px;}
+.stat{background:var(--field);border-radius:var(--r-md);padding:8px 12px;}
+.stat span{display:block;font-size:12px;color:var(--ink-faint);}
+.stat b{font-family:var(--display);font-size:clamp(20px,4.5vw,34px);font-weight:700;line-height:1.1;}
+.price{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.price-now span{font-size:13px;color:var(--ink-faint);display:block;}
+.price-now b{font-family:var(--display);font-weight:800;font-size:clamp(44px,12vw,112px);line-height:.95;color:var(--accent-ink);}
+.price-now em{font-style:normal;font-size:15px;font-weight:700;color:var(--ink-dim);}
+.timer{min-width:96px;text-align:right;}
+.timer b{font-family:var(--display);font-weight:800;font-size:clamp(40px,10vw,96px);line-height:.95;}
+.timer.hot b{color:var(--red);}
+.bar{height:8px;border-radius:999px;background:var(--field);overflow:hidden;margin-top:12px;}
+.bar i{display:block;height:100%;width:100%;background:var(--accent);border-radius:999px;transform-origin:left center;transition:transform .2s linear;}
+.bar.hot i{background:var(--red);}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none;}}
+.bids{margin-top:10px;font-size:13px;color:var(--ink-dim);display:flex;flex-wrap:wrap;gap:4px 10px;}
+.idle{padding:28px 0;text-align:center;}
+.idle b{display:block;font-size:20px;margin-bottom:4px;}
+
+/* 팀 */
+.teams{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+.team{border:1px solid var(--line);border-radius:var(--r-md);padding:12px;background:#fff;}
+.team.high{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);}
+.team.mine{background:var(--accent-soft);}
+.team.turn{border-color:var(--sun);box-shadow:0 0 0 2px var(--cream);}
+.team-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.team-h b{font-size:16px;word-break:break-all;}
+.team-h .pt{font-family:var(--display);font-weight:800;font-size:26px;line-height:1;white-space:nowrap;}
+.team-h .pt small{font-family:var(--body);font-size:12px;font-weight:500;color:var(--ink-faint);}
+.team-sub{font-size:12.5px;color:var(--ink-faint);margin:2px 0 8px;}
+.ptbar{height:6px;border-radius:999px;background:var(--field);overflow:hidden;margin-bottom:8px;}
+.ptbar i{display:block;height:100%;background:var(--green);border-radius:999px;}
+.slots{list-style:none;display:grid;gap:4px;}
+.slots li{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:5px 8px;border-radius:10px;background:var(--field);}
+.slots li.empty{background:transparent;border:1px dashed var(--line);color:var(--ink-faint);}
+.slots li span:last-child{color:var(--ink-dim);white-space:nowrap;}
+
+/* 매물 줄 */
+.lots{display:flex;flex-wrap:wrap;gap:6px;}
+.lot{border:1px solid var(--line);border-radius:12px;padding:6px 10px;background:#fff;font-size:14px;display:flex;align-items:center;gap:6px;}
+.lot small{color:var(--ink-faint);}
+.lot button{margin-left:2px;}
+
+/* 버튼 · 입력 */
+.btn{border:0;border-radius:999px;padding:10px 16px;font-weight:700;cursor:pointer;background:var(--field);color:var(--ink);min-height:44px;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn.main{background:var(--accent);color:#fff;}
+.btn.warn{background:var(--red-soft);color:var(--red);}
+.btn.sm{min-height:32px;padding:4px 10px;font-size:13px;}
+.btn:focus-visible,.input:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.input{background:var(--field);border:1.5px solid transparent;border-radius:12px;padding:10px 12px;min-height:44px;width:100%;}
+textarea.input{min-height:150px;font-size:13px;line-height:1.5;}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.row > .input{flex:1 1 120px;width:auto;}
+.label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-dim);margin:10px 0 5px;}
+.msg{min-height:20px;font-size:14px;color:var(--red);margin-top:8px;}
+.msg.ok{color:var(--green);}
+
+/* 팀장 입찰 — 폰에서는 아래에 붙는다 */
+.bidbox{position:sticky;bottom:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -6px 18px rgba(23,32,51,.08);z-index:5;}
+.bidbox .row .btn{flex:1 1 auto;}
+.bidbox .state{font-size:14px;color:var(--ink-dim);margin-bottom:8px;}
+.bidbox .state b{color:var(--ink);}
+
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);}
+th{font-size:12.5px;color:var(--ink-faint);font-weight:600;}
+td.r,th.r{text-align:right;}
+.link{font-size:12.5px;word-break:break-all;color:var(--ink-dim);}
+details.host{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;}
+details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
+[hidden]{display:none !important;}
+
+/* 방송 화면(넓은 폭) — 왼쪽 매물, 오른쪽 팀 */
+@media (min-width:1100px){
+  .grid.stage{grid-template-columns:minmax(0,5fr) minmax(0,7fr);align-items:start;}
+  .grid.stage .card{padding:24px;}
+  .teams{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));}
+  .team-h b{font-size:20px;}
+  .team-h .pt{font-size:36px;}
+  .slots li{font-size:17px;padding:7px 10px;}
+  .card-h{font-size:20px;}
+  .lot{font-size:16px;}
+}
+.slot{display:inline-block;margin:2px 10px 2px 0;white-space:nowrap;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <h1>킬내기 <span>2회</span> 팀 경매</h1>
+    <div class="chips" id="chips"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- 진행자: 키 입력(이 탭에만 남는다) -->
+  <section class="card" id="hostGate" hidden style="margin-top:14px;max-width:520px;">
+    <h2 class="card-h">진행자 확인</h2>
+    <label class="label" for="hostKey">운영 키</label>
+    <div class="row">
+      <input class="input" id="hostKey" type="password" autocomplete="off">
+      <button type="button" class="btn main" data-act="hostLogin">들어가기</button>
+    </div>
+    <p class="msg" id="hostGateMsg" role="status" aria-live="polite"></p>
+  </section>
+
+  <div class="grid stage">
+    <section class="card" id="liveCard" aria-live="polite"></section>
+    <section class="card">
+      <h2 class="card-h">팀<small id="teamNote"></small></h2>
+      <div class="teams" id="teams"></div>
+    </section>
+  </div>
+
+  <div class="grid">
+    <section class="card" id="queueCard">
+      <h2 class="card-h">남은 매물<small id="queueNote"></small></h2>
+      <div class="lots" id="queue"></div>
+    </section>
+    <section class="card" id="unsoldCard" hidden>
+      <h2 class="card-h">숨은 보석<small id="unsoldNote"></small></h2>
+      <div class="lots" id="unsold"></div>
+    </section>
+    <section class="card" id="resultCard" hidden>
+      <h2 class="card-h">경매 결과<small>남은 포인트 10당 +1점</small></h2>
+      <div id="result"></div>
+    </section>
+
+    <!-- 진행자 화면 -->
+    <section class="card" id="hostCard" hidden>
+      <h2 class="card-h">진행자</h2>
+      <div id="hostSetup" hidden>
+        <p class="muted">한 줄에 한 명씩 붙여 넣어요. 순서는 닉, 플랫폼, 티어, KDA, 평딜, 포지션, 1회 점수예요. 팀장은 티어 칸에 팀장이라고 적어요</p>
+        <label class="label" for="roster">참가자 목록</label>
+        <textarea class="input" id="roster" spellcheck="false" placeholder="닉네임, 스팀, T1, 3.2, 410, 돌격, 55"></textarea>
+        <div class="row" style="margin-top:10px;">
+          <button type="button" class="btn main" data-act="create">경매 만들기</button>
+          <button type="button" class="btn" data-act="applicants">신청자 불러오기</button>
+          <button type="button" class="btn" data-act="demo">연습용 15명 채우기</button>
+        </div>
+      </div>
+      <div id="hostRun" hidden>
+        <div class="row">
+          <button type="button" class="btn main" data-act="open">다음 매물 올리기</button>
+          <button type="button" class="btn" data-act="closeNow">지금 마감</button>
+          <button type="button" class="btn warn" data-act="undo">방금 낙찰 취소</button>
+          <button type="button" class="btn" data-act="startGems">숨은 보석 지명 시작</button>
+          <button type="button" class="btn" data-act="gemSkip">차례 넘기기</button>
+          <button type="button" class="btn" data-act="finish">경매 마감</button>
+        </div>
+        <details class="host">
+          <summary>팀장 대신 입찰</summary>
+          <div class="row" style="margin-top:8px;">
+            <select class="input" id="proxyCap" aria-label="팀장"></select>
+            <input class="input" id="proxyAmount" type="number" inputmode="numeric" min="0" aria-label="입찰 포인트" placeholder="포인트">
+            <button type="button" class="btn" data-act="bidFor">입찰</button>
+          </div>
+        </details>
+        <details class="host">
+          <summary>교체 선수 넣기</summary>
+          <div class="row" style="margin-top:8px;">
+            <input class="input" id="subLine" aria-label="교체 선수" placeholder="닉네임, 스팀, T2, 2.1, 300, 지원, 0">
+            <button type="button" class="btn" data-act="addLot">넣기</button>
+          </div>
+        </details>
+        <details class="host">
+          <summary>팀장 개인 링크</summary>
+          <p class="muted" style="margin:8px 0;">팀장에게 디스코드 DM으로 한 명씩 보내요. 링크를 가진 사람이 그 팀장으로 입찰해요</p>
+          <div id="links"></div>
+        </details>
+        <details class="host" id="registerBox">
+          <summary>킬내기 팀 등록으로 보내기</summary>
+          <p class="muted" style="margin:8px 0;">경매를 마감하면 사망 감점 슬롯이 낙찰가 높은 순으로 채워져요. 팀장은 마지막이에요. ▲ 로 순서를 고친 뒤 보내 주세요</p>
+          <div id="plan"></div>
+          <button type="button" class="btn main" data-act="register" style="margin-top:10px;">팀 등록 보내기</button>
+          <div id="registerResult" style="margin-top:10px;"></div>
+        </details>
+        <details class="host">
+          <summary>경매 초기화</summary>
+          <p class="muted" style="margin:8px 0;">연습을 끝내고 본 경매를 새로 만들 때만 써요. 경매 포인트와 낙찰 기록이 지워지고 팀 등록과 점수는 그대로예요</p>
+          <div class="row">
+            <input class="input" id="resetWord" aria-label="확인 문구" placeholder="RESET 을 적어요">
+            <button type="button" class="btn warn" data-act="reset">초기화</button>
+          </div>
+        </details>
+      </div>
+      <p class="msg" id="hostMsg" role="status" aria-live="polite"></p>
+    </section>
+  </div>
+</main>
+
+<!-- 팀장 입찰 상자 -->
+<div class="bidbox" id="bidbox" hidden>
+  <div class="state" id="bidState"></div>
+  <div class="row" id="bidButtons"></div>
+  <p class="msg" id="bidMsg" role="status" aria-live="polite"></p>
+</div>
+
+<script>
+/* 킬내기 2회 팀 경매 — 판정은 전부 서버(mri-academy killrace-auction.cjs)가 한다. 이 화면은 그리고 누르기만 한다.
+ * 세 가지 모드: 보는 사람(기본 · 방송) / 팀장(#c=토큰 개인 링크) / 진행자(?host=1 + 운영 키).
+ * 포인트는 이 행사용 가상 값이다(카지노 코인과 무관). 키 · 토큰은 이 탭(sessionStorage)에만 둔다. */
+(function(){
+  "use strict";
+  var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
+  var POLL_MS = 1000;
+  var qs = new URLSearchParams(location.search);
+  var hostMode = qs.get("host") === "1";
+  var store = { get: function(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } },
+                set: function(k,v){ try { sessionStorage.setItem(k,v); } catch(e){} } };
+
+  // 팀장 토큰: 주소의 # 뒤에서 한 번 읽고 지운다(서버 로그 · 공유 화면에 남지 않게)
+  var m = /[#&]c=([A-Za-z0-9_-]+)/.exec(location.hash);
+  if (m) { store.set("kn_captain", m[1]); history.replaceState(null, "", location.pathname + location.search); }
+  var token = store.get("kn_captain");
+  var adminKey = hostMode ? store.get("kn_host") : null;
+
+  var S = null;            // 마지막 서버 상태
+  var offset = 0;          // 서버 시각 − 내 시각
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); };
+  var PLATFORM = { steam: "스팀", kakao: "카카오" };
+  var ERR = {
+    low_bid: "더 높은 포인트가 먼저 들어왔어요", over_budget: "남은 포인트보다 많아요", already_high: "지금 내가 최고가예요",
+    team_full: "팀이 다 찼어요", no_live_lot: "방금 마감됐어요", bad_amount: "숫자로 적어 주세요", bad_token: "링크가 맞지 않아요. 진행자에게 다시 받아 주세요",
+    not_your_turn: "아직 내 차례가 아니에요", lot_not_available: "이미 다른 팀이 데려갔어요", wrong_phase: "지금은 할 수 없는 단계예요",
+    lot_live: "매물이 열려 있어요. 마감한 뒤 다시 해요", queue_empty: "남은 매물이 없어요", nothing_to_undo: "취소할 낙찰이 없어요",
+    unauthorized: "운영 키가 맞지 않아요", auction_exists: "이미 만든 경매가 있어요. 새로 만들려면 초기화부터 해요", no_auction: "아직 경매가 없어요",
+    not_enough_players: "인원이 모자라요", captain_count: "팀장 수가 팀 수와 달라요", dup_ign: "닉네임이 겹쳐요", bad_tier: "티어가 빠진 사람이 있어요",
+    captain_unknown: "팀장 닉을 목록에서 못 찾았어요", confirm_required: "RESET 을 정확히 적어 주세요", dup_team_name: "같은 팀명이 있어요",
+    db_disabled: "서버가 아직 준비되지 않았어요", auction_unavailable: "서버가 잠깐 응답하지 않아요", register_unavailable: "팀 등록을 지금 쓸 수 없어요",
+    team_not_full: "인원이 덜 찬 팀이에요", platform_mixed: "스팀과 카카오가 섞였어요", platform_missing: "플랫폼이 비어 있어요", no_gem_turn: "지명할 차례가 없어요"
+  };
+  var errText = function(e){
+    if (!e) return "잠깐 문제가 생겼어요. 다시 해볼까요?";
+    var t = ERR[e.code] || "잠깐 문제가 생겼어요. 다시 해볼까요?";
+    if (e.code === "low_bid" && e.min != null) t += " (지금 최소 " + e.min + ")";
+    if (e.code === "over_budget" && e.remaining != null) t += " (남은 " + e.remaining + ")";
+    if (e.code === "not_enough_players") t += " (최소 " + e.need + "명, 지금 " + e.have + "명)";
+    if (e.code === "captain_count") t += " (팀장 " + e.need + "명이 필요해요)";
+    if ((e.code === "dup_ign" || e.code === "bad_tier") && e.ign) t += " (" + e.ign + ")";
+    return t;
+  };
+
+  function headers(json){
+    var h = {};
+    if (json) h["Content-Type"] = "application/json";
+    if (adminKey) h["x-admin-key"] = adminKey;
+    if (token) h["Authorization"] = "Bearer " + token;
+    return h;
+  }
+  function call(path, body){
+    return fetch(GAPI + path, body ? { method: "POST", headers: headers(true), body: JSON.stringify(body) } : { headers: headers(false), cache: "no-store" })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ return { ok: r.ok, status: r.status, body: j }; }); });
+  }
+  function refresh(){
+    return call("/api/killrace/auction").then(function(r){
+      if (!r.ok) { S = { error: (r.body && r.body.error) || {} }; render(); return; }
+      S = r.body; offset = (S.serverNow || Date.now()) - Date.now();
+      render();
+    }).catch(function(){ /* 연결이 잠깐 끊겨도 다음 주기에 다시 온다 */ });
+  }
+  function admin(action, extra){
+    var body = { action: action }; for (var k in (extra || {})) body[k] = extra[k];
+    return call("/api/killrace/auction/admin", body).then(function(r){
+      var msg = $("hostMsg");
+      msg.className = "msg" + (r.ok ? " ok" : "");
+      msg.textContent = r.ok ? "" : errText(r.body && r.body.error);
+      return refresh().then(function(){ return r; });
+    });
+  }
+
+  // ── 그리기 ──
+  var capName = function(id){ var c = (S.captains || []).find(function(x){ return x.id === id; }); return c ? c.teamName : ""; };
+  var tierTag = function(t){ return t ? '<span class="tag ' + esc(String(t).toLowerCase()) + '">' + esc(t) + "</span>" : ""; };
+  var val = function(v){ return v == null || v === "" ? "–" : esc(v); };
+
+  function renderChips(){
+    var chips = [];
+    if (!S || S.error || !S.exists) { $("chips").innerHTML = ""; return; }
+    var phase = { bidding: "입찰 중", gems: "숨은 보석 지명", done: "경매 끝" }[S.phase] || "";
+    chips.push('<span class="chip"><b>' + esc(phase) + "</b></span>");
+    chips.push('<span class="chip">팀장마다 <b>' + S.config.budget + "</b>포인트</span>");
+    chips.push('<span class="chip">시작가 ' + Object.keys(S.config.startPrice).map(function(t){ return esc(t) + " <b>" + S.config.startPrice[t] + "</b>"; }).join(" · ") + "</span>");
+    if (S.me) chips.push('<span class="chip me">' + esc(capName(S.me)) + " 팀장으로 접속</span>");
+    if (S.admin) chips.push('<span class="chip me">진행자</span>');
+    $("chips").innerHTML = chips.join("");
+  }
+
+  function renderLive(){
+    var el = $("liveCard");
+    if (!S || S.error) { el.innerHTML = '<div class="idle"><b>연결하는 중이에요</b><span class="muted">' + esc(S && S.error && S.error.code ? errText(S.error) : "") + "</span></div>"; return; }
+    if (!S.exists) { el.innerHTML = '<div class="idle"><b>경매가 곧 시작돼요</b><span class="muted">10월 8일 20:30에 열려요</span></div>'; return; }
+    if (S.phase === "done") { el.innerHTML = '<div class="idle"><b>경매가 끝났어요</b><span class="muted">21:00부터 킬내기 시작이에요</span></div>'; return; }
+    if (S.phase === "gems") {
+      var turn = S.gemTurn ? capName(S.gemTurn) : "";
+      el.innerHTML = '<h2 class="card-h">숨은 보석 지명</h2>' + (turn
+        ? '<div class="live-name">' + esc(turn) + '</div><p class="muted" style="margin-top:8px;">' + (S.me && S.gemTurn === S.me ? "내 차례예요. 아래 숨은 보석에서 한 명을 골라요" : "남은 포인트가 적은 팀장부터 한 명씩 무료로 데려가요") + "</p>"
+        : '<div class="idle"><b>지명이 끝났어요</b><span class="muted">진행자가 곧 마감해요</span></div>');
+      return;
+    }
+    var L = S.live;
+    if (!L) {
+      var last = S.lastSale ? '<span class="muted">방금 ' + esc(S.lastSale.ign) + " → " + esc(capName(S.lastSale.captainId)) + " (" + S.lastSale.price + ")</span>" : '<span class="muted">진행자가 다음 매물을 올려요</span>';
+      el.innerHTML = '<div class="idle"><b>다음 매물을 기다리는 중</b>' + last + "</div>"; return;
+    }
+    var lot = L.lot;
+    el.innerHTML =
+      '<h2 class="card-h">지금 매물<small>시작가 ' + L.start + "</small></h2>" +
+      '<div class="live-name">' + esc(lot.ign) + "</div>" +
+      '<div class="live-meta">' + tierTag(lot.tier) + (lot.platform ? '<span class="tag">' + esc(PLATFORM[lot.platform] || lot.platform) + "</span>" : "") + (lot.position ? '<span class="tag">' + esc(lot.position) + "</span>" : "") + "</div>" +
+      '<div class="stats"><div class="stat"><span>KDA</span><b>' + val(lot.kda) + '</b></div><div class="stat"><span>평균 딜</span><b>' + val(lot.avgDmg) + '</b></div>' +
+      '<div class="stat"><span>1회 점수</span><b>' + val(lot.prevScore) + '</b></div><div class="stat"><span>다음 최소</span><b>' + L.min + "</b></div></div>" +
+      '<div class="price"><div class="price-now"><span>' + (L.high == null ? "아직 입찰 없음" : "현재 최고가") + '</span><b class="num">' + (L.high == null ? L.start : L.high) + "</b> " +
+      (L.captainId ? "<em>" + esc(capName(L.captainId)) + "</em>" : "") + '</div><div class="timer" id="timer"><b class="num">–</b></div></div>' +
+      '<div class="bar" id="bar"><i></i></div>' +
+      '<div class="bids">' + L.bids.slice().reverse().map(function(b){ return "<span>" + esc(capName(b.captainId)) + " <b>" + b.amount + "</b></span>"; }).join("") + "</div>";
+    drawTimer();
+  }
+  function drawTimer(){
+    if (!S || !S.live) return;
+    var t = $("timer"), bar = $("bar"); if (!t || !bar) return;
+    var left = Math.max(0, S.live.deadline - (Date.now() + offset));
+    var sec = Math.ceil(left / 1000);
+    t.firstChild.textContent = sec;
+    var hot = left <= 5000;
+    t.className = "timer" + (hot ? " hot" : ""); bar.className = "bar" + (hot ? " hot" : "");
+    bar.firstChild.style.transform = "scaleX(" + Math.min(1, left / (S.config.bidSec * 1000)) + ")";
+  }
+
+  function renderTeams(){
+    var el = $("teams");
+    if (!S || !S.exists) { el.innerHTML = '<p class="muted">팀장이 정해지면 여기에 보여요</p>'; $("teamNote").textContent = ""; return; }
+    $("teamNote").textContent = S.captains.length + "팀 · 팀당 " + S.config.teamSize + "명";
+    el.innerHTML = S.captains.map(function(c){
+      var cls = "team" + (S.live && S.live.captainId === c.id ? " high" : "") + (S.me === c.id ? " mine" : "") + (S.gemTurn === c.id ? " turn" : "");
+      var slots = [];
+      for (var i = 0; i < S.config.teamSize - 1; i++) {
+        var p = c.picks[i];
+        slots.push(p ? "<li><span>" + esc(p.ign) + " " + tierTag(p.tier) + "</span><span>" + (p.gem ? "숨은 보석" : p.price) + "</span></li>" : '<li class="empty"><span>빈 자리</span><span></span></li>');
+      }
+      return '<article class="' + cls + '"><div class="team-h"><b>' + esc(c.teamName) + '</b><span class="pt num">' + c.remaining + " <small>포인트</small></span></div>" +
+        '<div class="team-sub">팀장 ' + esc(c.ign) + (S.phase === "done" || c.slotsLeft === 0 ? " · 보너스 +" + c.bonus : "") + "</div>" +
+        '<div class="ptbar"><i style="width:' + Math.round(c.remaining / S.config.budget * 100) + '%"></i></div><ul class="slots">' + slots.join("") + "</ul></article>";
+    }).join("");
+  }
+
+  function lotChip(l, buttons){
+    return '<span class="lot">' + esc(l.ign) + " " + tierTag(l.tier) + (l.avgDmg != null ? "<small>딜 " + esc(l.avgDmg) + "</small>" : "") + (buttons || "") + "</span>";
+  }
+  function renderLists(){
+    var exists = S && S.exists;
+    $("queueCard").hidden = !exists || S.phase !== "bidding";
+    $("unsoldCard").hidden = !exists || !(S.unsold && S.unsold.length);
+    $("resultCard").hidden = !exists || !S.summary || S.phase !== "done";
+    if (!exists) return;
+    $("queueNote").textContent = S.queue.length + "명";
+    $("queue").innerHTML = S.queue.length ? S.queue.map(function(l){
+      return lotChip(l, S.admin ? ' <button type="button" class="btn sm" data-act="open" data-lot="' + esc(l.id) + '">올리기</button><button type="button" class="btn sm warn" data-act="withdraw" data-lot="' + esc(l.id) + '">빼기</button>' : "");
+    }).join("") : '<p class="muted">대기 중인 매물이 없어요</p>';
+    $("unsoldNote").textContent = S.phase === "gems" ? "무료 지명" : "유찰 " + S.unsold.length + "명";
+    var myTurn = S.phase === "gems" && S.me && S.gemTurn === S.me;
+    $("unsold").innerHTML = S.unsold.map(function(l){
+      var b = "";
+      if (myTurn) b += ' <button type="button" class="btn sm main" data-act="gem" data-lot="' + esc(l.id) + '">데려가기</button>';
+      if (S.admin && S.phase === "gems" && S.gemTurn) b += ' <button type="button" class="btn sm" data-act="gemFor" data-lot="' + esc(l.id) + '">대신 지명</button>';
+      if (S.admin) b += '<button type="button" class="btn sm warn" data-act="withdraw" data-lot="' + esc(l.id) + '">빼기</button>';
+      return lotChip(l, b);
+    }).join("");
+    if (S.summary && S.phase === "done") {
+      $("result").innerHTML = '<div style="overflow-x:auto"><table><thead><tr><th>팀</th><th>팀원</th><th class="r">쓴 포인트</th><th class="r">남은 포인트</th><th class="r">보너스</th></tr></thead><tbody>' +
+        S.summary.teams.map(function(t){
+          return "<tr><td><b>" + esc(t.teamName) + "</b></td><td>" + esc(t.captain) + " · " + t.members.map(function(x){ return esc(x.ign); }).join(" · ") + '</td><td class="r num">' + t.spent + '</td><td class="r num">' + t.remaining + '</td><td class="r num"><b>+' + t.bonus + "</b></td></tr>";
+        }).join("") + "</tbody></table></div>" +
+        (S.summary.bench.length ? '<p class="muted" style="margin-top:10px;">교체 선수: ' + S.summary.bench.map(function(x){ return esc(x.ign); }).join(" · ") + "</p>" : "");
+    }
+  }
+
+  function renderBidbox(){
+    var box = $("bidbox");
+    var me = S && S.exists && S.me ? S.captains.find(function(c){ return c.id === S.me; }) : null;
+    if (!me || S.phase !== "bidding") { box.hidden = true; return; }
+    box.hidden = false;
+    var L = S.live;
+    $("bidState").innerHTML = "남은 <b>" + me.remaining + "</b>포인트 · 빈 자리 <b>" + me.slotsLeft + "</b>";
+    var why = !L ? "매물이 올라오면 입찰할 수 있어요" : me.slotsLeft <= 0 ? ERR.team_full : L.captainId === me.id ? ERR.already_high : L.min > me.remaining ? "남은 포인트로는 입찰할 수 없어요" : "";
+    if (why) { $("bidButtons").innerHTML = '<span class="muted">' + esc(why) + "</span>"; return; }
+    var steps = [0, 5, 10].map(function(d){ return L.min + d; }).filter(function(a, i){ return a <= me.remaining || i === 0; });
+    $("bidButtons").innerHTML = steps.map(function(a, i){
+      return '<button type="button" class="btn' + (i === 0 ? " main" : "") + '" data-act="bid" data-amount="' + a + '"' + (a > me.remaining ? " disabled" : "") + ">" + a + "</button>";
+    }).join("") + '<input class="input" id="bidCustom" type="number" inputmode="numeric" min="' + L.min + '" max="' + me.remaining + '" aria-label="직접 입력" placeholder="직접" style="flex:0 1 96px;">' +
+      '<button type="button" class="btn" data-act="bidCustom">입찰</button>';
+  }
+
+  var keepFocus = ["roster", "subLine", "proxyAmount", "resetWord", "bidCustom", "hostKey", "proxyCap"];
+  function renderHost(){
+    $("hostGate").hidden = !(hostMode && !(S && S.admin));
+    var card = $("hostCard");
+    card.hidden = !(S && S.admin);
+    if (card.hidden) return;
+    $("hostSetup").hidden = !!S.exists;
+    $("hostRun").hidden = !S.exists;
+    if (!S.exists) return;
+    var sel = $("proxyCap"), cur = sel.value;
+    sel.innerHTML = S.captains.map(function(c){ return '<option value="' + esc(c.id) + '">' + esc(c.teamName) + " (" + c.remaining + ")</option>"; }).join("");
+    if (cur) sel.value = cur;
+    var base = location.origin + location.pathname;
+    $("links").innerHTML = (S.tokens || []).map(function(t){
+      return '<div class="row" style="margin-bottom:6px;"><b style="flex:0 0 110px;">' + esc(t.ign) + '</b><span class="link" style="flex:1 1 200px;">' + esc(base + "#c=" + t.token) + '</span><button type="button" class="btn sm" data-act="copy" data-text="' + esc(base + "#c=" + t.token) + '">복사</button></div>';
+    }).join("");
+    $("plan").innerHTML = '<div style="overflow-x:auto"><table><thead><tr><th>팀명</th><th>슬롯 (1번 −4 … 4번 −1)</th><th>플랫폼</th><th class="r">보너스</th></tr></thead><tbody>' +
+      (S.registerPlan || []).map(function(p){
+        var plat = p.mixed ? "섞임" : p.platform ? (PLATFORM[p.platform] || p.platform) : "없음";
+        return "<tr><td>" + esc(p.teamName) + ' <button type="button" class="btn sm" data-act="rename" data-cap="' + esc(p.captainId) + '">이름</button></td><td>' + (p.slots || []).map(function(m, i){
+          return '<span class="slot">' + (i && S.phase === "done" ? '<button type="button" class="btn sm" data-act="slotUp" data-cap="' + esc(p.captainId) + '" data-i="' + i + '" aria-label="' + esc(m.ign) + ' 한 칸 위로">▲</button> ' : "") +
+            "<b>" + m.slot + "번</b> " + esc(m.ign) + (m.captain ? " (팀장)" : " (" + m.price + ")") + "</span>";
+        }).join("") + (p.edited ? '<span class="muted"> 고친 순서</span>' : "") + (p.full ? "" : " (덜 참)") + "</td><td>" + esc(plat) + '</td><td class="r num">+' + p.bonus + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+  }
+
+  function render(){
+    // 입력 중인 칸이 있으면 진행자 영역은 다시 그리지 않는다(글자가 날아가지 않게)
+    var active = document.activeElement && keepFocus.indexOf(document.activeElement.id) >= 0;
+    renderChips(); renderLive(); renderTeams(); renderLists();
+    if (!(active && document.activeElement.id === "bidCustom")) renderBidbox();
+    if (!active || !(S && S.admin)) renderHost();
+  }
+
+  // ── 참가자 목록 읽기 ── 닉, 플랫폼, 티어(또는 팀장), KDA, 평딜, 포지션, 1회 점수
+  function parseLine(line){
+    var p = line.split(/\t|,/).map(function(x){ return x.trim(); });
+    if (!p[0]) return null;
+    var plat = /카카오|kakao/i.test(p[1] || "") ? "kakao" : /스팀|steam/i.test(p[1] || "") ? "steam" : "";
+    var tier = (p[2] || "").toUpperCase();
+    var captain = /팀장|CAPTAIN|^I$/i.test(p[2] || "");
+    return { captain: captain, player: { ign: p[0], platform: plat, tier: captain ? "" : tier, kda: p[3] || "", avgDmg: p[4] || "", position: p[5] || "", prevScore: p[6] || "" } };
+  }
+  function parseRoster(text){
+    var rows = text.split(/\r?\n/).map(parseLine).filter(Boolean);
+    return { players: rows.map(function(r){ return r.player; }), captains: rows.filter(function(r){ return r.captain; }).map(function(r){ return r.player.ign; }) };
+  }
+  // 신청 폼으로 들어온 참가자(대기 · 취소 제외)를 목록 칸에 채운다. 티어 칸은 비워 둔다 — T1 · T2 · T3 · 팀장은 진행자가 적는다
+  function loadApplicants(){
+    var msg = $("hostMsg");
+    fetch(GAPI + "/api/killrace/apply", { headers: { "x-admin-key": adminKey }, cache: "no-store" })
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+      .then(function(d){
+        var rows = (d.list || []).filter(function(x){ return x.status !== "cancelled" && !x.waiting; });
+        $("roster").value = rows.map(function(x){
+          return [x.ign, x.platform === "kakao" ? "카카오" : "스팀", "", x.kda == null ? "" : x.kda, x.avgDamage == null ? "" : x.avgDamage, "", ""].join(", ");
+        }).join(String.fromCharCode(10));
+        msg.className = "msg ok";
+        msg.textContent = rows.length ? rows.length + "명을 불러왔어요. 세 번째 칸에 T1 · T2 · T3 나 팀장을 적어 주세요" : "신청자가 아직 없어요";
+      })
+      .catch(function(){ msg.className = "msg"; msg.textContent = "신청자를 못 불러왔어요. 잠시 뒤 다시 눌러 주세요"; });
+  }
+  function demoRoster(){
+    var lines = [];
+    var tiers = ["T1","T1","T1","T2","T2","T2","T2","T2","T3","T3","T3","T3"];
+    var pos = ["돌격","지원","저격","오더"];
+    for (var c = 1; c <= 3; c++) lines.push("연습팀장" + c + ", 스팀, 팀장, " + (1 + c / 10).toFixed(1) + ", " + (150 + c * 10) + ", 오더, ");
+    tiers.forEach(function(t, i){ lines.push("연습선수" + (i + 1) + ", 스팀, " + t + ", " + (4 - i * 0.2).toFixed(1) + ", " + (520 - i * 25) + ", " + pos[i % 4] + ", " + (i % 3 === 0 ? 30 + i : "")); });
+    return lines.join("\n");
+  }
+
+  // ── 누르기 ──
+  document.addEventListener("click", function(ev){
+    var b = ev.target.closest("[data-act]"); if (!b) return;
+    var act = b.getAttribute("data-act"), lot = b.getAttribute("data-lot");
+    if (act === "hostLogin") {
+      adminKey = $("hostKey").value.trim(); if (!adminKey) return;
+      refresh().then(function(){
+        if (S && S.admin) { store.set("kn_host", adminKey); $("hostGateMsg").textContent = ""; }
+        else { adminKey = null; $("hostGateMsg").textContent = ERR.unauthorized; }
+        render();
+      });
+      return;
+    }
+    if (act === "bid" || act === "bidCustom") {
+      var amount = act === "bid" ? Number(b.getAttribute("data-amount")) : Number(($("bidCustom") || {}).value);
+      if (!Number.isInteger(amount)) { $("bidMsg").textContent = ERR.bad_amount; return; }
+      b.disabled = true;
+      call("/api/killrace/auction/bid", { amount: amount }).then(function(r){
+        $("bidMsg").className = "msg" + (r.ok ? " ok" : "");
+        $("bidMsg").textContent = r.ok ? amount + " 입찰했어요" : errText(r.body && r.body.error);
+        return refresh();
+      });
+      return;
+    }
+    if (act === "gem") { call("/api/killrace/auction/gem", { lotId: lot }).then(function(r){ if (!r.ok) alert(errText(r.body && r.body.error)); return refresh(); }); return; }
+    if (act === "copy") { var text = b.getAttribute("data-text"); if (navigator.clipboard) navigator.clipboard.writeText(text).then(function(){ b.textContent = "복사했어요"; }); return; }
+    if (act === "demo") { $("roster").value = demoRoster(); return; }
+    if (act === "create") { var r0 = parseRoster($("roster").value); admin("create", { players: r0.players, captains: r0.captains }); return; }
+    if (act === "open") { admin("open", lot ? { lotId: lot } : {}); return; }
+    if (act === "withdraw") { if (confirm("이 선수를 매물에서 뺄까요? 이미 뽑혔다면 포인트를 돌려줘요")) admin("withdraw", { lotId: lot }); return; }
+    if (act === "undo") { if (confirm("방금 낙찰을 취소할까요? 포인트를 돌려주고 매물을 다시 올려요")) admin("undo"); return; }
+    if (act === "bidFor") { admin("bidFor", { captainId: $("proxyCap").value, amount: Number($("proxyAmount").value) }); return; }
+    if (act === "gemFor") { admin("gemFor", { captainId: S.gemTurn, lotId: lot }); return; }
+    if (act === "addLot") { var one = parseLine($("subLine").value || ""); if (one) admin("addLot", { player: one.player }).then(function(r){ if (r.ok) $("subLine").value = ""; }); return; }
+    if (act === "rename") { var name = prompt("새 팀명을 적어 주세요"); if (name) admin("rename", { captainId: b.getAttribute("data-cap"), teamName: name }); return; }
+    if (act === "startGems") { if (confirm("입찰을 끝내고 숨은 보석 지명으로 넘어갈까요? 올리지 않은 매물도 지명 대상이 돼요")) admin("startGems"); return; }
+    if (act === "finish") { if (confirm("경매를 마감할까요?")) admin("finish"); return; }
+    if (act === "reset") { admin("reset", { confirm: $("resetWord").value.trim() }).then(function(r){ if (r.ok) $("resetWord").value = ""; }); return; }
+    if (act === "slotUp") {
+      var plan = (S.registerPlan || []).filter(function(p){ return p.captainId === b.getAttribute("data-cap"); })[0];
+      var i = Number(b.getAttribute("data-i"));
+      if (!plan || !(i > 0)) return;
+      var order = plan.igns.slice(); var tmp = order[i - 1]; order[i - 1] = order[i]; order[i] = tmp;
+      admin("slots", { captainId: plan.captainId, order: order }); return;
+    }
+    if (act === "applicants") { loadApplicants(); return; }
+    if (act === "register") {
+      b.disabled = true; $("registerResult").textContent = "팀 등록을 보내는 중이에요. 한 팀에 몇 초씩 걸려요";
+      admin("register").then(function(r){
+        b.disabled = false;
+        if (!r.ok) { $("registerResult").textContent = errText(r.body && r.body.error); return; }
+        $("registerResult").innerHTML = "<ul class=\"slots\">" + r.body.results.map(function(x){
+          return "<li><span>" + esc(x.teamName) + "</span><span>" + (x.ok ? "등록했어요" : esc(x.message || ERR[x.code] || "등록하지 못했어요")) + "</span></li>";
+        }).join("") + "</ul>";
+      });
+      return;
+    }
+    admin(act);
+  });
+
+  refresh();
+  setInterval(refresh, POLL_MS);
+  setInterval(drawTimer, 200);
+})();
+</script>
+</body>
+</html>

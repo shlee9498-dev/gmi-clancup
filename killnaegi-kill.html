@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>킬내기 2회 | 우리 팀 +1킬</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F5F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* 킬내기 전용 라이트 테마 — killnaegi.html 과 같은 토큰. 게임 중에 한 손으로 누르는 화면이라 버튼 하나를 크게 둔다 */
+:root{
+  --bg:#F5F6F8; --card:#FFFFFF; --field:#F0F2F5; --line:#E3E6EB;
+  --ink:#172033; --ink-dim:#4E5869; --ink-faint:#6B7484;
+  --accent:#2F6FEB; --accent-ink:#1D4FB8; --red:#D93A2B; --sun:#F59E0B;
+  --display:'Saira Condensed','Pretendard Variable',sans-serif;
+  --body:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
+button{font-family:inherit;color:inherit;}
+.wrap{max-width:480px;width:100%;margin:0 auto;padding:16px 16px calc(16px + env(safe-area-inset-bottom));flex:1;display:flex;flex-direction:column;gap:14px;}
+.team{font-weight:800;font-size:22px;line-height:1.2;overflow-wrap:anywhere;}
+.event{font-size:13px;color:var(--ink-faint);}
+.count{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px 16px;text-align:center;}
+.count b{display:block;font-family:var(--display);font-weight:800;font-size:96px;line-height:1;color:var(--ink-faint);font-variant-numeric:tabular-nums;}
+.count span{font-size:13.5px;color:var(--ink-faint);}
+.plus{flex:1;min-height:200px;border:0;border-radius:24px;background:var(--accent);color:#fff;font-family:var(--display);font-weight:800;font-size:64px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+.plus:active{background:var(--accent-ink);}
+.plus:disabled{background:#AEB6C2;cursor:not-allowed;}
+.minus{min-height:56px;border:1.5px solid var(--line);border-radius:999px;background:#fff;font-weight:700;font-size:16px;cursor:pointer;touch-action:manipulation;}
+.plus:focus-visible,.minus:focus-visible{outline:3px solid var(--sun);outline-offset:2px;}
+.msg{min-height:22px;font-size:14px;color:var(--red);text-align:center;}
+.note{font-size:13px;color:var(--ink-faint);text-align:center;}
+.note a{color:var(--ink-dim);}
+[hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div>
+    <div class="team" id="team">불러오는 중이에요</div>
+    <div class="event" id="event"></div>
+  </div>
+  <div class="count" aria-live="polite"><b id="count">0</b><span>이번 판 잠정 킬 · 점수판에 회색으로 보여요</span></div>
+  <button type="button" class="plus" id="plus" disabled>+1킬</button>
+  <button type="button" class="minus" id="minus" disabled>잘못 눌렀어요 −1</button>
+  <p class="msg" id="msg" role="status" aria-live="polite"></p>
+  <p class="note">판이 끝나고 전적이 올라오면 진짜 점수로 바뀌고 이 숫자는 0으로 돌아가요<br><a href="killnaegi-board.html">점수판 보기</a></p>
+</main>
+
+<script>
+/* 킬내기 2회 팀별 +1킬 — 주소의 # 뒤 토큰이 곧 우리 팀이다(로그인 없음). 토큰은 요청 본문으로만 보낸다.
+ * 여기서 누른 값은 잠정이라 총점에 들어가지 않는다. 판이 확정되면 서버가 0 으로 돌린다. */
+(function(){
+  "use strict";
+  var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
+  var token = (location.hash.match(/t=([0-9a-zA-Z_-]+)/) || [])[1] || "";
+  var $ = function(id){ return document.getElementById(id); };
+  var ERR = { too_fast: "", too_many: "이번 판에 더는 못 올려요. 진행자에게 알려 주세요", nothing_to_undo: "뺄 킬이 없어요", bad_token: "주소가 맞지 않아요. 진행자에게 다시 받아 주세요" };
+  var sending = false;
+
+  function send(delta){
+    if (sending && delta !== 0) return Promise.resolve();
+    if (delta !== 0) sending = true;
+    return fetch(GAPI + "/api/killrace/live", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: token, delta: delta }) })
+      .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, body: j }; }); })
+      .then(function(r){
+        var code = r.body && r.body.error && r.body.error.code;
+        if (r.body && r.body.count != null) $("count").textContent = r.body.count;
+        if (r.ok) {
+          $("team").textContent = r.body.team; $("event").textContent = r.body.event || "";
+          $("plus").disabled = false; $("minus").disabled = false;
+          if (delta !== 0) $("msg").textContent = "";
+        } else if (code === "bad_token") {
+          $("team").textContent = "주소를 확인해 주세요"; $("plus").disabled = true; $("minus").disabled = true; $("msg").textContent = ERR.bad_token;
+        } else if (delta !== 0) $("msg").textContent = ERR[code] != null ? ERR[code] : "안 올라갔어요. 한 번 더 눌러 주세요";
+      })
+      .catch(function(){ if (delta !== 0) $("msg").textContent = "안 올라갔어요. 한 번 더 눌러 주세요"; })
+      .then(function(){ if (delta !== 0) sending = false; });
+  }
+  if (!token) { $("team").textContent = "주소를 확인해 주세요"; $("msg").textContent = ERR.bad_token; return; }
+  $("plus").addEventListener("click", function(){ send(1); });
+  $("minus").addEventListener("click", function(){ send(-1); });
+  send(0);
+  setInterval(function(){ if (!sending) send(0); }, 10000);
+})();
+</script>
+</body>
+</html>
