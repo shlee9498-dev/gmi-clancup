@@ -61,7 +61,7 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
 <script>
 /* 킬내기 2회 방송 오버레이 — 점수판과 같은 서버 값(/api/killrace/board)을 5초마다 받아 세로 순위표로 그린다.
  * 상시 오버레이 「팀 킬 현황」 — 순위 · 팀명 · 확정 점수 · 확정 킬 합계 · 이번 판 잠정 킬 · 순위 변동. 개인 기록은 killnaegi-stats.html(전환용 전체 화면).
- * 회색 숫자 = 팀이 누른 잠정 킬(총점에 안 들어간다). 순위가 바뀌면 3분 동안 화살표, 점수가 오르면 「○팀 +14」 를 6초 띄운다.
+ * 회색 숫자 = 팀이 누른 잠정 킬 · 「스샷 +n」 = 결과 사진에서 읽은 잠정 킬(둘 다 총점에 안 들어간다). 순위가 바뀌면 3분 동안 화살표, 점수가 오르면 「○팀 +14」 를 6초 띄운다.
  * 계좌 · 디스코드 닉 같은 것은 이 응답에 아예 없다. */
 (function(){
   "use strict";
@@ -88,7 +88,8 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
         ? '<span class="move ' + (x.prevRank > x.rank ? "up" : "down") + '">' + (x.prevRank > x.rank ? "▲" : "▼") + Math.abs(x.prevRank - x.rank) + "</span>" : "";
       return '<div class="row' + (x.rank === 1 ? " first" : "") + '"><div class="rk">' + x.rank + '</div>' +
         '<div style="min-width:0;"><div class="name">' + esc(x.name) + move + '</div><div class="meta"><b>킬 ' + x.kills + "</b> · " + x.games + "판 · 치킨 " + x.chickens + "</div></div>" +
-        '<div class="score"><span class="total">' + x.total + "</span>" + (x.provisional ? '<span class="prov">+' + x.provisional + "</span>" : "") + "</div></div>";
+        '<div class="score"><span class="total">' + x.total + "</span>" + (x.provisional ? '<span class="prov">+' + x.provisional + "</span>" : "") +
+          (x.shot ? '<span class="prov">스샷 +' + x.shot.kills + "</span>" : "") + "</div></div>";
     }).join("");
     var last = B.run && B.run.ok && B.run.at ? B.run.at : B.updatedAt ? Date.parse(B.updatedAt) : null;
     $("footL").innerHTML = B.boostAt == null || t >= B.event.end ? "회색 숫자는 잠정 킬"

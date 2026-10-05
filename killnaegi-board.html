@@ -146,6 +146,7 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
 /* 킬내기 2회 점수판 — 점수 · 순위 · 역전까지 몇 점인지는 전부 서버(mri-academy killrace.cjs · killrace-live.cjs)가 계산한다.
  * 이 화면은 받은 값을 그리기만 한다. 5초마다 다시 받는다. 끝까지 공개한다(가리는 시간 없음 — 지휘 10/4 개정).
  * 회색 「잠정 +n」 은 팀이 +1킬 버튼으로 누른 값이다. 총점에는 들어가지 않고 그 판이 확정되면 0 으로 돌아간다.
+ * 회색 「스샷 잠정」 은 봇이 팀배정 채널 결과 화면 사진에서 읽은 값이다(서버 shot 칸). 총점에 안 들어가고 같은 판 전적이 오면 사라진다.
  * 진행자(?host=1 + 운영 키): 「지금 집계」 · 자동 집계 켜고 끄기 · 이탈 −10 · 이 판 무효(낙하 전 튕김) · 핵 사망 무효 · 팀별 +1킬 주소. */
 (function(){
   "use strict";
@@ -248,7 +249,8 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
             '<span class="rk">' + t.rank + '</span>' +
             '<span><span class="name">' + esc(t.name) + move + '</span><span class="sub" style="display:block;">' + sub + "</span></span>" +
             '<span class="score"><span class="total' + (t.total < 0 ? " minus" : "") + '">' + t.total + "</span>" +
-              (t.provisional ? '<span class="prov">잠정 +' + t.provisional + "킬</span>" : "") + "</span>" +
+              (t.provisional ? '<span class="prov">잠정 +' + t.provisional + "킬</span>" : "") +
+              (t.shot ? '<span class="prov">스샷 잠정 ' + (t.shot.rank ? t.shot.rank + "위 " : "") + t.shot.kills + "킬 딜 " + t.shot.damage + "</span>" : "") + "</span>" +
           "</button>" +
           (isOpen ? '<div class="detail">' + chaseLine(t) +
             '<p class="members">' + t.members.map(function(m){ return m.slot + "번 " + esc(m.ign); }).join(" · ") + "</p>" + rows + "</div>" : "") +
