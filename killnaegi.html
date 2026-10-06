@@ -136,6 +136,29 @@ footer a{color:var(--ink-dim);}
 .done{background:var(--accent-soft);border-radius:var(--r-md);padding:14px;font-size:15px;font-weight:700;color:var(--accent-ink);line-height:1.6;}
 .done span{display:block;font-size:13px;font-weight:500;color:var(--ink-dim);margin-top:2px;}
 @media(max-width:340px){.acct-row{grid-template-columns:1fr;}}
+
+/* ── 선수 소개 4칸 · 내 신청 · 진행자 모아 보기(10/7 · mri-academy 계약 §1.15) ── */
+.intro-box{margin-bottom:10px;}
+.intro-box fieldset{border:none;margin:0 0 10px;padding:0;min-width:0;}
+.intro-box legend{padding:0;}
+.seg span{white-space:nowrap;}
+.lead-note{font-size:13px;color:var(--ink-dim);margin:-6px 0 12px;}
+.mine-body{margin-top:12px;}
+.h-sum{font-size:13.5px;color:var(--ink-dim);margin-bottom:10px;}
+.h-sum b{color:var(--ink);font-variant-numeric:tabular-nums;}
+.h-miss{background:var(--red-soft);border-radius:var(--r-md);padding:10px 12px;margin-bottom:10px;font-size:13px;line-height:1.7;}
+.h-miss b{color:var(--red);}
+.h-row{border-top:1px solid var(--line);padding:10px 2px;font-size:13.5px;}
+.h-row:first-child{border-top:none;}
+.h-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;}
+.h-top .no{font-weight:800;color:var(--ink-faint);font-variant-numeric:tabular-nums;min-width:20px;}
+.h-top .ign{font-weight:800;color:var(--ink);}
+.h-tag{font-size:11.5px;font-weight:700;border-radius:999px;padding:1px 8px;background:var(--field);color:var(--ink-dim);}
+.h-tag.pos{background:var(--accent-soft);color:var(--accent-ink);}
+.h-line{color:var(--ink-dim);margin-top:2px;}
+.h-line b{color:var(--ink);font-weight:600;}
+.h-meta{font-size:12px;color:var(--ink-faint);margin-top:2px;}
+.h-none{color:var(--red);font-weight:600;margin-top:2px;}
 </style>
 </head>
 <body>
@@ -158,6 +181,7 @@ footer a{color:var(--ink-dim);}
   <section class="card" id="apply" aria-labelledby="applyTitle">
     <h2 class="card-h" id="applyTitle">솔로 신청</h2>
     <p class="card-sub">혼자 신청해요. 스팀으로만 진행하고 팀은 대회 날 20:30 경매로 정해져요</p>
+    <p class="lead-note">이미 신청했다면 아래 <a href="#mine">내 신청</a>에서 선수 소개만 채우면 돼요</p>
 
     <form id="form" novalidate>
       <div class="field"><label class="label" for="discord">디스코드 닉 <span class="req">*</span></label>
@@ -167,6 +191,8 @@ footer a{color:var(--ink-dim);}
         <div class="ign-row"><input type="text" class="input" id="ign" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="스팀 배그 닉 · 대소문자까지 똑같이">
           <button type="button" class="btn btn-soft" id="lookupBtn">전적 조회</button></div>
         <div class="found" id="found" role="status" aria-live="polite"></div></div>
+
+      <div class="acct intro-box" id="introNew"></div>
 
       <div class="acct">
         <div class="acct-h">상금 받을 계좌 <span class="req">*</span></div>
@@ -182,6 +208,43 @@ footer a{color:var(--ink-dim);}
       <div class="msg" id="msg" role="status" aria-live="polite"></div>
     </form>
     <div class="done" id="done" hidden></div>
+  </section>
+
+  <section class="card" id="mine" aria-labelledby="mineTitle">
+    <h2 class="card-h" id="mineTitle">내 신청</h2>
+    <p class="card-sub">이미 신청했다면 여기서 선수 소개만 채워요. 계좌는 다시 묻지 않아요</p>
+    <form id="mineForm" novalidate>
+      <div class="row2">
+        <div class="field"><label class="label" for="mDiscord">디스코드 닉</label>
+          <input type="text" class="input" id="mDiscord" maxlength="40" autocomplete="off" placeholder="신청할 때 쓴 닉"></div>
+        <div class="field"><label class="label" for="mIgn">스팀 닉</label>
+          <input type="text" class="input" id="mIgn" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="신청할 때 쓴 닉"></div>
+      </div>
+      <button type="submit" class="btn btn-line" id="mineBtn">내 신청 불러오기</button>
+      <div class="msg" id="mineMsg" role="status" aria-live="polite"></div>
+    </form>
+    <div class="mine-body" id="mineBody" hidden>
+      <div class="done" id="mineHead"></div>
+      <div class="acct intro-box" id="introMine" style="margin-top:10px;"></div>
+      <button type="button" class="btn btn-main" id="mineSave">소개 저장하기</button>
+      <div class="msg" id="mineSaveMsg" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="card" id="hostGate" hidden aria-labelledby="hostGateTitle">
+    <h2 class="card-h" id="hostGateTitle">진행자</h2>
+    <label class="label" for="hostKey">운영 키</label>
+    <div class="ign-row"><input class="input" id="hostKey" type="password" autocomplete="off">
+      <button type="button" class="btn btn-soft" id="hostGo">열기</button></div>
+    <p class="msg" id="hostGateMsg" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="hostIntro" hidden aria-labelledby="hostIntroTitle">
+    <h2 class="card-h" id="hostIntroTitle">선수 소개 모아 보기</h2>
+    <p class="h-sum" id="hostSum"></p>
+    <div id="hostMiss"></div>
+    <div id="hostRows"></div>
+    <button type="button" class="btn btn-soft" id="hostReload" style="margin-top:10px;">새로고침</button>
   </section>
 
   <section class="card" aria-labelledby="peopleTitle">
@@ -269,14 +332,49 @@ footer a{color:var(--ink-dim);}
  * 전적 조회는 기존 /api/bpi-suggest-auto 를 쓴다 — 닉을 다 치고 0.9초 쉬면 한 번, 같은 닉은 다시 묻지 않는다.
  * 2회는 스팀 전용이다(오너 10/4 밤). 플랫폼 칸은 없고 조회도 스팀만 한다. 서버도 스팀이 아닌 값은 거절한다.
  * 10/5 번외가 2회가 되면서 이 폼의 대회(10/8)는 3회다(10/6 지휘). 화면 글자만 3회로 바꿨고, 서버 저장 줄 이름(killrace:apply:r2)은
- * 그대로다 — 이미 들어온 신청이 그 줄에 있어 이름을 바꾸면 사라진다. r2 는 「이 폼의 신청 줄」이라는 이름표일 뿐이다. */
+ * 그대로다 — 이미 들어온 신청이 그 줄에 있어 이름을 바꾸면 사라진다. r2 는 「이 폼의 신청 줄」이라는 이름표일 뿐이다.
+ * 선수 소개 4칸(10/7 · 계약 §1.15): 주 포지션 · 성향 · 포부(필수) · 소개 카드 이름(선택). 주무기 칸은 두지 않는다(지휘 10/7 정정). 새 신청은 신청과 같이 보내고,
+ * 이미 신청한 사람은 「내 신청」(디스코드 닉 + 스팀 닉)으로 불러와 소개만 저장한다(/api/killrace/apply/mine · /intro). 계좌는 다시 묻지도 그리지도 않는다.
+ * ?host=1 + 운영 키면 「선수 소개 모아 보기」(신청자별 4칸 · 안 채운 사람)를 연다 — 키는 다른 킬내기 화면과 같은 kn_host(세션 저장소). */
 var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
 var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
 var BANKS = ["국민","신한","우리","하나","농협","기업","카카오뱅크","토스뱅크","케이뱅크","새마을","우체국","신협","수협","부산","대구","경남","광주","전북","SC제일","산업"];
+var POSITIONS = ["오더","돌격","저격","서포트"];
+var STYLES = ["공격적","밸런스","안정적"];
 var $ = function (id) { return document.getElementById(id); };
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]; }); }
 
 var closed = false, lastLookup = "", lookupTimer = null, lookupSeq = 0;
+
+/* ── 선수 소개 4칸 — 새 신청(n) · 내 신청(m) 두 곳에 같은 칸을 그린다 ── */
+function segField(p, key, label, list) {
+  return '<fieldset><legend class="label">' + label + ' <span class="req">*</span></legend><div class="seg">' +
+    list.map(function (x) { return '<label><input type="radio" name="' + p + key + '" value="' + x + '"><span>' + x + "</span></label>"; }).join("") +
+    "</div></fieldset>";
+}
+function introFields(p) {
+  return '<div class="acct-h" style="margin-bottom:2px;">선수 소개</div><p class="note" style="margin-bottom:8px;">경매 때 소개 카드에 나가요</p>' +
+    segField(p, "Pos", "주 포지션", POSITIONS) + segField(p, "Style", "성향", STYLES) +
+    '<div class="field"><label class="label" for="' + p + 'Ambition">포부 <span class="req">*</span></label>' +
+    '<input type="text" class="input" id="' + p + 'Ambition" maxlength="30" autocomplete="off" placeholder="예: 오늘 킬 1등 해요"></div>' +
+    '<div class="field" style="margin-bottom:0;"><label class="label" for="' + p + 'Card">소개 카드 이름 <span class="opt">비우면 디스코드 닉으로 나가요</span></label>' +
+    '<input type="text" class="input" id="' + p + 'Card" maxlength="12" autocomplete="off" placeholder="카드에 쓸 이름"></div>';
+}
+function picked(p, key) { var c = document.querySelector('input[name="' + p + key + '"]:checked'); return c ? c.value : ""; }
+function pick(p, key, value) { Array.prototype.forEach.call(document.querySelectorAll('input[name="' + p + key + '"]'), function (r) { r.checked = r.value === value; }); }
+function readIntro(p) {
+  return { position: picked(p, "Pos"), style: picked(p, "Style"), ambition: $(p + "Ambition").value.trim(), cardName: $(p + "Card").value.trim() };
+}
+function fillIntro(p, v) {
+  v = v || {};
+  pick(p, "Pos", v.position); pick(p, "Style", v.style);
+  $(p + "Ambition").value = v.ambition || ""; $(p + "Card").value = v.cardName || "";
+}
+function introMiss(v) { return !v.position ? "no_position" : !v.style ? "no_style" : !v.ambition ? "no_ambition" : ""; }
+function post(path, body) {
+  return fetch(GAPI + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+    .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d || {} }; }); });
+}
 
 function setFound(text, kind) { var el = $("found"); el.textContent = text; el.className = "found" + (kind ? " " + kind : ""); }
 function lookup(force) {
@@ -308,8 +406,15 @@ var ERR = {
   bad_account: "계좌번호를 다시 봐 주세요",
   no_holder: "예금주를 적어 주세요",
   no_agree: "계좌 안내에 체크해 주세요",
-  dup_discord: "이미 신청한 디스코드 닉이에요. 바꿀 게 있으면 디스코드로 알려 주세요",
-  dup_ign: "이미 신청한 스팀 닉이에요. 바꿀 게 있으면 디스코드로 알려 주세요",
+  dup_discord: "이미 신청한 디스코드 닉이에요. 아래 「내 신청」에서 선수 소개만 채우면 돼요",
+  dup_ign: "이미 신청한 스팀 닉이에요. 아래 「내 신청」에서 선수 소개만 채우면 돼요",
+  no_position: "주 포지션을 골라 주세요",
+  no_style: "성향을 골라 주세요",
+  no_ambition: "포부를 적어 주세요",
+  long_ambition: "포부는 30자까지 적을 수 있어요",
+  long_card_name: "카드 이름은 12자까지 적을 수 있어요",
+  not_found: "그 닉으로 된 신청을 못 찾았어요. 신청할 때 쓴 디스코드 닉과 스팀 닉을 그대로 적어 볼까요?",
+  intro_closed: "마감이 지나서 소개를 더 고칠 수 없어요. 바꿀 게 있으면 디스코드로 알려 주세요",
   ign_not_found: "스팀에서 그 닉을 못 찾았어요. 대소문자까지 똑같은지 봐 주세요",
   closed: "신청이 마감됐어요. 디스코드 신청 채널에 남겨 주세요",
   too_many_requests: "잠깐 몰렸어요. 1분 뒤에 다시 보내 주세요"
@@ -322,10 +427,10 @@ function submit(e) {
   var body = {
     discord: $("discord").value.trim(), ign: $("ign").value.trim(), platform: "steam",
     bank: $("bank").value, accountNo: $("accountNo").value.replace(/[^0-9]/g, ""), holder: $("holder").value.trim(),
-    agree: $("agree").checked
+    agree: $("agree").checked, intro: readIntro("n")
   };
-  var miss = !body.discord ? "no_discord" : !body.ign || /\s/.test(body.ign) ? "no_ign"
-    : !body.bank ? "no_bank" : body.accountNo.length < 8 ? "bad_account" : !body.holder ? "no_holder" : !body.agree ? "no_agree" : "";
+  var miss = !body.discord ? "no_discord" : !body.ign || /\s/.test(body.ign) ? "no_ign" : introMiss(body.intro)
+    || (!body.bank ? "no_bank" : body.accountNo.length < 8 ? "bad_account" : !body.holder ? "no_holder" : !body.agree ? "no_agree" : "");
   if (miss) { setMsg(ERR[miss], true); return; }
   var btn = $("submitBtn");
   btn.disabled = true; btn.textContent = "보내는 중"; setMsg("");
@@ -336,7 +441,13 @@ function submit(e) {
       if (!res.ok || !res.d.ok) {
         var code = res.d && res.d.error;
         // 이미 신청된 닉이면 다시 누를 일이 아니다 — 잠근 채로 둔다
-        if (code === "dup_discord" || code === "dup_ign") { btn.textContent = "신청돼 있어요"; setMsg(ERR[code]); return; }
+        if (code === "dup_discord" || code === "dup_ign") {
+          btn.textContent = "신청돼 있어요"; setMsg(ERR[code]);
+          if (!$("mDiscord").value) $("mDiscord").value = body.discord;            // 「내 신청」에 닉을 옮겨 두고 그쪽으로 보낸다
+          if (!$("mIgn").value) $("mIgn").value = body.ign;
+          $("mine").scrollIntoView();
+          return;
+        }
         retry(ERR[code] || "신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요"); return;
       }
       var d = res.d, done = $("done");
@@ -368,9 +479,97 @@ function load() {
   }).catch(function () { $("peopleSub").textContent = "명단을 못 불러왔어요. 신청은 그대로 할 수 있어요"; });
 }
 
+/* ── 내 신청 — 디스코드 닉 + 스팀 닉으로 불러와 소개만 저장한다(계좌는 다시 묻지도 그리지도 않는다) ── */
+var who = null;
+function setMine(id, text, bad) { var el = $(id); el.textContent = text; el.style.color = bad ? "var(--red)" : "var(--ink)"; }
+function showMine(d) {
+  $("mineHead").innerHTML = (d.waiting
+    ? esc(d.ign) + " 님은 대기 " + (d.order - d.cap) + "번이에요"
+    : esc(d.ign) + " 님 신청 · " + d.order + "번째예요") +
+    "<span>" + (d.done ? "소개가 다 채워져 있어요. 고칠 게 있으면 고치고 다시 저장해요" : "아래 선수 소개를 채우고 저장해 주세요") + "</span>";
+  fillIntro("m", d.intro);
+  $("mineBody").hidden = false;
+}
+function mineLoad(e) {
+  e.preventDefault();
+  var w = { discord: $("mDiscord").value.trim(), ign: $("mIgn").value.trim() };
+  if (!w.discord) { setMine("mineMsg", ERR.no_discord, true); return; }
+  if (!w.ign) { setMine("mineMsg", "스팀 닉을 적어 주세요", true); return; }
+  var btn = $("mineBtn");
+  btn.disabled = true; btn.textContent = "찾는 중"; setMine("mineMsg", "");
+  post("/api/killrace/apply/mine", w).then(function (res) {
+    btn.disabled = false; btn.textContent = "내 신청 불러오기";
+    if (!res.ok || !res.d.ok) { who = null; $("mineBody").hidden = true; setMine("mineMsg", ERR[res.d.error] || "지금은 못 불러왔어요. 잠시 뒤 다시 해볼까요?", true); return; }
+    who = w; setMine("mineSaveMsg", ""); showMine(res.d);
+  }).catch(function () { btn.disabled = false; btn.textContent = "내 신청 불러오기"; setMine("mineMsg", "지금은 못 불러왔어요. 잠시 뒤 다시 해볼까요?", true); });
+}
+function mineSave() {
+  if (!who) return;
+  var v = readIntro("m"), miss = introMiss(v);
+  if (miss) { setMine("mineSaveMsg", ERR[miss], true); return; }
+  var btn = $("mineSave");
+  btn.disabled = true; btn.textContent = "저장하는 중"; setMine("mineSaveMsg", "");
+  post("/api/killrace/apply/intro", { discord: who.discord, ign: who.ign, intro: v }).then(function (res) {
+    btn.disabled = false; btn.textContent = "소개 저장하기";
+    if (!res.ok || !res.d.ok) {
+      var code = res.d.error;
+      setMine("mineSaveMsg", code === "closed" ? ERR.intro_closed : ERR[code] || "저장이 안 됐어요. 잠시 뒤 다시 해볼까요?", true); return;
+    }
+    showMine(res.d); setMine("mineSaveMsg", "소개를 저장했어요. 경매 때 소개 카드에 나가요");
+    if (hostKey) hostLoad();
+  }).catch(function () { btn.disabled = false; btn.textContent = "소개 저장하기"; setMine("mineSaveMsg", "저장이 안 됐어요. 잠시 뒤 다시 해볼까요?", true); });
+}
+
+/* ── 진행자 — ?host=1 + 운영 키. 신청자별 소개 4칸 · 안 채운 사람 ── */
+var hostMode = new URLSearchParams(location.search).get("host") === "1";
+var store = { get: function (k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
+              set: function (k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} } };
+var hostKey = hostMode ? store.get("kn_host") : null;
+var MISS_KO = { position: "포지션", style: "성향", ambition: "포부" };
+function kstTime(ms) { var d = new Date(ms + 9 * 3600e3); return (d.getUTCMonth() + 1) + "/" + d.getUTCDate() + " " + ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + d.getUTCMinutes()).slice(-2); }
+function hostRender(d) {
+  var rows = d.list.filter(function (x) { return x.status !== "cancelled"; }).sort(function (a, b) { return a.order - b.order; });
+  $("hostSum").innerHTML = "다 채운 사람 <b>" + d.introDone + "</b> / " + rows.length + "명";
+  $("hostMiss").innerHTML = d.introMissing.length
+    ? '<div class="h-miss"><b>안 채운 사람 ' + d.introMissing.length + "명</b><br>" + d.introMissing.map(function (x) {
+        return x.order + ". " + esc(x.ign) + " (" + esc(x.discord) + ") · " + x.missing.map(function (k) { return MISS_KO[k] || k; }).join(", ") + " 빠짐";
+      }).join("<br>") + "</div>"
+    : "";
+  $("hostRows").innerHTML = rows.map(function (x) {
+    var i = x.intro;
+    var top = '<div class="h-top"><span class="no">' + x.order + '</span><span class="ign">' + esc(x.ign) + "</span>" +
+      '<span class="h-tag">' + esc(x.tier) + "</span>" + (x.waiting ? '<span class="h-tag">대기</span>' : "") +
+      (i && i.position ? '<span class="h-tag pos">' + esc(i.position) + "</span>" : "") +
+      (i && i.style ? '<span class="h-tag pos">' + esc(i.style) + "</span>" : "") + "</div>";
+    if (!i) return '<div class="h-row">' + top + '<div class="h-none">아직 안 채웠어요 · 디스코드 ' + esc(x.discord) + "</div></div>";
+    return '<div class="h-row">' + top +
+      '<div class="h-line">카드 이름 <b>' + esc(i.cardShown || "") + "</b>" + (i.cardName ? "" : " (디스코드 닉)") + "</div>" +
+      '<div class="h-line">포부 <b>' + esc(i.ambition || "") + "</b></div>" +
+      '<div class="h-meta">마지막 저장 ' + (i.at ? kstTime(i.at) : "-") + " · " + i.saves + "번 저장</div></div>";
+  }).join("") || '<p class="note">아직 신청이 없어요</p>';
+}
+function hostLoad() {
+  return fetch(GAPI + "/api/killrace/apply", { headers: { "x-admin-key": hostKey }, cache: "no-store" })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+    .then(function (d) {
+      if (!d.admin) { hostKey = null; $("hostIntro").hidden = true; $("hostGate").hidden = false; $("hostGateMsg").textContent = "운영 키가 맞지 않아요"; return false; }
+      store.set("kn_host", hostKey); $("hostGate").hidden = true; $("hostIntro").hidden = false; hostRender(d); return true;
+    })
+    .catch(function () { $("hostGateMsg").textContent = "지금은 못 불러왔어요. 잠시 뒤 다시 해볼까요?"; });
+}
+
 (function init() {
   $("bank").innerHTML = '<option value="">선택</option>' + BANKS.map(function (b) { return '<option value="' + b + '">' + b + "</option>"; }).join("");
+  $("introNew").innerHTML = introFields("n");
+  $("introMine").innerHTML = introFields("m");
   $("form").addEventListener("submit", submit);
+  $("mineForm").addEventListener("submit", mineLoad);
+  $("mineSave").addEventListener("click", mineSave);
+  if (hostMode) {
+    $("hostGo").addEventListener("click", function () { hostKey = $("hostKey").value.trim(); if (hostKey) hostLoad(); });
+    $("hostReload").addEventListener("click", function () { if (hostKey) hostLoad(); });
+    if (hostKey) hostLoad(); else $("hostGate").hidden = false;
+  }
   $("lookupBtn").addEventListener("click", function () { lookup(true); });
   $("ign").addEventListener("input", function () { clearTimeout(lookupTimer); lookupTimer = setTimeout(function () { lookup(false); }, 900); });
   $("ign").addEventListener("change", function () { clearTimeout(lookupTimer); lookup(false); });
