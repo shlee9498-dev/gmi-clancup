@@ -157,10 +157,25 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
     <div class="grid">
       <div><label class="label" for="evStart">시작</label><input class="input" id="evStart" type="datetime-local"></div>
       <div><label class="label" for="evEnd">끝</label><input class="input" id="evEnd" type="datetime-local"></div>
-      <div><label class="label" for="evBoost">1.5배 판 시작 (비우면 없음)</label><input class="input" id="evBoost" type="datetime-local"></div>
+      <div id="evBoostBox"><label class="label" for="evBoost">1.5배 판 시작 (비우면 없음)</label><input class="input" id="evBoost" type="datetime-local"></div>
     </div>
+    <p class="muted" id="evBoostSeq" hidden></p>
     <div class="row" style="margin-top:10px;"><button type="button" class="btn main" data-act="evTimes">시각 저장</button></div>
     <p class="msg" id="evTimesMsg" role="status" aria-live="polite"></p>
+
+    <div id="reviveBox" hidden>
+      <h3 class="sub-h">늦은 블루칩 부활</h3>
+      <p class="muted" id="reviveNote"></p>
+      <div class="row" style="margin-top:8px;">
+        <select class="input" id="reviveMode" aria-label="늦은 부활 판정 방식" style="flex:1 1 200px;">
+          <option value="penalty">판정되면 그 판 −10</option>
+          <option value="flag">의심 표시만</option>
+          <option value="off">보지 않음</option>
+        </select>
+        <button type="button" class="btn" data-act="reviveSave">저장</button>
+      </div>
+      <p class="msg" id="reviveMsg" role="status" aria-live="polite"></p>
+    </div>
 
     <h3 class="sub-h">팀별 시작 보너스</h3>
     <p class="muted">0판부터 총점에 더해요. 칸을 비우고 저장하면 지워져요</p>
@@ -179,8 +194,8 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
     <div class="grid">
       <div><label class="label" for="newStart">시작</label><input class="input" id="newStart" type="datetime-local"></div>
       <div><label class="label" for="newEnd">끝</label><input class="input" id="newEnd" type="datetime-local"></div>
-      <div><label class="label" for="newBoost">1.5배 판 시작 (비우면 없음)</label><input class="input" id="newBoost" type="datetime-local"></div>
     </div>
+    <p class="muted" id="newBoostNote">새 대회는 버닝 시각을 넣지 않아요. 팀마다 정해진 판 순번이 1.5배예요</p>
     <div class="row" style="margin-top:10px;"><button type="button" class="btn" data-act="evCreate">새 대회 만들기</button></div>
     <p class="msg" id="newMsg" role="status" aria-live="polite"></p>
 
@@ -244,6 +259,27 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
       .catch(function(){ if (B && !B.error) { B.stale = true; renderChips(); } });
   }
 
+  // 늦은 부활 — 「닉 16:31 탑승 · 4페이즈 16:01」(경기 시작부터 분:초)
+  function mmss(sec){ if (sec == null || !isFinite(sec)) return "?"; var m = Math.floor(sec / 60), x = Math.round(sec % 60); return m + ":" + (x < 10 ? "0" : "") + x; }
+  function reviveWho(rv){
+    var who = (rv.who || []).map(function(w){ return esc(w.ign || w.slot + "번") + " " + mmss(w.sec) + " 탑승"; }).join(", ");
+    return who + (rv.sec != null ? " · " + (rv.phase || 4) + "페이즈 " + mmss(rv.sec) : "");
+  }
+  var REVIVE_KO = { penalty: "−10", flag: "의심 표시만", off: "안 봄" };
+
+  // 판 순번 버닝(5회부터 · 서버 boostMode "seq" · boostSeqs 예 [5, 7]) — 시각 회차(2 · 3 · 4회) 응답에는 없거나 "time"
+  function seqBoost(){ return !!(B && B.boostMode === "seq" && B.boostSeqs && B.boostSeqs.length); }
+  // 역전 칸 아래 버닝 한 줄 — 판 순번이면 다음 판 · 남은 순번, 시각이면 종전 문구 그대로
+  function boostHint(t, lead){
+    if (seqBoost()) {
+      if (now() >= B.event.end) return "";
+      if (t.nextBoost) return "다음 판이 " + B.boostMul + "배예요";
+      var left = (t.boosts || []).filter(function(x){ return x.state === "pending" && x.seq > t.games; });
+      return left.length ? left[0].seq + "번째 판이 " + B.boostMul + "배예요" : "";
+    }
+    return t.boostUsed || B.boostAt == null ? "" : lead ? "1.5배 판이 아직 남아 있어요" : "1.5배 판이 남아 있어요";
+  }
+
   function renderChips(){
     if (!B || B.error) { $("chips").innerHTML = ""; return; }
     if (B.past) { $("chips").innerHTML = '<span class="chip">' + md(B.event.start) + " " + hm(B.event.start) + "~" + hm(B.event.end) + " · 끝난 회차예요</span>"; return; }
@@ -251,7 +287,8 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
     if (t < B.event.start) chips.push('<span class="chip">시작까지 <b>' + mins(B.event.start - t) + "분</b></span>");
     else if (t < B.event.end) chips.push('<span class="chip">끝까지 <b>' + mins(B.event.end - t) + "분</b></span>");
     else chips.push('<span class="chip"><b>' + hm(B.event.end) + "</b> 마감 · 돌던 판까지 집계해요</span>");
-    if (B.boostAt != null && t < B.event.end) {
+    if (seqBoost() && t < B.event.end) chips.push('<span class="chip">팀마다 <b>' + B.boostSeqs.join(" · ") + "번째 판</b> " + B.boostMul + "배</span>");
+    else if (B.boostAt != null && t < B.event.end) {
       chips.push(t < B.boostAt ? '<span class="chip">1.5배 판까지 <b>' + mins(B.boostAt - t) + "분</b></span>"
         : '<span class="chip hot">지금 시작하는 판은 ' + B.boostMul + "배</span>");
     }
@@ -265,11 +302,12 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
   function chaseLine(t){
     var c = t.chase;
     if (!c) return "";
-    if (c.lead != null) return '<div class="chase">1등이에요 · 2등과 ' + c.lead + "점 차" + (t.boostUsed || B.boostAt == null ? "" : "<small>1.5배 판이 아직 남아 있어요</small>") + "</div>";
+    var hint = boostHint(t, c.lead != null);
+    if (c.lead != null) return '<div class="chase">1등이에요 · 2등과 ' + c.lead + "점 차" + (hint ? "<small>" + hint + "</small>" : "") + "</div>";
     var how = c.afterChicken === 0 ? "치킨 한 번이면 역전" : "치킨 1번 + " + c.afterChicken + "킬이면 역전";
     var next = c.toNext !== c.toFirst ? " · 바로 위 " + esc(c.nextName) + "까지 " + c.toNext + "점" : "";
     return '<div class="chase">1등까지 ' + c.toFirst + "점 → " + how +
-      "<small>딜 100도 1점이에요" + next + (t.boostUsed || B.boostAt == null ? "" : " · 1.5배 판이 남아 있어요") + "</small></div>";
+      "<small>딜 100도 1점이에요" + next + (hint ? " · " + hint : "") + "</small></div>";
   }
 
   // 스샷 잠정 — 서버가 낸 잠정 판 점수(사망 감점 · 치킨 · 1.5배 포함)를 부호 그대로. 점수를 못 내면(치킨 판 사망 표시를 못 읽음) 킬 · 딜만
@@ -292,7 +330,14 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
     if (g.chicken) parts.push("치킨 +" + g.chicken);
     if (g.penalty) parts.push('<span class="minus">사망 ' + g.deadSlots.join("·") + "번 −" + g.penalty + "</span>");
     if (g.voidSlots && g.voidSlots.length) parts.push(g.voidSlots.join("·") + "번 사망 무효");
-    var tag = g.leave ? ' <span class="tag leave">이탈 −10</span>' : g.boost ? ' <span class="tag boost">' + g.base + " ×" + g.boost + "</span>" : "";
+    // 늦은 블루칩 부활(5회부터) — 위반(−10) · 의심 표시 · 확인 못 함. 시각은 경기 시작부터 분:초
+    var rv = g.revive;
+    if (rv && rv.state === "late") parts.push('<span class="' + (g.reviveOut ? "minus" : "") + '">늦은 부활 ' + reviveWho(rv) + "</span>");
+    else if (rv && rv.state === "unknown") parts.push("부활 확인 못 함");
+    var tag = g.leave ? ' <span class="tag leave">이탈 −10</span>'
+      : g.reviveOut ? ' <span class="tag leave">늦은 부활 −10</span>'
+      : rv && rv.state === "late" ? ' <span class="tag">늦은 부활 의심</span>'
+      : g.boost ? ' <span class="tag boost">' + g.base + " ×" + g.boost + "</span>" : "";
     var host = "";
     if (isHost) {
       var dead = (g.deadSlots || []).concat(g.voidSlots || []).sort();
@@ -300,7 +345,8 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
         dead.map(function(s){ var v = (g.voidSlots || []).indexOf(s) >= 0;
           return '<button type="button" class="mini' + (v ? " on" : "") + '" data-act="void" data-team="' + esc(t.name) + '" data-seq="' + g.seq + '" data-slot="' + s + '" data-clear="' + (v ? 1 : 0) + '">' + s + "번 " + (v ? "무효 해제" : "핵 사망 무효") + "</button>"; }).join("") +
         '<button type="button" class="mini" data-act="voidGame" data-team="' + esc(t.name) + '" data-mid="' + esc(g.matchId) + '" data-seq="' + g.seq + '" data-clear="0">이 판 무효</button></div>' +
-        (g.logout && g.logout.length && !g.leave ? '<div class="host-row"><span class="tag leave">' + g.logout.join("·") + "번이 살아 있는 채로 나갔어요 · 이탈인지 확인해 주세요</span></div>" : "");
+        (g.logout && g.logout.length && !g.leave ? '<div class="host-row"><span class="tag leave">' + g.logout.join("·") + "번이 살아 있는 채로 나갔어요 · 이탈인지 확인해 주세요</span></div>" : "") +
+        (rv && rv.state === "late" && !g.reviveOut && !g.leave ? '<div class="host-row"><span class="tag leave">늦은 부활 의심이에요 · 이탈 −10 으로 처리할지 확인해 주세요</span></div>' : "");
     }
     return '<div class="game"><div class="game-h">' + g.seq + "판 " + esc(g.map) + " <span>" + hm(g.startedAt) + (g.place ? " · " + g.place + "위" : "") + "</span>" + tag + '</div>' +
       '<div class="game-s' + (g.score < 0 ? " minus" : "") + '">' + signed(g.score) + '</div><div class="game-d">' + parts.join(" · ") + "</div>" + host + "</div>";
@@ -367,6 +413,16 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
   function renderEv(){
     if (B.eventId !== evSeen) { evSeen = B.eventId; evDirty = false; bonusSig = ""; }
     if (!evDirty) { $("evStart").value = toLocal(B.event.start); $("evEnd").value = toLocal(B.event.end); $("evBoost").value = toLocal(B.boostAt); }
+    // 판 순번 버닝 회차(5회부터)는 시각 칸을 숨긴다 — 서버가 시각을 받지 않는다(409 boost_by_seq)
+    $("evBoostBox").hidden = seqBoost(); $("evBoostSeq").hidden = !seqBoost();
+    if (seqBoost()) $("evBoostSeq").textContent = "버닝은 팀마다 " + B.boostSeqs.join(" · ") + "번째 판이 " + B.boostMul + "배라 시각을 넣지 않아요";
+    // 늦은 부활 판정 방식 — 서버가 lateRevive 를 주는 회차만(옛 서버면 숨긴다)
+    var rvMode = B.lateRevive;
+    $("reviveBox").hidden = !REVIVE_KO[rvMode];
+    if (REVIVE_KO[rvMode]) {
+      if (!$("reviveBox").contains(document.activeElement)) $("reviveMode").value = rvMode;
+      $("reviveNote").textContent = (B.revivePhase || 4) + "페이즈가 시작된 뒤 부활 비행기를 타면 그 판은 이탈처럼 −10이에요. 바꾸면 바로 다시 집계해요";
+    }
     var all = B.bonusAll, names = B.teams.map(function(t){ return t.name; });
     if (!all) { all = {}; B.teams.forEach(function(t){ if (t.bonus) all[t.name] = t.bonus; }); }
     Object.keys(all).forEach(function(n){ if (names.indexOf(n) < 0) names.push(n); });
@@ -388,6 +444,7 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
     var a = e.after || {}, b = e.before || {}, what;
     if (e.action === "eventCreate") what = "새 대회 " + esc(a.name) + " " + md(a.start) + " " + hm(a.start) + "~" + hm(a.end) + (a.boostAt != null ? ", 1.5배 " + hm(a.boostAt) : "");
     else if (e.action === "bonus") what = esc(e.team) + " 보너스 " + ptsOf(e.before) + " → " + ptsOf(e.after);
+    else if (e.action === "lateRevive") what = "늦은 부활 " + (REVIVE_KO[e.before] || "?") + " → " + (REVIVE_KO[e.after] || "?");
     else {
       var f = { start: "시작", end: "끝", boostAt: "1.5배" };
       what = Object.keys(f).filter(function(k){ return k in a; }).map(function(k){ return f[k] + " " + orNone(b[k]) + " → " + orNone(a[k]); }).join(", ");
@@ -413,6 +470,8 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
   var EV_ERR = { need_by: "바꾸는 사람 이름을 먼저 적어 주세요", bad_name: "대회 이름을 40자 안으로 적어 주세요",
     bad_time: "시각을 다시 확인해 주세요", bad_window: "끝은 시작보다 뒤로, 길이는 6시간까지예요",
     bad_boost: "1.5배 판 시각은 시작과 끝 사이로 잡아 주세요", event_closed: "끝난 회차는 여기서 못 바꿔요",
+    boost_by_seq: "이 회차는 판 순번으로 1.5배가 붙어서 시각을 넣지 않아요",
+    bad_mode: "판정 방식을 다시 골라 주세요",
     bad_team: "팀 이름을 30자 안으로 적어 주세요", bad_points: "보너스는 −100에서 100 사이 정수로 적어 주세요",
     bad_event: "회차를 못 찾았어요", no_event: "회차를 못 찾았어요", unauthorized: "운영 키가 맞지 않아요",
     bad_action: "서버가 아직 이 기능을 몰라요. 서버 배포가 끝난 뒤에 다시 해 주세요" };
@@ -460,7 +519,9 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
       admin({ action: "run" }, "집계했어요").then(function(){ busy = false; render(); }); return; }
     if (act === "auto") { admin({ action: "auto", on: !B.auto }, B.auto ? "자동 집계를 껐어요" : "자동 집계를 켰어요"); return; }
     if (act === "evTimes") {
-      evAct({ action: "eventTimes", event: B.eventId, start: fromLocal($("evStart").value), end: fromLocal($("evEnd").value), boostAt: fromLocal($("evBoost").value) }, "evTimesMsg",
+      var times = { action: "eventTimes", event: B.eventId, start: fromLocal($("evStart").value), end: fromLocal($("evEnd").value) };
+      if (!seqBoost()) times.boostAt = fromLocal($("evBoost").value);                   // 판 순번 회차는 버닝 시각을 보내지 않는다
+      evAct(times, "evTimesMsg",
         function(j){ return !j.changed ? "바뀐 게 없어요" : j.dropped ? "바꿨어요. 빠진 판 " + j.dropped + "개는 " + (j.rerun === "ok" ? "다시 집계해서 뺐어요" : "다음 집계에서 빠져요") : "바꿨어요"; })
         .then(function(ok){ if (ok) { evDirty = false; render(); } });
       return;
@@ -475,10 +536,16 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
         .then(function(ok){ if (ok && act === "bonusAdd") { $("bonusTeam").value = ""; $("bonusPts").value = ""; } });
       return;
     }
+    if (act === "reviveSave") {
+      evAct({ action: "lateRevive", event: B.eventId, mode: $("reviveMode").value }, "reviveMsg",
+        function(j){ return !j.changed ? "바뀐 게 없어요" : j.rerun === "ok" ? "바꿨어요. 판 점수를 다시 셌어요" : "바꿨어요. 다음 집계에서 판 점수에 반영돼요"; })
+        .then(function(ok){ if (ok) render(); });
+      return;
+    }
     if (act === "evCreate") {
-      evAct({ action: "eventCreate", name: $("newName").value.trim(), start: fromLocal($("newStart").value), end: fromLocal($("newEnd").value), boostAt: fromLocal($("newBoost").value) }, "newMsg",
+      evAct({ action: "eventCreate", name: $("newName").value.trim(), start: fromLocal($("newStart").value), end: fromLocal($("newEnd").value) }, "newMsg",
         function(j){ return (j.event && j.event.name ? j.event.name + " " : "") + "만들었어요"; })
-        .then(function(ok){ if (ok) ["newName", "newStart", "newEnd", "newBoost"].forEach(function(id){ $(id).value = ""; }); });
+        .then(function(ok){ if (ok) ["newName", "newStart", "newEnd"].forEach(function(id){ $(id).value = ""; }); });
       return;
     }
     if (act === "tokens") { admin({ action: "tokens" }, "주소를 만들었어요"); return; }
