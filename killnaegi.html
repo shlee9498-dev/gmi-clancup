@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>대승배 GmI 킬내기 2회 | 솔로 신청</title>
-<meta name="description" content="대승배 GmI 킬내기 2회 솔로 신청. 10월 8일 목요일 21:00 · 4인 스쿼드 5팀 · 팀은 경매로 정해요 · 1등 팀 24만 2등 팀 6만.">
-<meta property="og:title" content="대승배 GmI 킬내기 2회 솔로 신청">
+<title>대승배 GmI 킬내기 3회 | 솔로 신청</title>
+<meta name="description" content="대승배 GmI 킬내기 3회 솔로 신청. 10월 8일 목요일 21:00 · 4인 스쿼드 5팀 · 팀은 경매로 정해요 · 1등 팀 24만 2등 팀 6만.">
+<meta property="og:title" content="대승배 GmI 킬내기 3회 솔로 신청">
 <meta property="og:description" content="10월 8일 목요일 21:00 · 20명 선착순 · 팀은 경매로 정해요">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#F5F6F8">
@@ -143,7 +143,7 @@ footer a{color:var(--ink-dim);}
 <header class="hero">
   <div class="wrap">
     <div class="hero-top"><span class="kicker">대승배 · 대승님 후원</span><a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드 ↗</a></div>
-    <h1>GmI 킬내기 <span class="sun">2회</span></h1>
+    <h1>GmI 킬내기 <span class="sun">3회</span></h1>
     <div class="chips">
       <span class="chip"><b>10/8(목) 21:00~23:00</b></span>
       <span class="chip">1등 팀 <b>24만</b> · 2등 팀 <b>6만</b></span>
@@ -257,7 +257,7 @@ footer a{color:var(--ink-dim);}
 </main>
 
 <footer>
-  <div>GmI 클랜 · 대승배 킬내기 2회 · 2026 · 비영리 친목 대회</div>
+  <div>GmI 클랜 · 대승배 킬내기 3회 · 2026 · 비영리 친목 대회</div>
   <div style="margin-top:6px;"><a href="https://shlee9498-dev.github.io/gmi-clancup/">메인</a> · <a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드</a></div>
 </footer>
 
@@ -267,7 +267,9 @@ footer a{color:var(--ink-dim);}
  * 정원 · 마감 · 중복 판정은 전부 서버가 한다. 이 화면은 서버가 준 값(count · cap · closed)만 그린다.
  * 계좌는 보내기만 하고 어디에도 다시 받아 오지 않는다(공개 응답에 없다). 브라우저에도 저장하지 않는다.
  * 전적 조회는 기존 /api/bpi-suggest-auto 를 쓴다 — 닉을 다 치고 0.9초 쉬면 한 번, 같은 닉은 다시 묻지 않는다.
- * 2회는 스팀 전용이다(오너 10/4 밤). 플랫폼 칸은 없고 조회도 스팀만 한다. 서버도 스팀이 아닌 값은 거절한다. */
+ * 2회는 스팀 전용이다(오너 10/4 밤). 플랫폼 칸은 없고 조회도 스팀만 한다. 서버도 스팀이 아닌 값은 거절한다.
+ * 10/5 번외가 2회가 되면서 이 폼의 대회(10/8)는 3회다(10/6 지휘). 화면 글자만 3회로 바꿨고, 서버 저장 줄 이름(killrace:apply:r2)은
+ * 그대로다 — 이미 들어온 신청이 그 줄에 있어 이름을 바꾸면 사라진다. r2 는 「이 폼의 신청 줄」이라는 이름표일 뿐이다. */
 var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
 var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
 var BANKS = ["국민","신한","우리","하나","농협","기업","카카오뱅크","토스뱅크","케이뱅크","새마을","우체국","신협","수협","부산","대구","경남","광주","전북","SC제일","산업"];
