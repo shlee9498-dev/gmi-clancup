@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>킬내기 2회 | 개인 기록</title>
+<title>킬내기 | 개인 기록</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#F5F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,6 +30,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1
 .top h1 span{color:var(--sun);}
 .top h1 small{font-family:var(--body);font-size:1.15rem;font-weight:700;color:var(--ink-dim);margin-left:.8rem;}
 .when{font-size:1rem;color:var(--ink-dim);}
+.pick select{font:inherit;font-size:1rem;color:var(--ink-dim);background:transparent;border:1px solid var(--cream-line);border-radius:999px;padding:.2rem .7rem;cursor:pointer;}
+.pick select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
 .when b{color:var(--ink);}
 main{padding:1.2rem 2rem 1.6rem;min-height:calc(100vh - 4.6rem);display:grid;align-content:center;}
 .empty{text-align:center;padding:6rem 1rem;font-size:1.4rem;color:var(--ink-faint);}
@@ -94,13 +96,14 @@ tr.sum td:last-child{border-radius:0 .5rem .5rem 0;padding-right:.5rem;}
 </head>
 <body>
 <header class="top">
-  <h1>킬내기 <span>2회</span><small id="viewName"></small></h1>
+  <h1>킬내기 <span id="evRound"></span><small id="viewName"></small></h1>
   <div class="when" id="when"></div>
+  <label class="pick" id="pickRow" hidden><select id="evSel" aria-label="회차 고르기"></select></label>
 </header>
 <main id="main" aria-live="polite"></main>
 
 <script>
-/* 킬내기 2회 개인 기록 — 방송 전환용 전체 화면. 서버(/api/killrace/players)가 준 확정 판 기준 값만 그린다(10초마다 갱신).
+/* 킬내기 개인 기록 — 방송 전환용 전체 화면. 서버(/api/killrace/players)가 준 확정 판 기준 값만 그린다(10초마다 갱신).
  * 보기: ?view=team(팀별) · rank(개인 순위 = 킬왕 · 딜왕) · award(시상식) · 안 적으면 팀별 ↔ 개인 순위를 15초마다 번갈아.
  * 판 중간의 잠정 킬은 팀 단위라 여기에는 없다. 계좌 · 디스코드 닉은 이 응답에 아예 없다. */
 (function(){
@@ -114,6 +117,11 @@ tr.sum td:last-child{border-radius:0 .5rem .5rem 0;padding-right:.5rem;}
   var esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); };
   var hm = function(ms){ var d = new Date(ms + 9 * 3600000); return ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + d.getUTCMinutes()).slice(-2); };
   var NAMES = { team: "팀별 개인 기록", rank: "개인 순위", award: "시상식" };
+  // 회차 고르기(읽기만) — ?event=<번호>. 비었거나 지금 대회면 종전 화면
+  var evWant = (function(){ var v = new URLSearchParams(location.search).get("event") || ""; return /^\d{1,6}$/.test(v) ? Number(v) : null; })();
+  var EVS = null;
+  var md = function(ms){ var d = new Date(ms + 9 * 3600000); return (d.getUTCMonth() + 1) + "/" + d.getUTCDate(); };
+  var roundOf = function(name, id){ var m = /(\d+)\s*회/.exec(name || ""); return m ? m[1] + "회" : (id ? id + "회" : ""); };
 
   function teamView(){
     return '<div class="teams">' + D.teams.map(function(t){
@@ -155,16 +163,42 @@ tr.sum td:last-child{border-radius:0 .5rem .5rem 0;padding-right:.5rem;}
     $("viewName").textContent = NAMES[view];
     if (!D) { $("main").innerHTML = '<div class="empty">아직 열리지 않았어요</div>'; $("when").textContent = ""; return; }
     var last = D.run && D.run.ok && D.run.at ? D.run.at : D.updatedAt ? Date.parse(D.updatedAt) : null;
-    $("when").innerHTML = (last ? "<b>" + hm(last) + "</b> 갱신 · " : "") + "끝난 판 기준" + (view === "award" && !D.ended ? " · 아직 진행 중이에요" : "");
+    $("when").innerHTML = D.past ? md(D.event.start) + " · 끝난 회차예요"
+      : (last ? "<b>" + hm(last) + "</b> 갱신 · " : "") + "끝난 판 기준" + (view === "award" && !D.ended ? " · 아직 진행 중이에요" : "");
     if (!D.teams.length) { $("main").innerHTML = '<div class="empty">팀이 아직 없어요</div>'; return; }
     $("main").innerHTML = view === "team" ? teamView() : view === "rank" ? rankView() : awardView();
   }
   function load(){
-    fetch(GAPI + "/api/killrace/players", { cache: "no-store" })
+    fetch(GAPI + "/api/killrace/players" + (evWant != null ? "?event=" + evWant : ""), { cache: "no-store" })
       .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(j){ if (j) D = j; render(); })
+      .then(function(j){
+        if (j) { D = j; $("evRound").textContent = roundOf(D.event.name, D.eventId || (EVS && evWant == null ? EVS.currentId : evWant)); document.title = D.event.name + " | 개인 기록"; }
+        render();
+      })
       .catch(function(){});
   }
+  function renderPick(){
+    if (!EVS || EVS.events.length < 2) { $("pickRow").hidden = true; return; }
+    var cur = evWant != null ? evWant : EVS.currentId;
+    $("evSel").innerHTML = EVS.events.map(function(e){
+      return '<option value="' + e.id + '"' + (e.id === cur ? " selected" : "") + ">" + esc(roundOf(e.name, e.id)) + " · " + md(e.start) + (e.id === EVS.currentId ? " (지금)" : "") + "</option>";
+    }).join("");
+    $("pickRow").hidden = false;
+  }
+  fetch(GAPI + "/api/killrace/events", { cache: "no-store" })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){ if (j && Array.isArray(j.events)) { EVS = j; renderPick(); } })
+    .catch(function(){});
+  $("evSel").addEventListener("change", function(){
+    var id = Number(this.value);
+    evWant = EVS && id === EVS.currentId ? null : id;
+    try {
+      var u = new URL(location.href);
+      if (evWant == null) u.searchParams.delete("event"); else u.searchParams.set("event", String(evWant));
+      history.replaceState(null, "", u.toString());
+    } catch (e) { /* 주소만 못 바꿔도 화면은 바뀐다 */ }
+    load();
+  });
   load();
   setInterval(load, 10000);
   if (!fixed) setInterval(function(){ view = view === "team" ? "rank" : "team"; render(); }, 15000);

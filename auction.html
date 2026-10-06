@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>대승배 GmI 킬내기 2회 | 팀 경매</title>
-<meta name="description" content="대승배 GmI 킬내기 2회 팀 경매. 팀장이 100포인트로 선수를 뽑아요. 10월 8일 20:30.">
+<title>대승배 GmI 킬내기 | 팀 경매</title>
+<meta name="description" content="대승배 GmI 킬내기 팀 경매. 팀장이 100포인트로 선수를 뽑아요.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#F5F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -142,7 +142,7 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
 
 <header class="top">
   <div class="top-in">
-    <h1>킬내기 <span>2회</span> 팀 경매</h1>
+    <h1>킬내기 <span id="evRound"></span> 팀 경매</h1>
     <div class="chips" id="chips"></div>
   </div>
 </header>
@@ -252,7 +252,7 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
 </div>
 
 <script>
-/* 킬내기 2회 팀 경매 — 판정은 전부 서버(mri-academy killrace-auction.cjs)가 한다. 이 화면은 그리고 누르기만 한다.
+/* 킬내기 팀 경매 — 판정은 전부 서버(mri-academy killrace-auction.cjs)가 한다. 이 화면은 그리고 누르기만 한다.
  * 세 가지 모드: 보는 사람(기본 · 방송) / 팀장(#c=토큰 개인 링크) / 진행자(?host=1 + 운영 키).
  * 포인트는 이 행사용 가상 값이다(카지노 코인과 무관). 키 · 토큰은 이 탭(sessionStorage)에만 둔다. */
 (function(){
@@ -580,6 +580,17 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
   });
 
   refresh();
+  // 회차 글자는 서버 대회 이름에서(경매는 지금 대회 = 가장 큰 번호에 붙는다 · 종전 「2회」 고정)
+  fetch(GAPI + "/api/killrace/events", { cache: "no-store" })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){
+      var cur = j && Array.isArray(j.events) ? j.events.filter(function(e){ return e.id === j.currentId; })[0] : null;
+      if (!cur) return;
+      var rm = /(\d+)\s*회/.exec(cur.name || "");
+      document.getElementById("evRound").textContent = rm ? rm[1] + "회" : cur.id + "회";
+      document.title = cur.name + " | 팀 경매";
+    })
+    .catch(function(){});
   setInterval(refresh, POLL_MS);
   setInterval(drawTimer, 200);
 })();

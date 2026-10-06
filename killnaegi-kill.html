@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>킬내기 2회 | 우리 팀 +1킬</title>
+<title>킬내기 | 우리 팀 +1킬</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#F5F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,7 +53,7 @@ button{font-family:inherit;color:inherit;}
 </main>
 
 <script>
-/* 킬내기 2회 팀별 +1킬 — 주소의 # 뒤 토큰이 곧 우리 팀이다(로그인 없음). 토큰은 요청 본문으로만 보낸다.
+/* 킬내기 팀별 +1킬 — 주소의 # 뒤 토큰이 곧 우리 팀이다(로그인 없음). 토큰은 요청 본문으로만 보낸다.
  * 여기서 누른 값은 잠정이라 총점에 들어가지 않는다. 판이 확정되면 서버가 0 으로 돌린다. */
 (function(){
   "use strict";
@@ -73,7 +73,7 @@ button{font-family:inherit;color:inherit;}
         var code = r.body && r.body.error && r.body.error.code;
         if (r.body && r.body.count != null) $("count").textContent = r.body.count;
         if (r.ok) {
-          $("team").textContent = r.body.team; $("event").textContent = r.body.event || "";
+          $("team").textContent = r.body.team; $("event").textContent = r.body.event || ""; if (r.body.event) document.title = r.body.event + " | 우리 팀 +1킬";
           $("plus").disabled = false; $("minus").disabled = false;
           if (delta !== 0) $("msg").textContent = "";
         } else if (code === "bad_token") {

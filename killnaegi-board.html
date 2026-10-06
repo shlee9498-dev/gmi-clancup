@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>대승배 GmI 킬내기 2회 | 점수판</title>
-<meta name="description" content="대승배 GmI 킬내기 2회 점수판. 판이 끝나면 자동으로 올라가고 끝까지 공개해요.">
+<title>대승배 GmI 킬내기 | 점수판</title>
+<meta name="description" content="대승배 GmI 킬내기 점수판. 판이 끝나면 자동으로 올라가고 끝까지 공개해요.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#F5F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,6 +34,10 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
 .top h1 span{color:var(--sun);}
 .chips{display:flex;flex-wrap:wrap;gap:6px;}
 .chip{background:#fff;border:1px solid var(--cream-line);border-radius:999px;padding:4px 11px;font-size:13px;color:var(--ink-dim);}
+#pickRow{margin-top:6px;}
+.chip.pick{padding:0;}
+.chip.pick select{font:inherit;color:var(--ink);background:transparent;border:0;border-radius:999px;padding:4px 11px;cursor:pointer;}
+.chip.pick select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
 .chip b{color:var(--ink);font-variant-numeric:tabular-nums;}
 .chip.hot{background:var(--accent-soft);border-color:var(--accent-soft);color:var(--accent-ink);font-weight:700;}
 .chip.warn{background:var(--red-soft);border-color:var(--red-soft);color:var(--red);font-weight:700;}
@@ -102,8 +106,9 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
 
 <header class="top">
   <div class="top-in">
-    <h1>킬내기 <span>2회</span> 점수판</h1>
+    <h1>킬내기 <span id="evRound"></span> 점수판</h1>
     <div class="chips" id="chips"></div>
+    <div class="chips" id="pickRow" hidden><label class="chip pick"><select id="evSel" aria-label="회차 고르기"></select></label></div>
   </div>
 </header>
 
@@ -143,9 +148,10 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
 </main>
 
 <script>
-/* 킬내기 2회 점수판 — 점수 · 순위 · 역전까지 몇 점인지는 전부 서버(mri-academy killrace.cjs · killrace-live.cjs)가 계산한다.
+/* 킬내기 점수판 — 점수 · 순위 · 역전까지 몇 점인지는 전부 서버(mri-academy killrace.cjs · killrace-live.cjs)가 계산한다.
  * 이 화면은 받은 값을 그리기만 한다. 5초마다 다시 받는다. 끝까지 공개한다(가리는 시간 없음 — 지휘 10/4 개정).
  * 회색 「잠정 +n」 은 팀이 +1킬 버튼으로 누른 값이다. 총점에는 들어가지 않고 그 판이 확정되면 0 으로 돌아간다.
+ * 회색 「스샷 잠정」 은 봇이 팀배정 채널 결과 화면 사진에서 읽은 값이다(서버 shot 칸). 총점에 안 들어가고 같은 판 전적이 오면 사라진다.
  * 진행자(?host=1 + 운영 키): 「지금 집계」 · 자동 집계 켜고 끄기 · 이탈 −10 · 이 판 무효(낙하 전 튕김) · 핵 사망 무효 · 팀별 +1킬 주소. */
 (function(){
   "use strict";
@@ -164,14 +170,23 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
   var toLocal = function(ms){ if (ms == null) return ""; return new Date(ms + 9 * 3600000).toISOString().slice(0, 16); };
   var fromLocal = function(v){ return v ? new Date(v + ":00+09:00").toISOString() : null; };
   var now = function(){ return Date.now() + skew; };
+  // 회차 고르기(읽기만) — ?event=<번호>. 비었거나 지금 대회면 종전 화면. 지난 회차는 진행자 칸 없이 끝난 기록만 보여 준다
+  var evWant = (function(){ var v = new URLSearchParams(location.search).get("event") || ""; return /^\d{1,6}$/.test(v) ? Number(v) : null; })();
+  var EVS = null;
+  var md = function(ms){ var d = new Date(ms + 9 * 3600000); return (d.getUTCMonth() + 1) + "/" + d.getUTCDate(); };
+  var roundOf = function(name, id){ var m = /(\d+)\s*회/.exec(name || ""); return m ? m[1] + "회" : (id ? id + "회" : ""); };
 
   function load(){
     var h = adminKey ? { "x-admin-key": adminKey } : {};
-    return fetch(GAPI + "/api/killrace/board", { headers: h, cache: "no-store" })
+    return fetch(GAPI + "/api/killrace/board" + (evWant != null ? "?event=" + evWant : ""), { headers: h, cache: "no-store" })
       .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, body: j }; }); })
       .then(function(r){
         B = r.ok ? r.body : { error: true };
-        if (r.ok) { isHost = !!B.admin; skew = B.serverNow - Date.now(); }
+        if (r.ok) {
+          isHost = !!B.admin; skew = B.serverNow - Date.now();
+          $("evRound").textContent = roundOf(B.event.name, B.eventId);
+          document.title = B.event.name + " | 점수판";
+        }
         render();
       })
       .catch(function(){ if (B && !B.error) { B.stale = true; renderChips(); } });
@@ -179,6 +194,7 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
 
   function renderChips(){
     if (!B || B.error) { $("chips").innerHTML = ""; return; }
+    if (B.past) { $("chips").innerHTML = '<span class="chip">' + md(B.event.start) + " " + hm(B.event.start) + "~" + hm(B.event.end) + " · 끝난 회차예요</span>"; return; }
     var t = now(), chips = [];
     if (t < B.event.start) chips.push('<span class="chip">시작까지 <b>' + mins(B.event.start - t) + "분</b></span>");
     else if (t < B.event.end) chips.push('<span class="chip">끝까지 <b>' + mins(B.event.end - t) + "분</b></span>");
@@ -229,12 +245,12 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
   }
 
   function render(){
-    $("hostGate").hidden = !(hostMode && !isHost);
+    $("hostGate").hidden = !(hostMode && !isHost) || !!(B && B.past);
     $("hostCard").hidden = !isHost;
     renderChips();
     var el = $("standings");
     if (!B || B.error) { el.innerHTML = '<div class="empty"><b>아직 열리지 않았어요</b>대회가 시작되면 여기에 순위가 보여요</div>'; return; }
-    if (!B.teams.length) { el.innerHTML = '<div class="empty"><b>팀이 아직 없어요</b>20:30 경매가 끝나면 팀이 올라와요</div>'; }
+    if (!B.teams.length) { el.innerHTML = '<div class="empty"><b>팀이 아직 없어요</b>팀이 정해지면 여기에 올라와요</div>'; }
     else {
       var showMove = B.rankChangedAt && now() - B.rankChangedAt < 10 * 60000;
       el.innerHTML = B.teams.map(function(t){
@@ -248,7 +264,8 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
             '<span class="rk">' + t.rank + '</span>' +
             '<span><span class="name">' + esc(t.name) + move + '</span><span class="sub" style="display:block;">' + sub + "</span></span>" +
             '<span class="score"><span class="total' + (t.total < 0 ? " minus" : "") + '">' + t.total + "</span>" +
-              (t.provisional ? '<span class="prov">잠정 +' + t.provisional + "킬</span>" : "") + "</span>" +
+              (t.provisional ? '<span class="prov">잠정 +' + t.provisional + "킬</span>" : "") +
+              (t.shot ? '<span class="prov">스샷 잠정 ' + (t.shot.rank ? t.shot.rank + "위 " : "") + t.shot.kills + "킬 딜 " + t.shot.damage + "</span>" : "") + "</span>" +
           "</button>" +
           (isOpen ? '<div class="detail">' + chaseLine(t) +
             '<p class="members">' + t.members.map(function(m){ return m.slot + "번 " + esc(m.ign); }).join(" · ") + "</p>" + rows + "</div>" : "") +
@@ -328,6 +345,32 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
     }
   });
 
+  function loadEvents(){
+    fetch(GAPI + "/api/killrace/events", { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){ if (j && Array.isArray(j.events)) { EVS = j; renderPick(); } })
+      .catch(function(){});
+  }
+  function renderPick(){
+    if (!EVS || EVS.events.length < 2) { $("pickRow").hidden = true; return; }
+    var cur = evWant != null ? evWant : EVS.currentId;
+    $("evSel").innerHTML = EVS.events.map(function(e){
+      return '<option value="' + e.id + '"' + (e.id === cur ? " selected" : "") + ">" + esc(roundOf(e.name, e.id)) + " · " + md(e.start) + (e.id === EVS.currentId ? " (지금)" : "") + "</option>";
+    }).join("");
+    $("pickRow").hidden = false;
+  }
+  $("evSel").addEventListener("change", function(){
+    var id = Number(this.value);
+    evWant = EVS && id === EVS.currentId ? null : id;
+    try {
+      var u = new URL(location.href);
+      if (evWant == null) u.searchParams.delete("event"); else u.searchParams.set("event", String(evWant));
+      history.replaceState(null, "", u.toString());
+    } catch (e) { /* 주소만 못 바꿔도 화면은 바뀐다 */ }
+    open = {}; load();
+  });
+
+  loadEvents();
   load();
   setInterval(load, 5000);
   setInterval(renderChips, 15000);
