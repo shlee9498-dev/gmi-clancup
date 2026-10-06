@@ -159,6 +159,11 @@ footer a{color:var(--ink-dim);}
 .h-line b{color:var(--ink);font-weight:600;}
 .h-meta{font-size:12px;color:var(--ink-faint);margin-top:2px;}
 .h-none{color:var(--red);font-weight:600;margin-top:2px;}
+.h-acts{display:flex;gap:6px;margin-top:6px;}
+.h-edit{margin-top:8px;}
+.h-edit:empty{display:none;}
+.h-edit .acct{margin-bottom:8px;}
+.h-edit-acts{display:flex;gap:6px;}
 </style>
 </head>
 <body>
@@ -241,6 +246,9 @@ footer a{color:var(--ink-dim);}
 
   <section class="card" id="hostIntro" hidden aria-labelledby="hostIntroTitle">
     <h2 class="card-h" id="hostIntroTitle">선수 소개 모아 보기</h2>
+    <div class="field"><label class="label" for="hostBy">바꾸는 사람</label>
+      <input type="text" class="input" id="hostBy" maxlength="20" autocomplete="off" placeholder="고치거나 비울 때 남길 이름"></div>
+    <p class="msg" id="hostMsg" role="status" aria-live="polite"></p>
     <p class="h-sum" id="hostSum"></p>
     <div id="hostMiss"></div>
     <div id="hostRows"></div>
@@ -335,7 +343,9 @@ footer a{color:var(--ink-dim);}
  * 그대로다 — 이미 들어온 신청이 그 줄에 있어 이름을 바꾸면 사라진다. r2 는 「이 폼의 신청 줄」이라는 이름표일 뿐이다.
  * 선수 소개 4칸(10/7 · 계약 §1.15): 주 포지션 · 성향 · 포부(필수) · 소개 카드 이름(선택). 주무기 칸은 두지 않는다(지휘 10/7 정정). 새 신청은 신청과 같이 보내고,
  * 이미 신청한 사람은 「내 신청」(디스코드 닉 + 스팀 닉)으로 불러와 소개만 저장한다(/api/killrace/apply/mine · /intro). 계좌는 다시 묻지도 그리지도 않는다.
- * ?host=1 + 운영 키면 「선수 소개 모아 보기」(신청자별 4칸 · 안 채운 사람)를 연다 — 키는 다른 킬내기 화면과 같은 kn_host(세션 저장소). */
+ * ?host=1 + 운영 키면 「선수 소개 모아 보기」(신청자별 4칸 · 안 채운 사람)를 연다 — 키는 다른 킬내기 화면과 같은 kn_host(세션 저장소).
+ * 진행자는 줄마다 「고치기」(소개를 대신 고침) · 「비우기」(본인이 다시 쓰게)를 쓸 수 있다(검수 42차) — 운영 키 + 바꾸는 사람(kn_host_by · 점수판과 같은 자리).
+ * 전적 줄(평딜 · KDA)은 신청 때 전적 조회로 받아 둔 값이다(새로 조회하지 않는다). */
 var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
 var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
 var BANKS = ["국민","신한","우리","하나","농협","기업","카카오뱅크","토스뱅크","케이뱅크","새마을","우체국","신협","수협","부산","대구","경남","광주","전북","SC제일","산업"];
@@ -526,6 +536,16 @@ var store = { get: function (k) { try { return sessionStorage.getItem(k); } catc
               set: function (k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} } };
 var hostKey = hostMode ? store.get("kn_host") : null;
 var MISS_KO = { position: "포지션", style: "성향", ambition: "포부" };
+var keep = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+             set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+var hostData = null;
+function statsLine(x) {
+  var bits = [];
+  if (x.avgDamage != null) bits.push("평딜 " + x.avgDamage);
+  if (x.kda != null) bits.push("KDA " + x.kda);
+  return bits.length ? bits.join(" · ") + " (신청 때 전적)" : "신청 때 전적을 못 불러왔어요";
+}
+function setHostMsg(text, bad) { var el = $("hostMsg"); el.textContent = text; el.style.color = bad ? "var(--red)" : "var(--ink)"; }
 function kstTime(ms) { var d = new Date(ms + 9 * 3600e3); return (d.getUTCMonth() + 1) + "/" + d.getUTCDate() + " " + ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + d.getUTCMinutes()).slice(-2); }
 function hostRender(d) {
   var rows = d.list.filter(function (x) { return x.status !== "cancelled"; }).sort(function (a, b) { return a.order - b.order; });
@@ -541,19 +561,67 @@ function hostRender(d) {
       '<span class="h-tag">' + esc(x.tier) + "</span>" + (x.waiting ? '<span class="h-tag">대기</span>' : "") +
       (i && i.position ? '<span class="h-tag pos">' + esc(i.position) + "</span>" : "") +
       (i && i.style ? '<span class="h-tag pos">' + esc(i.style) + "</span>" : "") + "</div>";
-    if (!i) return '<div class="h-row">' + top + '<div class="h-none">아직 안 채웠어요 · 디스코드 ' + esc(x.discord) + "</div></div>";
+    var stats = '<div class="h-meta">' + esc(statsLine(x)) + "</div>";
+    var acts = '<div class="h-acts"><button type="button" class="btn btn-soft" data-edit="' + esc(x.id) + '">고치기</button>' +
+      (i ? '<button type="button" class="btn btn-soft" data-clear="' + esc(x.id) + '">비우기</button>' : "") +
+      '</div><div class="h-edit" id="edit-' + esc(x.id) + '"></div>';
+    if (!i) return '<div class="h-row">' + top + '<div class="h-none">아직 안 채웠어요 · 디스코드 ' + esc(x.discord) + "</div>" + stats + acts + "</div>";
     return '<div class="h-row">' + top +
       '<div class="h-line">카드 이름 <b>' + esc(i.cardShown || "") + "</b>" + (i.cardName ? "" : " (디스코드 닉)") + "</div>" +
-      '<div class="h-line">포부 <b>' + esc(i.ambition || "") + "</b></div>" +
-      '<div class="h-meta">마지막 저장 ' + (i.at ? kstTime(i.at) : "-") + " · " + i.saves + "번 저장</div></div>";
+      '<div class="h-line">포부 <b>' + esc(i.ambition || "") + "</b></div>" + stats +
+      '<div class="h-meta">마지막 저장 ' + (i.at ? kstTime(i.at) : "-") + " · " + i.saves + "번 저장" + (i.by ? " · 진행자 " + esc(i.by) + " 님이 고침" : "") + "</div>" + acts + "</div>";
   }).join("") || '<p class="note">아직 신청이 없어요</p>';
+}
+/* ── 진행자 고치기 · 비우기 — 운영 키 + 바꾸는 사람. 한 번에 한 줄만 고친다 ── */
+function hostRow(id) { return hostData && hostData.list.filter(function (x) { return x.id === id; })[0]; }
+function closeEditors() { Array.prototype.forEach.call(document.querySelectorAll(".h-edit"), function (el) { el.innerHTML = ""; }); }
+function openEditor(id) {
+  var x = hostRow(id); if (!x) return;
+  closeEditors();
+  var box = $("edit-" + id);
+  box.innerHTML = '<div class="acct intro-box">' + introFields("h") + "</div>" +
+    '<div class="h-edit-acts"><button type="button" class="btn btn-main" data-save="' + esc(id) + '">이대로 저장</button>' +
+    '<button type="button" class="btn btn-line" data-close="1">닫기</button></div>';
+  fillIntro("h", x.intro);
+}
+function hostPost(body, done) {
+  var by = $("hostBy").value.trim();
+  if (!by) { setHostMsg("바꾸는 사람 이름을 먼저 적어 주세요", true); $("hostBy").focus(); return; }
+  keep.set("kn_host_by", by);
+  body.by = by;
+  fetch(GAPI + "/api/killrace/apply/admin", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": hostKey }, body: JSON.stringify(body) })
+    .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, status: r.status, d: d || {} }; }); })
+    .then(function (res) {
+      if (res.status === 401) { hostKey = null; $("hostIntro").hidden = true; $("hostGate").hidden = false; $("hostGateMsg").textContent = "운영 키가 맞지 않아요"; return; }
+      if (!res.ok || !res.d.ok) {
+        var code = res.d.error;
+        setHostMsg(code === "need_by" ? "바꾸는 사람 이름을 1~20자로 적어 주세요" : ERR[code] || "저장이 안 됐어요. 잠시 뒤 다시 해볼까요?", true); return;
+      }
+      hostData = res.d; hostRender(res.d); setHostMsg(done);
+    })
+    .catch(function () { setHostMsg("저장이 안 됐어요. 잠시 뒤 다시 해볼까요?", true); });
+}
+function hostClick(e) {
+  var t = e.target.closest("button"); if (!t) return;
+  if (t.getAttribute("data-edit")) { setHostMsg(""); openEditor(t.getAttribute("data-edit")); return; }
+  if (t.getAttribute("data-close")) { closeEditors(); return; }
+  var id = t.getAttribute("data-save") || t.getAttribute("data-clear");
+  var x = hostRow(id); if (!x) return;
+  if (t.getAttribute("data-save")) {
+    var v = readIntro("h"), miss = introMiss(v);
+    if (miss) { setHostMsg(ERR[miss], true); return; }
+    hostPost({ action: "introEdit", id: id, intro: v }, x.ign + " 님 소개를 고쳤어요");
+    return;
+  }
+  if (!window.confirm(x.ign + " 님 소개를 비울까요? 본인이 「내 신청」에서 다시 채워야 해요")) return;
+  hostPost({ action: "introClear", id: id }, x.ign + " 님 소개를 비웠어요. 본인이 다시 채우면 여기 보여요");
 }
 function hostLoad() {
   return fetch(GAPI + "/api/killrace/apply", { headers: { "x-admin-key": hostKey }, cache: "no-store" })
     .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
     .then(function (d) {
       if (!d.admin) { hostKey = null; $("hostIntro").hidden = true; $("hostGate").hidden = false; $("hostGateMsg").textContent = "운영 키가 맞지 않아요"; return false; }
-      store.set("kn_host", hostKey); $("hostGate").hidden = true; $("hostIntro").hidden = false; hostRender(d); return true;
+      store.set("kn_host", hostKey); $("hostGate").hidden = true; $("hostIntro").hidden = false; hostData = d; hostRender(d); return true;
     })
     .catch(function () { $("hostGateMsg").textContent = "지금은 못 불러왔어요. 잠시 뒤 다시 해볼까요?"; });
 }
@@ -567,7 +635,9 @@ function hostLoad() {
   $("mineSave").addEventListener("click", mineSave);
   if (hostMode) {
     $("hostGo").addEventListener("click", function () { hostKey = $("hostKey").value.trim(); if (hostKey) hostLoad(); });
-    $("hostReload").addEventListener("click", function () { if (hostKey) hostLoad(); });
+    $("hostReload").addEventListener("click", function () { if (hostKey) { setHostMsg(""); hostLoad(); } });
+    $("hostRows").addEventListener("click", hostClick);
+    $("hostBy").value = keep.get("kn_host_by") || "";
     if (hostKey) hostLoad(); else $("hostGate").hidden = false;
   }
   $("lookupBtn").addEventListener("click", function () { lookup(true); });
