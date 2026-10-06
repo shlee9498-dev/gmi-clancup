@@ -333,41 +333,44 @@ footer a{color:var(--ink-dim);}
  * 2회는 스팀 전용이다(오너 10/4 밤). 플랫폼 칸은 없고 조회도 스팀만 한다. 서버도 스팀이 아닌 값은 거절한다.
  * 10/5 번외가 2회가 되면서 이 폼의 대회(10/8)는 3회다(10/6 지휘). 화면 글자만 3회로 바꿨고, 서버 저장 줄 이름(killrace:apply:r2)은
  * 그대로다 — 이미 들어온 신청이 그 줄에 있어 이름을 바꾸면 사라진다. r2 는 「이 폼의 신청 줄」이라는 이름표일 뿐이다.
- * 선수 소개 4칸(10/7 · 계약 §1.15): 포지션 · 주무기 · 팀장에게 한마디(필수) · 소개 카드 이름(선택). 새 신청은 신청과 같이 보내고,
+ * 선수 소개 4칸(10/7 · 계약 §1.15): 주 포지션 · 성향 · 포부(필수) · 소개 카드 이름(선택). 주무기 칸은 두지 않는다(지휘 10/7 정정). 새 신청은 신청과 같이 보내고,
  * 이미 신청한 사람은 「내 신청」(디스코드 닉 + 스팀 닉)으로 불러와 소개만 저장한다(/api/killrace/apply/mine · /intro). 계좌는 다시 묻지도 그리지도 않는다.
  * ?host=1 + 운영 키면 「선수 소개 모아 보기」(신청자별 4칸 · 안 채운 사람)를 연다 — 키는 다른 킬내기 화면과 같은 kn_host(세션 저장소). */
 var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
 var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
 var BANKS = ["국민","신한","우리","하나","농협","기업","카카오뱅크","토스뱅크","케이뱅크","새마을","우체국","신협","수협","부산","대구","경남","광주","전북","SC제일","산업"];
 var POSITIONS = ["오더","돌격","저격","서포트"];
+var STYLES = ["공격적","밸런스","안정적"];
 var $ = function (id) { return document.getElementById(id); };
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]; }); }
 
 var closed = false, lastLookup = "", lookupTimer = null, lookupSeq = 0;
 
 /* ── 선수 소개 4칸 — 새 신청(n) · 내 신청(m) 두 곳에 같은 칸을 그린다 ── */
+function segField(p, key, label, list) {
+  return '<fieldset><legend class="label">' + label + ' <span class="req">*</span></legend><div class="seg">' +
+    list.map(function (x) { return '<label><input type="radio" name="' + p + key + '" value="' + x + '"><span>' + x + "</span></label>"; }).join("") +
+    "</div></fieldset>";
+}
 function introFields(p) {
   return '<div class="acct-h" style="margin-bottom:2px;">선수 소개</div><p class="note" style="margin-bottom:8px;">경매 때 소개 카드에 나가요</p>' +
-    '<fieldset><legend class="label">주 포지션 <span class="req">*</span></legend><div class="seg">' +
-    POSITIONS.map(function (x) { return '<label><input type="radio" name="' + p + 'Pos" value="' + x + '"><span>' + x + "</span></label>"; }).join("") +
-    "</div></fieldset>" +
-    '<div class="field"><label class="label" for="' + p + 'Weapons">주무기 조합 <span class="req">*</span></label>' +
-    '<input type="text" class="input" id="' + p + 'Weapons" maxlength="30" autocomplete="off" placeholder="예: 베릴 + 미니"></div>' +
-    '<div class="field"><label class="label" for="' + p + 'Message">팀장에게 한마디 <span class="req">*</span></label>' +
-    '<input type="text" class="input" id="' + p + 'Message" maxlength="30" autocomplete="off" placeholder="경매 때 팀장들이 읽어요"></div>' +
+    segField(p, "Pos", "주 포지션", POSITIONS) + segField(p, "Style", "성향", STYLES) +
+    '<div class="field"><label class="label" for="' + p + 'Ambition">포부 <span class="req">*</span></label>' +
+    '<input type="text" class="input" id="' + p + 'Ambition" maxlength="30" autocomplete="off" placeholder="예: 오늘 킬 1등 해요"></div>' +
     '<div class="field" style="margin-bottom:0;"><label class="label" for="' + p + 'Card">소개 카드 이름 <span class="opt">비우면 디스코드 닉으로 나가요</span></label>' +
     '<input type="text" class="input" id="' + p + 'Card" maxlength="12" autocomplete="off" placeholder="카드에 쓸 이름"></div>';
 }
+function picked(p, key) { var c = document.querySelector('input[name="' + p + key + '"]:checked'); return c ? c.value : ""; }
+function pick(p, key, value) { Array.prototype.forEach.call(document.querySelectorAll('input[name="' + p + key + '"]'), function (r) { r.checked = r.value === value; }); }
 function readIntro(p) {
-  var c = document.querySelector('input[name="' + p + 'Pos"]:checked');
-  return { position: c ? c.value : "", weapons: $(p + "Weapons").value.trim(), message: $(p + "Message").value.trim(), cardName: $(p + "Card").value.trim() };
+  return { position: picked(p, "Pos"), style: picked(p, "Style"), ambition: $(p + "Ambition").value.trim(), cardName: $(p + "Card").value.trim() };
 }
 function fillIntro(p, v) {
   v = v || {};
-  Array.prototype.forEach.call(document.querySelectorAll('input[name="' + p + 'Pos"]'), function (r) { r.checked = r.value === v.position; });
-  $(p + "Weapons").value = v.weapons || ""; $(p + "Message").value = v.message || ""; $(p + "Card").value = v.cardName || "";
+  pick(p, "Pos", v.position); pick(p, "Style", v.style);
+  $(p + "Ambition").value = v.ambition || ""; $(p + "Card").value = v.cardName || "";
 }
-function introMiss(v) { return !v.position ? "no_position" : !v.weapons ? "no_weapons" : !v.message ? "no_message" : ""; }
+function introMiss(v) { return !v.position ? "no_position" : !v.style ? "no_style" : !v.ambition ? "no_ambition" : ""; }
 function post(path, body) {
   return fetch(GAPI + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
     .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d || {} }; }); });
@@ -406,10 +409,9 @@ var ERR = {
   dup_discord: "이미 신청한 디스코드 닉이에요. 아래 「내 신청」에서 선수 소개만 채우면 돼요",
   dup_ign: "이미 신청한 스팀 닉이에요. 아래 「내 신청」에서 선수 소개만 채우면 돼요",
   no_position: "주 포지션을 골라 주세요",
-  no_weapons: "주무기 조합을 적어 주세요",
-  long_weapons: "주무기 조합은 30자까지 적을 수 있어요",
-  no_message: "팀장에게 한마디를 적어 주세요",
-  long_message: "한마디는 30자까지 적을 수 있어요",
+  no_style: "성향을 골라 주세요",
+  no_ambition: "포부를 적어 주세요",
+  long_ambition: "포부는 30자까지 적을 수 있어요",
   long_card_name: "카드 이름은 12자까지 적을 수 있어요",
   not_found: "그 닉으로 된 신청을 못 찾았어요. 신청할 때 쓴 디스코드 닉과 스팀 닉을 그대로 적어 볼까요?",
   intro_closed: "마감이 지나서 소개를 더 고칠 수 없어요. 바꿀 게 있으면 디스코드로 알려 주세요",
@@ -523,7 +525,7 @@ var hostMode = new URLSearchParams(location.search).get("host") === "1";
 var store = { get: function (k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
               set: function (k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} } };
 var hostKey = hostMode ? store.get("kn_host") : null;
-var MISS_KO = { position: "포지션", weapons: "주무기", message: "한마디" };
+var MISS_KO = { position: "포지션", style: "성향", ambition: "포부" };
 function kstTime(ms) { var d = new Date(ms + 9 * 3600e3); return (d.getUTCMonth() + 1) + "/" + d.getUTCDate() + " " + ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + d.getUTCMinutes()).slice(-2); }
 function hostRender(d) {
   var rows = d.list.filter(function (x) { return x.status !== "cancelled"; }).sort(function (a, b) { return a.order - b.order; });
@@ -537,12 +539,12 @@ function hostRender(d) {
     var i = x.intro;
     var top = '<div class="h-top"><span class="no">' + x.order + '</span><span class="ign">' + esc(x.ign) + "</span>" +
       '<span class="h-tag">' + esc(x.tier) + "</span>" + (x.waiting ? '<span class="h-tag">대기</span>' : "") +
-      (i && i.position ? '<span class="h-tag pos">' + esc(i.position) + "</span>" : "") + "</div>";
+      (i && i.position ? '<span class="h-tag pos">' + esc(i.position) + "</span>" : "") +
+      (i && i.style ? '<span class="h-tag pos">' + esc(i.style) + "</span>" : "") + "</div>";
     if (!i) return '<div class="h-row">' + top + '<div class="h-none">아직 안 채웠어요 · 디스코드 ' + esc(x.discord) + "</div></div>";
     return '<div class="h-row">' + top +
       '<div class="h-line">카드 이름 <b>' + esc(i.cardShown || "") + "</b>" + (i.cardName ? "" : " (디스코드 닉)") + "</div>" +
-      '<div class="h-line">주무기 <b>' + esc(i.weapons || "") + "</b></div>" +
-      '<div class="h-line">한마디 <b>' + esc(i.message || "") + "</b></div>" +
+      '<div class="h-line">포부 <b>' + esc(i.ambition || "") + "</b></div>" +
       '<div class="h-meta">마지막 저장 ' + (i.at ? kstTime(i.at) : "-") + " · " + i.saves + "번 저장</div></div>";
   }).join("") || '<p class="note">아직 신청이 없어요</p>';
 }
