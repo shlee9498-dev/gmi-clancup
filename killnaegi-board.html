@@ -58,6 +58,7 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
 .total{font-family:var(--display);font-weight:800;font-size:38px;font-variant-numeric:tabular-nums;}
 .total.minus{color:var(--red);}
 .prov{display:block;font-size:12.5px;font-weight:700;color:var(--ink-faint);margin-top:3px;}
+.prov.shot{grid-column:2 / -1;margin-top:-2px;}
 .detail{border-top:1px solid var(--line);padding:12px 14px 14px;}
 .chase{background:var(--accent-soft);color:var(--accent-ink);border-radius:var(--r-md);padding:10px 12px;font-size:14.5px;font-weight:700;}
 .chase small{display:block;font-size:12.5px;font-weight:500;color:var(--ink-dim);margin-top:2px;}
@@ -96,6 +97,14 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
 .state.idle{background:var(--field);color:var(--ink-dim);}
 .links{list-style:none;margin-top:8px;}
 .links li{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);font-size:14px;}
+.sub-h{font-size:15px;font-weight:800;margin-top:20px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0 10px;}
+.grid .input,.wide{width:100%;}
+.input.sm{width:84px;min-height:36px;padding:6px 10px;}
+.log{list-style:none;margin-top:6px;font-size:13px;color:var(--ink-dim);}
+.log li{padding:7px 0;border-top:1px solid var(--line);overflow-wrap:anywhere;}
+.log li:first-child{border-top:0;}
+.log b{color:var(--ink);font-variant-numeric:tabular-nums;}
 .foot{text-align:center;font-size:12.5px;color:var(--ink-faint);margin-top:16px;}
 .foot a{color:var(--ink-dim);}
 [hidden]{display:none !important;}
@@ -130,17 +139,53 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
       <button type="button" class="btn main" data-act="run" id="runBtn">지금 집계</button>
       <button type="button" class="btn" data-act="auto" id="autoBtn"></button>
     </div>
-    <label class="label" for="boostAt">1.5배 판 시작 시각</label>
-    <div class="row">
-      <input class="input" id="boostAt" type="datetime-local" style="flex:1 1 180px;">
-      <button type="button" class="btn" data-act="boostAt">저장</button>
-    </div>
     <label class="label">팀별 +1킬 주소</label>
     <p class="muted">팀마다 주소가 달라요. 팀장에게 DM 으로 하나씩 보내 주세요</p>
     <ul class="links" id="links"></ul>
     <div class="row" style="margin-top:8px;"><button type="button" class="btn" data-act="tokens">주소 만들기</button></div>
     <p class="msg" id="hostMsg" role="status" aria-live="polite"></p>
     <div id="excluded"></div>
+  </section>
+
+  <section class="card" id="evCard" hidden>
+    <h2 class="card-h">대회 설정</h2>
+    <label class="label" for="hostBy">바꾸는 사람</label>
+    <input class="input wide" id="hostBy" maxlength="20" autocomplete="off" placeholder="이름이나 닉네임">
+    <p class="muted" style="margin-top:4px;">운영 키는 한 벌이라 여기 적은 이름으로 바꾼 기록을 남겨요</p>
+
+    <h3 class="sub-h">이 회차 시각</h3>
+    <div class="grid">
+      <div><label class="label" for="evStart">시작</label><input class="input" id="evStart" type="datetime-local"></div>
+      <div><label class="label" for="evEnd">끝</label><input class="input" id="evEnd" type="datetime-local"></div>
+      <div><label class="label" for="evBoost">1.5배 판 시작 (비우면 없음)</label><input class="input" id="evBoost" type="datetime-local"></div>
+    </div>
+    <div class="row" style="margin-top:10px;"><button type="button" class="btn main" data-act="evTimes">시각 저장</button></div>
+    <p class="msg" id="evTimesMsg" role="status" aria-live="polite"></p>
+
+    <h3 class="sub-h">팀별 시작 보너스</h3>
+    <p class="muted">0판부터 총점에 더해요. 칸을 비우고 저장하면 지워져요</p>
+    <ul class="links" id="bonusList"></ul>
+    <div class="row" style="margin-top:8px;">
+      <input class="input" id="bonusTeam" maxlength="30" autocomplete="off" placeholder="등록 전 팀 이름" aria-label="보너스 넣을 팀 이름" style="flex:1 1 140px;">
+      <input class="input sm" id="bonusPts" type="number" min="-100" max="100" step="1" placeholder="점수" aria-label="보너스 점수">
+      <button type="button" class="btn" data-act="bonusAdd">넣기</button>
+    </div>
+    <p class="msg" id="bonusMsg" role="status" aria-live="polite"></p>
+
+    <h3 class="sub-h">새 대회 만들기</h3>
+    <p class="muted">만드는 순간 점수판 기본 화면과 팀 등록이 새 회차로 넘어가요</p>
+    <label class="label" for="newName">이름 (5회처럼 회차를 넣으면 제목에 떠요)</label>
+    <input class="input wide" id="newName" maxlength="40" autocomplete="off" placeholder="대승배 GmI 킬내기 5회">
+    <div class="grid">
+      <div><label class="label" for="newStart">시작</label><input class="input" id="newStart" type="datetime-local"></div>
+      <div><label class="label" for="newEnd">끝</label><input class="input" id="newEnd" type="datetime-local"></div>
+      <div><label class="label" for="newBoost">1.5배 판 시작 (비우면 없음)</label><input class="input" id="newBoost" type="datetime-local"></div>
+    </div>
+    <div class="row" style="margin-top:10px;"><button type="button" class="btn" data-act="evCreate">새 대회 만들기</button></div>
+    <p class="msg" id="newMsg" role="status" aria-live="polite"></p>
+
+    <h3 class="sub-h">바꾼 기록</h3>
+    <ul class="log" id="hostLog"></ul>
   </section>
 
   <div id="standings" aria-live="polite"></div>
@@ -152,7 +197,11 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
  * 이 화면은 받은 값을 그리기만 한다. 5초마다 다시 받는다. 끝까지 공개한다(가리는 시간 없음 — 지휘 10/4 개정).
  * 회색 「잠정 +n」 은 팀이 +1킬 버튼으로 누른 값이다. 총점에는 들어가지 않고 그 판이 확정되면 0 으로 돌아간다.
  * 회색 「스샷 잠정」 은 봇이 팀배정 채널 결과 화면 사진에서 읽은 값이다(서버 shot 칸). 총점에 안 들어가고 같은 판 전적이 오면 사라진다.
- * 진행자(?host=1 + 운영 키): 「지금 집계」 · 자동 집계 켜고 끄기 · 이탈 −10 · 이 판 무효(낙하 전 튕김) · 핵 사망 무효 · 팀별 +1킬 주소. */
+ *   잠정 판 점수(사망 감점 · 치킨 · 1.5배 포함)도 서버가 계산해 준다(shot.basis "full" · shot.score). 음수는 빨갛게 그대로 보여 준다.
+ *   치킨 판에서 사망 표시를 못 읽으면 점수를 못 내므로 킬 · 딜만 보여 주고 「킬만 반영」 을 붙인다(계약 docs/killrace-api.md §1.10).
+ * 진행자(?host=1 + 운영 키): 「지금 집계」 · 자동 집계 켜고 끄기 · 이탈 −10 · 이 판 무효(낙하 전 튕김) · 핵 사망 무효 · 팀별 +1킬 주소.
+ *   「대회 설정」(§1.7): 이 회차 시각(시작 · 끝 · 1.5배) · 팀별 시작 보너스 · 새 대회 만들기 · 바꾼 기록. 바꿀 때마다 「바꾸는 사람」 이름을 같이 보낸다.
+ *   이미 점수에 들어간 판이 빠지는 시각 변경 · 집계 중인 회차가 있을 때 새 대회 만들기는 서버가 409 로 되묻고, 확인을 받아 confirm 으로 다시 보낸다. */
 (function(){
   "use strict";
   var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
@@ -160,8 +209,11 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
   var hostMode = new URLSearchParams(location.search).get("host") === "1";
   var store = { get: function(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } },
                 set: function(k,v){ try { sessionStorage.setItem(k,v); } catch(e){} } };
+  var keep = { get: function(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+               set: function(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
   var adminKey = hostMode ? store.get("kn_host") : null;
   var B = null, isHost = false, skew = 0, open = {}, busy = false;
+  var evSeen = null, evDirty = false, bonusSig = "";
   var $ = function(id){ return document.getElementById(id); };
   var esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); };
   var hm = function(ms){ if (ms == null) return "–"; var d = new Date(ms + 9 * 3600000); return ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + d.getUTCMinutes()).slice(-2); };
@@ -220,6 +272,16 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
       "<small>딜 100도 1점이에요" + next + (t.boostUsed || B.boostAt == null ? "" : " · 1.5배 판이 남아 있어요") + "</small></div>";
   }
 
+  // 스샷 잠정 — 서버가 낸 잠정 판 점수(사망 감점 · 치킨 · 1.5배 포함)를 부호 그대로. 점수를 못 내면(치킨 판 사망 표시를 못 읽음) 킬 · 딜만
+  function shotText(s){
+    var where = s.n > 1 ? s.n + "판 " : s.rank ? s.rank + "위 " : "";
+    if (s.basis === "full" && s.score != null) {
+      var boost = s.boost === "maybe" ? " " + B.boostMul + "배 미정" : typeof s.boost === "number" ? " " + s.boost + "배" : "";
+      return '<span class="prov shot">스샷 잠정 ' + where + s.kills + "킬 <b" + (s.score < 0 ? ' class="minus"' : "") + ">" + signed(s.score) + "점</b>" + boost + "</span>";
+    }
+    return '<span class="prov shot">스샷 잠정 ' + where + s.kills + "킬 딜 " + s.damage + " (킬만 반영)</span>";
+  }
+
   function gameRow(t, g){
     if (g.void) {
       return '<div class="game void"><div class="game-h">' + esc(g.map) + " <span>" + hm(g.startedAt) + '</span></div><div class="game-s">0</div>' +
@@ -247,6 +309,7 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
   function render(){
     $("hostGate").hidden = !(hostMode && !isHost) || !!(B && B.past);
     $("hostCard").hidden = !isHost;
+    $("evCard").hidden = !isHost;
     renderChips();
     var el = $("standings");
     if (!B || B.error) { el.innerHTML = '<div class="empty"><b>아직 열리지 않았어요</b>대회가 시작되면 여기에 순위가 보여요</div>'; return; }
@@ -265,7 +328,7 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
             '<span><span class="name">' + esc(t.name) + move + '</span><span class="sub" style="display:block;">' + sub + "</span></span>" +
             '<span class="score"><span class="total' + (t.total < 0 ? " minus" : "") + '">' + t.total + "</span>" +
               (t.provisional ? '<span class="prov">잠정 +' + t.provisional + "킬</span>" : "") +
-              (t.shot ? '<span class="prov">스샷 잠정 ' + (t.shot.rank ? t.shot.rank + "위 " : "") + t.shot.kills + "킬 딜 " + t.shot.damage + "</span>" : "") + "</span>" +
+              "</span>" + (t.shot ? shotText(t.shot) : "") +
           "</button>" +
           (isOpen ? '<div class="detail">' + chaseLine(t) +
             '<p class="members">' + t.members.map(function(m){ return m.slot + "번 " + esc(m.ign); }).join(" · ") + "</p>" + rows + "</div>" : "") +
@@ -287,7 +350,6 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
     st.className = cls; st.textContent = txt;
     $("runBtn").disabled = busy || !!B.running;
     $("autoBtn").textContent = B.auto ? "자동 집계 끄기" : "자동 집계 켜기";
-    if (document.activeElement !== $("boostAt")) $("boostAt").value = toLocal(B.boostAt);
     var base = location.origin + location.pathname.replace(/[^/]*$/, "") + "killnaegi-kill.html#t=";
     var withToken = B.teams.filter(function(t){ return t.liveToken; });
     $("links").innerHTML = withToken.length ? withToken.map(function(t){
@@ -296,6 +358,42 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
     var ex = [];
     B.teams.forEach(function(t){ (t.excluded || []).forEach(function(g){ ex.push(esc(t.name) + " · " + hm(g.startedAt) + " " + esc(g.map) + " · " + esc(g.reason)); }); });
     $("excluded").innerHTML = ex.length ? '<label class="label">점수에서 빠진 판</label><p class="muted">' + ex.join("<br>") + "</p>" : "";
+    renderEv();
+  }
+
+  // 대회 설정(§1.7) — 5초마다 다시 그려도 고치던 칸은 덮지 않는다(시각 = 손댄 뒤 저장 전 · 보너스 = 안에서 입력 중)
+  var orNone = function(ms){ return ms == null ? "없음" : hm(ms); };
+  var ptsOf = function(v){ return v == null ? "없음" : signed(v); };
+  function renderEv(){
+    if (B.eventId !== evSeen) { evSeen = B.eventId; evDirty = false; bonusSig = ""; }
+    if (!evDirty) { $("evStart").value = toLocal(B.event.start); $("evEnd").value = toLocal(B.event.end); $("evBoost").value = toLocal(B.boostAt); }
+    var all = B.bonusAll, names = B.teams.map(function(t){ return t.name; });
+    if (!all) { all = {}; B.teams.forEach(function(t){ if (t.bonus) all[t.name] = t.bonus; }); }
+    Object.keys(all).forEach(function(n){ if (names.indexOf(n) < 0) names.push(n); });
+    var sig = JSON.stringify([names, all]), box = $("bonusList");
+    if (sig !== bonusSig && !box.contains(document.activeElement)) {
+      bonusSig = sig;
+      box.innerHTML = names.length ? names.map(function(n){
+        var reg = B.teams.some(function(t){ return t.name === n; });
+        var v = Object.prototype.hasOwnProperty.call(all, n) ? all[n] : "";
+        return "<li><span>" + esc(n) + (reg ? "" : ' <span class="tag">등록 전</span>') + '</span><span class="row">' +
+          '<input class="input sm" type="number" min="-100" max="100" step="1" value="' + esc(v) + '" aria-label="' + esc(n) + ' 보너스">' +
+          '<button type="button" class="mini" data-act="bonusSave" data-team="' + esc(n) + '">저장</button></span></li>';
+      }).join("") : '<li class="muted">아직 팀이 없어요. 등록 전 팀도 아래에서 이름으로 넣을 수 있어요</li>';
+    }
+    var log = (B.hostLog || []).slice().reverse();
+    $("hostLog").innerHTML = log.length ? log.map(logLine).join("") : '<li class="muted">아직 바꾼 게 없어요</li>';
+  }
+  function logLine(e){
+    var a = e.after || {}, b = e.before || {}, what;
+    if (e.action === "eventCreate") what = "새 대회 " + esc(a.name) + " " + md(a.start) + " " + hm(a.start) + "~" + hm(a.end) + (a.boostAt != null ? ", 1.5배 " + hm(a.boostAt) : "");
+    else if (e.action === "bonus") what = esc(e.team) + " 보너스 " + ptsOf(e.before) + " → " + ptsOf(e.after);
+    else {
+      var f = { start: "시작", end: "끝", boostAt: "1.5배" };
+      what = Object.keys(f).filter(function(k){ return k in a; }).map(function(k){ return f[k] + " " + orNone(b[k]) + " → " + orNone(a[k]); }).join(", ");
+      if (e.dropped) what += ", 빠진 판 " + e.dropped + "개";
+    }
+    return "<li><b>" + hm(e.at) + "</b> " + esc(e.by) + " · " + what + "</li>";
   }
 
   function admin(body, okText){
@@ -312,6 +410,43 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
       .catch(function(){ m.className = "msg"; m.textContent = "서버에 닿지 않았어요. 한 번 더 눌러 주세요"; });
   }
 
+  var EV_ERR = { need_by: "바꾸는 사람 이름을 먼저 적어 주세요", bad_name: "대회 이름을 40자 안으로 적어 주세요",
+    bad_time: "시각을 다시 확인해 주세요", bad_window: "끝은 시작보다 뒤로, 길이는 6시간까지예요",
+    bad_boost: "1.5배 판 시각은 시작과 끝 사이로 잡아 주세요", event_closed: "끝난 회차는 여기서 못 바꿔요",
+    bad_team: "팀 이름을 30자 안으로 적어 주세요", bad_points: "보너스는 −100에서 100 사이 정수로 적어 주세요",
+    bad_event: "회차를 못 찾았어요", no_event: "회차를 못 찾았어요", unauthorized: "운영 키가 맞지 않아요",
+    bad_action: "서버가 아직 이 기능을 몰라요. 서버 배포가 끝난 뒤에 다시 해 주세요" };
+  function evAct(body, msgId, okText){
+    var m = $(msgId), by = $("hostBy").value.trim();
+    if (!by) { m.className = "msg"; m.textContent = EV_ERR.need_by; $("hostBy").focus(); return Promise.resolve(false); }
+    body.by = by;
+    var send = function(){
+      return fetch(GAPI + "/api/killrace/board/admin", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": adminKey }, body: JSON.stringify(body) })
+        .then(function(r){ return r.json().then(function(j){ return { status: r.status, ok: r.ok, body: j || {} }; }); });
+    };
+    var settle = function(r){
+      var code = r.body.error && r.body.error.code;
+      if (r.status === 409 && !body.confirm && (code === "event_open" || code === "would_drop")) {
+        var q = code === "event_open"
+          ? "지금 회차(" + ((r.body.current && r.body.current.name) || "") + ")가 아직 집계 중이에요. 새 대회를 만들면 점수판 기본 화면과 팀 등록이 새 회차로 넘어가요. 그래도 만들까요?"
+          : "이 시각으로 바꾸면 이미 점수에 들어간 판 " + r.body.count + "개가 빠져요\n" +
+            (r.body.games || []).slice(0, 3).map(function(g){ return g.team + " " + g.seq + "판 " + hm(g.startedAt); }).join("\n") + "\n그래도 바꿀까요?";
+        if (!confirm(q)) { m.className = "msg"; m.textContent = "그대로 뒀어요"; return false; }
+        body.confirm = true;
+        return send().then(settle);
+      }
+      m.className = "msg" + (r.ok ? " ok" : "");
+      m.textContent = r.ok ? okText(r.body) : EV_ERR[code] || "안 됐어요. 한 번 더 눌러 주세요";
+      return r.ok;
+    };
+    return send().then(settle)
+      .then(function(ok){ if (ok) return load().then(function(){ return true; }); return false; })
+      .catch(function(){ m.className = "msg"; m.textContent = "서버에 닿지 않았어요. 한 번 더 눌러 주세요"; return false; });
+  }
+  $("hostBy").value = keep.get("kn_host_by") || "";
+  $("hostBy").addEventListener("change", function(){ keep.set("kn_host_by", this.value.trim()); });
+  ["evStart", "evEnd", "evBoost"].forEach(function(id){ $(id).addEventListener("input", function(){ evDirty = true; }); });
+
   document.addEventListener("click", function(ev){
     var b = ev.target.closest("[data-act]"); if (!b) return;
     var act = b.getAttribute("data-act"), d = b.dataset;
@@ -324,7 +459,28 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
     if (act === "run") { busy = true; $("runBtn").disabled = true; $("hostMsg").className = "msg ok"; $("hostMsg").textContent = "집계 중이에요";
       admin({ action: "run" }, "집계했어요").then(function(){ busy = false; render(); }); return; }
     if (act === "auto") { admin({ action: "auto", on: !B.auto }, B.auto ? "자동 집계를 껐어요" : "자동 집계를 켰어요"); return; }
-    if (act === "boostAt") { admin({ action: "boostAt", boostAt: fromLocal($("boostAt").value) }, "저장했어요"); return; }
+    if (act === "evTimes") {
+      evAct({ action: "eventTimes", event: B.eventId, start: fromLocal($("evStart").value), end: fromLocal($("evEnd").value), boostAt: fromLocal($("evBoost").value) }, "evTimesMsg",
+        function(j){ return !j.changed ? "바뀐 게 없어요" : j.dropped ? "바꿨어요. 빠진 판 " + j.dropped + "개는 " + (j.rerun === "ok" ? "다시 집계해서 뺐어요" : "다음 집계에서 빠져요") : "바꿨어요"; })
+        .then(function(ok){ if (ok) { evDirty = false; render(); } });
+      return;
+    }
+    if (act === "bonusSave" || act === "bonusAdd") {
+      var team = act === "bonusAdd" ? $("bonusTeam").value.trim() : d.team;
+      var box = act === "bonusAdd" ? $("bonusPts") : b.parentNode.querySelector("input");
+      if (box.validity && box.validity.badInput) { $("bonusMsg").className = "msg"; $("bonusMsg").textContent = EV_ERR.bad_points; return; }   // 숫자가 아닌 글자를 「비움(= 지우기)」 으로 보내지 않는다
+      var pts = box.value === "" ? null : Number(box.value);
+      evAct({ action: "bonus", event: B.eventId, team: team, points: pts }, "bonusMsg",
+        function(j){ return !j.changed ? "바뀐 게 없어요" : pts === null ? team + " 보너스를 지웠어요" : j.registered === false ? team + " " + signed(pts) + " 넣었어요. 등록 전 팀이라 등록되면 붙어요" : team + " " + signed(pts) + " 넣었어요"; })
+        .then(function(ok){ if (ok && act === "bonusAdd") { $("bonusTeam").value = ""; $("bonusPts").value = ""; } });
+      return;
+    }
+    if (act === "evCreate") {
+      evAct({ action: "eventCreate", name: $("newName").value.trim(), start: fromLocal($("newStart").value), end: fromLocal($("newEnd").value), boostAt: fromLocal($("newBoost").value) }, "newMsg",
+        function(j){ return (j.event && j.event.name ? j.event.name + " " : "") + "만들었어요"; })
+        .then(function(ok){ if (ok) ["newName", "newStart", "newEnd", "newBoost"].forEach(function(id){ $(id).value = ""; }); });
+      return;
+    }
     if (act === "tokens") { admin({ action: "tokens" }, "주소를 만들었어요"); return; }
     if (act === "leave") {
       if (d.clear !== "1" && !confirm(d.team + " " + d.seq + "판을 이탈 −10 으로 바꿀까요?")) return;
