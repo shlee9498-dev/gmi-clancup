@@ -85,7 +85,7 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
   function render(){
     if (!B) return;
     var rm = /(\d+)\s*회/.exec(B.event.name || "");                 // 회차 글자는 서버 대회 이름에서(종전 「2회」 고정)
-    $("evRound").textContent = rm ? rm[1] + "회" : (B.eventId ? B.eventId + "회" : "");
+    $("evRound").textContent = rm ? rm[1] + "회" : /번외/.test(B.event.name || "") ? "번외" : (B.eventId ? B.eventId + "회" : "");
     $("board").hidden = false;
     var t = Date.now() + skew;
     $("clock").innerHTML = t < B.event.start ? "시작까지 <b>" + mins(B.event.start - t) + "분</b>"
