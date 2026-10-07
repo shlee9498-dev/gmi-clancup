@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>대승배 GmI 킬내기 3회 | 솔로 신청</title>
-<meta name="description" content="대승배 GmI 킬내기 3회 솔로 신청. 10월 8일 목요일 21:00 · 4인 스쿼드 5팀 · 팀은 경매로 정해요 · 1등 팀 24만 2등 팀 6만.">
-<meta property="og:title" content="대승배 GmI 킬내기 3회 솔로 신청">
+<title>대승배 GmI 킬내기 5회 | 솔로 신청</title>
+<meta name="description" content="대승배 GmI 킬내기 5회 솔로 신청. 10월 8일 목요일 21:00 · 4인 스쿼드 5팀 · 팀은 경매로 정해요 · 1등 팀 24만 2등 팀 6만.">
+<meta property="og:title" content="대승배 GmI 킬내기 5회 솔로 신청">
 <meta property="og:description" content="10월 8일 목요일 21:00 · 20명 선착순 · 팀은 경매로 정해요">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#F5F6F8">
@@ -188,7 +188,7 @@ footer a{color:var(--ink-dim);}
 <header class="hero">
   <div class="wrap">
     <div class="hero-top"><span class="kicker">대승배 · 대승님 후원</span><a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드 ↗</a></div>
-    <h1>GmI 킬내기 <span class="sun">3회</span></h1>
+    <h1>GmI 킬내기 <span class="sun">5회</span></h1>
     <div class="chips">
       <span class="chip"><b>10/8(목) 21:00~23:00</b></span>
       <span class="chip">1등 팀 <b>24만</b> · 2등 팀 <b>6만</b></span>
@@ -351,7 +351,7 @@ footer a{color:var(--ink-dim);}
 </main>
 
 <footer>
-  <div>GmI 클랜 · 대승배 킬내기 3회 · 2026 · 비영리 친목 대회</div>
+  <div>GmI 클랜 · 대승배 킬내기 5회 · 2026 · 비영리 친목 대회</div>
   <div style="margin-top:6px;"><a href="https://shlee9498-dev.github.io/gmi-clancup/">메인</a> · <a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드</a></div>
 </footer>
 
@@ -362,7 +362,8 @@ footer a{color:var(--ink-dim);}
  * 계좌는 보내기만 하고 어디에도 다시 받아 오지 않는다(공개 응답에 없다). 브라우저에도 저장하지 않는다.
  * 전적 조회는 기존 /api/bpi-suggest-auto 를 쓴다 — 닉을 다 치고 0.9초 쉬면 한 번, 같은 닉은 다시 묻지 않는다.
  * 2회는 스팀 전용이다(오너 10/4 밤). 플랫폼 칸은 없고 조회도 스팀만 한다. 서버도 스팀이 아닌 값은 거절한다.
- * 10/5 번외가 2회가 되면서 이 폼의 대회(10/8)는 3회다(10/6 지휘). 화면 글자만 3회로 바꿨고, 서버 저장 줄 이름(killrace:apply:r2)은
+ * 10/5 번외가 2회가 되면서 이 폼의 대회(10/8)는 3회였고, 그 뒤 회차가 더 열려 10/8 은 5회다(검수 44차 · 10/7 — 제목 · 머리 · 꼬리말 · 공유 미리보기 글자만 5회).
+ * 공유 미리보기(og 태그)는 정적이라 서버 회차 이름으로 그릴 수 없어 손으로 고친다. 서버 저장 줄 이름(killrace:apply:r2)은
  * 그대로다 — 이미 들어온 신청이 그 줄에 있어 이름을 바꾸면 사라진다. r2 는 「이 폼의 신청 줄」이라는 이름표일 뿐이다.
  * 선수 소개 4칸(10/7 · 계약 §1.15): 주 포지션 · 성향 · 포부(필수) · 소개 카드 이름(선택). 주무기 칸은 두지 않는다(지휘 10/7 정정). 새 신청은 신청과 같이 보내고,
  * 이미 신청한 사람은 「내 신청」(디스코드 닉 + 스팀 닉)으로 불러와 소개만 저장한다(/api/killrace/apply/mine · /intro). 계좌는 다시 묻지도 그리지도 않는다.
@@ -411,8 +412,7 @@ function payLine() { return payAccount ? '입금 계좌 <b>' + esc(payAccount) +
 function feeHtml() {
   return '<div class="acct-h">외부 참가비 ' + won(fee) + "</div>" +
     '<ul class="fee-list"><li>레슨생 · 클랜원은 무료예요</li><li>' + payLine() + "</li>" +
-    "<li>입금자명은 신청한 스팀 닉으로 해 주세요</li><li>디스코드에서 진행자가 확인해요</li>" +
-    "<li>대회 시작 전에 취소하면 전액 환불해요</li></ul>";
+    "<li>입금자명은 신청한 스팀 닉으로 해 주세요</li><li>디스코드에서 진행자가 확인해요</li></ul>";
 }
 function syncFee(p) {
   var box = $(p + "Fee"); if (!box) return;
