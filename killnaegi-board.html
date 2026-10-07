@@ -241,7 +241,8 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
   var evWant = (function(){ var v = new URLSearchParams(location.search).get("event") || ""; return /^\d{1,6}$/.test(v) ? Number(v) : null; })();
   var EVS = null;
   var md = function(ms){ var d = new Date(ms + 9 * 3600000); return (d.getUTCMonth() + 1) + "/" + d.getUTCDate(); };
-  var roundOf = function(name, id){ var m = /(\d+)\s*회/.exec(name || ""); return m ? m[1] + "회" : (id ? id + "회" : ""); };
+  // 회차 글자 — 이름의 「N회」 · 없으면 「번외」 · 둘 다 없으면 종전처럼 번호(1회 「대승배 GmI 킬내기」)
+  var roundOf = function(name, id){ var m = /(\d+)\s*회/.exec(name || ""); return m ? m[1] + "회" : /번외/.test(name || "") ? "번외" : (id ? id + "회" : ""); };
 
   function load(){
     var h = adminKey ? { "x-admin-key": adminKey } : {};

@@ -587,7 +587,7 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
       var cur = j && Array.isArray(j.events) ? j.events.filter(function(e){ return e.id === j.currentId; })[0] : null;
       if (!cur) return;
       var rm = /(\d+)\s*회/.exec(cur.name || "");
-      document.getElementById("evRound").textContent = rm ? rm[1] + "회" : cur.id + "회";
+      document.getElementById("evRound").textContent = rm ? rm[1] + "회" : /번외/.test(cur.name || "") ? "번외" : cur.id + "회";
       document.title = cur.name + " | 팀 경매";
     })
     .catch(function(){});
