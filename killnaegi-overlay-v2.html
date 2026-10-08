@@ -27,6 +27,16 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
 .head{background:var(--panel);border-radius:14px 14px 0 0;padding:14px 18px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
 .title{font-family:var(--display);font-weight:800;font-size:32px;line-height:1;}
 .title span{color:var(--sun);}
+.title .brand{color:#1B1300;}
+.brand{display:inline-block;margin-right:8px;padding:3px 10px 4px;border-radius:8px;background:linear-gradient(135deg,#FFD166,#FFB020);color:#1B1300;font-family:var(--body);font-size:22px;font-weight:900;vertical-align:4px;}
+.prize{background:linear-gradient(90deg,rgba(255,176,32,.24),rgba(255,176,32,.03)),var(--panel);margin:0;padding:8px 18px 9px;display:flex;align-items:baseline;gap:12px;white-space:nowrap;}
+.prize b{font-family:var(--display);font-weight:800;font-size:30px;color:var(--sun);line-height:1;letter-spacing:.01em;}
+.prize b em{font-style:normal;font-family:var(--body);font-weight:900;font-size:24px;}
+.prize span{font-size:16px;font-weight:700;color:var(--dim);}
+.wait{background:var(--panel-2);border-radius:10px;margin-top:5px;padding:16px 14px;text-align:center;font-size:20px;font-weight:800;color:var(--dim);}
+.wait b{color:var(--sun);}
+.rules{background:var(--panel);border-radius:0 0 14px 14px;padding:0 18px 12px;font-size:14px;font-weight:700;color:var(--faint);white-space:nowrap;}
+.rules b{color:var(--ink);}
 .clock{font-size:16px;font-weight:600;color:var(--dim);font-variant-numeric:tabular-nums;white-space:nowrap;}
 .clock b{color:var(--ink);font-weight:800;}
 .rows{background:var(--panel);padding:0 10px 6px;}
@@ -48,7 +58,7 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
 .d{font-weight:700;font-size:30px;color:var(--dim);}
 .pts{font-weight:800;font-size:46px;}
 .pv{margin-left:8px;font-weight:800;color:var(--dim);}
-.foot{background:var(--panel);border-radius:0 0 14px 14px;padding:10px 18px 12px;font-size:15px;font-weight:600;color:var(--dim);display:flex;justify-content:space-between;gap:12px;white-space:nowrap;}
+.foot{background:var(--panel);border-radius:0;padding:10px 18px 12px;font-size:15px;font-weight:600;color:var(--dim);display:flex;justify-content:space-between;gap:12px;white-space:nowrap;}
 .foot b{color:var(--accent);font-weight:800;}
 .mvp{margin-top:8px;background:var(--panel);border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:14px;white-space:nowrap;}
 .mvp .tag{background:var(--sun);color:#1B1300;font-family:var(--display);font-weight:800;font-size:22px;line-height:1;border-radius:8px;padding:6px 10px 5px;}
@@ -66,12 +76,14 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
 </head>
 <body>
 <div class="board" id="board" hidden>
-  <div class="head"><div class="title">킬내기 <span id="evRound"></span></div><div class="clock" id="clock"></div></div>
+  <div class="head"><div class="title"><span class="brand" id="brand" hidden></span>킬내기 <span id="evRound"></span></div><div class="clock" id="clock"></div></div>
+  <div class="prize" id="prize" hidden><b id="prizeAmt"></b><span id="prizeSplit"></span></div>
   <div class="rows">
     <div class="cols" aria-hidden="true"><span></span><span>팀</span><span>킬</span><span>딜</span><span>점수</span></div>
     <div id="rows"></div>
   </div>
   <div class="foot"><span id="footL"></span><span id="footR"></span></div>
+  <div class="rules" id="rules" hidden></div>
   <div class="mvp" id="mvp" hidden><span class="tag">MVP</span><span class="ign" id="mvpIgn"></span><span class="line" id="mvpLine"></span><span class="team" id="mvpTeam"></span></div>
   <div class="toast" id="toast" aria-live="polite"><span id="toastName"></span><span class="n" id="toastNum"></span></div>
 </div>
@@ -105,13 +117,19 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
     if (!B) return;
     var rm = /(\d+)\s*회/.exec(B.event.name || "");                 // 회차 글자는 서버 대회 이름에서
     // 이름에 「N회」가 없으면 「번외」(10/7 번외 · 회차 번호를 「5회」로 띄우던 것) · 둘 다 없으면 종전처럼 번호
-    $("evRound").textContent = rm ? rm[1] + "회" : /번외/.test(B.event.name || "") ? "번외" : (B.eventId ? B.eventId + "회" : "");
+    $("evRound").textContent = rm ? rm[1] + "회차" : /번외/.test(B.event.name || "") ? "번외" : (B.eventId ? B.eventId + "회" : "");
+    // 대회 이름에 「…배」가 있으면 금색 딱지로(예: 대승배) · 상금은 OBS 주소 ?prize=30만원&split=1등 24만 · 2등 6만 (없으면 숨김)
+    var bm = /(\S+배)/.exec(B.event.name || "");
+    $("brand").textContent = bm ? bm[1] : ""; $("brand").hidden = !bm;
+    var pz = q.get("prize"), sp = q.get("split");
+    $("prize").hidden = !pz;
+    if (pz) { $("prizeAmt").innerHTML = "🏆 <em>상금</em> " + esc(pz); $("prizeSplit").textContent = sp || ""; }
     $("board").hidden = false;
     var t = Date.now() + skew;
     $("clock").innerHTML = t < B.event.start ? "시작까지 <b>" + mins(B.event.start - t) + "분</b>"
       : t < B.event.end ? "끝까지 <b>" + mins(B.event.end - t) + "분</b>" : "<b>" + hm(B.event.end) + "</b> 마감";
     var showMove = B.rankChangedAt && t - B.rankChangedAt < 3 * 60000;
-    $("rows").innerHTML = B.teams.map(function(x){
+    $("rows").innerHTML = !B.teams.length ? '<div class="wait">' + (t < B.event.start ? "팀 경매 중 · <b>" + hm(B.event.start) + "</b> 시작" : "첫 판 집계를 기다리는 중") + "</div>" : B.teams.map(function(x){
       var move = showMove && x.prevRank && x.prevRank !== x.rank
         ? '<span class="move ' + (x.prevRank > x.rank ? "up" : "down") + '">' + (x.prevRank > x.rank ? "▲" : "▼") + Math.abs(x.prevRank - x.rank) + "</span>" : "";
       var prov = [];
@@ -130,6 +148,10 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
       : B.boostAt == null || t >= B.event.end ? "회색 숫자는 잠정 킬"
       : t < B.boostAt ? "1.5배 판까지 <b>" + mins(B.boostAt - t) + "분</b>" : "<b>지금 시작하는 판 " + B.boostMul + "배</b>";
     $("footR").textContent = last ? hm(last) + " 갱신" : "집계 전";
+    // 판 순번 회차(5회부터) 핵심 룰 한 줄 — 대회 중에만
+    $("rules").hidden = !(seqBoost() && t < B.event.end);
+    $("footL").parentNode.style.borderRadius = $("rules").hidden ? "0 0 14px 14px" : "0";
+    $("rules").innerHTML = "블루칩 <b>3페이즈까지</b> · 지정 낙하 <b>1.5km</b> · 이탈 <b>−10</b>";
   }
 
   // MVP — 개인 기록(확정 판)에서 「킬 + 딜/100」 이 가장 높은 한 명. 기록이 하나도 없으면 띠를 숨긴다
