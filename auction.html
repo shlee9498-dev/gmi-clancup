@@ -139,6 +139,31 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
   .lot{font-size:16px;}
 }
 .slot{display:inline-block;margin:2px 10px 2px 0;white-space:nowrap;}
+
+/* 진행자 빠른 입찰 띠(§1.4a) — 접지 않고 늘 보인다. 말로 진행하는 경매용 */
+.qb{position:sticky;top:0;z-index:6;margin-top:14px;border:2px solid var(--accent);box-shadow:0 6px 18px rgba(23,32,51,.10);}
+.qb-top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 16px;}
+.qb-now span{display:block;font-size:13px;color:var(--ink-faint);}
+.qb-now b{font-family:var(--display);font-weight:800;font-size:clamp(34px,7vw,64px);line-height:1;}
+.qb-now em{font-style:normal;font-size:clamp(18px,3vw,26px);font-weight:800;margin-left:6px;}
+.qb-time b{font-family:var(--display);font-weight:800;font-size:clamp(34px,7vw,64px);line-height:1;}
+.qb-time small{display:block;font-size:13px;font-weight:700;color:var(--ink-faint);text-align:right;}
+.qb-time.hot b{color:var(--red);}
+.qb-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;}
+.qb-amt{font-family:var(--display);font-size:30px;font-weight:800;width:120px;text-align:center;min-height:52px;}
+.qb-teams{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:10px;}
+.tbtn{border:0;border-radius:14px;background:var(--field);padding:10px 12px;min-height:64px;text-align:left;cursor:pointer;font-weight:800;font-size:17px;line-height:1.2;}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--tc,var(--accent));margin-right:6px;vertical-align:1px;}
+.tbtn small{display:block;font-size:12.5px;font-weight:600;color:var(--ink-faint);margin-top:3px;}
+.tbtn.high{background:var(--accent-soft);outline:2px solid var(--tc,var(--accent));}
+.tbtn:disabled{opacity:.4;cursor:not-allowed;}
+.btn.big{min-height:56px;font-size:18px;padding:12px 22px;}
+.btn.on{background:var(--ink);color:#fff;}
+.qb-tie{margin-top:10px;padding:10px 12px;border-radius:14px;background:var(--cream);border:1px solid var(--cream-line);}
+.qb-tie p{font-size:14px;font-weight:700;margin-bottom:6px;}
+.cfg{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:6px;}
+.cfg label{font-size:12.5px;font-weight:600;color:var(--ink-dim);}
+.cfg .input{margin-top:4px;}
 </style>
 </head>
 <body>
@@ -151,6 +176,8 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
 </header>
 
 <main class="wrap">
+  <!-- 진행자 빠른 입찰 띠(§1.4a) — 팀 버튼 한 번 = 그 팀 이름으로 그 금액 입찰 -->
+  <section class="card qb" id="quickBand" hidden aria-label="진행자 빠른 입찰"></section>
   <!-- 진행자: 키 입력(이 탭에만 남는다) -->
   <section class="card" id="hostGate" hidden style="margin-top:14px;max-width:520px;">
     <h2 class="card-h">진행자 확인</h2>
@@ -181,6 +208,7 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
     </section>
     <section class="card" id="resultCard" hidden>
       <h2 class="card-h">경매 결과<small id="resultNote"></small></h2>
+      <div class="row" id="sheetRow" hidden style="margin-bottom:10px;"><button type="button" class="btn sm" data-act="sheet">시트용 복사</button><span class="muted" id="sheetMsg"></span></div>
       <div id="result"></div>
     </section>
 
@@ -191,29 +219,33 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
         <p class="muted">한 줄에 한 명씩 붙여 넣어요. 순서는 닉, 플랫폼, 티어, KDA, 평딜, 포지션, 1회 점수예요. 팀장은 티어 칸에 팀장이라고 적어요</p>
         <label class="label" for="roster">참가자 목록</label>
         <textarea class="input" id="roster" spellcheck="false" placeholder="닉네임, 스팀, 1.5, 3.2, 410, 돌격, 55"></textarea>
+        <p class="label">경매 설정</p>
+        <div class="cfg">
+          <label>1인 상한(P)<input class="input" id="cfgMax" type="number" inputmode="numeric" value="50"></label>
+          <label>시작 포인트<input class="input" id="cfgBudget" type="number" inputmode="numeric" value="100"></label>
+          <label>남은 몇 P당 +1점<input class="input" id="cfgPer" type="number" inputmode="numeric" value="5"></label>
+          <label>마이너스 5P마다 −n점<input class="input" id="cfgNeg" type="number" inputmode="numeric" value="2"></label>
+          <label>빚 배수(×)<input class="input" id="cfgDebt" type="number" inputmode="numeric" value="3"></label>
+          <label>7티어 가산<input class="input" id="cfgT7" type="number" inputmode="numeric" value="5"></label>
+          <label>8티어 가산<input class="input" id="cfgT8" type="number" inputmode="numeric" value="10"></label>
+          <label>타이머(초)<input class="input" id="cfgSec" type="number" inputmode="numeric" value="20"></label>
+        </div>
+        <label class="label" for="cfgPrice">티어별 시작가</label>
+        <input class="input" id="cfgPrice" spellcheck="false" value="1.5:25, 2:20, 3:15, 4:10, 5:7, 6:5, 7:5, 8:3">
         <div class="row" style="margin-top:10px;">
           <button type="button" class="btn main" data-act="create">경매 만들기</button>
+          <button type="button" class="btn" data-act="restore">직전 경매 복원</button>
           <button type="button" class="btn" data-act="applicants">신청자 불러오기</button>
           <button type="button" class="btn" data-act="demo">연습용 15명 채우기</button>
         </div>
       </div>
       <div id="hostRun" hidden>
         <div class="row">
-          <button type="button" class="btn main" data-act="open">다음 매물 올리기</button>
-          <button type="button" class="btn" data-act="closeNow">지금 마감</button>
           <button type="button" class="btn warn" data-act="undo">방금 낙찰 취소</button>
           <button type="button" class="btn" data-act="startGems" id="startGemsBtn">유찰 배정 시작</button>
           <button type="button" class="btn" data-act="gemSkip" id="gemSkipBtn">차례 넘기기</button>
           <button type="button" class="btn" data-act="finish">경매 마감</button>
         </div>
-        <details class="host">
-          <summary>팀장 대신 입찰</summary>
-          <div class="row" style="margin-top:8px;">
-            <select class="input" id="proxyCap" aria-label="팀장"></select>
-            <input class="input" id="proxyAmount" type="number" inputmode="numeric" min="0" aria-label="입찰 포인트" placeholder="포인트">
-            <button type="button" class="btn" data-act="bidFor">입찰</button>
-          </div>
-        </details>
         <details class="host">
           <summary>교체 선수 넣기</summary>
           <div class="row" style="margin-top:8px;">
@@ -235,7 +267,7 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
         </details>
         <details class="host">
           <summary>경매 초기화</summary>
-          <p class="muted" style="margin:8px 0;">연습을 끝내고 본 경매를 새로 만들 때만 써요. 경매 포인트와 낙찰 기록이 지워지고 팀 등록과 점수는 그대로예요</p>
+          <p class="muted" style="margin:8px 0;">연습을 끝내고 본 경매를 새로 만들 때만 써요. 경매 포인트와 낙찰 기록이 지워지고 팀 등록과 점수는 그대로예요. 실수로 눌렀으면 「직전 경매 복원」으로 되돌려요</p>
           <div class="row">
             <input class="input" id="resetWord" aria-label="확인 문구" placeholder="RESET 을 적어요">
             <button type="button" class="btn warn" data-act="reset">초기화</button>
@@ -290,7 +322,12 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
     db_disabled: "서버가 아직 준비되지 않았어요", auction_unavailable: "서버가 잠깐 응답하지 않아요", register_unavailable: "팀 등록을 지금 쓸 수 없어요",
     team_not_full: "인원이 덜 찬 팀이에요", platform_mixed: "스팀과 카카오가 섞였어요", platform_missing: "플랫폼이 비어 있어요", no_gem_turn: "지명할 차례가 없어요",
     over_cap: "한 선수에는 상한까지만 부를 수 있어요", cap_reached: "이미 상한까지 올라갔어요. 먼저 부른 팀이 가져가요",
-    queue_left: "아직 안 올린 매물이 있어요. 한 바퀴를 다 돈 뒤에 배정해요", forced_no_skip: "강제 배정이라 차례를 넘길 수 없어요. 「대신 배정」으로 골라 주세요"
+    queue_left: "아직 안 올린 매물이 있어요. 한 바퀴를 다 돈 뒤에 배정해요", forced_no_skip: "강제 배정이라 차례를 넘길 수 없어요. 「대신 배정」으로 골라 주세요",
+    no_bid: "아직 입찰이 없어요. 유찰로 넘기려면 「유찰」을 눌러요", bid_changed: "그 사이 다른 입찰이 들어왔어요. 화면을 보고 다시 눌러요",
+    already_paused: "이미 멈춰 있어요", not_paused: "멈춰 있지 않아요", bad_sec: "타이머는 5~120초예요",
+    not_at_cap: "상한 동점일 때만 넘길 수 있어요", same_team: "이미 그 팀이 가져갔어요", lot_not_editable: "올리기 전 매물만 고칠 수 있어요",
+    bad_start: "시작가가 범위를 벗어났어요", nothing_to_restore: "되살릴 직전 경매가 없어요", bad_config: "경매 설정 값을 다시 한 번 볼까요?",
+    captain_not_found: "팀을 못 찾았어요", lot_not_found: "매물을 못 찾았어요"
   };
   var errText = function(e){
     if (!e) return "잠깐 문제가 생겼어요. 다시 해볼까요?";
@@ -298,6 +335,8 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
     if (e.code === "low_bid" && e.min != null) t += " (지금 최소 " + e.min + ")";
     if (e.code === "over_budget" && e.remaining != null) t += " (남은 " + e.remaining + ")";
     if ((e.code === "over_cap" || e.code === "cap_reached") && e.max != null) t += " (상한 " + e.max + "P)";
+    if (e.code === "bad_start" && e.max != null) t += " (0~" + e.max + ")";
+    if (e.code === "bid_changed" && e.high != null) t += " (지금 " + capName(e.captainId) + " " + e.high + ")";
     if (e.code === "queue_left" && e.left != null) t += " (" + e.left + "명 남음)";
     if (e.code === "not_enough_players") t += " (최소 " + e.need + "명, 지금 " + e.have + "명)";
     if (e.code === "captain_count") t += " (팀장 " + e.need + "명이 필요해요)";
@@ -393,15 +432,79 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
       '<div class="bids">' + L.bids.slice().reverse().map(function(b){ return "<span>" + esc(capName(b.captainId)) + " <b>" + b.amount + "</b></span>"; }).join("") + "</div>";
     drawTimer();
   }
+  var leftMs = function(){ return !S || !S.live ? 0 : S.live.paused ? (S.live.left || 0) : Math.max(0, S.live.deadline - (Date.now() + offset)); };
   function drawTimer(){
     if (!S || !S.live) return;
+    var qt = $("qbTime");
+    if (qt) {
+      var ql = leftMs();
+      qt.className = "qb-time" + (ql <= 5000 && !S.live.paused ? " hot" : "");
+      qt.innerHTML = '<b class="num">' + Math.ceil(ql / 1000) + "</b><small>" + (S.live.paused ? "멈춤" : ql === 0 && S.config.autoClose === false ? "낙찰 대기" : S.config.autoClose === false ? "자동 낙찰 꺼짐" : "초") + "</small>";
+    }
     var t = $("timer"), bar = $("bar"); if (!t || !bar) return;
-    var left = Math.max(0, S.live.deadline - (Date.now() + offset));
+    var left = leftMs();
     var sec = Math.ceil(left / 1000);
     t.firstChild.textContent = sec;
     var hot = left <= 5000;
     t.className = "timer" + (hot ? " hot" : ""); bar.className = "bar" + (hot ? " hot" : "");
     bar.firstChild.style.transform = "scaleX(" + Math.min(1, left / (S.config.bidSec * 1000)) + ")";
+  }
+
+  // 팀 색 — 빠른 입찰 띠의 팀 버튼과 팀 카드가 같은 색(팀장 순서대로)
+  var TEAM_COLORS = ["#2F6FEB", "#D93A2B", "#1E8E5A", "#B7791F", "#7C3AED", "#0E7490", "#BE185D", "#4B5563"];
+  var colorOf = function(id){ var i = (S.captains || []).findIndex(function(c){ return c.id === id; }); return TEAM_COLORS[(i < 0 ? 0 : i) % TEAM_COLORS.length]; };
+
+  // ── 진행자 빠른 입찰 띠(§1.4a) ── 금액 칸은 진행자가 손대기 전까지 「다음 최소」를 따라간다
+  var qbAmount = null, qbTouched = false, qbSig = "";
+  function renderQuickBand(){
+    var el = $("quickBand");
+    var show = !!(S && S.admin && S.exists && S.phase === "bidding");
+    el.hidden = !show;
+    if (!show) { qbSig = ""; return; }
+    var L = S.live, cap = S.config.maxBid;
+    if (L && (!qbTouched || qbAmount == null || qbAmount < L.min)) { qbAmount = L.min; qbTouched = false; }
+    var sig = [S.rev, qbAmount, L ? L.paused : "-", S.config.autoClose, S.config.bidSec].join("|");
+    if (sig === qbSig) { drawTimer(); return; }
+    qbSig = sig;
+    var lastAtCap = !L && S.lastSale && cap != null && S.lastSale.price === cap;
+    var tieFrom = L ? (cap != null && L.high === cap ? L.captainId : null) : lastAtCap ? S.lastSale.captainId : null;
+    var tiePrice = L ? L.high : lastAtCap ? S.lastSale.price : null;
+    // 동점 넘기기 후보 — 자리가 남고 그 값을 낼 수 있는 팀 · 빈자리 많은 순(같으면 진행자가 주사위 · 오너 10/8)
+    var tieCands = tieFrom ? S.captains.filter(function(c){ return c.id !== tieFrom && c.slotsLeft > 0 && c.remaining >= tiePrice; })
+      .sort(function(a, b){ return b.slotsLeft - a.slotsLeft; }) : [];
+    var tieHtml = tieFrom ? '<div class="qb-tie"><p>상한 ' + tiePrice + "P 동점이면 → 다른 팀에 주기 · 빈자리 많은 팀부터, 같으면 주사위</p><div class=\"qb-teams\">" +
+      (tieCands.length ? tieCands.map(function(c){
+        return '<button type="button" class="tbtn" style="--tc:' + colorOf(c.id) + '" data-act="tieGive" data-cap="' + esc(c.id) + '"><span class="dot"></span>' + esc(c.teamName) + "<small>빈자리 " + c.slotsLeft + " · 남은 " + c.remaining + "</small></button>";
+      }).join("") : '<span class="muted">넘길 수 있는 팀이 없어요</span>') + "</div></div>" : "";
+    if (!L) {
+      var last = S.lastSale ? esc(S.lastSale.ign) + " → " + esc(capName(S.lastSale.captainId)) + " " + S.lastSale.price + "P" + (S.lastSale.tieFrom ? " (동점 넘김)" : "") : "";
+      el.innerHTML = '<div class="qb-top"><div class="qb-now"><span>' + (last ? "방금 낙찰" : "다음 매물을 올려요") + "</span><b>" + (last || "대기 " + S.queue.length + "명") + "</b></div>" +
+        '<button type="button" class="btn main big" data-act="open"' + (S.queue.length ? "" : " disabled") + ">다음 매물 올리기</button></div>" + tieHtml;
+      return;
+    }
+    var hi = L.captainId ? capName(L.captainId) : "";
+    var teams = S.captains.map(function(c){
+      var lim = maxOf(c), off = c.slotsLeft <= 0 || L.captainId === c.id || qbAmount > lim || qbAmount < L.min;
+      return '<button type="button" class="tbtn' + (L.captainId === c.id ? " high" : "") + '" style="--tc:' + colorOf(c.id) + '" data-act="qbBid" data-cap="' + esc(c.id) + '"' + (off ? " disabled" : "") + ">" +
+        '<span class="dot"></span>' + esc(c.teamName) + "<small>" + (c.slotsLeft <= 0 ? "다 찼어요" : "남은 " + c.remaining + " · 최대 " + lim) + "</small></button>";
+    }).join("");
+    el.innerHTML =
+      '<div class="qb-top"><div class="qb-now"><span>' + esc(L.lot.ign) + " · 시작가 " + L.start + (cap != null ? " · 상한 " + cap : "") + "</span><b class=\"num\">" + (L.high == null ? "–" : L.high) + "</b>" +
+      (hi ? '<em style="color:' + colorOf(L.captainId) + '">' + esc(hi) + "</em>" : '<em class="muted">아직 입찰 없음</em>') + '</div><div class="qb-time" id="qbTime"></div></div>' +
+      '<div class="qb-row"><button type="button" class="btn sm" data-act="qbStep" data-d="-1" aria-label="1 내리기">−1</button>' +
+      '<input class="input qb-amt num" id="qbAmount" type="number" inputmode="numeric" value="' + qbAmount + '" aria-label="입찰 금액">' +
+      ["1", "5", "10"].map(function(d){ return '<button type="button" class="btn" data-act="qbStep" data-d="' + d + '">+' + d + "</button>"; }).join("") +
+      '<button type="button" class="btn" data-act="qbMin">최소 ' + L.min + "</button>" + (cap != null ? '<button type="button" class="btn" data-act="qbMax">최대 ' + cap + "</button>" : "") + "</div>" +
+      '<div class="qb-teams">' + teams + "</div>" +
+      '<div class="qb-row">' +
+      (L.captainId ? '<button type="button" class="btn main big" data-act="sell" data-cap="' + esc(L.captainId) + '" data-amount="' + L.high + '">낙찰 → ' + esc(hi) + " " + L.high + "P</button>"
+        : '<button type="button" class="btn warn big" data-act="closeNow">유찰</button>') +
+      '<button type="button" class="btn big" data-act="timerReset">시간 다시</button>' +
+      '<button type="button" class="btn big" data-act="' + (L.paused ? "timerResume" : "timerPause") + '">' + (L.paused ? "계속" : "멈춤") + "</button>" +
+      [10, 20, 30].map(function(sec){ return '<button type="button" class="btn sm' + (S.config.bidSec === sec ? " on" : "") + '" data-act="timerLength" data-sec="' + sec + '">' + sec + "초</button>"; }).join("") +
+      '<button type="button" class="btn sm' + (S.config.autoClose === false ? "" : " on") + '" data-act="autoClose" data-on="' + (S.config.autoClose === false ? "1" : "0") + '">자동 낙찰 ' + (S.config.autoClose === false ? "꺼짐" : "켜짐") + "</button>" +
+      "</div>" + tieHtml;
+    drawTimer();
   }
 
   function renderTeams(){
@@ -421,7 +524,7 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
       var maxTxt = S.phase === "bidding" && S.live && c.slotsLeft > 0 ? '<div class="maxnow">이번 매물 최대 ' + maxOf(c) + "P</div>" : "";
       var noTier = c.picks.some(function(p){ return p.forced && S.config.tierBonus && S.config.tierBonus[p.tier]; });
       var debtTxt = c.debt || noTier ? '<div class="debt">' + (c.debt ? "빚 −" + c.debt + "P · 시작 점수 " + signed(c.pointBonus != null ? c.pointBonus : c.bonus) + "점" : "") + (noTier ? (c.debt ? " · " : "") + "유찰 선수 티어 가산 없음" : "") + "</div>" : "";
-      return '<article class="' + cls + '"><div class="team-h"><b>' + esc(c.teamName) + '</b><span class="pt num' + (c.remaining < 0 ? " neg" : "") + '">' + (c.remaining < 0 ? "−" + Math.abs(c.remaining) : c.remaining) + " <small>포인트</small></span></div>" +
+      return '<article class="' + cls + '" style="--tc:' + colorOf(c.id) + '"><div class="team-h"><b><span class="dot"></span>' + esc(c.teamName) + '</b><span class="pt num' + (c.remaining < 0 ? " neg" : "") + '">' + (c.remaining < 0 ? "−" + Math.abs(c.remaining) : c.remaining) + " <small>포인트</small></span></div>" +
         '<div class="team-sub">팀장 ' + esc(c.ign) + bonusTxt + "</div>" + debtTxt + maxTxt +
         '<div class="ptbar"><i style="width:' + Math.max(0, Math.min(100, Math.round(c.remaining / S.config.budget * 100))) + '%"></i></div><ul class="slots">' + slots.join("") + "</ul></article>";
     }).join("");
@@ -438,7 +541,7 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
     if (!exists) return;
     $("queueNote").textContent = S.queue.length + "명";
     $("queue").innerHTML = S.queue.length ? S.queue.map(function(l){
-      return lotChip(l, S.admin ? ' <button type="button" class="btn sm" data-act="open" data-lot="' + esc(l.id) + '">올리기</button><button type="button" class="btn sm warn" data-act="withdraw" data-lot="' + esc(l.id) + '">빼기</button>' : "");
+      return lotChip(l, (l.start != null ? "<small>시작 " + l.start + (l.edited ? " 고침" : "") + "</small>" : "") + (S.admin ? ' <button type="button" class="btn sm" data-act="open" data-lot="' + esc(l.id) + '">올리기</button><button type="button" class="btn sm" data-act="editLot" data-lot="' + esc(l.id) + '">고치기</button><button type="button" class="btn sm warn" data-act="withdraw" data-lot="' + esc(l.id) + '">빼기</button>' : ""));
     }).join("") : '<p class="muted">대기 중인 매물이 없어요</p>';
     $("unsoldNote").textContent = S.phase === "gems" ? (forced() ? "시작가로 강제 배정 · 모자라면 ×" + S.config.debtMul + " 빚" : "무료 지명") : "유찰 " + S.unsold.length + "명";
     $("resultNote").textContent = "남은 " + S.config.bonusPer + "P당 +1점 · 마이너스는 " + S.config.bonusPer + "P마다 −" + (S.config.negPer || 1) + "점 · 유찰 선수는 티어 가산 없음" + (S.config.tierBonus && Object.keys(S.config.tierBonus).length ? " · " + Object.keys(S.config.tierBonus).map(function(t){ return tierLabel(t) + " +" + S.config.tierBonus[t]; }).join(" · ") : "");
@@ -448,9 +551,12 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
       if (myTurn) b += ' <button type="button" class="btn sm main" data-act="gem" data-lot="' + esc(l.id) + '">데려가기</button>';
       if (S.admin && S.phase === "gems" && S.gemTurn) b += ' <button type="button" class="btn sm" data-act="gemFor" data-lot="' + esc(l.id) + '">' + (forced() ? "대신 배정" : "대신 지명") + "</button>";
       if (S.admin) b += '<button type="button" class="btn sm warn" data-act="withdraw" data-lot="' + esc(l.id) + '">빼기</button>';
-      if (forced() && S.config.startPrice[l.tier] != null) b = "<small>시작가 " + S.config.startPrice[l.tier] + "</small>" + b;
+      if (S.admin && S.phase === "gems") b += '<button type="button" class="btn sm" data-act="editLot" data-lot="' + esc(l.id) + '">고치기</button>';
+      var st = l.start != null ? l.start : S.config.startPrice[l.tier];
+      if (forced() && st != null) b = "<small>시작가 " + st + (l.edited ? " 고침" : "") + "</small>" + b;
       return lotChip(l, b);
     }).join("");
+    $("sheetRow").hidden = !(S.admin && S.summary && S.phase === "done");
     if (S.summary && S.phase === "done") {
       $("result").innerHTML = '<div style="overflow-x:auto"><table><thead><tr><th>팀</th><th>팀원</th><th class="r">쓴 포인트</th><th class="r">남은 포인트</th><th class="r">빚</th><th class="r">시작 점수</th></tr></thead><tbody>' +
         S.summary.teams.map(function(t){
@@ -482,7 +588,7 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
       '<button type="button" class="btn" data-act="bidCustom">입찰</button>';
   }
 
-  var keepFocus = ["roster", "subLine", "proxyAmount", "resetWord", "bidCustom", "hostKey", "proxyCap"];
+  var keepFocus = ["roster", "subLine", "resetWord", "bidCustom", "hostKey", "qbAmount", "cfgMax", "cfgBudget", "cfgPer", "cfgNeg", "cfgDebt", "cfgT7", "cfgT8", "cfgSec", "cfgPrice"];
   function renderHost(){
     $("hostGate").hidden = !(hostMode && !(S && S.admin));
     var card = $("hostCard");
@@ -491,11 +597,8 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
     $("hostSetup").hidden = !!S.exists;
     $("hostRun").hidden = !S.exists;
     if (!S.exists) return;
-    var sel = $("proxyCap"), cur = sel.value;
-    sel.innerHTML = S.captains.map(function(c){ return '<option value="' + esc(c.id) + '">' + esc(c.teamName) + " (남은 " + c.remaining + (S.live ? " · 최대 " + maxOf(c) : "") + ")</option>"; }).join("");
     $("startGemsBtn").textContent = forced() ? "유찰 배정 시작" : "숨은 보석 지명 시작";
     $("gemSkipBtn").hidden = forced();
-    if (cur) sel.value = cur;
     var base = location.origin + location.pathname;
     $("links").innerHTML = (S.tokens || []).map(function(t){
       return '<div class="row" style="margin-bottom:6px;"><b style="flex:0 0 110px;">' + esc(t.ign) + '</b><span class="link" style="flex:1 1 200px;">' + esc(base + "#c=" + t.token) + '</span><button type="button" class="btn sm" data-act="copy" data-text="' + esc(base + "#c=" + t.token) + '">복사</button></div>';
@@ -514,6 +617,7 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
     // 입력 중인 칸이 있으면 진행자 영역은 다시 그리지 않는다(글자가 날아가지 않게)
     var active = document.activeElement && keepFocus.indexOf(document.activeElement.id) >= 0;
     renderChips(); renderLive(); renderTeams(); renderLists();
+    if (!(active && document.activeElement.id === "qbAmount")) renderQuickBand();
     if (!(active && document.activeElement.id === "bidCustom")) renderBidbox();
     if (!active || !(S && S.admin)) renderHost();
   }
@@ -545,6 +649,31 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
         msg.textContent = rows.length ? rows.length + "명을 불러왔어요. 세 번째 칸에 티어표 숫자(1.5 · 2 · … · 8)나 팀장을 적어 주세요" : "신청자가 아직 없어요";
       })
       .catch(function(){ msg.className = "msg"; msg.textContent = "신청자를 못 불러왔어요. 잠시 뒤 다시 눌러 주세요"; });
+  }
+  // 만들기 설정 칸 → 서버 config(판정은 서버 normConfig · 틀리면 bad_config)
+  function readConfig(){
+    var n = function(id){ var v = $(id).value.trim(); return v === "" ? undefined : Number(v); };
+    var price = {};
+    String($("cfgPrice").value || "").split(/[,\n]/).forEach(function(part){
+      var m2 = /^\s*([\d.]+)\s*(?:티어)?\s*[:=]\s*(\d+)\s*$/.exec(part);
+      if (m2) price[m2[1]] = Number(m2[2]);
+    });
+    var tb = {};
+    if (n("cfgT7") != null && "7" in price) tb["7"] = n("cfgT7");
+    if (n("cfgT8") != null && "8" in price) tb["8"] = n("cfgT8");
+    var c = { maxBid: n("cfgMax"), budget: n("cfgBudget"), bonusPer: n("cfgPer"), negPer: n("cfgNeg"), debtMul: n("cfgDebt"), bidSec: n("cfgSec"), tierBonus: tb };
+    if (Object.keys(price).length) c.startPrice = price;
+    Object.keys(c).forEach(function(k){ if (c[k] === undefined) delete c[k]; });
+    return c;
+  }
+  // 결과 → 구글 시트에 그대로 붙는 표(탭 구분)
+  function sheetText(){
+    var rows = [["팀", "팀장", "팀원(티어 · 낙찰가)", "쓴 포인트", "남은 포인트", "빚", "시작 점수", "티어 가산"]];
+    (S.summary.teams || []).forEach(function(t){
+      rows.push([t.teamName, t.captain, t.members.map(function(x){ return x.ign + " (" + x.tier + " · " + (x.forced ? "배정 " : "") + x.price + ")"; }).join(" / "),
+        t.spent, t.remaining, t.debt || 0, t.bonus, t.tierBonus || 0]);
+    });
+    return rows.map(function(r){ return r.map(function(v){ return String(v).replace(/[\t\n]/g, " "); }).join("\t"); }).join("\n");
   }
   function demoRoster(){
     var lines = [];
@@ -584,11 +713,37 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
     if (act === "gem") { call("/api/killrace/auction/gem", { lotId: lot }).then(function(r){ if (!r.ok) alert(errText(r.body && r.body.error)); return refresh(); }); return; }
     if (act === "copy") { var text = b.getAttribute("data-text"); if (navigator.clipboard) navigator.clipboard.writeText(text).then(function(){ b.textContent = "복사했어요"; }); return; }
     if (act === "demo") { $("roster").value = demoRoster(); return; }
-    if (act === "create") { var r0 = parseRoster($("roster").value); admin("create", { players: r0.players, captains: r0.captains }); return; }
+    if (act === "create") { var r0 = parseRoster($("roster").value); admin("create", { players: r0.players, captains: r0.captains, config: readConfig() }); return; }
+    if (act === "restore") { if (confirm("RESET 하기 전의 경매를 되살릴까요? 열려 있던 매물은 멈춘 채로 돌아와요")) admin("restore"); return; }
+    // 빠른 입찰 띠(§1.4a)
+    if (act === "qbBid") {
+      b.disabled = true;
+      admin("bidFor", { captainId: b.getAttribute("data-cap"), amount: qbAmount }).then(function(r){ if (r.ok) { qbTouched = false; qbSig = ""; render(); } });
+      return;
+    }
+    if (act === "qbStep") { qbAmount = (Number(qbAmount) || 0) + Number(b.getAttribute("data-d")); qbTouched = true; qbSig = ""; render(); return; }
+    if (act === "qbMin") { qbTouched = false; qbAmount = null; qbSig = ""; render(); return; }
+    if (act === "qbMax") { qbAmount = S.config.maxBid; qbTouched = true; qbSig = ""; render(); return; }
+    if (act === "sell") { admin("sell", { captainId: b.getAttribute("data-cap"), amount: Number(b.getAttribute("data-amount")) }); return; }
+    if (act === "timerLength") { admin("timerLength", { sec: Number(b.getAttribute("data-sec")) }); return; }
+    if (act === "autoClose") { admin("autoClose", { on: b.getAttribute("data-on") === "1" }); return; }
+    if (act === "tieGive") { admin("tieGive", { captainId: b.getAttribute("data-cap") }); return; }
+    if (act === "editLot") {
+      var L0 = (S.queue || []).concat(S.unsold || []).filter(function(x){ return x.id === lot; })[0];
+      if (!L0) return;
+      var tier = prompt(L0.ign + " 티어(1.5 · 2 · … · 8)", L0.tier); if (tier === null) return;
+      var st = prompt(L0.ign + " 시작가 (비우면 티어표 값)", L0.edited ? L0.start : ""); if (st === null) return;
+      admin("editLot", { lotId: lot, tier: tier.trim(), start: st.trim() === "" ? null : Number(st) });
+      return;
+    }
+    if (act === "sheet") {
+      var text = sheetText();
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(function(){ $("sheetMsg").textContent = "복사했어요. 시트 첫 칸에 붙여 넣어요"; }, function(){ $("sheetMsg").textContent = "복사가 막혔어요. 표를 직접 끌어 복사해요"; });
+      return;
+    }
     if (act === "open") { admin("open", lot ? { lotId: lot } : {}); return; }
     if (act === "withdraw") { if (confirm("이 선수를 매물에서 뺄까요? 이미 뽑혔다면 포인트를 돌려줘요")) admin("withdraw", { lotId: lot }); return; }
     if (act === "undo") { if (confirm("방금 낙찰을 취소할까요? 포인트를 돌려주고 매물을 다시 올려요")) admin("undo"); return; }
-    if (act === "bidFor") { admin("bidFor", { captainId: $("proxyCap").value, amount: Number($("proxyAmount").value) }); return; }   // 상한은 서버가 거절(over_cap)
     if (act === "gemFor") { admin("gemFor", { captainId: S.gemTurn, lotId: lot }); return; }
     if (act === "addLot") { var one = parseLine($("subLine").value || ""); if (one) admin("addLot", { player: one.player }).then(function(r){ if (r.ok) $("subLine").value = ""; }); return; }
     if (act === "rename") { var name = prompt("새 팀명을 적어 주세요"); if (name) admin("rename", { captainId: b.getAttribute("data-cap"), teamName: name }); return; }
@@ -618,6 +773,13 @@ details.host summary{font-weight:700;cursor:pointer;min-height:32px;}
       return;
     }
     admin(act);
+  });
+
+  document.addEventListener("input", function(ev){
+    if (ev.target && ev.target.id === "qbAmount") { qbAmount = Number(ev.target.value); qbTouched = true; }
+  });
+  document.addEventListener("focusout", function(ev){
+    if (ev.target && ev.target.id === "qbAmount") { qbSig = ""; render(); }      // 금액을 다 적고 나가면 팀 버튼 막힘을 다시 계산
   });
 
   refresh();
