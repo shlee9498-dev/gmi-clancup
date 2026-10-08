@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>킬내기 앱 | 내 계정</title>
+<meta name="description" content="GmI 킬내기 앱. 디스코드로 로그인하고 스팀 닉을 연결하면 내 상금과 기록을 볼 수 있어요.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F5F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="app.css">
+<style>/* 공통 토큰은 app.css · 본문 글꼴만 여기 한 줄(검사기가 외부 파일을 못 본다) */body{font-family:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;}.brand,.num,.balance .amt{font-family:'Saira Condensed','Pretendard Variable',sans-serif;}</style>
+</head>
+<body>
+<header class="top"><div class="top-in"><a class="brand" href="./">킬내기 <span>앱</span></a><div class="who" id="who"></div></div></header>
+<nav class="tabs"><a class="tab on" href="./">내 계정</a><a class="tab" href="prize.html">내 상금</a></nav>
+
+<main id="main" aria-live="polite">
+  <section class="card" id="loginCard" hidden>
+    <h2 class="card-h">디스코드로 로그인</h2>
+    <p class="card-sub">GmI 디스코드 계정으로 들어와요. 이메일은 받지 않아요</p>
+    <button type="button" class="btn main wide" data-act="login">디스코드로 로그인</button>
+  </section>
+
+  <section class="card" id="consentCard" hidden>
+    <h2 class="card-h">처음이라 동의가 필요해요</h2>
+    <p class="card-sub">아래를 읽고 동의하면 계정이 만들어져요</p>
+    <div class="consent" id="consentText">
+      <b>받는 것</b> 디스코드 계정 번호와 표시 이름, 연결한 PUBG 계정, 대회 신청과 소개 글<br>
+      <b>왜</b> 로그인, 대회 기록을 사람으로 잇기, 신청 받기<br>
+      <b>얼마나</b> 탈퇴하면 지워요. 대회 기록의 닉과 숫자는 남아요<br>
+      <b>공개되는 것</b> 스팀 닉, 대회 기록, 소개 4칸<br>
+      <b>계좌</b> 여기서는 받지 않아요. 상금 대상이 됐을 때만 따로 받아요
+    </div>
+    <label class="check"><input type="checkbox" id="age14"><span><b>만 14세 이상이에요</b></span></label>
+    <button type="button" class="btn main wide" id="consentBtn">동의하고 시작하기</button>
+    <p class="msg" id="consentMsg" role="status"></p>
+  </section>
+
+  <section class="card" id="linkCard" hidden>
+    <h2 class="card-h">스팀 닉 연결</h2>
+    <p class="card-sub" id="linkSub">배그 프로필의 스팀 닉을 그대로 적어 주세요</p>
+    <div id="linked" hidden>
+      <p style="font-size:16px;margin-bottom:8px;">연결된 스팀 닉 <b id="linkedIgn"></b> <span class="tag" id="kindTag"></span></p>
+      <p class="muted">닉을 바꿨거나 다른 계정이면 아래에서 다시 연결할 수 있어요</p>
+    </div>
+    <div class="field" style="margin-top:10px;"><label class="label" for="ign">스팀 닉</label>
+      <div class="row"><input type="text" class="input" id="ign" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1 1 180px;"><button type="button" class="btn main" id="linkBtn">연결</button></div></div>
+    <p class="msg" id="linkMsg" role="status"></p>
+    <p class="note" id="nextNote" hidden><a href="prize.html">내 상금 보러 가기 →</a></p>
+  </section>
+
+  <section class="card" id="errCard" hidden><div class="empty"><b id="errTitle"></b><span id="errBody"></span></div></section>
+</main>
+<p class="foot"><a href="../killnaegi-board.html">점수판</a> · <a href="../killnaegi.html">신청</a></p>
+
+<script src="app.js"></script>
+<script>
+/* 내 계정 — 로그인(§2) · 동의(§4.1) · 스팀 연결(§4.2). 서버가 준 값만 그린다. 계정 번호는 서버가 주지 않는다. */
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var KIND = { lesson: "레슨생", clan: "클랜원", external: "외부 참가" };
+  var LINK_ERR = {
+    ign_not_found: "스팀에서 못 찾았어요. 게임 프로필의 닉을 그대로 복사해 주세요",
+    ign_ambiguous: "비슷한 닉이 여럿이에요. 대소문자까지 똑같이 적어 주세요",
+    account_taken: "다른 회원이 먼저 연결한 계정이에요. 진행자에게 알려 주세요",
+    has_open_entry: "신청이 열려 있는 회차가 있어 지금은 바꿀 수 없어요",
+    busy: "조회가 몰렸어요. 잠시 뒤 다시 눌러 주세요",
+    too_many: "너무 자주 눌렀어요. 10분 뒤 다시 해 주세요",
+    consent_required: "먼저 동의가 필요해요",
+    network: "서버에 닿지 않았어요. 잠시 뒤 다시 해 주세요"
+  };
+  var ME = null;
+
+  function show(id) { ["loginCard", "consentCard", "linkCard", "errCard"].forEach(function (k) { $(k).hidden = k !== id; }); }
+  function render() {
+    KR.header(ME && ME.member && ME.member.ign ? ME.member.ign : "");
+    if (!KR.token()) { show("loginCard"); return; }
+    if (!ME) return;
+    var m = ME.member;
+    if (!m || m.needsConsent) { show("consentCard"); $("consentBtn").textContent = m ? "다시 동의하기" : "동의하고 시작하기"; return; }
+    show("linkCard");
+    $("linked").hidden = !m.linked;
+    $("nextNote").hidden = !m.linked;
+    if (m.linked) {
+      $("linkedIgn").textContent = m.ign;
+      $("kindTag").textContent = KIND[m.kind] || "";
+      $("kindTag").hidden = !KIND[m.kind];
+      $("linkSub").textContent = "연결돼 있어요";
+      $("ign").placeholder = m.ign;
+    }
+  }
+  function load() {
+    if (!KR.token()) { render(); return; }
+    KR.api("/api/killrace/me").then(function (r) {
+      if (r.status === 401) { ME = null; render(); return; }
+      if (!r.ok) { show("errCard"); $("errTitle").textContent = r.code === "table_missing" ? "아직 준비 중이에요" : "불러오지 못했어요"; $("errBody").textContent = "잠시 뒤 다시 열어 주세요"; return; }
+      ME = r.body; render();
+    });
+  }
+  $("consentBtn").addEventListener("click", function () {
+    var m = $("consentMsg"); m.className = "msg"; m.textContent = "";
+    if (!$("age14").checked) { m.textContent = "만 14세 이상인지 체크해 주세요"; return; }
+    $("consentBtn").disabled = true;
+    KR.api("/api/killrace/me/consent", { version: ME.consentVersion, age14: true }).then(function (r) {
+      $("consentBtn").disabled = false;
+      if (r.ok) { ME.member = r.body.member; render(); return; }
+      m.textContent = r.code === "consent_outdated" ? "동의 글이 바뀌었어요. 화면을 새로 열어 주세요" : r.code === "under_14" ? "만 14세 미만은 아직 가입할 수 없어요" : "저장하지 못했어요. 잠시 뒤 다시 해 주세요";
+    });
+  });
+  $("linkBtn").addEventListener("click", function () {
+    var m = $("linkMsg"); m.className = "msg"; m.textContent = "";
+    var ign = $("ign").value.trim();
+    if (!ign) { m.textContent = "스팀 닉을 적어 주세요"; return; }
+    $("linkBtn").disabled = true; $("linkBtn").textContent = "찾는 중";
+    KR.api("/api/killrace/me/link", { ign: ign }).then(function (r) {
+      $("linkBtn").disabled = false; $("linkBtn").textContent = "연결";
+      if (r.ok) {
+        ME.member = r.body.member; $("ign").value = "";
+        m.className = "msg ok"; m.textContent = r.body.corrected ? "연결했어요. 실제 닉은 " + r.body.member.ign + " 예요" : "연결했어요";
+        render(); return;
+      }
+      m.textContent = LINK_ERR[r.code] || "연결하지 못했어요. 잠시 뒤 다시 해 주세요";
+    });
+  });
+  $("ign").addEventListener("keydown", function (e) { if (e.key === "Enter") $("linkBtn").click(); });
+  load();
+})();
+</script>
+</body>
+</html>
