@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>킬내기 드래프트 | 순번제 팀 짜기</title>
+<meta name="description" content="GmI 킬내기 팀 드래프트. 저티어부터 팀을 세우고 핀볼로 고르는 순서를 정해요">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* 킬내기 라이트 토큰(killnaegi.html :root 와 같은 값) — 루트 G드컵 다크 · app/ 카지노와 섞지 않는다 */
+:root{
+  --bg:#F5F6F8; --card:#FFFFFF; --field:#F0F2F5; --line:#E3E6EB;
+  --ink:#172033; --ink-dim:#4E5869; --ink-faint:#6B7484;
+  --accent:#2F6FEB; --accent-soft:#EAF1FF; --accent-ink:#1D4FB8;
+  --red:#D93A2B; --red-soft:#FDECEA; --green:#1E8E5A; --green-soft:#E6F4EC;
+  --cream:#FFF4E0; --sun:#F59E0B;
+  --display:'Saira Condensed','Pretendard Variable',sans-serif;
+  --body:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;
+  --r-lg:18px; --r-md:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.5;-webkit-font-smoothing:antialiased;font-size:16px;}
+button{font-family:inherit;}
+.wrap{max-width:1880px;margin:0 auto;padding:0 20px;}
+.top{background:var(--cream);border-bottom:1px solid #F1E3C4;padding:14px 0;}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.top h1{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;letter-spacing:-.01em;}
+.top h1 span{color:var(--sun);}
+.steps{display:flex;gap:6px;flex-wrap:wrap;}
+.step{font-size:14px;font-weight:700;padding:6px 14px;border-radius:999px;background:#fff;border:1px solid #F1E3C4;color:var(--ink-faint);}
+.step.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+.step.done{color:var(--green);}
+.tools{display:flex;gap:6px;flex-wrap:wrap;}
+main{padding:18px 0 40px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;margin-bottom:16px;}
+.card-h{font-size:20px;font-weight:800;margin-bottom:4px;}
+.card-sub{font-size:14px;color:var(--ink-dim);margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:999px;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:10px 18px;background:var(--field);color:var(--ink);}
+.btn.main{background:var(--accent);color:#fff;}
+.btn.line{background:#fff;border:1.5px solid var(--line);}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:13.5px;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn:focus-visible,textarea:focus-visible,select:focus-visible,.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+textarea{width:100%;min-height:200px;background:var(--field);border:1.5px solid transparent;border-radius:var(--r-md);padding:12px 14px;font-family:inherit;font-size:15px;color:var(--ink);resize:vertical;}
+select{background:var(--field);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-family:inherit;font-size:14px;}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.msg{font-size:14px;color:var(--red);min-height:20px;margin-top:8px;}
+.msg.ok{color:var(--green);}
+.note{font-size:13.5px;color:var(--ink-dim);}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;}
+.tierlist{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 12px;font-size:15px;font-weight:700;background:var(--field);color:var(--ink);border:2px solid transparent;cursor:default;}
+button.chip{cursor:pointer;}
+.chip .t{font-family:var(--display);font-size:15px;color:var(--ink-faint);font-weight:700;}
+.chip .ign{font-weight:500;font-size:12.5px;color:var(--ink-faint);}
+.chip.low{background:var(--red-soft);}
+.chip.sel{border-color:var(--accent);background:var(--accent-soft);}
+.chip.unk{background:var(--cream);}
+.chip.taken{opacity:.35;text-decoration:line-through;cursor:default;}
+.slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;}
+.slot{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px;}
+.slot h3{font-family:var(--display);font-size:30px;font-weight:800;line-height:1;margin-bottom:2px;}
+.slot .sub{font-size:13px;color:var(--ink-faint);margin-bottom:10px;}
+.slot .list{display:flex;flex-direction:column;gap:6px;}
+.slot .list .chip{justify-content:space-between;width:100%;}
+.slot.wait{background:var(--field);}
+.badge{display:inline-flex;align-items:center;gap:8px;border-radius:var(--r-md);padding:10px 14px;font-weight:700;}
+.badge.low{background:var(--red-soft);color:var(--red);}
+.badge.high{background:var(--accent-soft);color:var(--accent-ink);}
+.seg{display:inline-flex;background:var(--field);border-radius:999px;padding:3px;}
+.seg button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;cursor:pointer;color:var(--ink-dim);}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(23,32,51,.12);}
+.draft{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start;}
+.teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;}
+.team{background:var(--card);border:2px solid var(--line);border-radius:var(--r-lg);padding:14px;}
+.team.now{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);}
+.team h4{font-family:var(--display);font-size:28px;font-weight:800;line-height:1;display:flex;justify-content:space-between;align-items:baseline;}
+.team h4 small{font-family:var(--body);font-size:13px;font-weight:700;color:var(--ink-faint);}
+.team ol{list-style:none;margin-top:8px;display:flex;flex-direction:column;gap:4px;}
+.team li{display:flex;justify-content:space-between;gap:8px;font-size:16px;padding:6px 10px;border-radius:10px;background:var(--field);}
+.team li.empty{background:transparent;border:1.5px dashed var(--line);color:var(--ink-faint);}
+.team li b{font-family:var(--display);color:var(--ink-faint);font-size:15px;}
+.round-h{font-family:var(--display);font-size:34px;font-weight:800;line-height:1.05;}
+.round-h span{color:var(--sun);}
+.now-line{font-size:20px;font-weight:800;margin:8px 0 10px;}
+.now-line em{font-style:normal;color:var(--accent-ink);}
+.pool{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.pool .chip{font-size:17px;padding:10px 16px;}
+canvas{display:block;width:100%;height:auto;background:var(--field);border-radius:var(--r-md);}
+.order{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.order .chip{font-size:15px;}
+.order .chip b{font-family:var(--display);color:var(--sun);}
+.final{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;}
+.final pre{white-space:pre-wrap;word-break:break-all;font-size:13px;background:var(--field);border-radius:10px;padding:10px;margin:10px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+details summary{cursor:pointer;font-weight:700;font-size:14px;}
+.hide{display:none !important;}
+@media (max-width:1200px){.slots{grid-template-columns:repeat(2,minmax(0,1fr));}.draft,.grid2{grid-template-columns:minmax(0,1fr);}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>킬내기 <span>드래프트</span></h1>
+    <nav class="steps" aria-label="진행 단계"><span class="step" data-st="input">1 신청자</span><span class="step" data-st="slots">2 칸 나누기</span><span class="step" data-st="draft">3 드래프트</span><span class="step" data-st="done">4 등록 문안</span></nav>
+    <div class="tools">
+      <button type="button" class="btn line sm" id="exportBtn">상태 내보내기</button>
+      <button type="button" class="btn line sm" id="importBtn">상태 불러오기</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <button type="button" class="btn line sm" id="resetBtn">처음부터</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- 1 신청자 -->
+  <section id="vInput" class="hide">
+    <div class="grid2">
+      <div class="card">
+        <h2 class="card-h">신청자 붙여넣기</h2>
+        <p class="card-sub">스팀 닉을 한 줄에 하나씩, 또는 쉼표로 붙여 넣어요. 앞 번호는 알아서 떼요</p>
+        <textarea id="paste" spellcheck="false" autocomplete="off" aria-label="신청자 스팀 닉 목록"></textarea>
+        <div class="row" style="margin-top:10px;"><button type="button" class="btn main" id="parseBtn">티어표로 정렬</button></div>
+        <p class="msg" id="inputMsg" role="status"></p>
+      </div>
+      <div class="card">
+        <h2 class="card-h">정렬 결과 <span class="note" id="cnt"></span></h2>
+        <p class="card-sub">티어표에 없는 사람은 노란 칸이에요. 티어를 골라 주세요</p>
+        <div class="tierlist" id="sorted"></div>
+        <div class="row" style="margin-top:14px;"><button type="button" class="btn main" id="toSlotsBtn" disabled>AI 칸 나누기</button><span class="note" id="toSlotsNote"></span></div>
+        <details style="margin-top:16px;">
+          <summary>닉 표(이 PC에만 저장)</summary>
+          <p class="note" style="margin:6px 0;">한 줄에 「스팀닉 부르는이름」. 화면 · 팀명에 이 이름을 써요. 저장소에는 올리지 않고 이 브라우저에만 남아요</p>
+          <textarea id="namesBox" spellcheck="false" autocomplete="off" style="min-height:120px;" aria-label="닉 표"></textarea>
+          <div class="row" style="margin-top:8px;"><button type="button" class="btn line sm" id="namesSave">닉 표 저장</button><span class="note" id="namesMsg"></span></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 칸 나누기 -->
+  <section id="vSlots" class="hide">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <h2 class="card-h">AI 칸 나누기</h2>
+          <p class="card-sub" style="margin-bottom:0;">두 사람을 차례로 누르면 자리를 맞바꿔요. 확정 전까지 마음껏 바꿔도 돼요</p>
+        </div>
+        <div class="row">
+          <span class="badge" id="modeBadge"></span>
+          <div class="seg" role="group" aria-label="판 종류"><button type="button" data-mode="low">저티어 판</button><button type="button" data-mode="high">고티어 판</button></div>
+        </div>
+      </div>
+      <p class="note" id="modeNote" style="margin-top:8px;"></p>
+    </div>
+    <div class="slots" id="slotGrid"></div>
+    <div class="row" style="margin-top:14px;">
+      <button type="button" class="btn line" id="slotUndo">되돌리기</button>
+      <button type="button" class="btn line" id="slotRedo">AI 칸 다시 나누기</button>
+      <button type="button" class="btn line" id="backInput">신청자 고치기</button>
+      <button type="button" class="btn main" id="confirmBtn">확정하고 드래프트 시작</button>
+      <span class="msg" id="slotMsg" role="status"></span>
+    </div>
+  </section>
+
+  <!-- 3 드래프트 -->
+  <section id="vDraft" class="hide">
+    <div class="draft">
+      <div>
+        <div class="card">
+          <div class="round-h" id="roundH"></div>
+          <div class="now-line" id="nowLine" aria-live="polite"></div>
+          <div class="pool" id="pool"></div>
+          <div class="row" style="margin-top:12px;">
+            <button type="button" class="btn line" id="pickUndo">한 칸 되돌리기</button>
+            <button type="button" class="btn main" id="nextBtn">다음 라운드</button>
+            <span class="msg" id="draftMsg" role="status"></span>
+          </div>
+        </div>
+        <div class="teams" id="teams"></div>
+      </div>
+      <div class="card">
+        <h2 class="card-h">핀볼</h2>
+        <p class="card-sub" id="pinSub">먼저 도착한 공이 먼저 골라요</p>
+        <canvas id="pin" width="760" height="560" aria-label="핀볼 추첨"></canvas>
+        <div class="order" id="order"></div>
+        <div class="row" style="margin-top:10px;">
+          <button type="button" class="btn main" id="rollBtn">핀볼 굴리기</button>
+          <button type="button" class="btn line" id="rerollBtn">다시 굴리기</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 등록 문안 -->
+  <section id="vDone" class="hide">
+    <div class="card">
+      <h2 class="card-h">디스코드 등록 문안</h2>
+      <p class="card-sub">팀마다 복사해서 디스코드에 그대로 붙여 넣어요. 팀명은 팀장(1번)을 부르는 이름 + 팀이에요(닉 표가 없으면 스팀 닉)</p>
+      <div class="row"><button type="button" class="btn main" id="copyAll">전부 복사</button><button type="button" class="btn line" id="backDraft">드래프트로 돌아가기</button><span class="msg" id="doneMsg" role="status"></span></div>
+    </div>
+    <div class="final" id="final"></div>
+  </section>
+</main>
+
+<script>
+/* 킬내기 드래프트 — 경매 대신 순번제(지휘 10/10 · 오너 「저티어가 첫 설계를 하는거임」)
+ * 1 신청자 붙여넣기 → 티어표로 정렬(없는 사람은 원장이 티어 고름)
+ * 2 AI 칸 나누기: 인원 ÷ 4 = 팀 수. 티어 순서대로 위에서 1번 · 2번 · 3번 · 4번 칸, 남는 사람(늦게 신청한 순 · 붙여 넣은 순서의 맨 뒤)은 대기. 두 사람을 눌러 맞바꾸기 · 되돌리기
+ * 3 드래프트: 라운드 0 = 4번 칸이 팀을 하나씩 세움(팀 번호는 핀볼) → 라운드 1 · 2 · 3 = 핀볼로 순서를 다시 섞고 3번 → 2번 → 1번 칸에서 고름(1번 = 팀장)
+ * 4 팀마다 /킬내기팀등록 문안 복사
+ * 저장은 이 브라우저 localStorage 와 JSON 내보내기 · 불러오기뿐이다. 서버 · DB 에 아무것도 쓰지 않는다.
+ * 티어표는 스팀 닉 기준(2~6회 · 6회 봇판 제외 · 지휘 10/10). 부르는 이름(닉 표)은 실명이 섞여 있어 저장소에 넣지 않고 원장이 한 번 붙여 넣는다. */
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var KEY = "kn_draft_v1", NAMES_KEY = "kn_draft_names";
+  var TIER_TEXT = "GmI_MinChun:1/1 GmI_yoonpyo:1/2 wuslrhdwb:1.5/3 GmI_Hyun:1.5/4 GmI_HYE0N:1.5/5 GmI_Pompitz:2/6 GmI_rabbit:2/7 eogeumni_10:2/8 WINMIN_-:2/9 GmI_mri:2/10 2U_EEND:2/11 GmI_bbak:3/12 GmI_CHANGE:3/13 II_instinct:3/14 GmI_mkmk:3/15 GmI_HJ:3/16 GmI_RED:3/17 New_we:3/18 Aizawa_Hikari:3/19 GmI_WxxGiDA:4/20 GMI_JS:4/21 lilililil1illil1:4/22 dwvXvwb:4/23 GmI_CUTMONEYY:4/24 007591:4/25 GmI_Eve:4/26 Gmi_brw:4/27 suzzy___:4/28 GmI_heoppy:5/29 joonsunmom:5/30 GmI_SIN:5/31 JooProTV:5/32 Hanni_heart1006:5/33 zizonJunhyung:5/34 wkfgoqhfRkdy:5/35 GmI_Terror:5/36 GmI_4ONSS:6/37 s1Nyrx_:6/38 Hoonbro-:6/39 JoosiKGaeMI:6/40 yeopomalgo:6/41 Y4shX-:6/42 Naver_net:7/43 HHeeJunn:7/44 GmI_Nowitzki:7/45 516PIXEL:8/46 qhwh1707:8/47";
+  var ALIAS = { pineapplepxssy: "GmI_MinChun" };            // 같은 사람의 다른 계정
+  var TIERS = [1, 1.5, 2, 3, 4, 5, 6, 7, 8];
+  var LOW_TIER = 5;                                          // 5~8티어가 1명이라도 있으면 「저티어 판」 추천(오너 10/10 · 7~8 → 5~8) · 최종은 원장 토글
+  var TABLE = {};                                            // 소문자 닉 → { ign, tier, rank }
+  TIER_TEXT.split(/\s+/).forEach(function (s) {
+    var m = s.match(/^(.+):([\d.]+)\/(\d+)$/); if (!m) return;
+    TABLE[m[1].toLowerCase()] = { ign: m[1], tier: Number(m[2]), rank: Number(m[3]) };
+  });
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+    del: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
+  };
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  // ── 상태 ──
+  function blank() { return { v: 1, stage: "input", paste: "", players: [], slots: null, slotHist: [], mode: null, teams: [], round: 0, order: [], rolled: {}, rerolled: {}, picks: [] }; }
+  var S = blank();
+  try { var saved = JSON.parse(store.get(KEY) || "null"); if (saved && saved.v === 1) S = Object.assign(blank(), saved); } catch (e) {}
+  var NAMES = {};
+  try { NAMES = JSON.parse(store.get(NAMES_KEY) || "{}") || {}; } catch (e) { NAMES = {}; }
+  function save() { store.set(KEY, JSON.stringify(S)); }
+  function dn(ign) { return NAMES[String(ign).toLowerCase()] || ign; }
+  function playerOf(ign) { for (var i = 0; i < S.players.length; i++) if (S.players[i].ign === ign) return S.players[i]; return null; }
+  function tierOf(ign) { var p = playerOf(ign); return p && p.tier != null ? p.tier : null; }
+  function T() { return Math.floor(S.players.length / 4); }
+
+  // ── 1 신청자 ──
+  function parse(text) {
+    var seen = {}, out = [];
+    String(text || "").split(/[\n,，、]+/).forEach(function (line) {
+      var s = line.replace(/^\s*[\d]+[.)\]]\s*/, "").replace(/^[-•·*]\s*/, "").trim();
+      if (!s) return;
+      s.split(/\s+/).forEach(function (tok) {
+        if (!tok) return;
+        var key = tok.toLowerCase(); if (ALIAS[key]) key = ALIAS[key].toLowerCase();
+        if (seen[key]) return; seen[key] = 1;
+        var t = TABLE[key];
+        out.push(t ? { ign: t.ign, tier: t.tier, rank: t.rank, known: true } : { ign: tok, tier: null, rank: null, known: false });
+      });
+    });
+    return out;
+  }
+  function sortPlayers(list) {
+    return list.slice().sort(function (a, b) {
+      var ta = a.tier == null ? 99 : a.tier, tb = b.tier == null ? 99 : b.tier;
+      if (ta !== tb) return ta - tb;
+      var ra = a.rank == null ? 999 : a.rank, rb = b.rank == null ? 999 : b.rank;
+      return ra - rb || String(a.ign).localeCompare(String(b.ign));
+    });
+  }
+  function chipHtml(ign, extra) {
+    var t = tierOf(ign), cls = "chip" + (t != null && t >= LOW_TIER ? " low" : "") + (extra || "");
+    var name = dn(ign), sub = name !== ign ? '<span class="ign">' + esc(ign) + "</span>" : "";
+    return { cls: cls, inner: "<span>" + esc(name) + "</span>" + sub + '<span class="t">' + (t == null ? "?" : t) + "</span>" };
+  }
+  function renderInput() {
+    $("paste").value = S.paste || "";
+    var list = sortPlayers(S.players), unk = 0;
+    $("sorted").innerHTML = list.map(function (p) {
+      if (p.tier == null) unk++;
+      if (!p.known) {
+        return '<span class="chip unk">' + esc(p.ign) + ' <select data-tier="' + esc(p.ign) + '" aria-label="' + esc(p.ign) + ' 티어"><option value="">티어 미정</option>' +
+          TIERS.map(function (t) { return '<option value="' + t + '"' + (p.tier === t ? " selected" : "") + ">" + t + "티어</option>"; }).join("") + "</select></span>";
+      }
+      var c = chipHtml(p.ign); return '<span class="' + c.cls + '">' + c.inner + "</span>";
+    }).join("") || '<span class="note">아직 없어요</span>';
+    var n = S.players.length, t = T();
+    $("cnt").textContent = n ? n + "명 · " + t + "팀" : "";
+    var why = !n ? "" : n < 8 ? "8명부터 팀을 나눠요" : unk ? "티어 미정 " + unk + "명이 남았어요" : n % 4 ? "늦게 신청한 " + n % 4 + "명은 대기로 빠져요" : "";
+    $("toSlotsNote").textContent = why;
+    $("toSlotsBtn").disabled = !n || n < 8 || unk > 0;
+    $("namesBox").value = Object.keys(NAMES).map(function (k) { return k + " " + NAMES[k]; }).join("\n");
+  }
+  $("parseBtn").addEventListener("click", function () {
+    S.paste = $("paste").value;
+    var fresh = parse(S.paste), old = {};
+    S.players.forEach(function (p) { if (!p.known && p.tier != null) old[p.ign.toLowerCase()] = p.tier; });   // 고른 티어는 다시 붙여도 남긴다
+    fresh.forEach(function (p) { if (!p.known && old[p.ign.toLowerCase()] != null) p.tier = old[p.ign.toLowerCase()]; });
+    S.players = fresh;
+    $("inputMsg").className = "msg ok";
+    $("inputMsg").textContent = fresh.length ? fresh.length + "명 읽었어요" : "";
+    if (!fresh.length) { $("inputMsg").className = "msg"; $("inputMsg").textContent = "스팀 닉이 없어요"; }
+    save(); renderInput();
+  });
+  $("sorted").addEventListener("change", function (e) {
+    var sel = e.target.closest("[data-tier]"); if (!sel) return;
+    var p = playerOf(sel.getAttribute("data-tier")); if (!p) return;
+    p.tier = sel.value === "" ? null : Number(sel.value); p.rank = null;
+    save(); renderInput();
+  });
+  $("namesSave").addEventListener("click", function () {
+    var map = {};
+    $("namesBox").value.split(/\n+/).forEach(function (line) {
+      var m = line.trim().match(/^(\S+)\s+(.+)$/); if (!m) return;
+      var key = m[1].toLowerCase(); if (ALIAS[key]) key = ALIAS[key].toLowerCase();
+      map[key] = m[2].trim().slice(0, 12);
+    });
+    NAMES = map; store.set(NAMES_KEY, JSON.stringify(NAMES));
+    $("namesMsg").textContent = Object.keys(map).length + "명 저장했어요";
+    render();
+  });
+  $("toSlotsBtn").addEventListener("click", function () { aiSlots(); S.stage = "slots"; save(); render(); });
+
+  // ── 2 칸 나누기 ──
+  function aiSlots() {
+    // 4로 안 나눠떨어지면 늦게 신청한 사람(붙여 넣은 순서의 맨 뒤)이 대기 — 낮은 순위를 빼지 않는다(지휘 10/10 · 「저티어들이 행복할수있도록」)
+    var t = T(), list = sortPlayers(S.players.slice(0, 4 * t)).map(function (p) { return p.ign; });
+    S.slots = { 1: list.slice(0, t), 2: list.slice(t, 2 * t), 3: list.slice(2 * t, 3 * t), 4: list.slice(3 * t, 4 * t), wait: S.players.slice(4 * t).map(function (p) { return p.ign; }) };
+    S.slotHist = []; S.mode = null; sel = null;
+  }
+  var sel = null;                                            // 맞바꿀 첫 사람 { k, i }
+  function suggestLow() { return [1, 2, 3, 4].some(function (k) { return S.slots[k].some(function (ign) { var t = tierOf(ign); return t != null && t >= LOW_TIER; }); }); }
+  function mode() { return S.mode || (suggestLow() ? "low" : "high"); }
+  function renderSlots() {
+    var low = suggestLow(), m = mode();
+    $("modeBadge").className = "badge " + (low ? "low" : "high");
+    $("modeBadge").textContent = low ? "5~8티어가 있어 저티어 판을 추천해요" : "고티어 판을 추천해요";
+    Array.prototype.forEach.call(document.querySelectorAll("[data-mode]"), function (b) { b.classList.toggle("on", b.getAttribute("data-mode") === m); });
+    $("modeNote").textContent = m === "low" ? "저티어 판이에요. 1번 칸은 부계정을 권장하고, 없으면 본계정도 괜찮아요" : "고티어 판이에요. 모두 본계정으로 해요";
+    var keys = [1, 2, 3, 4, "wait"], label = { 1: "1번", 2: "2번", 3: "3번", 4: "4번", wait: "대기" };
+    var sub = { 1: "마지막에 합류 · 팀장", 2: "라운드 2에 뽑혀요", 3: "라운드 1에 뽑혀요", 4: "먼저 팀을 세워요", wait: "늦게 신청해 이번 판은 빠져요" };
+    $("slotGrid").innerHTML = keys.map(function (k) {
+      if (k === "wait" && !S.slots.wait.length) return "";
+      return '<div class="slot' + (k === "wait" ? " wait" : "") + '"><h3>' + label[k] + '</h3><div class="sub">' + sub[k] + " · " + S.slots[k].length + '명</div><div class="list">' +
+        S.slots[k].map(function (ign, i) {
+          var c = chipHtml(ign, sel && sel.k == k && sel.i === i ? " sel" : "");
+          return '<button type="button" class="' + c.cls + '" data-k="' + k + '" data-i="' + i + '">' + c.inner + "</button>";
+        }).join("") + "</div></div>";
+    }).join("");
+    $("slotUndo").disabled = !S.slotHist.length;
+  }
+  $("slotGrid").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-k]"); if (!b) return;
+    var k = b.getAttribute("data-k"), i = Number(b.getAttribute("data-i"));
+    if (!sel) { sel = { k: k, i: i }; renderSlots(); return; }
+    if (sel.k === k && sel.i === i) { sel = null; renderSlots(); return; }
+    S.slotHist.push(clone(S.slots)); if (S.slotHist.length > 50) S.slotHist.shift();
+    var a = S.slots[sel.k][sel.i]; S.slots[sel.k][sel.i] = S.slots[k][i]; S.slots[k][i] = a;
+    $("slotMsg").className = "msg ok"; $("slotMsg").textContent = dn(a) + " ↔ " + dn(S.slots[sel.k][sel.i]) + " 맞바꿨어요";
+    sel = null; save(); renderSlots();
+  });
+  $("slotUndo").addEventListener("click", function () { if (!S.slotHist.length) return; S.slots = S.slotHist.pop(); sel = null; $("slotMsg").textContent = ""; save(); renderSlots(); });
+  $("slotRedo").addEventListener("click", function () { if (!confirm("AI가 다시 나눠요. 지금까지 바꾼 자리는 사라져요")) return; aiSlots(); $("slotMsg").textContent = ""; save(); renderSlots(); });
+  $("backInput").addEventListener("click", function () { S.stage = "input"; save(); render(); });
+  document.querySelector(".seg").addEventListener("click", function (e) { var b = e.target.closest("[data-mode]"); if (!b) return; S.mode = b.getAttribute("data-mode"); save(); renderSlots(); });
+  $("confirmBtn").addEventListener("click", function () {
+    if (!confirm("이 칸으로 확정할까요? 확정하면 드래프트가 시작되고 칸은 더 못 바꿔요")) return;
+    S.mode = mode(); S.teams = []; S.round = 0; S.order = []; S.rolled = {}; S.rerolled = {}; S.picks = [];
+    S.stage = "draft"; save(); render();
+  });
+
+  // ── 3 드래프트 ──
+  var SLOT_OF_ROUND = { 1: 3, 2: 2, 3: 1 };                  // 라운드 r 에 고르는 칸
+  function picksIn(r) { return S.picks.filter(function (p) { return p.round === r; }); }
+  function teamByNo(no) { for (var i = 0; i < S.teams.length; i++) if (S.teams[i].no === no) return S.teams[i]; return null; }
+  function curTeamNo() { var n = picksIn(S.round).length; return S.order[n]; }
+  function roundDone() { return S.round === 0 ? !!S.rolled[0] : S.rolled[S.round] && picksIn(S.round).length >= S.teams.length; }
+  function renderDraft() {
+    var r = S.round, t = T();
+    var titles = { 0: "라운드 0 — <span>4번이 팀을 세워요</span>", 1: "라운드 1 — <span>3번 고르기</span>", 2: "라운드 2 — <span>2번 고르기</span>", 3: "라운드 3 — <span>1번 고르기 · 팀장 합류</span>" };
+    $("roundH").innerHTML = titles[r];
+    var pool = [], now = "";
+    if (r === 0) {
+      now = S.rolled[0] ? "팀 번호가 정해졌어요. 다음 라운드로 넘어가요" : "핀볼을 굴리면 도착 순서대로 1팀부터 번호가 붙어요";
+      pool = S.slots[4].map(function (ign) { var c = chipHtml(ign); return '<span class="' + c.cls + '">' + c.inner + "</span>"; });
+    } else {
+      var k = SLOT_OF_ROUND[r], taken = {};
+      S.picks.forEach(function (p) { taken[p.ign] = 1; });
+      var no = curTeamNo();
+      now = !S.rolled[r] ? "핀볼로 이번 라운드 고르는 순서를 정해요" : roundDone() ? (r === 3 ? "팀이 다 짜였어요" : "이번 라운드 끝. 다음 라운드로 넘어가요") : "<em>" + no + "팀</em> 차례예요 · " + esc(dn(teamByNo(no).m[4])) + " 팀이 " + k + "번 칸에서 골라요";
+      pool = S.slots[k].map(function (ign) {
+        var c = chipHtml(ign, taken[ign] ? " taken" : "");
+        var can = S.rolled[r] && !taken[ign] && !roundDone();
+        return can ? '<button type="button" class="' + c.cls + '" data-pick="' + esc(ign) + '">' + c.inner + "</button>" : '<span class="' + c.cls + '">' + c.inner + "</span>";
+      });
+    }
+    $("nowLine").innerHTML = now;
+    $("pool").innerHTML = pool.join("");
+    $("teams").innerHTML = S.teams.length ? S.teams.slice().sort(function (a, b) { return a.no - b.no; }).map(function (tm) {
+      var cur = r > 0 && S.rolled[r] && !roundDone() && tm.no === curTeamNo();
+      var line = function (k) { var ign = tm.m[k]; return ign ? "<li><span>" + esc(dn(ign)) + "</span><b>" + k + "번</b></li>" : '<li class="empty"><span>' + k + "번 자리</span><b>" + k + "번</b></li>"; };
+      var name = tm.m[1] ? dn(tm.m[1]) + "팀" : "";
+      return '<div class="team' + (cur ? " now" : "") + '"><h4>' + tm.no + "팀 <small>" + esc(name) + "</small></h4><ol>" + [1, 2, 3, 4].map(line).join("") + "</ol></div>";
+    }).join("") : "";
+    // 핀볼 버튼
+    var canRoll = !S.rolled[r] && !anim;
+    var canReroll = S.rolled[r] && !S.rerolled[r] && !anim && (r === 0 ? r === S.round : picksIn(r).length === 0);
+    $("rollBtn").disabled = !canRoll; $("rerollBtn").disabled = !canReroll;
+    $("pinSub").textContent = r === 0 ? "4번 칸 사람들이 굴러요. 먼저 도착한 순서가 팀 번호예요" : "팀이 굴러요. 먼저 도착한 팀이 먼저 골라요";
+    $("order").innerHTML = (S.order || []).map(function (x, i) {
+      var label = r === 0 ? esc(dn(x)) : x + "팀";
+      return '<span class="chip"><b>' + (i + 1) + "</b>" + label + "</span>";
+    }).join("");
+    $("nextBtn").disabled = !roundDone() || anim;
+    $("nextBtn").textContent = r === 3 ? "등록 문안 보기" : "다음 라운드";
+    $("pickUndo").disabled = !S.picks.length || anim;
+    if (!anim) drawStatic();
+  }
+  $("pool").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-pick]"); if (!b || anim) return;
+    var r = S.round, no = curTeamNo(), ign = b.getAttribute("data-pick");
+    if (!S.rolled[r] || roundDone() || no == null) return;
+    teamByNo(no).m[SLOT_OF_ROUND[r]] = ign;
+    S.picks.push({ round: r, team: no, ign: ign });
+    $("draftMsg").className = "msg ok"; $("draftMsg").textContent = no + "팀이 " + dn(ign) + " 골랐어요";
+    save(); renderDraft();
+  });
+  $("pickUndo").addEventListener("click", function () {
+    var last = S.picks[S.picks.length - 1]; if (!last || anim) return;
+    if (last.round !== S.round) {
+      if (S.rolled[S.round]) { $("draftMsg").className = "msg"; $("draftMsg").textContent = "이번 라운드 핀볼을 굴린 뒤라 지난 라운드는 되돌릴 수 없어요"; return; }
+      S.round = last.round; S.order = S.orders && S.orders[last.round] ? S.orders[last.round] : S.order;
+    }
+    S.picks.pop(); teamByNo(last.team).m[SLOT_OF_ROUND[last.round]] = null;
+    $("draftMsg").className = "msg"; $("draftMsg").textContent = dn(last.ign) + " 고른 것을 되돌렸어요";
+    save(); renderDraft();
+  });
+  $("nextBtn").addEventListener("click", function () {
+    if (!roundDone()) return;
+    if (S.round === 3) { S.stage = "done"; save(); render(); return; }
+    S.round++; S.order = []; save(); renderDraft();
+  });
+  $("backDraft").addEventListener("click", function () { S.stage = "draft"; save(); render(); });
+
+  // ── 핀볼 ── 공이 핀 사이로 떨어져 바닥에 먼저 닿은 순서가 결과다(3~5초). 움직임 줄이기 설정이면 바로 결과만 보인다
+  var cv = $("pin"), ctx = cv.getContext("2d"), anim = false;
+  var W = cv.width, H = cv.height, BR = 15, PR = 5, FLOOR = H - 24;
+  var PEGS = [];
+  (function () { for (var row = 0; row < 9; row++) { var y = 110 + row * 46, off = row % 2 ? 0 : 38; for (var x = 38 + off; x < W - 20; x += 76) PEGS.push({ x: x, y: y }); } })();
+  var COLORS = ["#2F6FEB", "#D93A2B", "#1E8E5A", "#F59E0B", "#7C3AED", "#0E7490", "#BE185D", "#4D7C0F"];
+  function drawBoard(balls) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "#E3E6EB"; ctx.fillRect(0, FLOOR, W, H - FLOOR);
+    ctx.fillStyle = "#4E5869"; PEGS.forEach(function (p) { ctx.beginPath(); ctx.arc(p.x, p.y, PR, 0, Math.PI * 2); ctx.fill(); });
+    (balls || []).forEach(function (b, i) {
+      ctx.beginPath(); ctx.arc(b.x, b.y, BR, 0, Math.PI * 2); ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
+      ctx.fillStyle = "#fff"; ctx.font = "800 15px 'Saira Condensed', sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(b.label, b.x, b.y + 1);
+      if (b.place) { ctx.fillStyle = "#172033"; ctx.font = "800 18px 'Saira Condensed', sans-serif"; ctx.fillText(b.place, b.x, b.y - BR - 10); }
+    });
+  }
+  function ballLabels() {
+    var r = S.round;
+    if (r === 0) return S.slots[4].map(function (ign) { return { key: ign, label: String(dn(ign)).slice(0, 2) }; });
+    return S.teams.slice().sort(function (a, b) { return a.no - b.no; }).map(function (t) { return { key: t.no, label: String(t.no) }; });
+  }
+  var lastBalls = null;
+  function drawStatic() { drawBoard(lastBalls && lastBalls.round === S.round && S.rolled[S.round] ? lastBalls.balls : []); }
+  function roll() {
+    var items = ballLabels(), n = items.length; if (!n) return;
+    // 출발 자리를 섞는다 — 줄 세운 순서가 결과에 남지 않게
+    var xs = []; for (var i = 0; i < n; i++) xs.push(60 + (W - 120) * (n === 1 ? .5 : i / (n - 1)));
+    for (var j = xs.length - 1; j > 0; j--) { var q = Math.floor(Math.random() * (j + 1)), tmp = xs[j]; xs[j] = xs[q]; xs[q] = tmp; }
+    var balls = items.map(function (it, i) { return { key: it.key, label: it.label, x: xs[i] + (Math.random() - .5) * 20, y: 30 + Math.random() * 30, vx: (Math.random() - .5) * 60, vy: 0, done: false, place: null }; });
+    var finish = [];
+    function step(dt) {
+      balls.forEach(function (b) {
+        if (b.done) return;
+        b.vy += 900 * dt; b.x += b.vx * dt; b.y += b.vy * dt;
+        if (b.x < BR) { b.x = BR; b.vx = Math.abs(b.vx) * .6; }
+        if (b.x > W - BR) { b.x = W - BR; b.vx = -Math.abs(b.vx) * .6; }
+        PEGS.forEach(function (p) {
+          var dx = b.x - p.x, dy = b.y - p.y, d = Math.sqrt(dx * dx + dy * dy), min = BR + PR;
+          if (d < min && d > 0) {
+            var nx = dx / d, ny = dy / d, dot = b.vx * nx + b.vy * ny;
+            b.x = p.x + nx * min; b.y = p.y + ny * min;
+            if (dot < 0) { b.vx -= 1.55 * dot * nx; b.vy -= 1.55 * dot * ny; }
+            b.vx += (Math.random() - .5) * 70; b.vx *= .9; b.vy *= .7;
+          }
+        });
+        if (b.y >= FLOOR - BR) { b.y = FLOOR - BR; b.done = true; finish.push(b); b.place = String(finish.length); }
+      });
+    }
+    function result() {
+      balls.filter(function (b) { return !b.done; }).sort(function (a, b) { return b.y - a.y; }).forEach(function (b) { b.done = true; finish.push(b); b.place = String(finish.length); });
+      S.order = finish.map(function (b) { return b.key; });
+      if (S.round === 0) {
+        S.teams = S.order.map(function (ign, i) { return { no: i + 1, m: { 4: ign, 3: null, 2: null, 1: null } }; });
+      }
+      S.orders = S.orders || {}; S.orders[S.round] = S.order.slice();
+      S.rolled[S.round] = true; lastBalls = { round: S.round, balls: balls };
+      anim = false; save(); renderDraft();
+    }
+    var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { for (var k = 0; k < 2000 && finish.length < n; k++) step(1 / 120); result(); drawBoard(balls); return; }
+    anim = true; renderDraft();
+    var t0 = performance.now(), last = t0;
+    (function frame(now) {
+      var dt = Math.min(.033, (now - last) / 1000); last = now;
+      for (var s = 0; s < 4; s++) step(dt / 4);
+      drawBoard(balls);
+      if (finish.length >= n || now - t0 > 6000) { result(); drawBoard(balls); return; }
+      requestAnimationFrame(frame);
+    })(t0);
+  }
+  $("rollBtn").addEventListener("click", function () { if (anim || S.rolled[S.round]) return; roll(); });
+  $("rerollBtn").addEventListener("click", function () {
+    var r = S.round; if (anim || !S.rolled[r] || S.rerolled[r]) return;
+    if (r > 0 && picksIn(r).length) return;
+    if (!confirm("다시 굴리기는 라운드마다 한 번만 돼요. 굴릴까요?")) return;
+    S.rerolled[r] = true; S.rolled[r] = false; if (r === 0) S.teams = [];
+    roll();
+  });
+
+  // ── 4 등록 문안 ──
+  function lineOf(tm) {
+    return "/킬내기팀등록 팀명:" + dn(tm.m[1]) + "팀 플랫폼:스팀 슬롯1:" + tm.m[1] + " 슬롯2:" + tm.m[2] + " 슬롯3:" + tm.m[3] + " 슬롯4:" + tm.m[4];
+  }
+  function copy(text, el) {
+    var ok = function () { $("doneMsg").className = "msg ok"; $("doneMsg").textContent = el + " 복사했어요"; };
+    var fail = function () { $("doneMsg").className = "msg"; $("doneMsg").textContent = "복사가 막혔어요. 문안을 직접 긁어 주세요"; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fail); else fail();
+  }
+  function renderDone() {
+    var teams = S.teams.slice().sort(function (a, b) { return a.no - b.no; });
+    $("final").innerHTML = teams.map(function (tm) {
+      return '<div class="team"><h4>' + tm.no + "팀 <small>" + esc(dn(tm.m[1])) + "팀</small></h4><ol>" + [1, 2, 3, 4].map(function (k) { return "<li><span>" + esc(dn(tm.m[k])) + "</span><b>" + k + "번</b></li>"; }).join("") +
+        "</ol><pre>" + esc(lineOf(tm)) + '</pre><button type="button" class="btn main sm" data-copy="' + tm.no + '">' + tm.no + "팀 복사</button></div>";
+    }).join("");
+  }
+  $("final").addEventListener("click", function (e) { var b = e.target.closest("[data-copy]"); if (!b) return; var tm = teamByNo(Number(b.getAttribute("data-copy"))); copy(lineOf(tm), tm.no + "팀 문안"); });
+  $("copyAll").addEventListener("click", function () { copy(S.teams.slice().sort(function (a, b) { return a.no - b.no; }).map(lineOf).join("\n"), "전체 문안"); });
+
+  // ── 내보내기 · 불러오기 · 처음부터 ──
+  $("exportBtn").addEventListener("click", function () {
+    var blob = new Blob([JSON.stringify(S, null, 2)], { type: "application/json" });
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    var d = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 16).replace(/[-:T]/g, "");
+    a.download = "killnaegi-draft-" + d + ".json"; document.body.appendChild(a); a.click(); a.remove();
+  });
+  $("importBtn").addEventListener("click", function () { $("importFile").click(); });
+  $("importFile").addEventListener("change", function () {
+    var f = this.files && this.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      try { var o = JSON.parse(rd.result); if (!o || o.v !== 1) throw 0; S = Object.assign(blank(), o); lastBalls = null; save(); render(); }
+      catch (e) { alert("드래프트 상태 파일이 아니에요"); }
+    };
+    rd.readAsText(f); this.value = "";
+  });
+  $("resetBtn").addEventListener("click", function () { if (!confirm("처음부터 할까요? 지금 진행한 칸과 드래프트가 지워져요(닉 표는 남아요)")) return; S = blank(); lastBalls = null; sel = null; store.del(KEY); render(); });
+
+  function render() {
+    var order = ["input", "slots", "draft", "done"], at = order.indexOf(S.stage);
+    Array.prototype.forEach.call(document.querySelectorAll(".step"), function (el) { var i = order.indexOf(el.getAttribute("data-st")); el.classList.toggle("on", i === at); el.classList.toggle("done", i < at); });
+    $("vInput").classList.toggle("hide", S.stage !== "input");
+    $("vSlots").classList.toggle("hide", S.stage !== "slots");
+    $("vDraft").classList.toggle("hide", S.stage !== "draft");
+    $("vDone").classList.toggle("hide", S.stage !== "done");
+    if (S.stage === "input") renderInput();
+    if (S.stage === "slots") renderSlots();
+    if (S.stage === "draft") renderDraft();
+    if (S.stage === "done") renderDone();
+  }
+  render();
+})();
+</script>
+</body>
+</html>
