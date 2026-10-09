@@ -209,7 +209,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;}
 <script>
 /* 킬내기 드래프트 — 경매 대신 순번제(지휘 10/10 · 오너 「저티어가 첫 설계를 하는거임」)
  * 1 신청자 붙여넣기 → 티어표로 정렬(없는 사람은 원장이 티어 고름)
- * 2 AI 칸 나누기: 인원 ÷ 4 = 팀 수. 티어 순서대로 위에서 1번 · 2번 · 3번 · 4번 칸, 남는 사람은 대기. 두 사람을 눌러 맞바꾸기 · 되돌리기
+ * 2 AI 칸 나누기: 인원 ÷ 4 = 팀 수. 티어 순서대로 위에서 1번 · 2번 · 3번 · 4번 칸, 남는 사람(늦게 신청한 순 · 붙여 넣은 순서의 맨 뒤)은 대기. 두 사람을 눌러 맞바꾸기 · 되돌리기
  * 3 드래프트: 라운드 0 = 4번 칸이 팀을 하나씩 세움(팀 번호는 핀볼) → 라운드 1 · 2 · 3 = 핀볼로 순서를 다시 섞고 3번 → 2번 → 1번 칸에서 고름(1번 = 팀장)
  * 4 팀마다 /킬내기팀등록 문안 복사
  * 저장은 이 브라우저 localStorage 와 JSON 내보내기 · 불러오기뿐이다. 서버 · DB 에 아무것도 쓰지 않는다.
@@ -289,7 +289,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;}
     }).join("") || '<span class="note">아직 없어요</span>';
     var n = S.players.length, t = T();
     $("cnt").textContent = n ? n + "명 · " + t + "팀" : "";
-    var why = !n ? "" : n < 8 ? "8명부터 팀을 나눠요" : unk ? "티어 미정 " + unk + "명이 남았어요" : n % 4 ? n % 4 + "명은 대기로 빠져요" : "";
+    var why = !n ? "" : n < 8 ? "8명부터 팀을 나눠요" : unk ? "티어 미정 " + unk + "명이 남았어요" : n % 4 ? "늦게 신청한 " + n % 4 + "명은 대기로 빠져요" : "";
     $("toSlotsNote").textContent = why;
     $("toSlotsBtn").disabled = !n || n < 8 || unk > 0;
     $("namesBox").value = Object.keys(NAMES).map(function (k) { return k + " " + NAMES[k]; }).join("\n");
@@ -326,8 +326,9 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;}
 
   // ── 2 칸 나누기 ──
   function aiSlots() {
-    var list = sortPlayers(S.players).map(function (p) { return p.ign; }), t = T();
-    S.slots = { 1: list.slice(0, t), 2: list.slice(t, 2 * t), 3: list.slice(2 * t, 3 * t), 4: list.slice(3 * t, 4 * t), wait: list.slice(4 * t) };
+    // 4로 안 나눠떨어지면 늦게 신청한 사람(붙여 넣은 순서의 맨 뒤)이 대기 — 낮은 순위를 빼지 않는다(지휘 10/10 · 「저티어들이 행복할수있도록」)
+    var t = T(), list = sortPlayers(S.players.slice(0, 4 * t)).map(function (p) { return p.ign; });
+    S.slots = { 1: list.slice(0, t), 2: list.slice(t, 2 * t), 3: list.slice(2 * t, 3 * t), 4: list.slice(3 * t, 4 * t), wait: S.players.slice(4 * t).map(function (p) { return p.ign; }) };
     S.slotHist = []; S.mode = null; sel = null;
   }
   var sel = null;                                            // 맞바꿀 첫 사람 { k, i }
@@ -340,7 +341,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;}
     Array.prototype.forEach.call(document.querySelectorAll("[data-mode]"), function (b) { b.classList.toggle("on", b.getAttribute("data-mode") === m); });
     $("modeNote").textContent = m === "low" ? "저티어 판이에요. 1번 칸은 부계정을 권장하고, 없으면 본계정도 괜찮아요" : "고티어 판이에요. 모두 본계정으로 해요";
     var keys = [1, 2, 3, 4, "wait"], label = { 1: "1번", 2: "2번", 3: "3번", 4: "4번", wait: "대기" };
-    var sub = { 1: "마지막에 합류 · 팀장", 2: "라운드 2에 뽑혀요", 3: "라운드 1에 뽑혀요", 4: "먼저 팀을 세워요", wait: "이번 판은 빠져요" };
+    var sub = { 1: "마지막에 합류 · 팀장", 2: "라운드 2에 뽑혀요", 3: "라운드 1에 뽑혀요", 4: "먼저 팀을 세워요", wait: "늦게 신청해 이번 판은 빠져요" };
     $("slotGrid").innerHTML = keys.map(function (k) {
       if (k === "wait" && !S.slots.wait.length) return "";
       return '<div class="slot' + (k === "wait" ? " wait" : "") + '"><h3>' + label[k] + '</h3><div class="sub">' + sub[k] + " · " + S.slots[k].length + '명</div><div class="list">' +
