@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>대승배 GmI 킬내기 5회 | 솔로 신청</title>
-<meta name="description" content="대승배 GmI 킬내기 5회 솔로 신청. 10월 8일 목요일 21:00 · 4인 스쿼드 3~5팀 · 팀은 경매로 정해요 · 1등 팀 24만 2등 팀 6만.">
-<meta property="og:title" content="대승배 GmI 킬내기 5회 솔로 신청">
-<meta property="og:description" content="10월 8일 목요일 21:00 · 20명 선착순 · 팀은 경매로 정해요">
+<title>GmI 킬내기 6회 | 솔로 신청</title>
+<meta name="description" content="GmI 킬내기 6회 솔로 신청. 10월 9일 금요일 23:30 · 4인 스쿼드 3~5팀 · 팀은 경매로 정해요 · 각 팀 MVP에게 치킨 기프티콘.">
+<meta property="og:title" content="GmI 킬내기 6회 솔로 신청">
+<meta property="og:description" content="10월 9일 금요일 23:30 · 20명 선착순 · 팀은 경매로 정해요">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#F5F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -187,12 +187,12 @@ footer a{color:var(--ink-dim);}
 
 <header class="hero">
   <div class="wrap">
-    <div class="hero-top"><span class="kicker">대승배 · 대승님 후원</span><a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드 ↗</a></div>
-    <h1>GmI 킬내기 <span class="sun">5회</span></h1>
+    <div class="hero-top"><span class="kicker">6회 · 현성님 후원</span><a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드 ↗</a></div>
+    <h1>GmI 킬내기 <span class="sun">6회</span></h1>
     <div class="chips">
-      <span class="chip"><b>10/8(목) 21:00~23:00</b></span>
-      <span class="chip">1등 팀 <b>24만</b> · 2등 팀 <b>6만</b></span>
-      <span class="chip" id="deadlineChip">신청 마감 <b>10/8(목) 20:00</b></span>
+      <span class="chip"><b>10/9(금) 23:30~01:30</b></span>
+      <span class="chip">각 팀 MVP <b>치킨 기프티콘</b></span>
+      <span class="chip" id="deadlineChip">신청 마감 <b>10/9(금) 23:00</b></span>
     </div>
     <div class="count" id="countLine">20명 선착순이에요</div>
   </div>
@@ -202,7 +202,7 @@ footer a{color:var(--ink-dim);}
 
   <section class="card" id="apply" aria-labelledby="applyTitle">
     <h2 class="card-h" id="applyTitle">솔로 신청</h2>
-    <p class="card-sub">혼자 신청해요. 스팀으로만 진행하고 팀은 대회 날 20:30 경매로 정해져요</p>
+    <p class="card-sub">혼자 신청해요. 스팀으로만 진행하고 팀은 마감 직후 23:00 경매로 정해져요</p>
     <p class="lead-note">이미 신청했다면 아래 <a href="#mine">내 신청</a>에서 참가 구분과 선수 소개만 채우면 돼요</p>
 
     <form id="form" novalidate>
@@ -218,6 +218,7 @@ footer a{color:var(--ink-dim);}
 
       <div class="acct intro-box" id="introNew"></div>
 
+      <div id="acctBox" hidden>
       <div class="acct">
         <div class="acct-h">상금 받을 계좌 <span class="req">*</span></div>
         <div class="acct-row">
@@ -227,17 +228,19 @@ footer a{color:var(--ink-dim);}
         <div class="field" style="margin-bottom:0;"><label class="label" for="holder">예금주</label><input type="text" class="input" id="holder" maxlength="20" autocomplete="off" placeholder="통장에 적힌 이름"></div>
       </div>
 
-      <label class="check" style="margin-top:12px;"><input type="checkbox" id="agree"><span><b>계좌는 상금 보낼 때만 써요</b> <span class="note">진행자만 봐요</span></span></label>
+      </div>
+      <p class="note" id="giftNote" style="margin-top:12px;">MVP 기프티콘은 디스코드 DM으로 보내드려요. 계좌는 받지 않아요</p>
+      <label class="check" style="margin-top:12px;"><input type="checkbox" id="agree"><span id="agreeText"><b>디스코드 닉과 스팀 닉을 대회 진행에 써도 돼요</b> <span class="note">신청 명단과 점수판에 나와요</span></span></label>
       <button type="submit" class="btn btn-main" id="submitBtn">신청하기</button>
       <div class="msg" id="msg" role="status" aria-live="polite"></div>
     </form>
     <div class="done" id="done" hidden></div>
-    <div class="sponsor" id="sponsor"><div>상금은 이무리 사비 방지턱에서 나가요</div><div id="sponsorHow">보태고 싶은 분은 디스코드로 알려 주세요</div></div>
+    <div class="sponsor" id="sponsor"><div>각 팀 MVP에게 치킨 기프티콘 1개, 현성님이 후원해요</div><div id="sponsorHow">보태고 싶은 분은 디스코드로 알려 주세요</div></div>
   </section>
 
   <section class="card" id="mine" aria-labelledby="mineTitle">
     <h2 class="card-h" id="mineTitle">내 신청</h2>
-    <p class="card-sub">이미 신청했다면 여기서 참가 구분과 선수 소개를 채워요. 계좌는 다시 묻지 않아요</p>
+    <p class="card-sub">이미 신청했다면 여기서 참가 구분과 선수 소개를 채워요</p>
     <form id="mineForm" novalidate>
       <div class="row2">
         <div class="field"><label class="label" for="mDiscord">디스코드 닉</label>
@@ -285,13 +288,13 @@ footer a{color:var(--ink-dim);}
   </section>
 
   <section class="card" aria-labelledby="dayTitle">
-    <h2 class="card-h" id="dayTitle">10월 8일 순서</h2>
+    <h2 class="card-h" id="dayTitle">10월 9일 순서</h2>
     <p class="card-sub">4인 스쿼드예요. 신청 인원에 맞춰 3~5팀으로 열려요(12명부터)</p>
     <ul class="sched">
-      <li><b>20:15</b> 디스코드 음성 채널 집합</li>
-      <li><b>20:30</b> 팀 경매</li>
-      <li><b>21:00</b> 시작</li>
-      <li><b>23:00</b> 이 시각 전에 시작한 판까지 인정</li>
+      <li><b>22:55</b> 디스코드 음성 채널 집합</li>
+      <li><b>23:00</b> 신청 마감 · 팀 경매</li>
+      <li><b>23:30</b> 시작</li>
+      <li><b>01:30</b> 이 시각 전에 시작한 판까지 인정</li>
     </ul>
     <p class="note" style="margin-top:10px;">팀장이 100포인트로 팀원을 뽑아요. 한 선수에 최대 40P. 남긴 포인트는 5P마다 시작 점수 +1, 유찰 선수를 떠안아 생긴 빚은 5P마다 −2점이에요. 7티어 +5 · 8티어 +10 팀 가산(유찰로 받은 선수는 없음)</p>
     <p class="note" style="margin-top:6px;">점수판은 끝까지 공개해요. 판이 끝나면 자동으로 올라가요.</p>
@@ -325,18 +328,17 @@ footer a{color:var(--ink-dim);}
   <section class="card" id="faq" aria-labelledby="faqTitle">
     <h2 class="card-h" id="faqTitle" style="margin-bottom:12px;">자주 묻는 질문</h2>
     <details><summary>카카오 배그로도 되나요?</summary><p>이번에는 스팀으로만 진행해요. 스팀 닉으로 신청해 주세요.</p></details>
-    <details><summary>팀으로 신청할 수 있나요?</summary><p>이번에는 솔로 신청만 받아요. 팀은 20:30 경매에서 팀장이 뽑아요.</p></details>
+    <details><summary>팀으로 신청할 수 있나요?</summary><p>이번에는 솔로 신청만 받아요. 팀은 23:00 경매에서 팀장이 뽑아요.</p></details>
     <details><summary>슬롯 번호는 어떻게 정해져요?</summary><p>경매가 끝나면 진행자가 1번부터 4번까지 정해서 알려 드려요.</p></details>
     <details><summary>20명이 넘으면요?</summary><p>대기로 받아요. 빈자리가 나면 신청한 순서대로 디스코드로 알려 드려요.</p></details>
     <details><summary>치킨 먹으면 감점 없어요?</summary><p>아니요. 치킨 판에서도 죽은 사람은 감점돼요. 블루칩으로 살아나 끝까지 산 사람만 감점이 빠져요. 살아났다가 다시 죽어도 감점은 한 번이에요.</p></details>
     <details><summary>큐를 돌렸는데 한 명이 튕겼어요</summary><p>낙하하기 전에 튕겼다면 그 판은 무효예요. 남은 사람도 나와서 4명이 다시 돌리면 돼요. 디스코드에 한 줄만 남겨 주세요. 낙하한 뒤에 튕겼다면 그 판은 인정되니 다시 접속해서 이어가 주세요. 이때 남은 팀원이 나가면 이탈이에요.</p></details>
     <details><summary>기절만 시켜도 킬인가요?</summary><p>기절은 킬이 아니에요. 그 딜은 팀 딜에 들어가요. 봇을 잡은 것도 킬이고, 다른 참가 팀을 만나 잡은 킬도 인정해요.</p></details>
     <details><summary>딜 점수는 어떻게 세요?</summary><p>판마다 따로 세요. 그 판 팀 4명 딜을 더해 100으로 나눈 몫이에요. 199면 1점이고, 여러 판 딜을 합쳐서 계산하지 않아요.</p></details>
-    <details><summary>몇 판까지 할 수 있어요?</summary><p>총 2시간 동안 진행돼요. 판 수 제한은 없어요. 23:00 전에 시작한 판까지 전부 더해요.</p></details>
+    <details><summary>몇 판까지 할 수 있어요?</summary><p>총 2시간 동안 진행돼요. 판 수 제한은 없어요. 01:30 전에 시작한 판까지 전부 더해요.</p></details>
     <details><summary>점수가 이상해요</summary><p>발표 뒤 10분 안에 리플레이나 결과 화면과 함께 진행자에게 알려 주세요.</p></details>
     <details><summary>중간에 사람을 바꿀 수 있나요?</summary><p>판과 판 사이에만 바꿀 수 있어요. 바꾸기 전에 진행자에게 먼저 알려 주세요.</p></details>
     <details><summary>핵한테 죽으면요?</summary><p>벽뚫이나 스피드핵에 죽은 게 리플레이로 확인되면 그 사망은 감점하지 않아요.</p></details>
-    <details><summary>계좌는 왜 받아요?</summary><p>상금을 한 사람씩 바로 보내려고요. 진행자만 보고 신청 명단이나 방송 화면에는 나오지 않아요.</p></details>
     <details><summary>신청을 바꾸거나 취소하려면요?</summary><p>디스코드 신청 채널에 남겨 주세요.</p></details>
   </section>
 
@@ -353,7 +355,7 @@ footer a{color:var(--ink-dim);}
 </main>
 
 <footer>
-  <div>GmI 클랜 · 대승배 킬내기 5회 · 2026 · 비영리 친목 대회</div>
+  <div>GmI 클랜 · 킬내기 6회 · 2026 · 비영리 친목 대회</div>
   <div style="margin-top:6px;"><a href="https://shlee9498-dev.github.io/gmi-clancup/">메인</a> · <a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드</a></div>
 </footer>
 
@@ -377,6 +379,14 @@ footer a{color:var(--ink-dim);}
  * 없으면 「입금 안내는 디스코드에서 드려요」다(문구를 화면에 박아 두지 않는다). 공개 응답에 입금 여부는 없다 — 진행자 조회에만 있다. */
 var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
 var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
+/* 계좌를 받을지는 서버 공개 응답 needAccount 가 정한다(경비 #552 · 6회는 false — 상품이 기프티콘). 값이 없는 옛 서버면 받는 쪽으로 본다.
+ * 동의 체크(agree)는 늘 보낸다 — 서버가 계좌와 상관없이 필수로 본다(닉 수집 동의). 계좌를 안 받을 땐 bank · accountNo · holder 를 보내지 않는다 */
+var NEED_ACCOUNT = false;
+function applyAcct() {
+  $("acctBox").hidden = !NEED_ACCOUNT; $("giftNote").hidden = NEED_ACCOUNT;
+  $("agreeText").innerHTML = NEED_ACCOUNT ? '<b>계좌는 상금 보낼 때만 써요</b> <span class="note">진행자만 봐요</span>'
+    : '<b>디스코드 닉과 스팀 닉을 대회 진행에 써도 돼요</b> <span class="note">신청 명단과 점수판에 나와요</span>';
+}
 var BANKS = ["국민","신한","우리","하나","농협","기업","카카오뱅크","토스뱅크","케이뱅크","새마을","우체국","신협","수협","부산","대구","경남","광주","전북","SC제일","산업"];
 var POSITIONS = ["오더","돌격","저격","서포트"];
 var STYLES = ["공격적","밸런스","안정적"];
@@ -470,7 +480,7 @@ var ERR = {
   no_bank: "은행을 골라 주세요",
   bad_account: "계좌번호를 다시 봐 주세요",
   no_holder: "예금주를 적어 주세요",
-  no_agree: "계좌 안내에 체크해 주세요",
+  no_agree: "동의에 체크해 주세요",
   dup_discord: "이미 신청한 디스코드 닉이에요. 아래 「내 신청」에서 참가 구분과 선수 소개만 채우면 돼요",
   dup_ign: "이미 신청한 스팀 닉이에요. 아래 「내 신청」에서 참가 구분과 선수 소개만 채우면 돼요",
   no_position: "주 포지션을 골라 주세요",
@@ -493,11 +503,11 @@ function submit(e) {
   if (closed) { setMsg(ERR.closed, true); return; }
   var body = {
     discord: $("discord").value.trim(), ign: $("ign").value.trim(), platform: "steam",
-    bank: $("bank").value, accountNo: $("accountNo").value.replace(/[^0-9]/g, ""), holder: $("holder").value.trim(),
     agree: $("agree").checked, intro: readIntro("n"), kind: picked("n", "Kind")
   };
+  if (NEED_ACCOUNT) { body.bank = $("bank").value; body.accountNo = $("accountNo").value.replace(/[^0-9]/g, ""); body.holder = $("holder").value.trim(); }
   var miss = !body.kind ? "no_kind" : !body.discord ? "no_discord" : !body.ign || /\s/.test(body.ign) ? "no_ign" : introMiss(body.intro)
-    || (!body.bank ? "no_bank" : body.accountNo.length < 8 ? "bad_account" : !body.holder ? "no_holder" : !body.agree ? "no_agree" : "");
+    || (NEED_ACCOUNT && !body.bank ? "no_bank" : NEED_ACCOUNT && body.accountNo.length < 8 ? "bad_account" : NEED_ACCOUNT && !body.holder ? "no_holder" : !body.agree ? "no_agree" : "");
   if (miss) { setMsg(ERR[miss], true); return; }
   var btn = $("submitBtn");
   btn.disabled = true; btn.textContent = "보내는 중"; setMsg("");
@@ -523,7 +533,7 @@ function submit(e) {
         ? "<span>외부 참가비 " + won(fee) + " " + (payAccount ? "입금 계좌 " + esc(payAccount) : "입금 안내는 디스코드에서 드려요") + "</span><span>입금자명은 신청한 스팀 닉으로 해 주세요</span>" : "";
       done.innerHTML = (d.waiting
         ? "정원이 차서 대기 " + (d.order - d.cap) + "번으로 받았어요<span>자리가 나면 디스코드로 알려 드려요</span>"
-        : esc(d.ign) + " 님 신청됐어요 · " + d.order + "번째<span>10월 8일 20:15에 디스코드 음성 채널에서 만나요</span>") + feeNote;
+        : esc(d.ign) + " 님 신청됐어요 · " + d.order + "번째<span>10월 9일 22:55에 디스코드 음성 채널에서 만나요</span>") + feeNote;
       $("form").hidden = true; done.hidden = false;
       load();
     })
@@ -533,6 +543,7 @@ function submit(e) {
 function load() {
   fetch(GAPI + "/api/killrace/apply").then(function (r) { return r.ok ? r.json() : Promise.reject(); }).then(function (d) {
     closed = !!d.closed;
+    if (NEED_ACCOUNT !== (d.needAccount !== false)) { NEED_ACCOUNT = d.needAccount !== false; applyAcct(); }
     if (d.fee && d.fee.external) fee = d.fee.external;
     payAccount = d.payInfo && d.payInfo.account ? d.payInfo.account : null;
     syncPayInfo();
@@ -742,6 +753,7 @@ function hostLoad() {
 }
 
 (function init() {
+  applyAcct();
   $("bank").innerHTML = '<option value="">선택</option>' + BANKS.map(function (b) { return '<option value="' + b + '">' + b + "</option>"; }).join("");
   $("introNew").innerHTML = introFields("n");
   $("introMine").innerHTML = introFields("m");
