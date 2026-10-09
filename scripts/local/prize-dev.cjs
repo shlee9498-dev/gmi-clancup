@@ -1,14 +1,14 @@
 // 로컬 확인용(커밋됨 · 운영 아님) — 가짜 값만. express · playwright 의 절대 경로는 자기 환경에 맞게 고칠 것. gmi-clancup 폴더를 인자로 준다. 인수인계 docs/HANDOFF.md §5
-// 킬내기 앱 「내 상금」 로컬 확인용 가짜 서버(커밋 안 함) — 계약 §2~§4 · §1.20 모양만 흉내. 전부 가짜 값
+// 킬내기 앱 「내 상금」 로컬 확인용 가짜 서버 — 계약 §2~§4 · §1.20 모양만 흉내. 전부 가짜 값
 const path = require("path");
 const express = require("C:/Users/User/mri-academy-killrace/node_modules/express");
 const app = express();
 app.use(express.json());
 const people = {
-  hyun: { ign: "Fake_Hyun", lines: [{ kind: "accrue", amount: 50000, event: 4, eventName: "4회 대승배", reason: "1등 팀", at: "2026-10-02T14:10:00Z" }, { kind: "accrue", amount: 30000, event: 5, eventName: "5회 대승배", reason: "2등 팀", at: "2026-10-08T14:30:00Z" }] },
-  min: { ign: "Fake_Min", lines: [{ kind: "accrue", amount: 21250, event: 5, eventName: "5회 대승배", reason: "3등 팀", at: "2026-10-08T14:30:00Z" }] },
-  hanni: { ign: "Fake_Hanni", lines: [{ kind: "accrue", amount: 45000, event: 3, eventName: "3회 대승배", reason: "1등 팀", at: "2026-09-30T14:10:00Z" }, { kind: "payout", amount: 45000, status: "paid", requestedAt: "2026-10-01T03:00:00Z", paidAt: "2026-10-01T05:12:00Z", at: "2026-10-01T05:12:00Z" }] },
-  owner: { ign: "Fake_Owner", lines: [] },
+  pa: { ign: "Player_A", lines: [{ kind: "accrue", amount: 40000, event: 4, eventName: "4회 대승배", reason: "1등 팀", at: "2026-10-02T14:10:00Z" }, { kind: "accrue", amount: 20000, event: 5, eventName: "5회 대승배", reason: "2등 팀", at: "2026-10-08T14:30:00Z" }] },
+  pb: { ign: "Player_B", lines: [{ kind: "accrue", amount: 20000, event: 5, eventName: "5회 대승배", reason: "3등 팀", at: "2026-10-08T14:30:00Z" }] },
+  pc: { ign: "Player_C", lines: [{ kind: "accrue", amount: 40000, event: 3, eventName: "3회 대승배", reason: "1등 팀", at: "2026-09-30T14:10:00Z" }, { kind: "payout", amount: 40000, status: "paid", requestedAt: "2026-10-01T03:00:00Z", paidAt: "2026-10-01T05:12:00Z", at: "2026-10-01T05:12:00Z" }] },
+  owner: { ign: "Owner_X", lines: [] },
   fresh: null,
 };
 const consented = { fresh: false };
@@ -22,7 +22,7 @@ const summarize = (p) => {
   const reason = open ? "open_request" : balance < min ? "below_min" : null;
   return { accrued, paid, balance, open, min, canRequest: !reason, reason, short: reason === "below_min" ? min - balance : 0 };
 };
-app.get("/api/auth/login", (req, res) => { const persona = req.query.as || "hyun"; res.redirect(`${req.query.return}#token=${persona}&nonce=${req.query.nonce}`); });
+app.get("/api/auth/login", (req, res) => { const persona = req.query.as || "pa"; res.redirect(`${req.query.return}#token=${persona}&nonce=${req.query.nonce}`); });
 app.get("/api/killrace/me", (req, res) => {
   const w = who(req); if (!(w in people)) return res.status(401).json({ error: { code: "login_required" } });
   if (w === "fresh") return res.json({ consentVersion: "2026-10-08", member: consented.fresh ? { needsConsent: false, linked: linked.fresh, platform: linked.fresh ? "steam" : null, ign: linked.fresh ? "Fake_New" : null, key: null, kind: linked.fresh ? "clan" : null } : null, applications: [] });
@@ -49,7 +49,7 @@ app.get("/api/killrace/prize/admin", (req, res) => {
   for (const [k, p] of all) {
     for (const l of p.lines) {
       if (l.kind !== "payout") continue;
-      if (l.status === "requested") pending.push({ id: l.id, ign: p.ign, key: "k" + k, amount: l.amount, requestedAt: l.requestedAt, notified: k !== "min", perEvent: p.lines.filter((x) => x.kind === "accrue").map((x) => ({ event: x.event, name: x.eventName, amount: x.amount })) });
+      if (l.status === "requested") pending.push({ id: l.id, ign: p.ign, key: "k" + k, amount: l.amount, requestedAt: l.requestedAt, notified: k !== "pb", perEvent: p.lines.filter((x) => x.kind === "accrue").map((x) => ({ event: x.event, name: x.eventName, amount: x.amount })) });
       if (l.status === "paid") recent.push({ id: l.id || 1, ign: p.ign, key: "k" + k, amount: l.amount, paidAt: l.paidAt, source: "app", notified: true, memo: null });
     }
     const s = summarize(p); if (p.lines.length) players.push({ ign: p.ign, key: "k" + k, ...s, open: s.open ? { id: s.open.id, amount: s.open.amount } : null });

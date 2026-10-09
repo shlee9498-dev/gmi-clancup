@@ -1,5 +1,5 @@
 // 로컬 확인용(커밋됨 · 운영 아님) — 가짜 값만. express · playwright 의 절대 경로는 자기 환경에 맞게 고칠 것. gmi-clancup 폴더를 인자로 준다. 인수인계 docs/HANDOFF.md §5
-// 신청 폼 로컬 확인용(커밋 안 함) — 메모리 저장 · 가짜 전적
+// 신청 폼 로컬 확인용 — 메모리 저장 · 가짜 전적
 const path = require("path");
 const express = require("C:/Users/User/mri-academy-killrace/node_modules/express");
 const apply = require("C:/Users/User/mri-academy-krapply/killrace-apply.cjs");

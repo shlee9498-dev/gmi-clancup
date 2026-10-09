@@ -19,7 +19,7 @@
 
 | PR | 상태 | 내용 | 다음 |
 |---|---|---|---|
-| gmi-clancup **#105** | Draft | 킬내기 앱 1화면 — `killrace/` 내 상금 · 지급 요청 + 로그인 · 동의 · 스팀 연결. 계약 = mri-academy `docs/killrace-api.md` §1.20 · `docs/killrace-app-api.md` §1~§4 | **머지 순서**: mri-academy #537 머지 → DDL §70 실행 → #544 머지 → #105 Ready → 검수 → 머지. 그 뒤 운영 실측 3화면(잔액 8만 칩 켜짐 · 21,250 3만 원 안내 · 잔액 0 지급 이력) — 시험 줄을 운영 DB 에 넣지 않는다 |
+| gmi-clancup **#105** | Draft | 킬내기 앱 1화면 — `killrace/` 내 상금 · 지급 요청 + 로그인 · 동의 · 스팀 연결. 계약 = mri-academy `docs/killrace-api.md` §1.20 · `docs/killrace-app-api.md` §1~§4 | **머지 순서**: mri-academy #537 머지 → DDL §70 실행 → #544 머지 → #105 Ready → 검수 → 머지. 그 뒤 운영 실측 3화면(잔액 3만 원 이상 칩 켜짐 · 3만 원 미만 안내 · 잔액 0 지급 이력) — 시험 줄을 운영 DB 에 넣지 않는다 |
 | gmi-clancup #104 | Draft | 경매 §1.4a 화면(경비 측 작업 · 클랜CODE 것 아님) | — |
 | mri-academy #534 #536 #537 #538 #541 #542 #544 #520 | Draft/Open | 경비가 쓴 킬내기 서버 PR 들. 화면 짝은 #534 문서대로 `killrace/` 에 클랜CODE 가 만든다 | #105 가 그 첫 화면 |
 
