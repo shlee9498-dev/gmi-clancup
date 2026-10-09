@@ -221,7 +221,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;}
   var TIER_TEXT = "GmI_MinChun:1/1 GmI_yoonpyo:1/2 wuslrhdwb:1.5/3 GmI_Hyun:1.5/4 GmI_HYE0N:1.5/5 GmI_Pompitz:2/6 GmI_rabbit:2/7 eogeumni_10:2/8 WINMIN_-:2/9 GmI_mri:2/10 2U_EEND:2/11 GmI_bbak:3/12 GmI_CHANGE:3/13 II_instinct:3/14 GmI_mkmk:3/15 GmI_HJ:3/16 GmI_RED:3/17 New_we:3/18 Aizawa_Hikari:3/19 GmI_WxxGiDA:4/20 GMI_JS:4/21 lilililil1illil1:4/22 dwvXvwb:4/23 GmI_CUTMONEYY:4/24 007591:4/25 GmI_Eve:4/26 Gmi_brw:4/27 suzzy___:4/28 GmI_heoppy:5/29 joonsunmom:5/30 GmI_SIN:5/31 JooProTV:5/32 Hanni_heart1006:5/33 zizonJunhyung:5/34 wkfgoqhfRkdy:5/35 GmI_Terror:5/36 GmI_4ONSS:6/37 s1Nyrx_:6/38 Hoonbro-:6/39 JoosiKGaeMI:6/40 yeopomalgo:6/41 Y4shX-:6/42 Naver_net:7/43 HHeeJunn:7/44 GmI_Nowitzki:7/45 516PIXEL:8/46 qhwh1707:8/47";
   var ALIAS = { pineapplepxssy: "GmI_MinChun" };            // 같은 사람의 다른 계정
   var TIERS = [1, 1.5, 2, 3, 4, 5, 6, 7, 8];
-  var LOW_TIER = 7;                                          // 7 · 8티어가 있으면 「저티어 판」 추천
+  var LOW_TIER = 5;                                          // 5~8티어가 1명이라도 있으면 「저티어 판」 추천(오너 10/10 · 7~8 → 5~8) · 최종은 원장 토글
   var TABLE = {};                                            // 소문자 닉 → { ign, tier, rank }
   TIER_TEXT.split(/\s+/).forEach(function (s) {
     var m = s.match(/^(.+):([\d.]+)\/(\d+)$/); if (!m) return;
@@ -337,7 +337,7 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;}
   function renderSlots() {
     var low = suggestLow(), m = mode();
     $("modeBadge").className = "badge " + (low ? "low" : "high");
-    $("modeBadge").textContent = low ? "7~8티어가 있어 저티어 판을 추천해요" : "고티어 판을 추천해요";
+    $("modeBadge").textContent = low ? "5~8티어가 있어 저티어 판을 추천해요" : "고티어 판을 추천해요";
     Array.prototype.forEach.call(document.querySelectorAll("[data-mode]"), function (b) { b.classList.toggle("on", b.getAttribute("data-mode") === m); });
     $("modeNote").textContent = m === "low" ? "저티어 판이에요. 1번 칸은 부계정을 권장하고, 없으면 본계정도 괜찮아요" : "고티어 판이에요. 모두 본계정으로 해요";
     var keys = [1, 2, 3, 4, "wait"], label = { 1: "1번", 2: "2번", 3: "3번", 4: "4번", wait: "대기" };
