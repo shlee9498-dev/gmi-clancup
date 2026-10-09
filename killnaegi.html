@@ -228,9 +228,9 @@ footer a{color:var(--ink-dim);}
         <div class="field" style="margin-bottom:0;"><label class="label" for="holder">예금주</label><input type="text" class="input" id="holder" maxlength="20" autocomplete="off" placeholder="통장에 적힌 이름"></div>
       </div>
 
-      <label class="check" style="margin-top:12px;"><input type="checkbox" id="agree"><span><b>계좌는 상금 보낼 때만 써요</b> <span class="note">진행자만 봐요</span></span></label>
       </div>
       <p class="note" id="giftNote" style="margin-top:12px;">MVP 기프티콘은 디스코드 DM으로 보내드려요. 계좌는 받지 않아요</p>
+      <label class="check" style="margin-top:12px;"><input type="checkbox" id="agree"><span id="agreeText"><b>디스코드 닉과 스팀 닉을 대회 진행에 써도 돼요</b> <span class="note">신청 명단과 점수판에 나와요</span></span></label>
       <button type="submit" class="btn btn-main" id="submitBtn">신청하기</button>
       <div class="msg" id="msg" role="status" aria-live="polite"></div>
     </form>
@@ -379,8 +379,14 @@ footer a{color:var(--ink-dim);}
  * 없으면 「입금 안내는 디스코드에서 드려요」다(문구를 화면에 박아 두지 않는다). 공개 응답에 입금 여부는 없다 — 진행자 조회에만 있다. */
 var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
 var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
-/* 6회(10/9)는 상품이 기프티콘이라 계좌를 받지 않는다(지휘 · 검수 10/9). true 로 돌리면 계좌 칸 · 검사 · 전송이 다시 켜진다 */
+/* 계좌를 받을지는 서버 공개 응답 needAccount 가 정한다(경비 #552 · 6회는 false — 상품이 기프티콘). 값이 없는 옛 서버면 받는 쪽으로 본다.
+ * 동의 체크(agree)는 늘 보낸다 — 서버가 계좌와 상관없이 필수로 본다(닉 수집 동의). 계좌를 안 받을 땐 bank · accountNo · holder 를 보내지 않는다 */
 var NEED_ACCOUNT = false;
+function applyAcct() {
+  $("acctBox").hidden = !NEED_ACCOUNT; $("giftNote").hidden = NEED_ACCOUNT;
+  $("agreeText").innerHTML = NEED_ACCOUNT ? '<b>계좌는 상금 보낼 때만 써요</b> <span class="note">진행자만 봐요</span>'
+    : '<b>디스코드 닉과 스팀 닉을 대회 진행에 써도 돼요</b> <span class="note">신청 명단과 점수판에 나와요</span>';
+}
 var BANKS = ["국민","신한","우리","하나","농협","기업","카카오뱅크","토스뱅크","케이뱅크","새마을","우체국","신협","수협","부산","대구","경남","광주","전북","SC제일","산업"];
 var POSITIONS = ["오더","돌격","저격","서포트"];
 var STYLES = ["공격적","밸런스","안정적"];
@@ -474,7 +480,7 @@ var ERR = {
   no_bank: "은행을 골라 주세요",
   bad_account: "계좌번호를 다시 봐 주세요",
   no_holder: "예금주를 적어 주세요",
-  no_agree: "계좌 안내에 체크해 주세요",
+  no_agree: "동의에 체크해 주세요",
   dup_discord: "이미 신청한 디스코드 닉이에요. 아래 「내 신청」에서 참가 구분과 선수 소개만 채우면 돼요",
   dup_ign: "이미 신청한 스팀 닉이에요. 아래 「내 신청」에서 참가 구분과 선수 소개만 채우면 돼요",
   no_position: "주 포지션을 골라 주세요",
@@ -497,11 +503,11 @@ function submit(e) {
   if (closed) { setMsg(ERR.closed, true); return; }
   var body = {
     discord: $("discord").value.trim(), ign: $("ign").value.trim(), platform: "steam",
-    intro: readIntro("n"), kind: picked("n", "Kind")
+    agree: $("agree").checked, intro: readIntro("n"), kind: picked("n", "Kind")
   };
-  if (NEED_ACCOUNT) { body.bank = $("bank").value; body.accountNo = $("accountNo").value.replace(/[^0-9]/g, ""); body.holder = $("holder").value.trim(); body.agree = $("agree").checked; }
+  if (NEED_ACCOUNT) { body.bank = $("bank").value; body.accountNo = $("accountNo").value.replace(/[^0-9]/g, ""); body.holder = $("holder").value.trim(); }
   var miss = !body.kind ? "no_kind" : !body.discord ? "no_discord" : !body.ign || /\s/.test(body.ign) ? "no_ign" : introMiss(body.intro)
-    || (!NEED_ACCOUNT ? "" : !body.bank ? "no_bank" : body.accountNo.length < 8 ? "bad_account" : !body.holder ? "no_holder" : !body.agree ? "no_agree" : "");
+    || (NEED_ACCOUNT && !body.bank ? "no_bank" : NEED_ACCOUNT && body.accountNo.length < 8 ? "bad_account" : NEED_ACCOUNT && !body.holder ? "no_holder" : !body.agree ? "no_agree" : "");
   if (miss) { setMsg(ERR[miss], true); return; }
   var btn = $("submitBtn");
   btn.disabled = true; btn.textContent = "보내는 중"; setMsg("");
@@ -537,6 +543,7 @@ function submit(e) {
 function load() {
   fetch(GAPI + "/api/killrace/apply").then(function (r) { return r.ok ? r.json() : Promise.reject(); }).then(function (d) {
     closed = !!d.closed;
+    if (NEED_ACCOUNT !== (d.needAccount !== false)) { NEED_ACCOUNT = d.needAccount !== false; applyAcct(); }
     if (d.fee && d.fee.external) fee = d.fee.external;
     payAccount = d.payInfo && d.payInfo.account ? d.payInfo.account : null;
     syncPayInfo();
@@ -746,7 +753,7 @@ function hostLoad() {
 }
 
 (function init() {
-  $("acctBox").hidden = !NEED_ACCOUNT; $("giftNote").hidden = NEED_ACCOUNT;
+  applyAcct();
   $("bank").innerHTML = '<option value="">선택</option>' + BANKS.map(function (b) { return '<option value="' + b + '">' + b + "</option>"; }).join("");
   $("introNew").innerHTML = introFields("n");
   $("introMine").innerHTML = introFields("m");
