@@ -192,7 +192,7 @@ footer a{color:var(--ink-dim);}
     <div class="chips">
       <span class="chip"><b>10/9(금) 23:30~01:30</b></span>
       <span class="chip">각 팀 MVP <b>치킨 기프티콘</b></span>
-      <span class="chip" id="deadlineChip">신청 마감 <b>10/9(금) 23:15</b></span>
+      <span class="chip" id="deadlineChip">신청 마감 <b>10/9(금) 23:00</b></span>
     </div>
     <div class="count" id="countLine">20명 선착순이에요</div>
   </div>
@@ -202,7 +202,7 @@ footer a{color:var(--ink-dim);}
 
   <section class="card" id="apply" aria-labelledby="applyTitle">
     <h2 class="card-h" id="applyTitle">솔로 신청</h2>
-    <p class="card-sub">혼자 신청해요. 스팀으로만 진행하고 팀은 마감 직후 23:15 경매로 정해져요</p>
+    <p class="card-sub">혼자 신청해요. 스팀으로만 진행하고 팀은 마감 직후 23:05 경매로 정해져요</p>
     <p class="lead-note">이미 신청했다면 아래 <a href="#mine">내 신청</a>에서 참가 구분과 선수 소개만 채우면 돼요</p>
 
     <form id="form" novalidate>
@@ -288,8 +288,8 @@ footer a{color:var(--ink-dim);}
     <h2 class="card-h" id="dayTitle">10월 9일 순서</h2>
     <p class="card-sub">4인 스쿼드예요. 신청 인원에 맞춰 3~5팀으로 열려요(12명부터)</p>
     <ul class="sched">
-      <li><b>23:10</b> 디스코드 음성 채널 집합</li>
-      <li><b>23:15</b> 신청 마감 · 팀 경매</li>
+      <li><b>23:00</b> 신청 마감 · 디스코드 음성 채널 집합</li>
+      <li><b>23:05</b> 팀 경매</li>
       <li><b>23:30</b> 시작</li>
       <li><b>01:30</b> 이 시각 전에 시작한 판까지 인정</li>
     </ul>
@@ -325,7 +325,7 @@ footer a{color:var(--ink-dim);}
   <section class="card" id="faq" aria-labelledby="faqTitle">
     <h2 class="card-h" id="faqTitle" style="margin-bottom:12px;">자주 묻는 질문</h2>
     <details><summary>카카오 배그로도 되나요?</summary><p>이번에는 스팀으로만 진행해요. 스팀 닉으로 신청해 주세요.</p></details>
-    <details><summary>팀으로 신청할 수 있나요?</summary><p>이번에는 솔로 신청만 받아요. 팀은 23:15 경매에서 팀장이 뽑아요.</p></details>
+    <details><summary>팀으로 신청할 수 있나요?</summary><p>이번에는 솔로 신청만 받아요. 팀은 23:05 경매에서 팀장이 뽑아요.</p></details>
     <details><summary>슬롯 번호는 어떻게 정해져요?</summary><p>경매가 끝나면 진행자가 1번부터 4번까지 정해서 알려 드려요.</p></details>
     <details><summary>20명이 넘으면요?</summary><p>대기로 받아요. 빈자리가 나면 신청한 순서대로 디스코드로 알려 드려요.</p></details>
     <details><summary>치킨 먹으면 감점 없어요?</summary><p>아니요. 치킨 판에서도 죽은 사람은 감점돼요. 블루칩으로 살아나 끝까지 산 사람만 감점이 빠져요. 살아났다가 다시 죽어도 감점은 한 번이에요.</p></details>
@@ -523,7 +523,7 @@ function submit(e) {
         ? "<span>외부 참가비 " + won(fee) + " " + (payAccount ? "입금 계좌 " + esc(payAccount) : "입금 안내는 디스코드에서 드려요") + "</span><span>입금자명은 신청한 스팀 닉으로 해 주세요</span>" : "";
       done.innerHTML = (d.waiting
         ? "정원이 차서 대기 " + (d.order - d.cap) + "번으로 받았어요<span>자리가 나면 디스코드로 알려 드려요</span>"
-        : esc(d.ign) + " 님 신청됐어요 · " + d.order + "번째<span>10월 9일 23:10에 디스코드 음성 채널에서 만나요</span>") + feeNote;
+        : esc(d.ign) + " 님 신청됐어요 · " + d.order + "번째<span>10월 9일 23:00에 디스코드 음성 채널에서 만나요</span>") + feeNote;
       $("form").hidden = true; done.hidden = false;
       load();
     })
