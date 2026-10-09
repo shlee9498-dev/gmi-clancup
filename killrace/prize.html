@@ -40,7 +40,7 @@
     <div id="pending"></div>
     <p class="msg" id="ownerMsg" role="status"></p>
     <details style="margin-top:12px;"><summary style="cursor:pointer;font-weight:700;font-size:14px;">최근 지급 완료</summary><ul class="lines" id="recent"></ul></details>
-    <details style="margin-top:8px;"><summary style="cursor:pointer;font-weight:700;font-size:14px;">선수별 잔액</summary><ul class="players" id="players"></ul></details>
+    <details style="margin-top:8px;" id="playersBox"><summary style="cursor:pointer;font-weight:700;font-size:14px;" id="playersSum">선수별 잔액</summary><p class="note">「본인 확인」은 디스코드 이름이 그 스팀 닉의 주인과 맞을 때만 눌러 주세요. 눌러야 그 선수의 지급 요청이 열려요</p><ul class="players" id="players"></ul></details>
   </section>
 </main>
 <p class="foot"><a href="../killnaegi-board.html">점수판</a> · <a href="../killnaegi.html">신청</a></p>
@@ -59,8 +59,12 @@
     below_min: function (d) { return "3만 원부터 요청할 수 있어요 (지금 " + won(d.balance) + ")"; },
     open_request: function () { return "요청이 접수됐어요. 송금되면 알려 드려요"; },
     not_linked: function () { return "스팀 닉을 연결하면 내 상금이 보여요"; },
-    not_verified: function () { return "본인 확인이 끝나면 요청할 수 있어요"; },
-    unverified: function () { return "본인 확인이 끝나면 요청할 수 있어요"; }
+    not_verified: function (d) { return "본인 확인이 끝나면 요청할 수 있어요" + (d.short > 0 ? " (3만 원까지 " + won(d.short) + " 남았어요)" : ""); }
+  };
+  // 막힌 이유마다 창구 한 줄 — 누가 풀어 주는지
+  var HELP = {
+    not_verified: "진행자가 디스코드 이름과 스팀 닉을 맞춰 보고 확인해요. 오래 걸리면 디스코드에서 진행자에게 알려 주세요",
+    below_min: "대회 상금이 쌓이면 이 화면에서 바로 요청할 수 있어요"
   };
   function lineHtml(l) {
     if (l.kind === "accrue") {
@@ -88,10 +92,20 @@
       $("actionNote").textContent = d.open ? won(d.open.amount) + " · " + when(d.open.at) + " 요청" : "";
     } else {
       $("action").innerHTML = "";
-      $("actionNote").textContent = !(d.lines || []).length && !d.balance ? "" : (REASON[d.reason] || function () { return "지금은 요청할 수 없어요"; })(d);
+      var empty = !(d.lines || []).length && !d.balance;
+      $("actionNote").textContent = empty ? "" : (REASON[d.reason] || function () { return "지금은 요청할 수 없어요"; })(d);
+      if (!empty && HELP[d.reason]) $("actionNote").insertAdjacentHTML("beforeend", '<span class="help">' + esc(HELP[d.reason]) + "</span>");
     }
     $("lines").innerHTML = (d.lines || []).length ? d.lines.map(lineHtml).join("") : '<li class="muted" style="padding:8px 0;">아직 적립된 상금이 없어요</li>';
   }
+  var REQ_ERR = {
+    open_request: "이미 요청이 접수돼 있어요",
+    below_min: "3만 원부터 요청할 수 있어요",
+    not_verified: "본인 확인이 끝나면 요청할 수 있어요",
+    not_linked: "스팀 닉을 먼저 연결해 주세요",
+    rate_limited: "너무 자주 눌렀어요. 잠시 뒤 다시 해 주세요",
+    network: "서버에 닿지 않았어요. 잠시 뒤 다시 해 주세요"
+  };
   function request() {
     if (busy) return;
     if (!confirm("잔액 " + won(P.balance) + " 전액을 지급 요청할까요?")) return;
@@ -104,15 +118,15 @@
         return loadMine();
       }
       $("reqBtn").disabled = false;
-      $("mineMsg").textContent = r.code === "open_request" ? "이미 요청이 접수돼 있어요" : r.code === "below_min" ? "3만 원부터 요청할 수 있어요" : r.code === "network" ? "서버에 닿지 않았어요. 잠시 뒤 다시 해 주세요" : "요청하지 못했어요. 잠시 뒤 다시 해 주세요";
-      if (r.code === "open_request" || r.code === "below_min") loadMine();
+      $("mineMsg").textContent = REQ_ERR[r.code] || "요청하지 못했어요. 잠시 뒤 다시 해 주세요";
+      if (/^(open_request|below_min|not_verified|not_linked)$/.test(r.code || "")) loadMine();
     });
   }
   function loadMine() {
     return KR.api("/api/killrace/me/prize").then(function (r) {
       if (r.status === 401) { gate("로그인이 필요해요", '<button type="button" class="btn main" data-act="login" style="margin-top:10px;">디스코드로 로그인</button>'); return; }
       if (r.code === "not_member") { gate("먼저 동의가 필요해요", '<a class="btn main" href="./" style="margin-top:10px;">내 계정으로</a>'); return; }
-      if (!r.ok) { gate(r.code === "table_missing" ? "아직 준비 중이에요" : "불러오지 못했어요", "잠시 뒤 다시 열어 주세요"); return; }
+      if (!r.ok) { gate(r.code === "table_missing" ? "아직 준비 중이에요" : "불러오지 못했어요", "잠시 뒤 다시 열어 주세요. 계속 안 되면 디스코드에서 진행자에게 알려 주세요"); return; }
       P = r.body; $("gate").hidden = true; $("mine").hidden = false; renderMine();
       KR.header(P.ign || "");
     });
@@ -131,10 +145,23 @@
     $("recent").innerHTML = a.recent.length ? a.recent.map(function (r) {
       return '<li class="line"><span class="t">' + esc(r.ign) + (r.notified ? "" : ' <span class="tag nonoti">알림 안 감</span>') + '</span><span class="a num minus">' + won(r.amount) + '</span><span class="s">' + when(r.paidAt) + (r.memo ? " · " + esc(r.memo) : "") + "</span></li>";
     }).join("") : '<li class="muted" style="padding:8px 0;">아직 없어요</li>';
+    var waiting = 0;
     $("players").innerHTML = a.players.length ? a.players.map(function (p) {
-      var st = p.canRequest ? "요청 가능" : p.reason === "open_request" ? "요청 중" : p.reason === "below_min" ? "3만 원까지 " + won(p.short) : "";
-      return "<li><b>" + esc(p.ign) + "</b><span>" + won(p.balance) + (st ? " · " + st : "") + "</span></li>";
+      var st = p.canRequest ? "요청 가능" : p.reason === "open_request" ? "요청 중" : p.reason === "not_verified" ? "본인 확인 전" : p.reason === "below_min" ? "3만 원까지 " + won(p.short) : "";
+      var m = p.member, who, act = "";
+      if (!m) who = "앱 연결 전";
+      else if (m.verifiedAt) {
+        who = "디스코드 " + esc(m.name || "이름 없음") + " · 확인 " + esc(m.verifiedBy || "") + " " + when(m.verifiedAt);
+        act = '<button type="button" class="btn line sm" data-unverify="' + esc(p.key) + '" data-ign="' + esc(p.ign) + '">확인 풀기</button>';
+      } else {
+        waiting++;
+        who = "디스코드 " + esc(m.name || "이름 없음") + " · 연결 " + when(m.linkedAt);
+        act = '<button type="button" class="btn main sm" data-verify="' + esc(p.key) + '" data-ign="' + esc(p.ign) + '" data-name="' + esc(m.name || "이름 없음") + '">본인 확인</button>';
+      }
+      return '<li><div class="pl"><b>' + esc(p.ign) + "</b><span>" + won(p.balance) + (st ? " · " + st : "") + '</span><span class="who-line">' + who + "</span></div>" + act + "</li>";
     }).join("") : '<li class="muted" style="padding:8px 0;">아직 없어요</li>';
+    $("playersSum").textContent = "선수별 잔액" + (waiting ? " · 본인 확인 대기 " + waiting + "명" : "");
+    if (waiting) $("playersBox").open = true;
   }
   function loadOwner() {
     return KR.api("/api/killrace/prize/admin").then(function (r) {
@@ -142,6 +169,20 @@
       A = r.body; $("owner").hidden = false; renderOwner();
     });
   }
+  var VERIFY_ERR = { not_linked: "그 닉을 연결한 앱 회원이 없어요", host_only: "오너나 진행자만 할 수 있어요", table_missing: "본인 확인 표가 아직 없어요" };
+  document.addEventListener("click", function (ev) {
+    var v = ev.target.closest("[data-verify],[data-unverify]"); if (!v || busy) return;
+    var on = v.hasAttribute("data-verify"), key = v.getAttribute(on ? "data-verify" : "data-unverify"), ign = v.getAttribute("data-ign");
+    var ok = on ? confirm("디스코드 " + v.getAttribute("data-name") + " 님이 " + ign + " 의 주인이 맞나요?\n확인하면 이 선수의 지급 요청이 열려요") : confirm(ign + " 의 본인 확인을 풀까요? 지급 요청이 다시 잠겨요");
+    if (!ok) return;
+    busy = true; v.disabled = true; $("ownerMsg").className = "msg"; $("ownerMsg").textContent = "";
+    KR.api("/api/killrace/prize/admin", { action: on ? "verify" : "unverify", key: key }).then(function (r) {
+      busy = false;
+      if (r.ok) { $("ownerMsg").className = "msg ok"; $("ownerMsg").textContent = on ? ign + " 본인 확인했어요" : ign + " 본인 확인을 풀었어요"; }
+      else { v.disabled = false; $("ownerMsg").textContent = VERIFY_ERR[r.code] || "처리하지 못했어요. 잠시 뒤 다시 해 주세요"; }
+      return loadOwner();
+    });
+  });
   document.addEventListener("click", function (ev) {
     var b = ev.target.closest("[data-pay],[data-cancel]"); if (!b || busy) return;
     var pay = b.hasAttribute("data-pay"), id = Number(b.getAttribute(pay ? "data-pay" : "data-cancel"));
