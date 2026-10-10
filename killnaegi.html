@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GmI 킬내기 7회 | 솔로 신청</title>
-<meta name="description" content="GmI 킬내기 7회 솔로 신청. 10월 16일 금요일 21:00 · 4인 스쿼드 · 팀은 드래프트로 정해요">
-<meta property="og:title" content="GmI 킬내기 7회 솔로 신청">
-<meta property="og:description" content="10월 16일 금요일 21:00 · 20명 선착순 · 팀은 드래프트로 정해요">
+<title>GmI 킬내기 | 솔로 신청</title>
+<meta name="description" content="GmI 킬내기 솔로 신청. 4인 스쿼드 · 20명 선착순 · 팀은 드래프트로 정해요">
+<meta property="og:title" content="GmI 킬내기 솔로 신청">
+<meta property="og:description" content="4인 스쿼드 · 20명 선착순 · 팀은 드래프트로 정해요">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#F5F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -187,12 +187,12 @@ footer a{color:var(--ink-dim);}
 
 <header class="hero">
   <div class="wrap">
-    <div class="hero-top"><span class="kicker" id="kicker">7회</span><a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드 ↗</a></div>
-    <h1>GmI 킬내기 <span class="sun" id="roundLabel">7회</span></h1>
+    <div class="hero-top"><span class="kicker" id="kicker">솔로 신청</span><a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드 ↗</a></div>
+    <h1>GmI 킬내기 <span class="sun" id="roundLabel"></span></h1>
     <div class="chips">
-      <span class="chip" id="whenChip"><b>10/16(금) 21:00~23:00</b></span>
+      <span class="chip" id="whenChip" hidden></span>
       <span class="chip" id="prizeChip" hidden></span>
-      <span class="chip" id="deadlineChip">신청 마감 <b>10/16(금) 20:30</b></span>
+      <span class="chip" id="deadlineChip" hidden></span>
     </div>
     <div class="count" id="countLine">20명 선착순이에요</div>
   </div>
@@ -202,7 +202,7 @@ footer a{color:var(--ink-dim);}
 
   <section class="card" id="apply" aria-labelledby="applyTitle">
     <h2 class="card-h" id="applyTitle">솔로 신청</h2>
-    <p class="card-sub">혼자 신청해요. 스팀으로만 진행하고 팀은 마감 직후 <span data-t="close">20:30</span> 드래프트로 정해져요</p>
+    <p class="card-sub">혼자 신청해요. 스팀으로만 진행하고 팀은 마감 직후 <span data-t="close" data-post=" "></span>드래프트로 정해져요</p>
     <p class="lead-note">이미 신청했다면 아래 <a href="#mine">내 신청</a>에서 참가 구분과 선수 소개만 채우면 돼요</p>
 
     <form id="form" novalidate>
@@ -288,13 +288,14 @@ footer a{color:var(--ink-dim);}
   </section>
 
   <section class="card" aria-labelledby="dayTitle">
-    <h2 class="card-h" id="dayTitle">10월 16일 순서</h2>
+    <h2 class="card-h" id="dayTitle">진행 순서</h2>
     <p class="card-sub">4인 스쿼드예요. 신청 인원에 맞춰 3~5팀으로 열려요(12명부터)</p>
-    <ul class="sched">
-      <li><b data-t="close">20:30</b> 신청 마감 · 디스코드 음성 채널에서 드래프트</li>
-      <li><b data-t="start">21:00</b> 시작</li>
-      <li><b data-t="end">23:00</b> 이 시각 전에 시작한 판까지 인정</li>
+    <ul class="sched" id="sched" hidden>
+      <li><b data-t="close"></b> 신청 마감 · 디스코드 음성 채널에서 드래프트</li>
+      <li><b data-t="start"></b> 시작</li>
+      <li><b data-t="end"></b> 이 시각 전에 시작한 판까지 인정</li>
     </ul>
+    <p class="note" id="schedWait">시각은 불러오는 중이에요. 안 보이면 디스코드 공지를 봐 주세요</p>
     <p class="note" style="margin-top:10px;">운영진이 티어표로 신청자를 1~4번 칸에 나눠요. 4번(저티어)이 먼저 팀을 세우고, 핀볼로 순서를 정해 3번 → 2번 → 1번 칸에서 차례로 데려가요. 1번이 마지막에 합류하는 팀장이에요</p>
     <p class="note" style="margin-top:6px;">점수판은 끝까지 공개해요. 판이 끝나면 자동으로 올라가요.</p>
   </section>
@@ -327,7 +328,7 @@ footer a{color:var(--ink-dim);}
   <section class="card" id="faq" aria-labelledby="faqTitle">
     <h2 class="card-h" id="faqTitle" style="margin-bottom:12px;">자주 묻는 질문</h2>
     <details><summary>카카오 배그로도 되나요?</summary><p>이번에는 스팀으로만 진행해요. 스팀 닉으로 신청해 주세요.</p></details>
-    <details><summary>팀으로 신청할 수 있나요?</summary><p>이번에는 솔로 신청만 받아요. 팀은 <span data-t="close">20:30</span> 드래프트에서 4번(저티어)부터 차례로 데려가요.</p></details>
+    <details><summary>팀으로 신청할 수 있나요?</summary><p>이번에는 솔로 신청만 받아요. 팀은 <span data-t="close" data-post=" "></span>드래프트에서 4번(저티어)부터 차례로 데려가요.</p></details>
     <details><summary>슬롯 번호는 어떻게 정해져요?</summary><p>운영진이 티어표로 1~4번 칸을 나눠서 알려 드려요.</p></details>
     <details><summary>저티어 판 / 고티어 판이 뭐예요?</summary><p>5~8티어가 한 분이라도 오시면 저티어 판이에요. 1번은 부계정을 추천하고, 없으면 본계정도 괜찮아요. 계정 빌리기는 금지예요.</p></details>
     <details><summary>20명이 넘으면요?</summary><p>대기로 받아요. 빈자리가 나면 신청한 순서대로 디스코드로 알려 드려요.</p></details>
@@ -335,7 +336,7 @@ footer a{color:var(--ink-dim);}
     <details><summary>큐를 돌렸는데 한 명이 튕겼어요</summary><p>낙하하기 전에 튕겼다면 그 판은 무효예요. 남은 사람도 나와서 4명이 다시 돌리면 돼요. 디스코드에 한 줄만 남겨 주세요. 낙하한 뒤에 튕겼다면 그 판은 인정되니 다시 접속해서 이어가 주세요. 이때 남은 팀원이 나가면 이탈이에요.</p></details>
     <details><summary>기절만 시켜도 킬인가요?</summary><p>기절은 킬이 아니에요. 그 딜은 팀 딜에 들어가요. 봇을 잡은 것도 킬이고, 다른 참가 팀을 만나 잡은 킬도 인정해요.</p></details>
     <details><summary>딜 점수는 어떻게 세요?</summary><p>판마다 따로 세요. 그 판 팀 4명 딜을 더해 100으로 나눈 몫이에요. 199면 1점이고, 여러 판 딜을 합쳐서 계산하지 않아요.</p></details>
-    <details><summary>몇 판까지 할 수 있어요?</summary><p>총 2시간 동안 진행돼요. 판 수 제한은 없어요. <span data-t="end">23:00</span> 전에 시작한 판까지 전부 더해요.</p></details>
+    <details><summary>몇 판까지 할 수 있어요?</summary><p>총 2시간 동안 진행돼요. 판 수 제한은 없어요. 끝나는 시각<span data-t="end" data-pre="(" data-post=")"></span> 전에 시작한 판까지 전부 더해요.</p></details>
     <details><summary>점수가 이상해요</summary><p>발표 뒤 10분 안에 리플레이나 결과 화면과 함께 진행자에게 알려 주세요.</p></details>
     <details><summary>중간에 사람을 바꿀 수 있나요?</summary><p>판과 판 사이에만 바꿀 수 있어요. 바꾸기 전에 진행자에게 먼저 알려 주세요.</p></details>
     <details><summary>개인 기록에 봇 킬도 들어가요?</summary><p>아니요, 사람 잡은 킬 · 딜만 들어가요.</p></details>
@@ -344,19 +345,13 @@ footer a{color:var(--ink-dim);}
   </section>
 
   <section class="card" id="result" aria-labelledby="resultTitle">
-    <h2 class="card-h" id="resultTitle">1회 결과</h2>
-    <p class="card-sub">2026년 9월 26일 · 18명 6팀</p>
-    <div class="res-row" style="border-top:none;"><span class="res-rk">1</span><span class="res-name">2팀 이무리</span><span class="res-score">55</span></div>
-    <div class="res-row"><span class="res-rk">2</span><span class="res-name">3팀 현태</span><span class="res-score">47</span></div>
-    <div class="res-row"><span class="res-rk">3</span><span class="res-name">5팀 스노우</span><span class="res-score">35</span></div>
-    <div class="res-row"><span class="res-rk">4</span><span class="res-name">6팀 뿌뿌</span><span class="res-score">33</span></div>
-    <div class="res-row"><span class="res-rk">5</span><span class="res-name">4팀 동주</span><span class="res-score">−6</span></div>
-    <div class="res-row"><span class="res-rk">6</span><span class="res-name">1팀 뽕식</span><span class="res-score">−43</span></div>
+    <h2 class="card-h" id="resultTitle">지난 결과</h2>
+    <p class="card-sub" style="margin-bottom:0;"><a href="killnaegi-board.html">점수판에서 회차를 골라 볼 수 있어요</a></p>
   </section>
 </main>
 
 <footer>
-  <div>GmI 클랜 · 킬내기 <span id="footLabel">7회</span> · 2026 · 비영리 친목 대회</div>
+  <div>GmI 클랜 · 킬내기 <span id="footLabel"></span> · 2026 · 비영리 친목 대회</div>
   <div style="margin-top:6px;"><a href="https://shlee9498-dev.github.io/gmi-clancup/">메인</a> · <a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드</a></div>
 </footer>
 
@@ -534,39 +529,60 @@ function submit(e) {
         ? "<span>외부 참가비 " + won(fee) + " " + (payAccount ? "입금 계좌 " + esc(payAccount) : "입금 안내는 디스코드에서 드려요") + "</span><span>입금자명은 신청한 스팀 닉으로 해 주세요</span>" : "";
       done.innerHTML = (d.waiting
         ? "정원이 차서 대기 " + (d.order - d.cap) + "번으로 받았어요<span>자리가 나면 디스코드로 알려 드려요</span>"
-        : esc(d.ign) + " 님 신청됐어요 · " + d.order + "번째<span>" + whenText("day") + " " + whenText("close") + "에 디스코드 음성 채널에서 만나요</span>") + feeNote;
+        : esc(d.ign) + " 님 신청됐어요 · " + d.order + "번째<span>" + (whenText("close") ? whenText("day") + " " + whenText("close") + "에 " : "") + "디스코드 음성 채널에서 만나요</span>") + feeNote;
       $("form").hidden = true; done.hidden = false;
       load();
     })
     .catch(function () { retry("신청이 안 들어갔어요. 잠시 뒤 다시 보내 주세요"); });
 }
 
-/* 회차 이름 · 마감은 서버 회차 설정(mri-academy §1.23 · killrace:applycfg)의 label · closeAt 을 그린다 — 회차마다 이 파일을 고치지 않는다.
- * 시작 = 마감 + 30분, 끝 = 시작 + 2시간(6 · 7회 같은 간격). 상품은 응답에 prize(글자)가 있을 때만 칩 · 후원 줄로 보인다(없으면 숨김).
- * 서버 응답 전 · 실패 때는 위 HTML 의 7회 글자가 그대로 남는다. 공유 미리보기(og)는 정적이라 회차가 바뀌면 손으로 고친다. */
-var ROUND = { close: Date.parse("2026-10-16T11:30:00Z"), label: "7회" };
+/* 회차 이름 · 시각은 전부 서버에서 읽는다(회차마다 이 파일을 고치지 않는다 · 지난 회차 날짜가 남지 않게).
+ * 이름 = /api/killrace/apply 의 label(「연습」 「7회」 · mri-academy §1.23) · 마감 = 같은 응답의 closeAt
+ * 시작 · 끝 = /api/killrace/board 의 event.start · end(지금 회차). 값이 없으면 그 칩 · 시간표는 숨긴다(틀린 날짜를 보이지 않는다).
+ * 상품은 응답에 prize(글자)가 있을 때만 칩 · 후원 줄로 보인다. 공유 미리보기(og)는 정적이라 회차 · 날짜를 넣지 않았다. */
+var ROUND = { close: null, start: null, end: null, label: "" };
 var WD = ["일", "월", "화", "수", "목", "금", "토"];
 function kst(ms) { return new Date(ms + 9 * 3600000); }
 function pad(n) { return (n < 10 ? "0" : "") + n; }
 function whenText(kind) {
-  var c = ROUND.close, t = kind === "start" ? c + 30 * 60000 : kind === "end" ? c + 150 * 60000 : c, d = kst(t);
+  var t = kind === "day" || kind === "date" ? (ROUND.start || ROUND.close) : ROUND[kind];
+  if (!isFinite(t) || t == null) return "";
+  var d = kst(t);
   if (kind === "day") return (d.getUTCMonth() + 1) + "월 " + d.getUTCDate() + "일";
   if (kind === "date") return (d.getUTCMonth() + 1) + "/" + d.getUTCDate() + "(" + WD[d.getUTCDay()] + ")";
   return pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes());
 }
-function applyRound(d) {
-  if (typeof d.closeAt === "number" && isFinite(d.closeAt)) ROUND.close = d.closeAt;
-  if (d.label) ROUND.label = String(d.label).slice(0, 20);
+function paintRound() {
   var L = ROUND.label;
-  document.title = "GmI 킬내기 " + L + " | 솔로 신청";
-  $("kicker").textContent = L; $("roundLabel").textContent = L; $("footLabel").textContent = L;
-  $("whenChip").innerHTML = "<b>" + whenText("date") + " " + whenText("start") + "~" + whenText("end") + "</b>";
-  if (!d.closed) $("deadlineChip").innerHTML = "신청 마감 <b>" + whenText("date") + " " + whenText("close") + "</b>";
-  $("dayTitle").textContent = whenText("day") + " 순서";
-  Array.prototype.forEach.call(document.querySelectorAll("[data-t]"), function (el) { el.textContent = whenText(el.getAttribute("data-t")); });
+  document.title = "GmI 킬내기" + (L ? " " + L : "") + " | 솔로 신청";
+  $("kicker").textContent = L || "솔로 신청"; $("roundLabel").textContent = L; $("footLabel").textContent = L;
+  var hasRun = !!(ROUND.start && ROUND.end), hasClose = !!ROUND.close;
+  $("whenChip").hidden = !hasRun;
+  if (hasRun) $("whenChip").innerHTML = "<b>" + whenText("date") + " " + whenText("start") + "~" + whenText("end") + "</b>";
+  if (!closed) { $("deadlineChip").hidden = !hasClose; if (hasClose) $("deadlineChip").innerHTML = "신청 마감 <b>" + whenText("date") + " " + whenText("close") + "</b>"; }
+  $("dayTitle").textContent = (hasRun || hasClose ? whenText("day") + " " : "") + "진행 순서";
+  $("sched").hidden = !(hasRun && hasClose); $("schedWait").hidden = hasRun && hasClose;
+  Array.prototype.forEach.call(document.querySelectorAll("[data-t]"), function (el) {
+    var v = whenText(el.getAttribute("data-t"));
+    el.textContent = v ? (el.getAttribute("data-pre") || "") + v + (el.getAttribute("data-post") || "") : "";
+  });
+}
+function applyRound(d) {
+  ROUND.close = typeof d.closeAt === "number" && isFinite(d.closeAt) ? d.closeAt : null;
+  ROUND.label = d.label ? String(d.label).slice(0, 20) : "";
   var prize = typeof d.prize === "string" ? d.prize.trim().slice(0, 60) : "";
   $("prizeChip").hidden = !prize; $("prizeChip").innerHTML = prize ? "<b>" + esc(prize) + "</b>" : "";
   $("sponsor").hidden = !prize; $("sponsorLine").textContent = prize;
+  paintRound();
+}
+// 시작 · 끝 — 점수판 응답의 지금 회차(읽기만 · 실패하면 시각 칩을 숨긴 채로 둔다)
+function loadRun() {
+  fetch(GAPI + "/api/killrace/board", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : Promise.reject(); }).then(function (b) {
+    var e = b && b.event;
+    ROUND.start = e && isFinite(e.start) ? Number(e.start) : null;
+    ROUND.end = e && isFinite(e.end) ? Number(e.end) : null;
+    paintRound();
+  }).catch(function () {});
 }
 
 function load() {
@@ -804,7 +820,7 @@ function hostLoad() {
   $("lookupBtn").addEventListener("click", function () { lookup(true); });
   $("ign").addEventListener("input", function () { clearTimeout(lookupTimer); lookupTimer = setTimeout(function () { lookup(false); }, 900); });
   $("ign").addEventListener("change", function () { clearTimeout(lookupTimer); lookup(false); });
-  load();
+  load(); loadRun();
 })();
 </script>
 </body>
