@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>대승배 GmI 킬내기 | 점수판</title>
-<meta name="description" content="대승배 GmI 킬내기 점수판. 판이 끝나면 자동으로 올라가고 끝까지 공개해요.">
+<title>GmI 킬내기 | 점수판</title>
+<meta name="description" content="GmI 킬내기 점수판. 판이 끝나면 자동으로 올라가고 끝까지 공개해요.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#F5F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -190,7 +190,7 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
     <h3 class="sub-h">새 대회 만들기</h3>
     <p class="muted">만드는 순간 점수판 기본 화면과 팀 등록이 새 회차로 넘어가요</p>
     <label class="label" for="newName">이름 (5회처럼 회차를 넣으면 제목에 떠요)</label>
-    <input class="input wide" id="newName" maxlength="40" autocomplete="off" placeholder="대승배 GmI 킬내기 5회">
+    <input class="input wide" id="newName" maxlength="40" autocomplete="off" placeholder="GmI 킬내기 7회">
     <div class="grid">
       <div><label class="label" for="newStart">시작</label><input class="input" id="newStart" type="datetime-local"></div>
       <div><label class="label" for="newEnd">끝</label><input class="input" id="newEnd" type="datetime-local"></div>
@@ -253,7 +253,7 @@ button,input{font-family:inherit;font-size:inherit;color:inherit;}
         if (r.ok) {
           isHost = !!B.admin; skew = B.serverNow - Date.now();
           $("evRound").textContent = roundOf(B.event.name, B.eventId);
-          document.title = B.event.name + " | 점수판";
+          document.title = "GmI 킬내기 " + (roundOf(B.event.name, B.eventId) ? roundOf(B.event.name, B.eventId) + " " : "") + "| 점수판";   // 회차 이름만 읽는다(대회 이름 전체를 쓰지 않는다)
         }
         render();
       })
