@@ -172,6 +172,9 @@ footer a{color:var(--ink-dim);}
 .fee .acct-h{color:var(--ink);font-size:14px;margin-bottom:4px;}
 .fee-list{list-style:none;font-size:13.5px;line-height:1.75;color:var(--ink-dim);}
 .fee-list b{color:var(--ink);font-weight:700;overflow-wrap:anywhere;}
+.drop-list{list-style:none;margin:6px 0 2px;padding:0;font-size:13.5px;color:var(--ink-dim);}
+.drop-list li{padding:2px 0;}
+.drop-list b{color:var(--ink);margin-right:6px;}
 .sponsor{margin-top:16px;font-size:12px;line-height:1.7;color:var(--ink-faint);}
 .sponsor span{overflow-wrap:anywhere;}
 .h-kinds{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px;}
@@ -293,7 +296,7 @@ footer a{color:var(--ink-dim);}
     <ul class="sched" id="sched" hidden>
       <li><b data-t="close"></b> 신청 마감 · 디스코드 음성 채널에서 드래프트</li>
       <li><b data-t="start"></b> 시작</li>
-      <li><b data-t="end"></b> 이 시각 전에 시작한 판까지 인정</li>
+      <li><b data-t="end"></b> 이때까지 시작한 판까지 인정 <span class="note">(59초 여유)</span></li>
     </ul>
     <p class="note" id="schedWait">시각은 불러오는 중이에요. 안 보이면 디스코드 공지를 봐 주세요</p>
     <p class="note" style="margin-top:10px;">운영진이 티어표로 신청자를 1~4번 칸에 나눠요. 4번(저티어)이 먼저 팀을 세우고, 핀볼로 순서를 정해 3번 → 2번 → 1번 칸에서 차례로 데려가요. 1번이 마지막에 합류하는 팀장이에요</p>
@@ -319,7 +322,15 @@ footer a{color:var(--ink-dim);}
       <li>살아 있는데 판을 나가면 <span class="minus">−10</span> <span class="note">(킬이 있어도요)</span></li>
       <li>튕겨서 낙하를 못 한 사람이 있으면 그 판은 무효 <span class="note">(0점 · 감점 없음)</span></li>
       <li>낙하한 뒤에 튕기면 그 판은 그대로 인정해요</li>
-      <li>지정 낙하 — 맵마다 정해진 3곳 중 비행기 경로 1.5km 안 한 곳에 내려요 <span class="note">(어기면 −10)</span></li>
+      <li>맵은 에란겔 → 미라마 → 태이고 → 비켄디 순서로 돌아요</li>
+      <li>지정 낙하 — 맵마다 정해진 곳 중 비행기 경로 1.5km 안 한 곳에 내려요 <span class="note">(어기면 −10 · 1.5km 안에 한 곳도 없으면 경로에서 가장 가까운 곳은 인정)</span>
+        <ul class="drop-list">
+          <li><b>에란겔</b> 학교(수영장 가능 · 아파트 불가) · 밀베 ㄷ자 · 강남 컨테이너</li>
+          <li><b>미라마</b> 파워그리드(투창 · 빵집) · 페카도(체육관) · 하시엔다(뜨집)</li>
+          <li><b>태이고</b> 북산사 · 팰리스 · 용천</li>
+          <li><b>비켄디</b> 럼버야드 · 트레인</li>
+        </ul>
+      </li>
       <li>블루칩 부활은 3페이즈까지 <span class="note">(5번째 부활 비행기 14:01이 마지막)</span> · 늦은 부활은 점수판에 표시만 해요 <span class="note">(감점 없음)</span></li>
       <li>동점이면 총 킬이 많은 팀, 그래도 같으면 치킨이 많은 팀</li>
     </ul>
@@ -336,7 +347,7 @@ footer a{color:var(--ink-dim);}
     <details><summary>큐를 돌렸는데 한 명이 튕겼어요</summary><p>낙하하기 전에 튕겼다면 그 판은 무효예요. 남은 사람도 나와서 4명이 다시 돌리면 돼요. 디스코드에 한 줄만 남겨 주세요. 낙하한 뒤에 튕겼다면 그 판은 인정되니 다시 접속해서 이어가 주세요. 이때 남은 팀원이 나가면 이탈이에요.</p></details>
     <details><summary>기절만 시켜도 킬인가요?</summary><p>기절은 킬이 아니에요. 그 딜은 팀 딜에 들어가요. 봇을 잡은 것도 킬이고, 다른 참가 팀을 만나 잡은 킬도 인정해요.</p></details>
     <details><summary>딜 점수는 어떻게 세요?</summary><p>판마다 따로 세요. 그 판 팀 4명 딜을 더해 100으로 나눈 몫이에요. 199면 1점이고, 여러 판 딜을 합쳐서 계산하지 않아요.</p></details>
-    <details><summary>몇 판까지 할 수 있어요?</summary><p>총 2시간 동안 진행돼요. 판 수 제한은 없어요. 끝나는 시각<span data-t="end" data-pre="(" data-post=")"></span> 전에 시작한 판까지 전부 더해요.</p></details>
+    <details><summary>몇 판까지 할 수 있어요?</summary><p>총 2시간 동안 진행돼요. 판 수 제한은 없어요. 끝나는 시각<span data-t="end" data-pre="(" data-post=")"></span>까지 시작한 판은 전부 더해요. 59초까지는 봐 드려요.</p></details>
     <details><summary>점수가 이상해요</summary><p>발표 뒤 10분 안에 리플레이나 결과 화면과 함께 진행자에게 알려 주세요.</p></details>
     <details><summary>중간에 사람을 바꿀 수 있나요?</summary><p>판과 판 사이에만 바꿀 수 있어요. 바꾸기 전에 진행자에게 먼저 알려 주세요.</p></details>
     <details><summary>개인 기록에 봇 킬도 들어가요?</summary><p>아니요, 사람 잡은 킬 · 딜만 들어가요.</p></details>
