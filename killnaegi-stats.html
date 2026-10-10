@@ -44,6 +44,8 @@ main{padding:1.2rem 2rem 1.6rem;min-height:calc(100vh - 4.6rem);display:grid;ali
 .rk{font-size:2.4rem;line-height:1;min-width:1.6rem;text-align:center;}
 .team.first .rk{color:var(--sun);}
 .tname{flex:1;min-width:0;font-weight:800;font-size:1.25rem;line-height:1.2;overflow-wrap:anywhere;}
+.pend{font-size:.75rem;font-weight:700;color:var(--ink-faint);background:var(--line);border-radius:999px;padding:1px 7px;margin-left:4px;white-space:nowrap;}
+.gap{font-size:.85rem;color:var(--ink-faint);margin-top:6px;}
 .tname small{display:block;font-size:.8rem;font-weight:500;color:var(--ink-faint);}
 .tscore{font-size:2.8rem;line-height:1;}
 .tscore.minus{color:var(--red);}
@@ -131,16 +133,22 @@ tr.sum td:last-child{border-radius:0 .5rem .5rem 0;padding-right:.5rem;}
         '<span class="tscore num' + (t.total < 0 ? " minus" : "") + '">' + t.total + "</span></div>" +
         "<table><thead><tr><th>선수</th><th>킬</th><th>딜</th><th>사망</th><th>판</th></tr></thead><tbody>" +
         t.players.map(function(p){
-          return '<tr><td><span class="slot">' + p.slot + "번</span>" + esc(p.ign) + '</td><td class="k num">' + p.kills + '</td><td class="d num">' + p.damage + "</td><td>" + p.deaths + "</td><td>" + p.games + "</td></tr>";
+          return '<tr><td><span class="slot">' + p.slot + "번</span>" + esc(p.ign) + pend(p) + '</td><td class="k num">' + p.kills + '</td><td class="d num">' + p.damage + "</td><td>" + p.deaths + "</td><td>" + p.games + "</td></tr>";
         }).join("") +
         '<tr class="sum"><td>팀 합계</td><td class="k num">' + t.kills + '</td><td class="d num">' + t.damage + "</td><td>" + t.deaths + "</td><td>" + t.games + "</td></tr>" +
-        "</tbody></table></section>";
+        "</tbody></table>" + (botGap(t) ? '<p class="gap">개인 기록은 사람 잡은 킬 · 딜만이에요</p>' : "") + "</section>";
     }).join("") + "</div>";
   }
+  // 팀 합계(공식 · 봇 포함)와 선수 합(사람 몫만)이 다르면 한 줄 안내 — 선수 딜은 사람마다 내림이라 인원수만큼의 차이는 넘어간다
+  function botGap(t){
+    var k = 0, d = 0; t.players.forEach(function(p){ k += p.kills; d += p.damage; });
+    return k !== t.kills || Math.floor(t.damage) - d > t.players.length;
+  }
+  function pend(p){ return p.pendingGames ? ' <span class="pend">집계 중 ' + p.pendingGames + "판</span>" : ""; }
   function list(title, note, rows, key){
     return '<section class="board"><h2>' + title + "<small>" + note + "</small></h2>" + rows.slice(0, 8).map(function(p){
       return '<div class="line' + (p.rank === 1 ? " top1" : "") + '"><span class="pos num">' + p.rank + '</span><span class="who">' + esc(p.ign) +
-        "<small>" + esc(p.team) + " · " + p.games + "판 · 사망 " + p.deaths + '</small></span><span class="val num">' + p[key] + "</span></div>";
+        "<small>" + esc(p.team) + " · " + p.games + "판 · 사망 " + p.deaths + (p.pendingGames ? " · 집계 중 " + p.pendingGames + "판" : "") + '</small></span><span class="val num">' + p[key] + "</span></div>";
     }).join("") + "</section>";
   }
   function rankView(){ return '<div class="two">' + list("킬왕", "순수 킬", D.byKills, "kills") + list("딜왕", "순수 딜", D.byDamage, "damage") + "</div>"; }

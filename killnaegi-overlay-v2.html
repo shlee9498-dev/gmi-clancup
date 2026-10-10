@@ -129,7 +129,7 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
     $("clock").innerHTML = t < B.event.start ? "시작까지 <b>" + mins(B.event.start - t) + "분</b>"
       : t < B.event.end ? "끝까지 <b>" + mins(B.event.end - t) + "분</b>" : "<b>" + hm(B.event.end) + "</b> 마감";
     var showMove = B.rankChangedAt && t - B.rankChangedAt < 3 * 60000;
-    $("rows").innerHTML = !B.teams.length ? '<div class="wait">' + (t < B.event.start ? "팀 경매 중 · <b>" + hm(B.event.start) + "</b> 시작" : "첫 판 집계를 기다리는 중") + "</div>" : B.teams.map(function(x){
+    $("rows").innerHTML = !B.teams.length ? '<div class="wait">' + (t < B.event.start ? "팀 드래프트 중 · <b>" + hm(B.event.start) + "</b> 시작" : "첫 판 집계를 기다리는 중") + "</div>" : B.teams.map(function(x){
       var move = showMove && x.prevRank && x.prevRank !== x.rank
         ? '<span class="move ' + (x.prevRank > x.rank ? "up" : "down") + '">' + (x.prevRank > x.rank ? "▲" : "▼") + Math.abs(x.prevRank - x.rank) + "</span>" : "";
       var prov = [];
@@ -151,7 +151,7 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
     // 판 순번 회차(5회부터) 핵심 룰 한 줄 — 대회 중에만
     $("rules").hidden = !(seqBoost() && t < B.event.end);
     $("footL").parentNode.style.borderRadius = $("rules").hidden ? "0 0 14px 14px" : "0";
-    $("rules").innerHTML = "블루칩 <b>3페이즈까지</b> · 지정 낙하 <b>1.5km</b> · 이탈 <b>−10</b>";
+    $("rules").innerHTML = "블루칩 <b>3페이즈까지</b> · 지정 낙하 <b>1.5km</b>";
   }
 
   // MVP — 개인 기록(확정 판)에서 「킬 + 딜/100」 이 가장 높은 한 명. 기록이 하나도 없으면 띠를 숨긴다
