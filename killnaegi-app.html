@@ -236,7 +236,8 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
  *  홈     = GET /api/killrace/apply(label · closeAt · count · cap · mode · closed) + GET /api/killrace/board(지금 회차 시각 · 대회 중이면 순위 미니)
  *  점수판 = GET /api/killrace/events(회차 고르기) + GET /api/killrace/board?event=
  *  내 기록 = GET /api/killrace/career(전체 · 계정 기준 누적 · 봇 몫 뺀 값) → 그 사람 key 로 GET /api/killrace/career?events=N(회차별 줄) + GET /api/killrace/leaderboard(주간 순위)
- *  티어표 = killnaegi-draft.html 의 티어표 글자(TIER_TEXT)를 읽어서 그린다 — 표를 여기에 다시 적지 않는다(두 벌이 되면 어긋난다) · 판 수는 career
+ *  티어   = GET /api/killrace/tiers(· ?ign= · §1.28) 먼저 3초 · 안 되면 killnaegi-draft.html 의 TIER_TEXT · ALIAS(표를 여기에 다시 적지 않는다) · 판 수는 career
+ *  검색은 대표 닉 · aka(옛 이름 · 부계) · 드래프트 별칭을 대소문자 무시로 본다
  *  룰     = killnaegi.html 의 #rules · #faq 를 그대로 가져온다 — 룰 정본은 신청 폼 하나
  * 화면에 이름은 없다(스팀 닉 · 팀 이름만). 실패하면 빈 화면 대신 안내 한 줄. */
 (function () {
@@ -401,28 +402,47 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
     if (!ign) { $("meOut").innerHTML = '<p class="msg">스팀 닉을 적어 주세요</p>'; return; }
     store.set("kn_ign", ign); findMe(ign);
   });
+  // 닉(대소문자 무시)이 대표 닉 · aka(옛 이름 · 부계 · §1.28) 중 하나와 같은 줄
+  function careerOf(players, ign) {
+    var low = String(ign).toLowerCase();
+    return (players || []).filter(function (x) {
+      return String(x.ign).toLowerCase() === low || (x.aka || []).some(function (a) { return String(a).toLowerCase() === low; });
+    })[0] || null;
+  }
   function findMe(ign) {
     $("meOut").innerHTML = '<p class="msg">불러오는 중이에요</p>';
-    Promise.all([loadCareer(), loadEvents(), TIERS_P(), getJSON("/api/killrace/leaderboard").catch(function () { return null; })]).then(function (r) {
+    var low = ign.toLowerCase();
+    Promise.all([loadCareer().catch(function () { return null; }), loadEvents(), TABLE_P(),
+      getJSON("/api/killrace/leaderboard").catch(function () { return null; }), tierOfIgn(ign)]).then(function (r) {
+      var career = r[0], local = r[2], t = r[4];
       LB = r[3];
-      var low = ign.toLowerCase();
-      var p = (r[0].players || []).filter(function (x) { return String(x.ign).toLowerCase() === low; })[0];
-      if (!p) { $("meOut").innerHTML = '<div class="card"><p class="msg">「' + esc(ign) + '」 기록을 찾지 못했어요. 배그 프로필의 스팀 닉 그대로인지 봐 주세요</p></div>'; return; }
-      paintMe(p, r[2]);
-      perEvent(p);
-    }).catch(function () { $("meOut").innerHTML = '<div class="card">' + FAIL + "</div>"; });
+      var main = local && local.alias[low];                     // 부계 → 본계(드래프트 별칭)
+      var p = career ? careerOf(career.players, ign) || (main ? careerOf(career.players, main) : null) : null;
+      if (!t && p && local) t = localTier(local, p.ign) || (p.aka || []).map(function (a) { return localTier(local, a); }).filter(Boolean)[0] || null;
+      if (!career && !t) { $("meOut").innerHTML = '<div class="card">' + FAIL + "</div>"; return; }
+      if (!p && !t) { $("meOut").innerHTML = '<div class="card"><p class="msg">「' + esc(ign) + '」 기록을 찾지 못했어요. 배그 프로필의 스팀 닉 그대로인지 봐 주세요</p></div>'; return; }
+      paintMe(p, t, ign, !career);
+      if (p) perEvent(p);
+    });
   }
-  function paintMe(p, tiers) {
-    var t = tiers && tiers[String(p.ign).toLowerCase()];
-    var lb = LB && (LB.list || []).filter(function (x) { return x.key === p.key; })[0];
-    $("meOut").innerHTML = '<div class="card"><div class="me-h"><b>' + esc(p.ign) + "</b><span>" +
-        (t ? '<span class="tag">' + t.tier + "티어</span> " : "") + (lb ? '<span class="tag sun">주간 ' + lb.rank + "위</span> " : "") +
-        (p.sample === "low" ? '<span class="tag low">10판 미만</span>' : "") + "</span></div>" +
+  function paintMe(p, t, ign, careerFail) {
+    var lb = p && LB && (LB.list || []).filter(function (x) { return x.key === p.key; })[0];
+    var name = p ? p.ign : ign;
+    var via = t && t.tierIgn && t.tierIgn.toLowerCase() !== String(name).toLowerCase() ? ' <span class="note">(' + esc(t.tierIgn) + " 기준)</span>" : "";
+    var head = '<div class="me-h"><b>' + esc(name) + "</b><span>" +
+      (t ? '<span class="tag">' + t.tier + "티어</span> " : "") + (lb ? '<span class="tag sun">주간 ' + lb.rank + "위</span> " : "") +
+      (p && p.sample === "low" ? '<span class="tag low">10판 미만</span>' : "") + "</span></div>" + (via ? '<p class="note" style="margin-top:2px;">티어' + via + "</p>" : "");
+    var aka = p && p.aka && p.aka.length ? '<p class="note">같은 사람 다른 닉 · ' + p.aka.map(esc).join(" · ") + "</p>" : "";
+    if (!p) {
+      $("meOut").innerHTML = '<div class="card">' + head + '<p class="note" style="margin-top:10px;">' + (careerFail ? "기록은 지금 불러오지 못했어요. 잠시 뒤 다시 열어 주세요" : "킬내기 기록은 아직 없어요") + "</p></div>";
+      return;
+    }
+    $("meOut").innerHTML = '<div class="card">' + head +
       '<div class="stats"><div class="stat"><span class="num">' + p.killsPerGame + '</span><small>판당 킬</small></div>' +
       '<div class="stat"><span class="num">' + p.damagePerGame + '</span><small>판당 딜</small></div>' +
       '<div class="stat"><span class="num">' + p.games + "</span><small>판 수</small></div></div>" +
       '<p class="note">누적 킬 ' + p.kills + " · 딜 " + p.damage + " · 사망 " + p.deaths + " · 팀 안 킬 1등 " + p.teamTopKills + "번" +
-        (p.pendingGames ? " · 집계 중 " + p.pendingGames + "판" : "") + "</p>" +
+        (p.pendingGames ? " · 집계 중 " + p.pendingGames + "판" : "") + "</p>" + aka +
       '<h3 class="card-h" style="font-size:15.5px;margin-top:14px;">회차별</h3><div id="meEvents"><p class="note" style="margin-top:6px;">불러오는 중이에요</p></div></div>';
   }
   function perEvent(p) {
@@ -443,35 +463,72 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
     });
   }
 
-  /* ---------- 티어표 ---------- */
-  var tiersPromise = null;
-  // killnaegi-draft.html 의 TIER_TEXT("닉:티어/순위 …")를 읽는다 — 소문자 닉 → { ign, tier, rank }
-  function TIERS_P() {
-    if (!tiersPromise) tiersPromise = getText("killnaegi-draft.html").then(function (html) {
-      var m = /TIER_TEXT\s*=\s*"([^"]+)"/.exec(html), out = {};
+  /* ---------- 티어 ---------- */
+  // 서버 표(§1.28 GET /api/killrace/tiers · mri-academy #561)를 먼저 3초 안에 읽고, 404 · 실패 · 시간 초과면
+  // killnaegi-draft.html 의 TIER_TEXT · ALIAS 로 조용히 대체한다(표를 이 파일에 다시 적지 않는다 · 두 벌이 되면 어긋난다)
+  var TIER_WAIT = 3000;
+  function quick(path) {
+    var ctl = typeof AbortController === "function" ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, TIER_WAIT);
+    var req = fetch(GAPI + path, ctl ? { cache: "no-store", signal: ctl.signal } : { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); });
+    var late = new Promise(function (_, no) { setTimeout(function () { no("timeout"); }, TIER_WAIT + 50); });
+    return Promise.race([req, late]).then(function (j) { clearTimeout(timer); return j; }, function (e) { clearTimeout(timer); throw e; });
+  }
+  var tablePromise = null;
+  // 드래프트 표 → { rows: 소문자 닉 → { ign, tier, rank }, alias: 소문자 부계 → 본계 닉 }
+  function TABLE_P() {
+    if (!tablePromise) tablePromise = getText("killnaegi-draft.html").then(function (html) {
+      var m = /TIER_TEXT\s*=\s*"([^"]+)"/.exec(html), rows = {}, alias = {};
       if (!m) return null;
       m[1].split(/\s+/).forEach(function (s) {
         var x = /^(.+):([\d.]+)\/(\d+)$/.exec(s);
-        if (x) out[x[1].toLowerCase()] = { ign: x[1], tier: Number(x[2]), rank: Number(x[3]) };
+        if (x) rows[x[1].toLowerCase()] = { ign: x[1], tier: Number(x[2]), rank: Number(x[3]) };
       });
-      return Object.keys(out).length ? out : null;
+      var a = /var ALIAS\s*=\s*\{([\s\S]*?)\};/.exec(html), re = /["']?([^"'\s,:{}]+)["']?\s*:\s*"([^"]+)"/g, x;
+      if (a) while ((x = re.exec(a[1]))) alias[x[1].toLowerCase()] = x[2];
+      return Object.keys(rows).length ? { rows: rows, alias: alias } : null;
     }).catch(function () { return null; });
-    return tiersPromise;
+    return tablePromise;
+  }
+  function localTier(local, ign) {
+    var low = String(ign).toLowerCase(), r = local.rows[low] || (local.alias[low] && local.rows[local.alias[low].toLowerCase()]);
+    return r ? { tier: r.tier, rank: r.rank, tierIgn: r.ign } : null;
+  }
+  // 닉 하나의 티어 — 서버 ?ign= 먼저(§1.28 · 합치기 표 반영) · 안 되면 드래프트 표 + 별칭. 못 찾으면 null(오류 화면 없음)
+  function tierOfIgn(ign) {
+    return quick("/api/killrace/tiers?ign=" + encodeURIComponent(ign)).then(function (j) {
+      if (j && j.found && isFinite(j.tier)) return { tier: Number(j.tier), rank: j.rank, tierIgn: j.tierIgn || ign };
+      return TABLE_P().then(function (local) { return local ? localTier(local, ign) : null; });
+    }, function () {
+      return TABLE_P().then(function (local) { return local ? localTier(local, ign) : null; });
+    });
+  }
+  // 표 전체 — 서버 목록 먼저 · 안 되면 드래프트 표. [{ ign, tier, rank }]
+  function tierList() {
+    return quick("/api/killrace/tiers").then(function (j) {
+      if (j && Array.isArray(j.list) && j.list.length) return j.list.filter(function (r) { return r && r.ign && isFinite(r.tier); });
+      return Promise.reject("empty");
+    }).catch(function () {
+      return TABLE_P().then(function (local) { return local ? Object.keys(local.rows).map(function (k) { return local.rows[k]; }) : null; });
+    });
   }
   function loadTier() {
     $("tierList").innerHTML = '<p class="msg">불러오는 중이에요</p>';
-    Promise.all([TIERS_P(), loadCareer().catch(function () { return null; })]).then(function (r) {
-      var tiers = r[0], career = r[1];
-      if (!tiers) { $("tierList").innerHTML = FAIL; return; }
+    Promise.all([tierList(), loadCareer().catch(function () { return null; })]).then(function (r) {
+      var list = r[0], career = r[1];
+      if (!list || !list.length) { $("tierList").innerHTML = FAIL; return; }
       var games = {};
-      if (career) (career.players || []).forEach(function (p) { games[String(p.ign).toLowerCase()] = p.games; });
+      if (career) (career.players || []).forEach(function (p) {
+        [p.ign].concat(p.aka || []).forEach(function (n) { games[String(n).toLowerCase()] = p.games; });
+      });
       var by = {};
-      Object.keys(tiers).forEach(function (k) { var t = tiers[k]; (by[t.tier] = by[t.tier] || []).push(t); });
+      list.forEach(function (t) { (by[t.tier] = by[t.tier] || []).push(t); });
       $("tierList").innerHTML = Object.keys(by).map(Number).sort(function (a, b) { return a - b; }).map(function (tier) {
-        var list = by[tier].sort(function (a, b) { return a.rank - b.rank; });
-        return '<div class="tier' + (tier >= 5 ? " lowt" : "") + '"><div class="tier-h"><span class="num">' + tier + "</span><small>티어 · " + list.length + "명</small></div>" +
-          '<div class="nicks">' + list.map(function (t) {
-            var g = games[t.ign.toLowerCase()], thin = career && !(g >= 10);
+        var row = by[tier].sort(function (a, b) { return (a.rank == null ? 999 : a.rank) - (b.rank == null ? 999 : b.rank); });
+        return '<div class="tier' + (tier >= 5 ? " lowt" : "") + '"><div class="tier-h"><span class="num">' + tier + "</span><small>티어 · " + row.length + "명</small></div>" +
+          '<div class="nicks">' + row.map(function (t) {
+            var g = games[String(t.ign).toLowerCase()], thin = career && !(g >= 10);
             return '<span class="nick' + (thin ? " thin" : "") + '"' + (career ? ' title="' + (g || 0) + '판"' : "") + ">" + esc(t.ign) + "</span>";
           }).join("") + "</div></div>";
       }).join("") + (career ? "" : '<p class="note">판 수를 불러오지 못해 점선 표시는 빠졌어요</p>');
