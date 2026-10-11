@@ -62,41 +62,46 @@
   var ERR = {
     not_verified: "본인 확인이 끝나면 열 수 있어요. 디스코드에서 진행자에게 알려 주세요",
     not_linked: "스팀 닉을 연결하면 기프티콘함이 보여요", forbidden: "이 상품은 열 수 없어요", not_found: "그 상품을 못 찾았어요",
-    expired: "유효기간이 지났어요", purged: "코드가 지워졌어요", consent_required: "배송 정보 동의에 체크해 주세요",
+    expired: "유효기간이 지났어요", purged: "코드가 지워졌어요", consent_required: "배송 정보 동의에 체크해 주세요", not_yours: "이 상품은 열 수 없어요",
+    open_first: "먼저 열어 주세요", already_received: "이미 받았다고 남겼어요", already_given: "받는 곳은 이미 받았어요", use_shipping: "실물은 받는 곳을 적어 주세요",
     under_14: "실물 경품은 만 14세부터 받을 수 있어요", not_shipped: "아직 보내기 전이에요", rate_limited: "너무 자주 눌렀어요. 잠시 뒤 다시 해 주세요",
     network: "서버에 닿지 않았어요. 잠시 뒤 다시 해 주세요"
   };
   function gate(title, body) { $("gate").hidden = false; $("box").hidden = true; $("gateBody").innerHTML = "<b>" + esc(title) + "</b>" + body; }
   function msg(id, t, ok) { $(id).className = "msg" + (ok ? " ok" : ""); $(id).textContent = t || ""; }
   // 상태 — 서버 시각 칸으로 읽고, 없으면 status 글자
+  // 상태 — 서버 state(registered · opened · received · expired · §1.30.3) 그대로 읽는다
   function stateOf(g) {
-    if (g.cancelledAt || g.status === "cancelled") return "cancelled";
-    if (g.receivedAt || g.status === "received") return "received";
-    if (g.status === "expired" || (g.expiresAt && Date.parse(g.expiresAt) < Date.now())) return "expired";
-    if (g.openedAt || g.status === "opened") return "opened";
+    var st = g.state || "";
+    if (st === "cancelled") return "cancelled";
+    if (st === "received" || g.receivedAt) return "received";
+    if (st === "expired") return "expired";
+    if (st === "opened" || g.openedAt) return "opened";
     return "new";
   }
   var TAG = { new: '<span class="tag new">새로 왔어요</span>', opened: '<span class="tag req">열어 봤어요</span>', received: '<span class="tag got">받았어요</span>', expired: '<span class="tag">기간 지남</span>', cancelled: '<span class="tag cancel">취소됨</span>' };
 
   function giftHtml(g) {
-    var st = stateOf(g), phys = g.kind === "physical" || g.delivery === "physical";
-    var sub = [g.event && g.event.name ? esc(g.event.name) : "", g.reason ? esc(g.reason) : "", g.expiresAt && !phys ? day(g.expiresAt) + "까지" : "", g.at || g.createdAt ? when(g.at || g.createdAt) + " 도착" : ""].filter(Boolean).join(" · ");
+    var st = stateOf(g), phys = g.kind === "physical";
+    var sub = [g.event && g.event.name ? esc(g.event.name) : "", g.reason ? esc(g.reason) : "", g.expiresOn && !phys ? esc(g.expiresOn.replace(/-/g, ".")) + "까지" : "", g.createdAt ? when(g.createdAt) + " 도착" : ""].filter(Boolean).join(" · ");
     var h = '<div class="gift"><div class="gift-h"><b>' + esc(g.item) + "</b>" + TAG[st] + '</div><div class="s">' + sub + "</div>";
     if (phys) {
-      var ship = g.shipState || null;
-      if (st === "received") h += '<p class="note">받았다고 남겼어요. 배송 정보는 지웠어요</p>';
-      else if (ship === "shipped") h += '<p class="note">보냈어요' + (g.trackingNo ? " · 송장 " + esc(g.trackingNo) : "") + '</p><div class="row"><button type="button" class="btn main" data-got="' + esc(g.id) + '">받았어요</button><button type="button" class="btn line" data-lost="' + esc(g.id) + '">못 받았어요</button></div>';
+      var sh = g.ship || null, ship = sh ? sh.state : null;      // ship = { state, trackingNo } | null(§1.28.6a)
+      if (st === "received" || ship === "received") h += '<p class="note">받았다고 남겼어요. 배송 정보는 지웠어요</p>';
+      else if (ship === "shipped") h += '<p class="note">보냈어요' + (sh.trackingNo ? " · 송장 " + esc(sh.trackingNo) : "") + '</p><div class="row"><button type="button" class="btn main" data-got="' + esc(g.id) + '">받았어요</button><button type="button" class="btn line" data-lost="' + esc(g.id) + '">못 받았어요</button></div>';
       else if (ship === "requested") h += '<p class="note">배송 정보 받았어요. 보내면 알려 드려요</p>';
-      else if (st !== "cancelled") h += shipFor === String(g.id) ? shipForm() : '<div class="row"><button type="button" class="btn main" data-ship="' + esc(g.id) + '">받는 곳 적기</button></div>';
+      else if (ship === "expired") h += '<p class="note">보낸 지 14일이 지나 배송 정보를 지웠어요</p>';
+      else if (st !== "cancelled") h += shipFor === String(g.id) ? shipForm() : '<div class="row"><button type="button" class="btn main" data-ship="' + esc(g.id) + '">' + (ship === "reship_pending" ? "받는 곳 다시 적기" : "받는 곳 적기") + "</button></div>";
       return h + "</div>";
     }
     if (st === "new" || st === "opened") {
       var c = opened[g.id];
       h += c ? '<div class="code">' + (c.imageUrl ? '<img src="' + esc(c.imageUrl) + '" alt="' + esc(g.item) + ' 기프티콘">' : esc(c.code || "")) + "</div>" +
         '<p class="note">' + (c.imageUrl ? "사진 주소는 1분 뒤 닫혀요. 필요하면 다시 열어 주세요" : "매장에서 이 번호를 보여 주세요") + "</p>" : "";
+      if (G.verified === false) return h + '<p class="note">본인 확인이 끝나면 열 수 있어요. 디스코드에서 진행자에게 알려 주세요</p></div>';
       h += '<div class="row">' + (c ? "" : '<button type="button" class="btn main" data-open="' + esc(g.id) + '">열기</button>') +
         (st === "opened" || c ? '<button type="button" class="btn line" data-got="' + esc(g.id) + '">받았어요</button>' : "") + "</div>";
-    } else if (g.codePurged) h += '<p class="note">코드 지움</p>';
+    } else if (g.purged) h += '<p class="note">코드 지움</p>';
     return h + "</div>";
   }
   function shipForm() {
@@ -107,7 +112,7 @@
       '<button type="button" class="btn main wide" id="sGo" disabled>보내 주세요</button></div>';
   }
   function render() {
-    var list = (G.items || G.gifts || []).slice();
+    var list = (G.items || []).slice();
     var live = list.filter(function (g) { return /new|opened/.test(stateOf(g)); }), done = list.filter(function (g) { return !/new|opened/.test(stateOf(g)); });
     $("boxBody").innerHTML = list.length ? live.map(giftHtml).join("") + (done.length ? '<details style="margin-top:12px;"><summary style="cursor:pointer;font-weight:700;font-size:14px;">지난 상품 ' + done.length + "개</summary>" + done.map(giftHtml).join("") + "</details>" : "")
       : '<div class="empty"><b>아직 받은 상품이 없어요</b>상품이 오면 디스코드로 알려 드려요</div>';
@@ -158,14 +163,18 @@
 
   // ── 오너 ──
   function renderOwner(a) {
-    var list = a.pending || a.items || [];
-    $("pending").innerHTML = list.length ? list.map(function (g) {
-      var st = g.receivedAt ? "받음" : g.openedAt ? "열어 봄" : g.notified === false || g.notifyFailedAt ? "알림 안 감" : "안내됨";
-      var soon = g.expiresAt && Date.parse(g.expiresAt) - Date.now() < 7 * 86400000;
-      return '<div class="pend"><div class="pend-h"><b>' + esc(g.ign) + " · " + esc(g.item) + (st === "알림 안 감" ? ' <span class="tag nonoti">알림 안 감</span>' : "") + "</b></div>" +
-        '<div class="per">' + [g.event && g.event.name ? esc(g.event.name) : "", g.funding === "sponsor" ? "후원" : "오너 사비", g.expiresAt ? day(g.expiresAt) + "까지" + (soon ? " · 곧 만료" : "") : "", g.createdAt ? when(g.createdAt) + " 넣음" : "", st].filter(Boolean).join(" · ") + "</div>" +
-        (g.receivedAt ? "" : '<div class="row"><button type="button" class="btn line sm" data-gcancel="' + esc(g.id) + '" data-name="' + esc(g.ign + " " + g.item) + '">취소</button></div>') + "</div>";
-    }).join("") : '<div class="empty"><b>안 받은 기프티콘 0개</b>넣으면 여기에 보여요</div>';
+    // gifts/admin = { gifts[], pending[], accrualNotice[] }(§1.30 · 경비 #563) — 안 받은 줄(registered · opened)과 실물 줄만
+    var list = (a.gifts || []).filter(function (g) { return g.state === "registered" || g.state === "opened" || (g.kind === "physical" && g.state !== "received" && g.state !== "cancelled"); });
+    var acc = a.accrualNotice || [], accOff = acc.filter(function (x) { return !x.notified; }).length;
+    $("pending").innerHTML = (list.length ? list.map(function (g) {
+      var st = g.openedAt ? "열어 봄" : g.notifyFailed ? "알림 안 감" : g.notified ? "안내됨" : "알림 전";
+      var soon = g.expiresOn && Date.parse(g.expiresOn + "T23:59:59+09:00") - Date.now() < 7 * 86400000;
+      return '<div class="pend"><div class="pend-h"><b>' + esc(g.ign) + " · " + esc(g.item) + (g.notifyFailed ? ' <span class="tag nonoti">알림 안 감</span>' : "") + (g.kind === "physical" ? ' <span class="tag">실물</span>' : "") + "</b></div>" +
+        '<div class="per">' + [g.event && g.event.name ? esc(g.event.name) : "", g.funding === "sponsor" ? "후원" : "오너 사비", g.expiresOn ? esc(g.expiresOn.replace(/-/g, ".")) + "까지" + (soon ? " · 곧 만료" : "") : "", g.createdAt ? when(g.createdAt) + " 넣음" : "", st].filter(Boolean).join(" · ") + "</div>" +
+        '<div class="row">' + (g.kind === "physical" ? '<button type="button" class="btn main sm" data-gship="' + esc(g.id) + '" data-name="' + esc(g.ign + " " + g.item) + '">발송함</button>' : "") +
+        '<button type="button" class="btn line sm" data-gcancel="' + esc(g.id) + '" data-name="' + esc(g.ign + " " + g.item) + '">취소</button></div></div>';
+    }).join("") : '<div class="empty"><b>안 받은 기프티콘 0개</b>넣으면 여기에 보여요</div>') +
+      (acc.length ? '<p class="note" style="margin-top:10px;">상금 적립 안내 · 보냄 ' + (acc.length - accOff) + "건 · 안 감 " + accOff + "건</p>" : "");
   }
   function loadOwner() {
     return KR.api("/api/killrace/gifts/admin").then(function (r) {
@@ -173,18 +182,19 @@
       $("owner").hidden = false; renderOwner(r.body);
     });
   }
-  var ADD_ERR = { need_expiry: "만료일을 넣어 주세요", need_media: "기프티콘 번호를 넣어 주세요(사진은 디스코드 명령으로)", not_found: "그 닉으로 받을 사람을 못 찾았어요", owner_only: "오너만 넣을 수 있어요" };
+  var ADD_ERR = { need_expiry: "만료일을 넣어 주세요", need_payload: "기프티콘 번호를 넣어 주세요(사진은 디스코드 명령으로)", already_expired: "이미 지난 날짜예요",
+    not_found: "그 닉으로 받을 사람을 못 찾았어요", ambiguous: "그 닉을 쓴 계정이 둘 이상이에요", invalid_body: "칸 값을 다시 봐 주세요(상품 이름 40자까지)", owner_only: "오너만 넣을 수 있어요" };
   $("gAdd").addEventListener("click", function () {
     if (busy) return;
     var ign = $("gIgn").value.trim(), item = $("gItem").value.trim(), exp = $("gExp").value, code = $("gCode").value.trim(), ev = $("gEvent").value.trim();
     if (!ign || !item) return msg("ownerMsg", "닉과 상품을 적어 주세요");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(exp)) return msg("ownerMsg", ADD_ERR.need_expiry);
     if (Date.parse(exp + "T23:59:59+09:00") < Date.now()) return msg("ownerMsg", "이미 지난 날짜예요");
-    if (!code) return msg("ownerMsg", ADD_ERR.need_media);
+    if (!code) return msg("ownerMsg", ADD_ERR.need_payload);
     if (ev && !/^\d{1,4}$/.test(ev)) return msg("ownerMsg", "회차는 숫자로 적어 주세요");
     if (!confirm(ign + " 님 함에 「" + item + "」 을 넣을까요? 바로 알림이 가요")) return;
     busy = true;
-    KR.api("/api/killrace/gifts/admin", { action: "add", ign: ign, item: item, expiresAt: new Date(Date.parse(exp + "T23:59:59+09:00")).toISOString(), code: code,
+    KR.api("/api/killrace/gifts/admin", { action: "add", ign: ign, kind: "gifticon", itemName: item, expiresOn: exp, code: code,
       funding: $("gFund").value, eventId: ev ? Number(ev) : null, reason: $("gReason").value.trim() || null }).then(function (r) {
       busy = false;
       if (r.ok) {
@@ -202,7 +212,21 @@
     busy = true;
     KR.api("/api/killrace/gifts/admin", { action: "cancel", id: b.getAttribute("data-gcancel"), reason: why.trim() }).then(function (r) {
       busy = false;
-      msg("ownerMsg", r.ok ? "취소했어요. 코드는 바로 지워요" : r.code === "already_received" ? "이미 받은 상품이에요" : "취소하지 못했어요", r.ok);
+      msg("ownerMsg", r.ok ? "취소했어요. 코드는 바로 지워요" : r.code === "bad_state" ? "이미 받은 상품이에요" : "취소하지 못했어요", r.ok);
+      return loadOwner();
+    });
+  });
+  // 실물 기프티콘 「발송함」(§1.28.11b · 오너 gifts/admin { action: "shipped", id, trackingNo })
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-gship]"); if (!b || busy) return;
+    var no = prompt(b.getAttribute("data-name") + " 송장번호를 적어 주세요");
+    if (!no || !no.trim()) return;
+    no = no.replace(/\s+/g, "");
+    if (!/^[0-9A-Za-z-]{6,30}$/.test(no)) return msg("ownerMsg", "송장번호는 숫자 · 영문 · 하이픈 6 ~ 30자예요");
+    busy = true;
+    KR.api("/api/killrace/gifts/admin", { action: "shipped", id: b.getAttribute("data-gship"), trackingNo: no }).then(function (r) {
+      busy = false;
+      msg("ownerMsg", r.ok ? "발송함으로 바꿨어요. 받는 사람에게 알림이 가요" : r.code === "bad_state" ? "받는 곳을 아직 안 적었거나 이미 보낸 상품이에요" : r.code === "bad_action" ? "서버가 아직 실물 발송을 못 받아요" : "바꾸지 못했어요", r.ok);
       return loadOwner();
     });
   });

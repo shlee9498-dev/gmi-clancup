@@ -56,7 +56,7 @@
   var SW = null, W = null, S = null, busy = false, pick = null;
   var SHIP_CONSENT = "경품 배송을 위해 받는 이름 · 주소 · 연락처예요. 배송에만 쓰고, 받았다고 눌러 주시거나 보낸 지 14일이 지나면 지워요. 동의하지 않으면 실물 경품은 받을 수 없어요";
   var LOCKED = {
-    shop_off: "지금은 쉬고 있어요",
+    shop_off: "준비 중이에요",
     budget_full: "이번 달 교환이 다 찼어요 · 다음 달 1일에 다시 열려요",
     off: "코인이 아직 열리지 않았어요",
     not_linked: "스팀 닉을 연결하면 바꿀 수 있어요",
@@ -66,7 +66,7 @@
   var ERR = {
     insufficient_coin: "코인이 모자라요", out_of_stock: "이번 달 수량이 다 나갔어요", item_unavailable: "지금은 바꿀 수 없는 경품이에요",
     open_request: "이미 신청한 경품이 있어요", not_verified: "본인 확인이 끝나면 바꿀 수 있어요", not_linked: "스팀 닉을 먼저 연결해 주세요",
-    switch_off: "지금은 쉬고 있어요", budget_full: LOCKED.budget_full, coin_off: "코인이 아직 열리지 않았어요",
+    switch_off: "준비 중이에요", budget_full: LOCKED.budget_full, coin_off: "코인이 아직 열리지 않았어요",
     consent_required: "배송 정보 동의에 체크해 주세요", under_14: "실물 경품은 만 14세부터 받을 수 있어요 · 기프티콘은 바꿀 수 있어요",
     invalid_body: "배송 정보를 다시 봐 주세요", not_shipped: "아직 보내기 전이에요", rate_limited: "너무 자주 눌렀어요. 잠시 뒤 다시 해 주세요",
     network: "서버에 닿지 않았어요. 잠시 뒤 다시 해 주세요"
@@ -143,22 +143,33 @@
   }
   function itemOf(id) { return (S.items || []).filter(function (x) { return String(x.id) === String(id); })[0]; }
 
+  // 열린 신청(open) = requested · approved 하나 · 보낸 실물은 shipping[] 로 따로(§1.28.6 · §1.28.6a) — ship = { state, trackingNo } | null
+  var reshipId = null;
+  function shipLine(x) {
+    var sh = x.ship || {}, h = "";
+    if (sh.state === "requested") h += '<p class="note">배송 정보 받았어요</p>';
+    if (sh.state === "shipped") h += '<p class="note">보냈어요' + (sh.trackingNo ? " · 송장 " + esc(sh.trackingNo) : "") + '. 받으면 눌러 주세요</p><div class="row"><button type="button" class="btn main" data-got="' + esc(x.id) + '">받았어요</button><button type="button" class="btn line" data-lost="' + esc(x.id) + '">못 받았어요</button></div>';
+    if (sh.state === "reship_pending") h += reshipId === String(x.id) ? '<p class="note">다시 보내 드릴게요. 받는 곳을 새로 적어 주세요</p>' + shipForm("r", "다시 보내 주세요")
+      : '<p class="note">다시 보내 드릴게요</p><div class="row"><button type="button" class="btn main" data-reship="' + esc(x.id) + '">받는 곳 다시 적기</button></div>';
+    return h;
+  }
   function renderOpen() {
-    var o = S && S.open;
-    $("openBox").hidden = !o;
-    if (!o) return;
-    var phys = o.delivery === "physical", ship = o.shipState || null;
-    var html = '<div class="gift"><div class="gift-h"><b>' + esc(o.item) + '</b><span class="num">' + num(o.coinPrice) + "코인</span></div>" +
-      '<div class="s">' + (ST[o.status] || o.status) + (o.requestedAt ? " · " + when(o.requestedAt) + " 신청" : "") + (phys && o.trackingNo ? " · 송장 " + esc(o.trackingNo) : "") + "</div>";
-    if (o.status === "requested") html += '<div class="row"><button type="button" class="btn line" id="cancelBtn">신청 취소</button></div>';
-    if (phys && o.status === "requested") html += '<p class="note">배송 정보 받았어요</p>';
-    if (phys && ship === "shipped") html += '<p class="note">보냈어요. 받으면 눌러 주세요</p><div class="row"><button type="button" class="btn main" id="gotBtn">받았어요</button><button type="button" class="btn line" id="lostBtn">못 받았어요</button></div>';
-    if (phys && ship === "reship_pending") html += '<p class="note">다시 보내 드릴게요. 받는 곳을 새로 적어 주세요</p>' + shipForm("r", "다시 보내 주세요");
-    if (!phys && o.status === "sent") html += '<p class="note">디스코드 DM 으로 보냈어요</p>';
-    $("openBody").innerHTML = html + "</div>";
+    var o = S && S.open, ships = (S && S.shipping) || [];
+    $("openBox").hidden = !o && !ships.length;
+    if (!o && !ships.length) return;
+    var html = "";
+    if (o) {
+      html += '<div class="gift"><div class="gift-h"><b>' + esc(o.item) + '</b><span class="num">' + num(o.coinPrice) + "코인</span></div>" +
+        '<div class="s">' + (ST[o.status] || o.status) + (o.requestedAt ? " · " + when(o.requestedAt) + " 신청" : "") + "</div>";
+      if (o.status === "requested") html += '<div class="row"><button type="button" class="btn line" id="cancelBtn">신청 취소</button></div>';
+      if (o.delivery === "physical") html += '<p class="note">배송 정보 받았어요</p>';
+      html += "</div>";
+    }
+    html += ships.map(function (x) {
+      return '<div class="gift"><div class="gift-h"><b>' + esc(x.item) + '</b><span class="tag">실물</span></div><div class="s">' + (x.requestedAt ? when(x.requestedAt) + " 신청" : "") + "</div>" + shipLine(x) + "</div>";
+    }).join("");
+    $("openBody").innerHTML = html;
     if ($("cancelBtn")) $("cancelBtn").addEventListener("click", cancel);
-    if ($("gotBtn")) $("gotBtn").addEventListener("click", function () { shipAct("received", "받았다고 남길까요? 배송 정보는 바로 지워져요"); });
-    if ($("lostBtn")) $("lostBtn").addEventListener("click", function () { shipAct("lost", "못 받았다고 남길까요? 지난 배송 정보는 지우고 새로 받아요"); });
     if ($("rGo")) bindShip("r", reAddress);
   }
 
@@ -189,26 +200,33 @@
       msg("openMsg", r.code === "not_requested" ? "이미 처리가 시작됐어요" : ERR[r.code] || "취소하지 못했어요. 잠시 뒤 다시 해 주세요");
     });
   }
-  function shipAct(kind, ask) {
-    var o = S && S.open; if (busy || !o || !confirm(ask)) return;
+  function shipAct(id, kind, ask) {
+    if (busy || !confirm(ask)) return;
     busy = true;
-    KR.api("/api/killrace/me/coin/exchange/" + encodeURIComponent(o.id) + "/" + kind, {}).then(function (r) {
+    KR.api("/api/killrace/me/coin/exchange/" + encodeURIComponent(id) + "/" + kind, {}).then(function (r) {
       busy = false;
-      if (r.ok) { msg("openMsg", kind === "received" ? "받았다고 남겼어요. 배송 정보는 지웠어요" : "남겼어요. 받는 곳을 새로 적어 주세요", true); return load(); }
+      if (r.ok) { if (kind === "lost") reshipId = String(id); msg("openMsg", kind === "received" ? "받았다고 남겼어요. 배송 정보는 지웠어요" : "남겼어요. 받는 곳을 새로 적어 주세요", true); return load(); }
       msg("openMsg", ERR[r.code] || "남기지 못했어요. 잠시 뒤 다시 해 주세요");
     });
   }
   function reAddress() {
-    var o = S && S.open; if (busy || !o) return;
+    var id = reshipId; if (busy || !id) return;
     var s = shipValues("r"); if (s.err) { msg("openMsg", s.err); return; }
     busy = true;
-    KR.api("/api/killrace/me/coin/exchange/" + encodeURIComponent(o.id) + "/address", { consent: true, name: s.v.name, address: s.v.address, phone: s.v.phone }).then(function (r) {
+    KR.api("/api/killrace/me/coin/exchange/" + encodeURIComponent(id) + "/address", { consent: true, name: s.v.name, address: s.v.address, phone: s.v.phone }).then(function (r) {
       busy = false; clearShip("r");
-      if (r.ok) { msg("openMsg", "받는 곳을 받았어요. 다시 보내 드릴게요", true); return load(); }
+      if (r.ok) { reshipId = null; msg("openMsg", "받는 곳을 받았어요. 다시 보내 드릴게요", true); return load(); }
       msg("openMsg", ERR[r.code] || "보내지 못했어요. 잠시 뒤 다시 해 주세요");
     });
   }
   document.addEventListener("click", function (ev) {
+    var g = ev.target.closest("[data-got],[data-lost],[data-reship]");
+    if (g) {
+      if (g.hasAttribute("data-reship")) { reshipId = g.getAttribute("data-reship"); renderOpen(); return; }
+      if (g.hasAttribute("data-got")) shipAct(g.getAttribute("data-got"), "received", "받았다고 남길까요? 배송 정보는 바로 지워져요");
+      else shipAct(g.getAttribute("data-lost"), "lost", "못 받았다고 남길까요? 지난 배송 정보는 지우고 새로 받아요");
+      return;
+    }
     var b = ev.target.closest("[data-item]"); if (!b || b.disabled) return;
     exchange(itemOf(b.getAttribute("data-item")), false);
   });

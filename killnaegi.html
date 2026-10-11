@@ -759,7 +759,9 @@ function depositTop(d, kc) {
   var held = d.depositHeld || [], unpaid = d.depositUnpaid || d.feeUnpaid || [];
   var out = "";
   if (held.length) out += '<div class="h-fee"><b>돌려줄 보증금 ' + held.length + "명</b><br>" + held.map(function (x) {
-    return x.order + ". " + esc(x.ign) + (x.due ? " · " + kstTime(Date.parse(x.due)) + "까지" : "") + (x.daysLeft != null ? " · " + x.daysLeft + "일 남음" : "");
+    // 경비 #563 depositHeld = { id, ign, heldAt, dueAt(ms), daysLeft } · 기한순으로 온다
+    var due = typeof x.dueAt === "number" ? x.dueAt : Date.parse(x.dueAt || x.due || "");
+    return esc(x.ign) + (isFinite(due) ? " · " + kstTime(due) + "까지" : "") + (x.daysLeft != null ? " · " + (x.daysLeft > 0 ? x.daysLeft + "일 남음" : "기한 지남") : "");
   }).join("<br>") + "</div>";
   if (unpaid.length) out += '<div class="h-fee"><b>보증금 받기 전 ' + unpaid.length + "명</b><br>" + unpaid.map(function (x) {
     return x.order + ". " + esc(x.ign) + (x.waiting ? " 대기" : "");
