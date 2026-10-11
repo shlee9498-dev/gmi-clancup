@@ -11,6 +11,29 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="킬내기">
+<link rel="manifest" href="killnaegi-app.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="img/killnaegi-icon-192.png">
+<link rel="apple-touch-icon" href="img/killnaegi-icon-192.png">
+<script>
+/* 안전망 — 본 스크립트보다 먼저 ES5 로만 건다. 본 스크립트가 이 브라우저에서 못 돌거나 도중에 죽으면 아래 한 줄을 띄운다
+ * (빈 카드만 남는 상태를 사용자가 「다 된 화면」으로 읽지 않게 · 10/11 오너 폰). 서버로 보내는 오류 기록 길은 아직 없다 */
+(function () {
+  var shown = false;
+  function oops(msg) {
+    if (shown) return; shown = true;
+    var go = function () {
+      var el = document.getElementById("oops"); if (!el) return;
+      document.getElementById("oopsMsg").textContent = msg; el.hidden = false;
+    };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go); else go();
+  }
+  window.knOops = oops;
+  window.addEventListener("error", function (e) { if (e && e.target && e.target !== window) return; oops("화면을 그리다 멈췄어요. 새로고침해 주세요"); });
+  window.addEventListener("unhandledrejection", function () { oops("화면을 그리다 멈췄어요. 새로고침해 주세요"); });
+  // 본 스크립트가 끝까지 돌면 knReady = true. 6초 안에 안 되면 이 브라우저에서 못 돈 것
+  setTimeout(function () { if (!window.knReady) oops("이 브라우저에서 화면을 다 못 띄웠어요. 크롬으로 열어 주세요"); }, 6000);
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
@@ -40,7 +63,9 @@ a{color:var(--accent-ink);}
 .top .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .brand{font-family:var(--display);font-weight:800;font-size:26px;line-height:1;color:var(--ink);text-decoration:none;}
 .brand span{color:var(--sun);}
-.top-link{font-size:13px;color:var(--ink-dim);text-decoration:none;border:1px solid var(--cream-line);background:#fff;border-radius:999px;padding:5px 12px;white-space:nowrap;}
+.top-link{font-size:13px;color:var(--ink-dim);text-decoration:none;border:1px solid var(--cream-line);background:#fff;border-radius:999px;padding:5px 12px;white-space:nowrap;
+  max-width:52vw;overflow:hidden;text-overflow:ellipsis;}
+.top-link b{color:var(--ink);}
 
 main{padding-top:14px;}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;}
@@ -70,6 +95,37 @@ main{padding-top:14px;}
 .btn.off{background:var(--field);color:var(--ink-faint);}
 .btn.line{background:#fff;color:var(--accent-ink);border:1px solid var(--line);}
 .btn + .btn{margin-top:8px;}
+
+/* 홈 — 불러오는 중 · 실패 · 다시 시도. 데이터 없이 다 된 것처럼 보이는 상태를 만들지 않는다 */
+.sk{display:block;border-radius:8px;background:linear-gradient(90deg,var(--field) 0%,#E7EAEF 50%,var(--field) 100%);background-size:200% 100%;animation:sk 1.4s ease-in-out infinite;}
+.next .sk{background:linear-gradient(90deg,#FBEBCB 0%,#FFF9EE 50%,#FBEBCB 100%);background-size:200% 100%;}
+.sk-t{height:38px;width:62%;margin:4px 0 10px;}
+.sk-c{height:26px;width:84%;margin-bottom:12px;}
+.sk-b{height:48px;width:100%;border-radius:var(--r-md);}
+.sk-l{height:16px;width:90%;margin-top:10px;}
+.sk-l.s{width:58%;}
+@keyframes sk{0%{background-position:100% 0;}100%{background-position:-100% 0;}}
+@media (prefers-reduced-motion:reduce){.sk{animation:none;}}
+.wait{font-size:13px;color:var(--ink-dim);margin-top:10px;}
+.fail{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--ink-dim);padding:10px 0 2px;}
+.fail a{font-weight:700;}
+.retry{border:1px solid var(--line);background:#fff;color:var(--accent-ink);font-weight:700;font-size:13.5px;border-radius:999px;padding:7px 14px;min-height:36px;cursor:pointer;}
+.list{list-style:none;margin-top:8px;}
+.list li{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);}
+.list li:first-child{border-top:0;}
+.list .rk{font-family:var(--display);font-size:22px;font-weight:800;text-align:center;color:var(--ink-faint);line-height:1;}
+.list li.gold .rk{color:var(--sun);}
+.list .nm{font-weight:700;font-size:15px;overflow-wrap:anywhere;}
+.list .nm small{display:block;font-weight:400;font-size:12.5px;color:var(--ink-faint);}
+.list .val{font-family:var(--display);font-size:22px;font-weight:800;line-height:1;text-align:right;}
+.list .val small{display:block;font-family:var(--body);font-size:11.5px;font-weight:400;color:var(--ink-faint);}
+.rule1{font-size:14.5px;line-height:1.7;margin-top:6px;}
+.rule1 b{color:var(--accent-ink);}
+.more{display:inline-block;margin-top:10px;font-size:13.5px;font-weight:700;text-decoration:none;}
+.ver{text-align:center;font-size:11px;color:var(--ink-faint);padding:6px 0 4px;}
+.oops{position:fixed;left:12px;right:12px;bottom:calc(var(--bar) + env(safe-area-inset-bottom) + 8px);z-index:11;max-width:536px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ink);color:#fff;border-radius:var(--r-md);padding:10px 12px;font-size:13.5px;}
+.oops button{flex:0 0 auto;border:0;border-radius:999px;background:#fff;color:var(--ink);font-weight:700;font-size:13px;padding:6px 12px;min-height:34px;cursor:pointer;}
 
 /* 점수판 */
 .pick{display:block;margin-bottom:10px;}
@@ -155,28 +211,56 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="#home">GmI <span>킬내기</span></a>
-  <a class="top-link" href="killrace/">내 상금 · 계정</a>
+  <a class="top-link" id="who" href="killrace/">연결하기</a>
 </div></header>
 
 <main class="wrap" id="main" aria-live="polite">
   <!-- 홈 -->
   <section id="v-home" data-view>
-    <div class="card next" id="nextCard">
+    <div class="card next" id="nextCard" aria-busy="true">
       <div class="kicker">다음 회차</div>
-      <h2 id="nextTitle">킬내기</h2>
-      <div class="chips" id="nextChips"></div>
-      <div id="seatBox" hidden>
-        <div class="seat"><span class="num" id="seatNum"></span><small id="seatSub"></small></div>
-        <div class="bar"><i id="seatBar" style="width:0"></i></div>
+      <!-- 처음 모습 = 불러오는 중. 데이터가 와야 회차 · 칩 · 신청 버튼이 그려진다 -->
+      <div id="nextLoad">
+        <span class="sk sk-t"></span><span class="sk sk-c"></span><span class="sk sk-b"></span>
+        <p class="wait" id="nextWait">불러오는 중이에요</p>
       </div>
-      <a class="btn main" id="applyBtn" href="killnaegi.html">신청하기</a>
-      <p class="msg" id="nextMsg" hidden></p>
+      <div id="nextBody" hidden>
+        <h2 id="nextTitle">킬내기</h2>
+        <div class="chips" id="nextChips"></div>
+        <div id="seatBox" hidden>
+          <div class="seat"><span class="num" id="seatNum"></span><small id="seatSub"></small></div>
+          <div class="bar"><i id="seatBar" style="width:0"></i></div>
+        </div>
+        <a class="btn main" id="applyBtn" href="killnaegi.html">신청하기</a>
+      </div>
+      <div class="fail" id="nextFail" hidden><span>다음 회차를 불러오지 못했어요 · <a href="killnaegi.html">신청 페이지</a></span><button type="button" class="retry" data-retry="next">다시 시도</button></div>
     </div>
     <div class="card" id="liveCard" hidden>
       <div class="me-h"><h2 class="card-h" id="liveTitle">지금 점수판</h2><span class="tag sun" id="liveTag"></span></div>
       <p class="card-sub" id="liveSub"></p>
       <div class="mini-board" id="liveList" style="margin-top:10px;"></div>
       <a class="btn line" href="#board">점수판 전체 보기</a>
+    </div>
+    <div class="card" id="lastCard" aria-busy="true">
+      <h2 class="card-h" id="lastTitle">지난 회차 결과</h2>
+      <div id="lastLoad"><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span></div>
+      <ol class="list" id="lastList" hidden></ol>
+      <a class="more" id="lastMore" href="#board" hidden>판별 점수 보기</a>
+      <div class="fail" id="lastFail" hidden><span>지난 회차를 불러오지 못했어요</span><button type="button" class="retry" data-retry="last">다시 시도</button></div>
+    </div>
+    <div class="card" id="topCard" aria-busy="true">
+      <h2 class="card-h">주간 순위 TOP 5</h2>
+      <p class="card-sub" id="topSub">판당 킬 · 판당 딜로 매기는 개인 순위예요</p>
+      <div id="topLoad"><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span></div>
+      <ol class="list" id="topList" hidden></ol>
+      <div class="fail" id="topFail" hidden><span>순위를 불러오지 못했어요</span><button type="button" class="retry" data-retry="top">다시 시도</button></div>
+    </div>
+    <div class="card" id="ruleCard" aria-busy="true">
+      <h2 class="card-h">룰 한 줄</h2>
+      <div id="ruleLoad"><span class="sk sk-l"></span><span class="sk sk-l s"></span></div>
+      <p class="rule1" id="ruleOne" hidden></p>
+      <a class="more" href="#rule">룰 전체 보기</a>
+      <div class="fail" id="ruleFail" hidden><span>룰 요약을 불러오지 못했어요</span><button type="button" class="retry" data-retry="rule">다시 시도</button></div>
     </div>
   </section>
 
@@ -221,7 +305,11 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
   <section id="v-rule" data-view hidden>
     <div id="ruleBox"></div>
   </section>
+  <!-- 판 표시 — Pages 는 10분 캐시라 배포 직후엔 옛 판이 보일 수 있다. 이 글자로 어느 판인지 본다 -->
+  <p class="ver" id="ver">v2026.10.11-2</p>
 </main>
+
+<div class="oops" id="oops" role="alert" hidden><span id="oopsMsg">화면을 그리다 멈췄어요. 새로고침해 주세요</span><button type="button" onclick="location.reload()">새로고침</button></div>
 
 <nav class="tabbar" aria-label="킬내기 메뉴"><div class="in">
   <a href="#home" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>홈</a>
@@ -254,8 +342,28 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
   var signed = function (n) { return n > 0 ? "+" + n : n < 0 ? "−" + Math.abs(n) : "0"; };
   var toMs = function (v) { if (typeof v === "number" && isFinite(v)) return v; var t = Date.parse(v); return isFinite(t) ? t : null; };
   var roundOf = function (name, id) { var m = /(\d+)\s*회/.exec(name || ""); return m ? m[1] + "회" : /번외/.test(name || "") ? "번외" : (id ? id + "회" : ""); };
-  var getJSON = function (path) { return fetch(GAPI + path, { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); }); };
-  var getText = function (path) { return fetch(path, { cache: "no-store" }).then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); }); };
+  // 읽기 요청 — 8초 안에 안 오면 끊고(폰 · 느린 망에서 끝없이 기다리던 것이 10/11 빈 카드의 원인) 1.5초 뒤 한 번만 다시 받는다(서버가 막 깨어나는 경우).
+  // 다시 받는 건 연결 실패 · 시간 초과 · 5xx 뿐이다. 404 같은 답은 그대로 실패로 돌린다. 모두 GET 이라 두 번 불러도 바뀌는 것이 없다
+  var WAIT_MS = 8000;
+  function once(url, kind, ms) {
+    var ctl = typeof AbortController === "function" ? new AbortController() : null;
+    var req = fetch(url, ctl ? { cache: "no-store", signal: ctl.signal } : { cache: "no-store" }).then(function (r) {
+      if (!r.ok) return Promise.reject({ status: r.status, again: r.status >= 500 });
+      return kind === "text" ? r.text() : r.json();
+    }, function () { return Promise.reject({ status: 0, again: true }); });
+    var t = null;
+    var late = new Promise(function (_, no) { t = setTimeout(function () { if (ctl) ctl.abort(); no({ status: 0, again: true, timeout: true }); }, ms || WAIT_MS); });
+    return Promise.race([req, late]).then(function (v) { clearTimeout(t); return v; }, function (e) { clearTimeout(t); throw e; });
+  }
+  function fetchTry(url, kind, onRetry) {
+    return once(url, kind).catch(function (e) {
+      if (!e || !e.again) throw e;
+      if (onRetry) onRetry();
+      return new Promise(function (ok) { setTimeout(ok, 1500); }).then(function () { return once(url, kind); });
+    });
+  }
+  var getJSON = function (path, onRetry) { return fetchTry(GAPI + path, "json", onRetry); };
+  var getText = function (path, onRetry) { return fetchTry(path, "text", onRetry); };
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) { /* 저장을 못 해도 화면은 돈다 */ } }
@@ -279,21 +387,107 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
   }
   window.addEventListener("hashchange", show);
 
-  /* ---------- 홈 ---------- */
-  function loadHome() {
-    Promise.all([getJSON("/api/killrace/apply").catch(function () { return null; }), getJSON("/api/killrace/board").catch(function () { return null; })])
-      .then(function (r) { paintNext(r[0], r[1]); paintLive(r[1]); });
+  /* ---------- 홈 ----------
+   * 카드마다 따로 받는다(하나가 늦어도 다른 카드는 먼저 뜬다). 카드 상태는 셋 — 불러오는 중(스켈레톤) · 내용 · 실패(다시 시도 칩).
+   * 한 번 내용이 뜬 카드는 30초 새로고침이 실패해도 내용을 지우지 않는다. 받는 중에는 같은 카드를 또 부르지 않는다 */
+  var HOME = { a: null, b: null }, busy = {};
+  function cardState(k, state) {
+    var load = $(k + "Load"), fail = $(k + "Fail"), card = $(k + "Card");
+    if (load) load.hidden = state !== "load";
+    if (fail) fail.hidden = state !== "fail";
+    if (card) card.setAttribute("aria-busy", state === "load" ? "true" : "false");
   }
-  function paintNext(a, b) {
+  function job(k, fn) {
+    if (busy[k]) return;
+    busy[k] = true;
+    var p;
+    try { p = fn(); } catch (e) { p = Promise.reject(e); }
+    Promise.resolve(p).then(function () { busy[k] = false; }, function () { busy[k] = false; });
+  }
+  function loadHome(force) {
+    job("next", function () {
+      if (!HOME.a || force) { cardState("next", "load"); $("nextBody").hidden = true; $("nextWait").textContent = "불러오는 중이에요"; }
+      return getJSON("/api/killrace/apply", function () { $("nextWait").textContent = "서버가 깨어나는 중이에요. 조금만 기다려 주세요"; })
+        .then(function (a) { HOME.a = a; paintNext(); }, function () { if (!HOME.a) { cardState("next", "fail"); $("nextBody").hidden = true; } });
+    });
+    job("board", function () {
+      return getJSON("/api/killrace/board").then(function (b) { HOME.b = b; paintLive(b); if (HOME.a) paintNext(); }, function () { /* 점수판은 덧붙이는 칩 · 대회 중 카드뿐 — 실패해도 다음 회차는 그대로 */ });
+    });
+    if (!loaded.last || force) job("last", loadLast);
+    if (!loaded.top || force) job("top", loadTop);
+    if (!loaded.rule1 || force) job("rule1", loadRuleOne);
+  }
+  $("v-home").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-retry]"); if (!b) return;
+    var k = b.getAttribute("data-retry");
+    if (k === "next") { HOME.a = null; loadHome(false); }
+    if (k === "last") job("last", loadLast);
+    if (k === "top") job("top", loadTop);
+    if (k === "rule") job("rule1", loadRuleOne);
+  });
+  // 지난 회차 결과 — 회차 목록에서 끝난 회차 중 가장 최근 것 → 그 회차 점수판 1 ~ 3등
+  function loadLast() {
+    cardState("last", "load"); $("lastList").hidden = true; $("lastMore").hidden = true;
+    return loadEvents().then(function (evs) {
+      if (!evs) return Promise.reject("events");
+      var now = Date.now();
+      var done = evs.events.filter(function (e) { return isFinite(e.end) && e.end < now; }).sort(function (x, y) { return y.end - x.end; })[0];
+      if (!done) { $("lastCard").hidden = true; loaded.last = true; return; }
+      return getJSON("/api/killrace/board?event=" + done.id).then(function (b) {
+        var teams = (b && b.teams || []).slice(0, 3);
+        $("lastTitle").textContent = "지난 회차 결과 · " + roundOf(done.name, done.id) + " " + md(done.start);
+        $("lastList").innerHTML = teams.length ? teams.map(function (t) {
+          return '<li' + (t.rank === 1 ? ' class="gold"' : "") + '><span class="rk">' + esc(t.rank) + '</span><span class="nm">' + esc(t.name) +
+            "<small>" + esc((t.members || []).map(function (m) { return m.ign; }).join(" · ")) + '</small></span><span class="val' + (t.total < 0 ? " minus" : "") + '">' + esc(t.total) + "<small>점</small></span></li>";
+        }).join("") : '<li><span></span><span class="nm"><small>이 회차는 기록된 팀이 없어요</small></span><span></span></li>';
+        $("lastMore").href = "killnaegi-board.html?event=" + done.id;
+        cardState("last", "done"); $("lastList").hidden = false; $("lastMore").hidden = !teams.length; loaded.last = true;
+      });
+    }).catch(function () { cardState("last", "fail"); });
+  }
+  // 주간 순위 — 서버 저장본(§1.18 · 수요일 09:00 갱신) 위 다섯 줄. 순위 계산은 서버 한 곳에서만 한다
+  function loadTop() {
+    cardState("top", "load"); $("topList").hidden = true;
+    return getJSON("/api/killrace/leaderboard").then(function (j) {
+      var list = (j && j.list || []).slice(0, 5), rules = j && j.rules || {};
+      if (rules.minGames) $("topSub").textContent = "판당 킬 · 판당 딜로 매겨요 · " + rules.minGames + "판 이상 · 최근 " + (rules.recentDays || 30) + "일 안에 뛴 사람";
+      $("topList").innerHTML = list.length ? list.map(function (x) {
+        return '<li' + (x.rank === 1 ? ' class="gold"' : "") + '><span class="rk">' + esc(x.rank) + '</span><span class="nm">' + esc(x.ign) + "<small>" + esc(x.games) + "판 · 판당 딜 " + esc(x.dpg) +
+          '</small></span><span class="val">' + esc(x.kpg) + "<small>판당 킬</small></span></li>";
+      }).join("") : '<li><span></span><span class="nm"><small>아직 순위에 든 사람이 없어요</small></span><span></span></li>';
+      cardState("top", "done"); $("topList").hidden = false; loaded.top = true;
+    }).catch(function () { cardState("top", "fail"); });
+  }
+  // 룰 한 줄 — 신청 폼(killnaegi.html) #rules 첫 목록 + 사망 감점 칸에서 뽑는다. 룰 정본은 신청 폼 하나라 여기에 다시 적지 않는다
+  function loadRuleOne() {
+    cardState("rule", "load"); $("ruleOne").hidden = true;
+    return getText("killnaegi.html").then(function (html) {
+      var doc = new DOMParser().parseFromString(html, "text/html"), rules = doc.getElementById("rules");
+      var first = rules && rules.querySelector(".rule-list");
+      if (!first) return Promise.reject("no_rules");
+      // 목록 줄마다 괄호 설명(.note)은 빼고, 굵은 글씨(b)만 살려 글자로 옮긴다
+      var line = function (el) {
+        return Array.prototype.map.call(el.childNodes, function (n) {
+          if (n.nodeType === 3) return esc(n.textContent);
+          if (n.nodeType !== 1 || (n.classList && n.classList.contains("note"))) return "";
+          return n.tagName === "B" ? "<b>" + esc(n.textContent) + "</b>" : esc(n.textContent);
+        }).join("").replace(/\s+/g, " ").trim();
+      };
+      var parts = Array.prototype.filter.call(first.children, function (li) { return li.tagName === "LI"; }).map(line);
+      var pens = Array.prototype.map.call(rules.querySelectorAll(".pen b"), function (b) { return b.textContent.trim(); });
+      if (pens.length) parts.push("사망 감점 <b>" + esc(pens[0]) + (pens.length > 1 ? " ~ " + esc(pens[pens.length - 1]) : "") + "</b>");
+      $("ruleOne").innerHTML = parts.join(" · ");
+      cardState("rule", "done"); $("ruleOne").hidden = false; loaded.rule1 = true;
+    }).catch(function () { cardState("rule", "fail"); });
+  }
+  function paintNext() {
+    var a = HOME.a, b = HOME.b;
+    if (!a) return;
     var ev = b && b.event, now = Date.now() + (b && b.serverNow ? b.serverNow - Date.now() : 0);
-    if (!a) {
-      $("nextTitle").innerHTML = "킬내기"; $("nextChips").innerHTML = ""; $("seatBox").hidden = true;
-      $("applyBtn").hidden = true; $("nextMsg").hidden = false;
-      $("nextMsg").innerHTML = '다음 회차 정보를 불러오지 못했어요 · <a href="killnaegi.html">신청 페이지</a>에서 확인해 주세요';
-      return;
-    }
+    cardState("next", "done"); $("nextBody").hidden = false;
     var label = a.label ? String(a.label).slice(0, 20) : "";
     $("nextTitle").innerHTML = "킬내기 <span>" + esc(label || "다음 회차") + "</span>";
+    document.title = "GmI 킬내기" + (label ? " " + label : "");
     var close = toMs(a.closeAt), chips = [];
     // 점수판의 지금 회차가 이 신청 회차일 때만 시각 칩을 단다(마감 뒤 12시간 안에 시작) — 끝난 회차 시각이 다음 회차 칩에 붙지 않게
     var upcoming = ev && isFinite(ev.start) && isFinite(ev.end) && now < ev.end + 60000 && (close == null || (ev.start >= close && ev.start - close < 12 * 3600000));
@@ -309,7 +503,7 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
       $("seatSub").textContent = "/ " + cap + "명" + (wait ? " · 대기 " + wait + "명" : "");
       $("seatBar").style.width = Math.min(100, Math.round(count / cap * 100)) + "%";
     }
-    $("nextMsg").hidden = true; $("applyBtn").hidden = false;
+    $("applyBtn").hidden = false;
     if (a.closed) { $("applyBtn").className = "btn off"; $("applyBtn").textContent = "신청이 마감됐어요"; $("applyBtn").href = "killnaegi.html#people"; }
     else { $("applyBtn").className = "btn main"; $("applyBtn").textContent = count >= cap && cap ? "대기로 신청하기" : "신청하기"; $("applyBtn").href = "killnaegi.html"; }
   }
@@ -552,7 +746,29 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
     }).catch(function () { $("ruleBox").innerHTML = '<div class="card"><p class="msg">룰을 불러오지 못했어요 · <a href="killnaegi.html#rules">신청 페이지</a>에서 봐 주세요</p></div>'; });
   }
 
+  /* ---------- 내 계정(우상단) ----------
+   * 로그인은 killrace/ 화면이 한다(같은 주소라 토큰 kr_token 을 같이 본다 · 앱 계약 §2 · §3). 여기서는 닉만 읽어 보여 준다.
+   * 토큰이 없거나 401 이면 「연결하기」, 서버가 안 되면 「내 계정」으로 둔다(로그인 상태를 모른 채 지우지 않는다) */
+  function loadWho() {
+    var tok = store.get("kr_token");
+    if (!tok) return;
+    $("who").textContent = "내 계정";
+    var ctl = typeof AbortController === "function" ? new AbortController() : null;
+    if (ctl) setTimeout(function () { ctl.abort(); }, WAIT_MS);
+    var opt = { cache: "no-store", headers: { Authorization: "Bearer " + tok } };
+    if (ctl) opt.signal = ctl.signal;
+    fetch(GAPI + "/api/killrace/me", opt).then(function (r) {
+      if (r.status === 401) { $("who").textContent = "연결하기"; return null; }
+      return r.ok ? r.json() : null;
+    }).then(function (me) {
+      var ign = me && me.member && me.member.ign;
+      if (ign) $("who").innerHTML = "<b>" + esc(ign) + "</b>";
+    }).catch(function () { /* 그대로 「내 계정」 */ });
+  }
+
   show();
+  loadWho();
+  window.knReady = true;
 })();
 </script>
 </body>
