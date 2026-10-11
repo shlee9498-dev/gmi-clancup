@@ -34,7 +34,7 @@
     <div id="voteOwnerBody"></div>
   </section>
 
-  <section class="card" id="gate" hidden><div class="empty" id="gateBody"></div></section>
+  <section class="card" id="gate"><div class="empty" id="gateBody"><b>불러오는 중이에요</b>잠깐만 기다려 주세요</div></section>
 
   <section class="card" id="wallet" hidden>
     <h2 class="card-h">내 코인</h2>
@@ -141,7 +141,7 @@
       $("shopBody").innerHTML = '<div class="ready"><b>준비 중이에요</b>매점이 열리면 여기서 바꿀 수 있어요. 코인은 그대로 쌓여요</div>';
       return;
     }
-    if (!S) { $("shopBody").innerHTML = '<div class="ready"><b>매점을 불러오지 못했어요</b>잠시 뒤 다시 열어 주세요</div>'; return; }
+    if (!S) { $("shopBody").innerHTML = '<div class="ready"><b>매점을 불러오지 못했어요</b>' + KR.RETRY + "</div>"; return; }
     var lock = S.lockedReason, bal = W && W.linked ? Number(W.balance) || 0 : 0;
     var head = lock ? '<p class="note" style="margin:-4px 0 8px;">' + esc(LOCKED[lock] || "지금은 바꿀 수 없어요") + "</p>" : "";
     if (!(S.items || []).length) { $("shopBody").innerHTML = head + '<div class="ready"><b>이번 달 경품이 아직 없어요</b>경품이 들어오면 여기에 보여요</div>'; return; }
@@ -342,7 +342,7 @@
       if (w.code === "not_member") { gate("먼저 동의가 필요해요", '<a class="btn main" href="./" style="margin-top:10px;">내 계정으로</a>'); return; }
       if (!w.ok) {
         // 서버 길이 아직 없거나(404) 표가 없으면(503) — 지금 화면 + 준비 중
-        gate(w.status === 404 || w.code === "table_missing" ? "준비 중이에요" : "불러오지 못했어요", w.status === 404 || w.code === "table_missing" ? "코인은 연습판이 열리면 시작해요" : "잠시 뒤 다시 열어 주세요");
+        gate(w.status === 404 || w.code === "table_missing" ? "준비 중이에요" : "불러오지 못했어요", w.status === 404 || w.code === "table_missing" ? "코인은 연습판이 열리면 시작해요" : KR.RETRY);
         return;
       }
       $("gate").hidden = true;
@@ -350,6 +350,7 @@
       renderWallet(); renderOpen(); renderShop();
     });
   }
+  KR.retry = function () { gate(KR.LOADING[0], KR.LOADING[1]); load(); };
   if (!KR.token()) gate("로그인이 필요해요", '<button type="button" class="btn main" data-act="login" style="margin-top:10px;">디스코드로 로그인</button>');
   else { KR.api("/api/killrace/me").then(function (r) { KR.header(r.ok && r.body ? r.body.ign || "" : ""); }); loadVote(); load(); }
 })();

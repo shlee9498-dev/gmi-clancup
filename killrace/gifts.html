@@ -19,7 +19,7 @@
 <nav class="tabs four"><a class="tab" href="./">내 계정</a><a class="tab" href="prize.html">내 상금</a><a class="tab on" href="gifts.html">기프티콘함</a><a class="tab" href="coin.html">코인</a></nav>
 
 <main aria-live="polite">
-  <section class="card" id="gate" hidden><div class="empty" id="gateBody"></div></section>
+  <section class="card" id="gate"><div class="empty" id="gateBody"><b>불러오는 중이에요</b>잠깐만 기다려 주세요</div></section>
 
   <section class="card" id="box" hidden>
     <h2 class="card-h">기프티콘함</h2>
@@ -156,7 +156,7 @@
       if (r.status === 401) { gate("로그인이 필요해요", '<button type="button" class="btn main" data-act="login" style="margin-top:10px;">디스코드로 로그인</button>'); return; }
       if (r.code === "not_member") { gate("먼저 동의가 필요해요", '<a class="btn main" href="./" style="margin-top:10px;">내 계정으로</a>'); return; }
       if (r.code === "not_linked") { gate("스팀 닉을 연결해 주세요", '<a class="btn main" href="./" style="margin-top:10px;">내 계정으로</a>'); return; }
-      if (!r.ok) { gate(r.status === 404 || r.code === "table_missing" ? "준비 중이에요" : "불러오지 못했어요", r.status === 404 || r.code === "table_missing" ? "기프티콘함이 열리면 여기서 받아요" : "잠시 뒤 다시 열어 주세요"); return; }
+      if (!r.ok) { gate(r.status === 404 || r.code === "table_missing" ? "준비 중이에요" : "불러오지 못했어요", r.status === 404 || r.code === "table_missing" ? "기프티콘함이 열리면 여기서 받아요" : KR.RETRY); return; }
       $("gate").hidden = true; $("box").hidden = false; G = r.body; render();
     });
   }
@@ -231,6 +231,7 @@
     });
   });
 
+  KR.retry = function () { gate(KR.LOADING[0], KR.LOADING[1]); load().then(loadOwner); };
   if (!KR.token()) gate("로그인이 필요해요", '<button type="button" class="btn main" data-act="login" style="margin-top:10px;">디스코드로 로그인</button>');
   else { KR.api("/api/killrace/me").then(function (r) { KR.header(r.ok && r.body ? r.body.ign || "" : ""); }); load().then(loadOwner); }
 })();

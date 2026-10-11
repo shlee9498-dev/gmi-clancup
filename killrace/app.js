@@ -40,17 +40,31 @@
     location.href = API + "/api/auth/login?intent=killrace&nonce=" + nonce + "&return=" + encodeURIComponent(back);
   }
   // 서버 호출 — { ok, status, body }. 401 이면 토큰을 지운다(화면이 로그인 안내로 바꾼다)
-  function api(path, body, method) {
-    var h = { "Content-Type": "application/json" };
-    if (token()) h.Authorization = "Bearer " + token();
-    var opt = { method: method || (body ? "POST" : "GET"), headers: h, cache: "no-store" };
-    if (body) opt.body = JSON.stringify(body);
-    return fetch(API + path, opt).then(function (r) {
+  // 8초 안에 답이 없으면 끊는다(폰 · 느린 망에서 끝없이 기다리면 빈 화면이 남는다 · #113 과 같은 방식).
+  // 읽기(GET)만 연결 실패 · 시간 초과 · 5xx 일 때 1.5초 뒤 한 번 다시 받는다. 쓰기(POST)는 돈 · 교환이 걸려 있어 다시 보내지 않는다
+  var WAIT_MS = 8000;
+  function once(path, opt) {
+    var ctl = typeof AbortController === "function" ? new AbortController() : null;
+    if (ctl) opt.signal = ctl.signal;
+    var t = null;
+    var late = new Promise(function (ok) { t = setTimeout(function () { if (ctl) ctl.abort(); ok({ ok: false, status: 0, body: {}, code: "timeout" }); }, WAIT_MS); });
+    var req = fetch(API + path, opt).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) {
         if (r.status === 401) logout();
         return { ok: r.ok, status: r.status, body: j, code: j && j.error && j.error.code ? j.error.code : null };
       });
     }, function () { return { ok: false, status: 0, body: {}, code: "network" }; });
+    return Promise.race([req, late]).then(function (v) { clearTimeout(t); return v; });
+  }
+  function api(path, body, method) {
+    var h = { "Content-Type": "application/json" };
+    if (token()) h.Authorization = "Bearer " + token();
+    var m = method || (body ? "POST" : "GET");
+    var make = function () { var o = { method: m, headers: h, cache: "no-store" }; if (body) o.body = JSON.stringify(body); return o; };
+    return once(path, make()).then(function (r) {
+      if (m !== "GET" || !(r.status === 0 || r.status >= 500)) return r;
+      return new Promise(function (ok) { setTimeout(ok, 1500); }).then(function () { return once(path, make()); });
+    });
   }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); }
   function won(n) { return Number(n || 0).toLocaleString("ko-KR") + "원"; }
@@ -70,12 +84,13 @@
     var b = ev.target.closest("[data-act]"); if (!b) return;
     if (b.getAttribute("data-act") === "login") login();
     if (b.getAttribute("data-act") === "logout") { logout(); location.reload(); }
+    if (b.getAttribute("data-act") === "retry" && typeof window.KR.retry === "function") window.KR.retry();
   });
   // 스위치(앱 계약 §18.1 · GET /api/killrace/switches · 누구나) — 못 읽으면 전부 꺼진 것으로 본다(안전한 쪽)
   var OFF = { coin_shop: false, casino_link: false, deposit: false, monthly_budget_krw: 0, budget: null };
   var swP = null;
   function switches() {
-    if (!swP) swP = fetch(API + "/api/killrace/switches", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+    if (!swP) swP = once("/api/killrace/switches", { method: "GET", cache: "no-store" }).then(function (r) { return r.ok ? r.body : null; }).then(function (j) {
       var s = j && (j.switches || j);                      // { switches: {...}, budget } 또는 평평한 모양 둘 다 읽는다
       if (!s || typeof s !== "object") return OFF;
       return { coin_shop: s.coin_shop === true, shop_vote: s.shop_vote === true, clan_room: s.clan_room === true, casino_link: s.casino_link === true, deposit: s.deposit === true,
@@ -89,5 +104,8 @@
     var d = new Date(t + 9 * 3600000);
     return d.getUTCFullYear() + "." + (d.getUTCMonth() + 1) + "." + d.getUTCDate();
   }
-  window.KR = { API: API, api: api, token: token, login: login, logout: logout, esc: esc, won: won, when: when, header: header, switches: switches, num: num, day: day };
+  // 처음 모습 · 실패 모습 — 화면이 빈칸으로 남지 않게(10/12 지휘 검수 · #113 과 같은 기준)
+  var LOADING = ["불러오는 중이에요", "잠깐만 기다려 주세요"];
+  var RETRY = '잠시 뒤 다시 시도해 주세요<br><button type="button" class="btn" data-act="retry" style="margin-top:10px;">다시 시도</button>';
+  window.KR = { LOADING: LOADING, RETRY: RETRY, API: API, api: api, token: token, login: login, logout: logout, esc: esc, won: won, when: when, header: header, switches: switches, num: num, day: day };
 })();
