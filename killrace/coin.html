@@ -19,6 +19,21 @@
 <nav class="tabs four"><a class="tab" href="./">내 계정</a><a class="tab" href="prize.html">내 상금</a><a class="tab" href="gifts.html">기프티콘함</a><a class="tab on" href="coin.html">코인</a></nav>
 
 <main aria-live="polite">
+  <section class="card" id="vote" hidden>
+    <h2 class="card-h" id="voteTitle">매점에 뭐가 들어오면 좋을까요</h2>
+    <p class="card-sub" id="voteSub"></p>
+    <div id="voteBody"></div>
+    <p class="msg" id="voteMsg" role="status"></p>
+    <p class="note">코인은 킬내기 참여 보상이에요 · 돈으로 바꿀 수 없어요</p>
+    <p class="note">결과는 참고해서 오너가 매점 품목을 정해요</p>
+  </section>
+
+  <section class="card" id="voteOwner" hidden>
+    <h2 class="card-h">투표 결과 · 오너만</h2>
+    <p class="card-sub" id="voteOwnerSub"></p>
+    <div id="voteOwnerBody"></div>
+  </section>
+
   <section class="card" id="gate" hidden><div class="empty" id="gateBody"></div></section>
 
   <section class="card" id="wallet" hidden>
@@ -231,6 +246,95 @@
     exchange(itemOf(b.getAttribute("data-item")), false);
   });
 
+  /* ── 매점 투표(killrace-api §1.31) — 스위치 shop_vote 가 켜졌거나 마감 뒤에만 보인다. 득표는 마감 뒤에만 · 오너 화면은 실시간 ── */
+  var POLL = "shop-2026-10", V = null, voteBusy = false;
+  var VOTE_LOCK = {
+    not_member: ["먼저 킬내기 동의가 필요해요", '<a class="btn main" href="./">내 계정으로</a>'],
+    not_linked: ["스팀 닉을 연결하면 투표할 수 있어요", '<a class="btn main" href="./">내 계정으로</a>'],
+    not_clan: ["클랜원 투표예요 · 궁금한 건 디스코드 운영진에게 물어봐 주세요", ""],
+    clan_check_unavailable: ["잠깐 확인 중이에요", '<button type="button" class="btn line" id="voteRetry">다시 확인하기</button>']
+  };
+  var VOTE_ERR = { invalid_body: "고른 것이나 한 줄 제안을 다시 봐 주세요(40자 · 링크 없이)", switch_off: "투표가 아직 열리지 않았어요", vote_closed: "투표가 끝났어요",
+    not_linked: VOTE_LOCK.not_linked[0], not_member: VOTE_LOCK.not_member[0], not_clan: VOTE_LOCK.not_clan[0], clan_check_unavailable: VOTE_LOCK.clan_check_unavailable[0],
+    rate_limited: "너무 자주 눌렀어요. 잠시 뒤 다시 해 주세요", network: "서버에 닿지 않았어요. 잠시 뒤 다시 해 주세요" };
+  // 마감 글자 — 「10월 15일 밤 11시 59분까지」(KST)
+  function closesText(iso) {
+    var t = Date.parse(iso || ""); if (!isFinite(t)) return "";
+    var d = new Date(t + 9 * 3600000), h = d.getUTCHours(), m = d.getUTCMinutes();
+    var part = h < 6 ? "새벽" : h < 12 ? "오전" : h < 18 ? "오후" : "밤", hh = h % 12 === 0 ? 12 : h % 12;
+    return (d.getUTCMonth() + 1) + "월 " + d.getUTCDate() + "일 " + part + " " + hh + "시" + (m ? " " + m + "분" : "") + "까지";
+  }
+  function renderVote() {
+    var v = V, p = v.poll || {};
+    $("vote").hidden = p.state === "off" || !p.state;
+    if ($("vote").hidden) return;
+    $("voteTitle").textContent = p.title || "매점에 뭐가 들어오면 좋을까요";
+    $("voteSub").textContent = p.state === "closed" ? "투표가 끝났어요. 고마워요" : "여러 개 골라도 돼요 · " + closesText(p.closesAt) + " 고칠 수 있어요";
+    var opts = p.options || [], mine = v.mine || null, picked = mine ? mine.choices || [] : [];
+    if (p.state === "closed") {
+      var r = v.results || { counts: [], voters: 0, suggestions: 0 };
+      var cnt = {}; (r.counts || []).forEach(function (c) { cnt[c.key] = c.votes; });
+      var top = Math.max.apply(null, [1].concat((r.counts || []).map(function (c) { return c.votes; })));
+      $("voteBody").innerHTML = '<ul class="shop">' + opts.map(function (o) {
+        var n = cnt[o.key] || 0;
+        return '<li style="display:block;"><span class="nm">' + esc(o.label) + (picked.indexOf(o.key) >= 0 ? ' <span class="tag req">내가 고름</span>' : "") + '</span><span class="pr" style="display:block;">' + num(n) + "표</span>" +
+          '<div class="bar" style="height:8px;border-radius:999px;background:var(--field);margin-top:6px;overflow:hidden;"><i style="display:block;height:100%;width:' + Math.round(n / top * 100) + '%;background:var(--accent);"></i></div></li>';
+      }).join("") + '</ul><p class="note">참여 ' + num(r.voters) + "명 · 자유 제안 " + num(r.suggestions) + "개</p>";
+      return;
+    }
+    var lock = v.lockedReason;
+    if (lock && VOTE_LOCK[lock]) {
+      $("voteBody").innerHTML = '<div class="ready"><b>' + esc(VOTE_LOCK[lock][0]) + "</b>" + VOTE_LOCK[lock][1] + "</div>";
+      if ($("voteRetry")) $("voteRetry").addEventListener("click", loadVote);
+      return;
+    }
+    $("voteBody").innerHTML = opts.map(function (o) {
+      return '<label class="check"><input type="checkbox" name="vOpt" value="' + esc(o.key) + '"' + (picked.indexOf(o.key) >= 0 ? " checked" : "") + (v.canVote ? "" : " disabled") + "><span><b>" + esc(o.label) + "</b>" + (o.kind === "physical" ? ' <span class="tag">실물</span>' : "") + "</span></label>";
+    }).join("") +
+      '<div class="field"><label class="label" for="vSug">자유 제안 한 줄 <span id="vCount">0/40</span></label><input class="input" id="vSug" maxlength="40" autocomplete="off" placeholder="이런 것도 있으면 좋겠어요"' + (v.canVote ? "" : " disabled") + "></div>" +
+      '<button type="button" class="btn main wide" id="voteGo"' + (v.canVote ? "" : " disabled") + ">" + (mine ? "고치기" : "투표하기") + "</button>" +
+      (mine ? '<p class="note">내가 고른 것 · ' + (picked.length ? picked.map(function (k) { var o = opts.filter(function (x) { return x.key === k; })[0]; return esc(o ? o.label : k); }).join(" · ") : "없음") + (mine.suggestion ? " · 제안 1개" : "") + "</p>" : "");
+    var sug = $("vSug"); if (mine && mine.suggestion) sug.value = mine.suggestion;
+    var cnt2 = function () { $("vCount").textContent = sug.value.length + "/40"; }; cnt2();
+    sug.addEventListener("input", cnt2);
+    $("voteGo").addEventListener("click", sendVote);
+  }
+  function sendVote() {
+    if (voteBusy) return;
+    var choices = [].slice.call(document.querySelectorAll('input[name="vOpt"]:checked')).map(function (x) { return x.value; });
+    var sug = $("vSug").value.replace(/\s+/g, " ").trim();
+    if (!choices.length && !sug) return msg("voteMsg", "하나 이상 고르거나 한 줄 적어 주세요");
+    if (/https?:|www\.|discord\.gg/i.test(sug)) return msg("voteMsg", "링크는 적을 수 없어요");
+    voteBusy = true; msg("voteMsg", "");
+    var body = { choices: choices }; if (sug) body.suggestion = sug;
+    KR.api("/api/killrace/me/vote/" + POLL, body).then(function (r) {
+      voteBusy = false;
+      if (r.ok) { msg("voteMsg", V && V.mine ? "고쳤어요. 마감 전까지 다시 고칠 수 있어요" : "투표했어요. 마감 전까지 고칠 수 있어요", true); return loadVote(); }
+      msg("voteMsg", VOTE_ERR[r.code] || "투표하지 못했어요. 잠시 뒤 다시 해 주세요");
+      if (/^(vote_closed|switch_off)$/.test(r.code || "")) loadVote();
+    });
+  }
+  function renderVoteOwner(a) {
+    $("voteOwner").hidden = false;
+    var opts = (V && V.poll && V.poll.options) || [], label = function (k) { var o = opts.filter(function (x) { return x.key === k; })[0]; return o ? o.label : k; };
+    var left = V && V.poll ? Date.parse(V.poll.closesAt) - Date.now() : NaN;
+    $("voteOwnerSub").textContent = (a.state === "open" ? "진행 중" : a.state === "closed" ? "끝남" : "꺼짐") + " · 참여 " + num(a.voters) + "명" +
+      (isFinite(left) && left > 0 ? " · 마감까지 " + (left > 86400000 ? Math.floor(left / 86400000) + "일 " : "") + Math.floor(left % 86400000 / 3600000) + "시간" : "");
+    $("voteOwnerBody").innerHTML = '<ul class="lines">' + (a.counts || []).map(function (c) {
+      return '<li class="line"><span class="t">' + esc(label(c.key)) + '</span><span class="a num">' + num(c.votes) + "</span></li>";
+    }).join("") + "</ul>" +
+      '<h3 class="card-h" style="font-size:15px;margin-top:12px;">자유 제안 ' + num((a.suggestions || []).length) + "개</h3>" +
+      ((a.suggestions || []).length ? '<ul class="lines">' + a.suggestions.map(function (x) { return '<li class="line"><span class="t">' + esc(x.text) + '</span><span class="s">' + when(x.at) + "</span></li>"; }).join("") + "</ul>" : '<p class="note">아직 없어요</p>');
+  }
+  function loadVote() {
+    return KR.api("/api/killrace/me/vote/" + POLL).then(function (r) {
+      if (r.ok) { V = r.body; renderVote(); }
+      else if (r.code === "clan_check_unavailable") { V = { poll: { state: "open", title: "매점에 뭐가 들어오면 좋을까요" }, lockedReason: "clan_check_unavailable" }; renderVote(); }
+      else $("vote").hidden = true;                                    // 길이 아직 없거나(404) 꺼져 있으면 카드 자체를 숨긴다
+      return KR.api("/api/killrace/vote/" + POLL + "/admin");
+    }).then(function (a) { if (a && a.ok) renderVoteOwner(a.body); else $("voteOwner").hidden = true; });
+  }
+
   function load() {
     return Promise.all([KR.switches(), KR.api("/api/killrace/me/coin"), KR.api("/api/killrace/me/coin/shop")]).then(function (r) {
       SW = r[0]; var w = r[1], s = r[2];
@@ -247,7 +351,7 @@
     });
   }
   if (!KR.token()) gate("로그인이 필요해요", '<button type="button" class="btn main" data-act="login" style="margin-top:10px;">디스코드로 로그인</button>');
-  else { KR.api("/api/killrace/me").then(function (r) { KR.header(r.ok && r.body ? r.body.ign || "" : ""); }); load(); }
+  else { KR.api("/api/killrace/me").then(function (r) { KR.header(r.ok && r.body ? r.body.ign || "" : ""); }); loadVote(); load(); }
 })();
 </script>
 </body>

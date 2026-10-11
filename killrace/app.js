@@ -78,7 +78,7 @@
     if (!swP) swP = fetch(API + "/api/killrace/switches", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
       var s = j && (j.switches || j);                      // { switches: {...}, budget } 또는 평평한 모양 둘 다 읽는다
       if (!s || typeof s !== "object") return OFF;
-      return { coin_shop: s.coin_shop === true, casino_link: s.casino_link === true, deposit: s.deposit === true,
+      return { coin_shop: s.coin_shop === true, shop_vote: s.shop_vote === true, clan_room: s.clan_room === true, casino_link: s.casino_link === true, deposit: s.deposit === true,
         monthly_budget_krw: Number(s.monthly_budget_krw) || 0, budget: (j && j.budget) || s.budget || null };
     }).catch(function () { return OFF; });
     return swP;
