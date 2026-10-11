@@ -7,7 +7,7 @@
 <meta name="description" content="GmI 킬내기 신청 · 점수판 · 내 기록 · 선물함 · 룰 · 티어를 한곳에서 봐요">
 <meta property="og:title" content="GmI 킬내기">
 <meta property="og:description" content="신청 · 점수판 · 내 기록 · 선물함 · 룰 · 티어를 한곳에서 봐요">
-<meta name="theme-color" content="#0E1A14">
+<meta name="theme-color" content="#0F2B1C">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="킬내기">
@@ -42,10 +42,10 @@
  * 짙은 숲 띠 + 등고선 무늬 · 라임 강조 · 모래 바탕 · 흰 카드 · 탭 라임 점. 게임사 로고 · 아이콘 · 지도 이미지는 쓰지 않는다(색과 분위기만).
  * 수강생 앱(검정 · 골드) · 루트 G드컵 다크(#0a0a0c) · app/ 카지노(NIGHT OPERATION)와 섞지 않는다. 토큰은 이 :root 하나 */
 :root{
-  --bg:#ECE6D6; --card:#FFFFFF;
-  --band:#0E1A14; --band-cell:#16281D; --band-line:#2C4635; --band-label:#A8BBA6; --acc:#C6E266; --acc-soft:#E9F2D3; --pick:#F3F8E4;
-  --band-bg:repeating-radial-gradient(circle at 88% 12%,rgba(198,226,102,.07) 0 1px,transparent 1px 16px),linear-gradient(160deg,#13261B 0%,#0E1A14 70%);
-  --ink:#16211A; --body:#434F40; --mute:#5A6658; --line:#DCD4BF; --chip:#E3DCC8; --link:#2D6A3E;
+  --bg:#E2EED5; --card:#FFFFFF;
+  --band:#0F2B1C; --band-cell:#17402A; --band-line:#2F6342; --band-label:#B3CBAF; --acc:#C6E266; --acc-soft:#E9F2D3; --pick:#F3F8E4;
+  --band-bg:repeating-radial-gradient(circle at 88% 12%,rgba(198,226,102,.07) 0 1px,transparent 1px 16px),linear-gradient(160deg,#1D5233 0%,#0F2B1C 70%);
+  --ink:#16211A; --body:#434F40; --mute:#5A6658; --line:#CADDB8; --chip:#D3E5C2; --link:#2D6A3E;
   --ok:#1F7A4D; --bad:#A8431F; --bad-soft:#F6E3D9; --tab-off:#7C8878;
   --shadow:0 1px 2px rgba(22,33,26,.05),0 8px 22px rgba(22,33,26,.08);
   --stencil:'Big Shoulders Stencil Display','Saira Condensed','IBM Plex Sans KR',sans-serif;
@@ -106,8 +106,8 @@ a{color:var(--link);}
 .b-select{width:100%;min-height:44px;margin-top:12px;border:1px solid var(--band-line);border-radius:var(--r-btn);background:var(--band-cell);color:#fff;padding:0 12px;font-size:15px;}
 
 /* 띠 안 스켈레톤 · 실패 */
-.sk{display:block;border-radius:8px;background:linear-gradient(90deg,#E3DCC8 0%,#F2EDE1 50%,#E3DCC8 100%);background-size:200% 100%;animation:sk 1.4s ease-in-out infinite;}
-.band .sk{background:linear-gradient(90deg,#16281D 0%,#203A2A 50%,#16281D 100%);background-size:200% 100%;}
+.sk{display:block;border-radius:8px;background:linear-gradient(90deg,#D3E5C2 0%,#EDF5E3 50%,#D3E5C2 100%);background-size:200% 100%;animation:sk 1.4s ease-in-out infinite;}
+.band .sk{background:linear-gradient(90deg,#17402A 0%,#1F5236 50%,#17402A 100%);background-size:200% 100%;}
 .sk-t{height:52px;width:48%;margin:14px 0 6px;}
 .sk-c{height:60px;width:100%;margin-top:12px;border-radius:14px;}
 .sk-b{height:52px;width:100%;margin-top:14px;border-radius:var(--r-btn);}
@@ -224,7 +224,7 @@ main{padding-top:14px;}
 .res-row div{display:flex;justify-content:space-between;}
 .res-bar{height:10px;border-radius:999px;background:var(--chip);overflow:hidden;margin-top:4px;}
 .res-bar i{display:block;height:100%;background:var(--acc);}
-.dock{position:fixed;left:0;right:0;bottom:calc(var(--bar) + env(safe-area-inset-bottom));z-index:9;background:linear-gradient(rgba(236,230,214,0),var(--bg) 30%);padding:18px 0 10px;}
+.dock{position:fixed;left:0;right:0;bottom:calc(var(--bar) + env(safe-area-inset-bottom));z-index:9;background:linear-gradient(rgba(226,238,213,0),var(--bg) 30%);padding:18px 0 10px;}
 .dock .btn{width:100%;min-height:52px;font-size:16px;}
 .btn.ok{background:var(--ok);color:#fff;}
 .vote-pad{height:90px;}
