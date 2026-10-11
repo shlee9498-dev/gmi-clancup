@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>GmI 킬내기</title>
-<meta name="description" content="GmI 킬내기 신청 · 점수판 · 내 기록 · 티어표 · 룰을 한곳에서 봐요">
+<meta name="description" content="GmI 킬내기 신청 · 점수판 · 내 기록 · 선물함 · 룰 · 티어를 한곳에서 봐요">
 <meta property="og:title" content="GmI 킬내기">
-<meta property="og:description" content="신청 · 점수판 · 내 기록 · 티어표 · 룰을 한곳에서 봐요">
-<meta name="theme-color" content="#FFF4E0">
+<meta property="og:description" content="신청 · 점수판 · 내 기록 · 선물함 · 룰 · 티어를 한곳에서 봐요">
+<meta name="theme-color" content="#0F2B1C">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="킬내기">
@@ -36,302 +36,422 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@800&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@700;800&display=swap" rel="stylesheet">
 <style>
-/* 킬내기 라이트 토큰 — killnaegi.html :root 그대로(2026-09-26 오너 지시 · 루트 G드컵 다크+골드 · app/ 카지노와 섞지 않는다) */
+/* 킬내기 앱 외형 — 띠 구조는 수강생 앱 「안1 브랜드 띠」와 같고 색만 정글 스킨(10/11 오너 「배틀그라운드 사녹 느낌」):
+ * 짙은 숲 띠 + 등고선 무늬 · 라임 강조 · 모래 바탕 · 흰 카드 · 탭 라임 점. 게임사 로고 · 아이콘 · 지도 이미지는 쓰지 않는다(색과 분위기만).
+ * 수강생 앱(검정 · 골드) · 루트 G드컵 다크(#0a0a0c) · app/ 카지노(NIGHT OPERATION)와 섞지 않는다. 토큰은 이 :root 하나 */
 :root{
-  --bg:#F5F6F8; --card:#FFFFFF; --field:#F0F2F5; --line:#E3E6EB;
-  --ink:#172033; --ink-dim:#4E5869; --ink-faint:#6B7484;
-  --accent:#2F6FEB; --accent-soft:#EAF1FF; --accent-ink:#1D4FB8;
-  --red:#D93A2B; --red-soft:#FDECEA; --green:#1E8E5A;
-  --cream:#FFF4E0; --cream-line:#F1E3C4; --sun:#F59E0B;
-  --display:'Saira Condensed','Pretendard Variable',sans-serif;
-  --body:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;
-  --r-lg:20px; --r-md:14px; --bar:64px;
+  --bg:#E2EED5; --card:#FFFFFF;
+  --band:#0F2B1C; --band-cell:#17402A; --band-line:#2F6342; --band-label:#B3CBAF; --acc:#C6E266; --acc-soft:#E9F2D3; --pick:#F3F8E4;
+  --band-bg:repeating-radial-gradient(circle at 88% 12%,rgba(198,226,102,.07) 0 1px,transparent 1px 16px),linear-gradient(160deg,#1D5233 0%,#0F2B1C 70%);
+  --ink:#16211A; --body:#434F40; --mute:#5A6658; --line:#CADDB8; --chip:#D3E5C2; --link:#2D6A3E;
+  --ok:#1F7A4D; --bad:#A8431F; --bad-soft:#F6E3D9; --tab-off:#7C8878;
+  --shadow:0 1px 2px rgba(22,33,26,.05),0 8px 22px rgba(22,33,26,.08);
+  --stencil:'Big Shoulders Stencil Display','Saira Condensed','IBM Plex Sans KR',sans-serif;
+  --display:'Saira Condensed','IBM Plex Sans KR',sans-serif;
+  --font:'IBM Plex Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
+  --r-card:18px; --r-btn:14px; --bar:64px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 [hidden]{display:none !important;}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh;
+body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.55;word-break:keep-all;overflow-wrap:anywhere;-webkit-font-smoothing:antialiased;min-height:100vh;
   padding-bottom:calc(var(--bar) + env(safe-area-inset-bottom) + 12px);}
 button,input,select{font-family:inherit;font-size:inherit;color:inherit;}
-a{color:var(--accent-ink);}
-.num{font-family:var(--display);font-variant-numeric:tabular-nums;}
-.wrap{max-width:560px;margin:0 auto;padding:0 16px;}
+a{color:var(--link);}
+.wrap{max-width:560px;margin:0 auto;padding-left:16px;padding-right:16px;}
+.num{font-family:var(--display);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.01em;}
 
-.top{background:var(--cream);border-bottom:1px solid var(--cream-line);padding:12px 0 10px;position:sticky;top:0;z-index:5;}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.brand{font-family:var(--display);font-weight:800;font-size:26px;line-height:1;color:var(--ink);text-decoration:none;}
-.brand span{color:var(--sun);}
-.top-link{font-size:13px;color:var(--ink-dim);text-decoration:none;border:1px solid var(--cream-line);background:#fff;border-radius:999px;padding:5px 12px;white-space:nowrap;
-  max-width:52vw;overflow:hidden;text-overflow:ellipsis;}
-.top-link b{color:var(--ink);}
+/* 띠 — 화면마다 맨 위 검정 띠 하나 */
+.band{background:var(--band);background-image:var(--band-bg);color:#fff;padding:calc(env(safe-area-inset-top) + 14px) 0 20px;border-radius:0 0 22px 22px;}
+.b-top{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:40px;}
+.logo{display:inline-flex;align-items:center;min-height:44px;font-family:var(--stencil);font-weight:800;font-size:26px;line-height:1;color:#fff;text-decoration:none;}
+.logo span{color:var(--acc);margin-left:.3em;font-family:var(--font);font-weight:700;font-size:.92em;}
+.who{display:inline-flex;align-items:center;gap:7px;max-width:58vw;min-height:44px;padding:4px 12px 4px 5px;border-radius:999px;background:var(--band-cell);border:1px solid var(--band-line);
+  color:#fff;font-size:13.5px;font-weight:600;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.who.plain{padding-left:12px;}
+.tdot{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--acc);color:var(--band);
+  font-family:var(--display);font-weight:800;font-size:15px;line-height:1;}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 8px 0 0;color:var(--band-label);font-size:14px;font-weight:600;text-decoration:none;}
+.back svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.b-label{font-size:13px;font-weight:600;color:var(--band-label);margin-top:14px;}
+.b-title{font-size:22px;font-weight:700;line-height:1.3;margin-top:6px;overflow-wrap:anywhere;}
+.b-sub{font-size:13px;color:var(--band-label);margin-top:4px;overflow-wrap:anywhere;}
+.b-hero{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-top:2px;}
+.b-big{font-family:var(--stencil);font-weight:800;font-size:52px;line-height:1;color:var(--acc);}
+.b-when{display:flex;align-items:center;gap:8px;padding-bottom:6px;font-size:15px;font-weight:600;}
+.dchip{display:inline-block;background:var(--acc);color:var(--band);font-weight:700;font-size:12.5px;border-radius:999px;padding:2px 9px;line-height:1.5;}
+.tag-live{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--bad);color:#fff;letter-spacing:.04em;}
+.tag-done{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--band-cell);border:1px solid var(--band-line);color:#fff;}
+.cells{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;}
+.cells.two{grid-template-columns:repeat(2,1fr);}
+.cell{background:var(--band-cell);border:1px solid var(--band-line);border-radius:14px;padding:10px 10px 9px;min-width:0;}
+.cell small{display:block;font-size:12px;color:var(--band-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cell b{display:block;font-family:var(--display);font-weight:800;font-size:24px;line-height:1.15;color:var(--acc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cell b.txt{font-family:var(--font);font-size:15px;font-weight:700;line-height:1.6;color:#fff;}
+.cta{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:52px;margin-top:14px;border-radius:var(--r-btn);background:var(--acc);color:var(--band);
+  font-weight:700;font-size:16.5px;text-decoration:none;border:0;cursor:pointer;}
+.cta.off{background:var(--band-cell);border:1px solid var(--band-line);color:var(--band-label);}
+.tier-sq{flex:0 0 auto;width:58px;height:58px;border-radius:14px;background:var(--acc);color:var(--band);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;}
+.tier-sq b{font-family:var(--display);font-weight:800;font-size:28px;}
+.tier-sq small{font-size:11px;font-weight:700;margin-top:2px;}
+.tier-sq.none{background:var(--band-cell);border:1px solid var(--band-line);color:var(--band-label);}
+.me-top{display:flex;align-items:center;gap:12px;margin-top:12px;}
+.me-top .b-title{margin-top:0;}
+.b-form{display:flex;gap:8px;margin-top:12px;}
+.b-input{flex:1 1 auto;min-width:0;min-height:48px;border:1px solid var(--band-line);border-radius:var(--r-btn);background:var(--band-cell);color:#fff;padding:0 14px;font-size:16px;}
+.b-input::placeholder{color:var(--band-label);}
+.b-btn{flex:0 0 auto;min-height:48px;padding:0 18px;border:0;border-radius:var(--r-btn);background:var(--acc);color:var(--band);font-weight:700;cursor:pointer;}
+.b-link{display:inline-block;margin-top:6px;padding:0;font-size:13px;color:var(--band-label);background:none;border:0;text-decoration:underline;cursor:pointer;min-height:44px;}
+.b-select{width:100%;min-height:44px;margin-top:12px;border:1px solid var(--band-line);border-radius:var(--r-btn);background:var(--band-cell);color:#fff;padding:0 12px;font-size:15px;}
 
-main{padding-top:14px;}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;}
-.card-h{font-size:18px;font-weight:800;letter-spacing:-.01em;}
-.card-sub{font-size:13.5px;color:var(--ink-dim);margin-top:2px;}
-.note{font-size:12.5px;color:var(--ink-faint);}
-.minus{color:var(--red);}
-.msg{font-size:14px;color:var(--ink-dim);padding:18px 4px;text-align:center;}
-.msg a{font-weight:700;}
-
-/* 홈 — 다음 회차 */
-.next{background:var(--cream);border-color:var(--cream-line);}
-.kicker{font-size:12px;font-weight:700;color:var(--red);letter-spacing:.02em;}
-.next h2{font-family:var(--display);font-weight:800;font-size:clamp(30px,9vw,40px);line-height:1.05;margin:2px 0 8px;}
-.next h2 span{color:var(--sun);}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
-.chip{background:#fff;border:1px solid var(--cream-line);border-radius:999px;padding:4px 11px;font-size:12.5px;color:var(--ink-dim);}
-.chip b{color:var(--ink);}
-.chip.mode{background:var(--accent-soft);border-color:var(--accent-soft);color:var(--accent-ink);font-weight:700;}
-.seat{display:flex;align-items:baseline;gap:6px;margin-bottom:6px;}
-.seat .num{font-size:34px;line-height:1;}
-.seat small{font-size:13px;color:var(--ink-dim);}
-.bar{height:8px;border-radius:999px;background:#fff;border:1px solid var(--cream-line);overflow:hidden;margin-bottom:14px;}
-.bar i{display:block;height:100%;background:var(--sun);}
-.btn{display:block;width:100%;text-align:center;text-decoration:none;font-weight:800;font-size:16px;border-radius:var(--r-md);padding:13px 16px;min-height:48px;border:0;cursor:pointer;}
-.btn.main{background:var(--accent);color:#fff;}
-.btn.off{background:var(--field);color:var(--ink-faint);}
-.btn.line{background:#fff;color:var(--accent-ink);border:1px solid var(--line);}
-.btn + .btn{margin-top:8px;}
-
-/* 홈 — 불러오는 중 · 실패 · 다시 시도. 데이터 없이 다 된 것처럼 보이는 상태를 만들지 않는다 */
-.sk{display:block;border-radius:8px;background:linear-gradient(90deg,var(--field) 0%,#E7EAEF 50%,var(--field) 100%);background-size:200% 100%;animation:sk 1.4s ease-in-out infinite;}
-.next .sk{background:linear-gradient(90deg,#FBEBCB 0%,#FFF9EE 50%,#FBEBCB 100%);background-size:200% 100%;}
-.sk-t{height:38px;width:62%;margin:4px 0 10px;}
-.sk-c{height:26px;width:84%;margin-bottom:12px;}
-.sk-b{height:48px;width:100%;border-radius:var(--r-md);}
-.sk-l{height:16px;width:90%;margin-top:10px;}
-.sk-l.s{width:58%;}
+/* 띠 안 스켈레톤 · 실패 */
+.sk{display:block;border-radius:8px;background:linear-gradient(90deg,#D3E5C2 0%,#EDF5E3 50%,#D3E5C2 100%);background-size:200% 100%;animation:sk 1.4s ease-in-out infinite;}
+.band .sk{background:linear-gradient(90deg,#17402A 0%,#1F5236 50%,#17402A 100%);background-size:200% 100%;}
+.sk-t{height:52px;width:48%;margin:14px 0 6px;}
+.sk-c{height:60px;width:100%;margin-top:12px;border-radius:14px;}
+.sk-b{height:52px;width:100%;margin-top:14px;border-radius:var(--r-btn);}
+.sk-l{height:18px;width:92%;margin-top:12px;}
+.sk-l.s{width:56%;}
 @keyframes sk{0%{background-position:100% 0;}100%{background-position:-100% 0;}}
 @media (prefers-reduced-motion:reduce){.sk{animation:none;}}
-.wait{font-size:13px;color:var(--ink-dim);margin-top:10px;}
-.fail{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--ink-dim);padding:10px 0 2px;}
-.fail a{font-weight:700;}
-.retry{border:1px solid var(--line);background:#fff;color:var(--accent-ink);font-weight:700;font-size:13.5px;border-radius:999px;padding:7px 14px;min-height:36px;cursor:pointer;}
-.list{list-style:none;margin-top:8px;}
-.list li{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);}
-.list li:first-child{border-top:0;}
-.list .rk{font-family:var(--display);font-size:22px;font-weight:800;text-align:center;color:var(--ink-faint);line-height:1;}
-.list li.gold .rk{color:var(--sun);}
-.list .nm{font-weight:700;font-size:15px;overflow-wrap:anywhere;}
-.list .nm small{display:block;font-weight:400;font-size:12.5px;color:var(--ink-faint);}
-.list .val{font-family:var(--display);font-size:22px;font-weight:800;line-height:1;text-align:right;}
-.list .val small{display:block;font-family:var(--body);font-size:11.5px;font-weight:400;color:var(--ink-faint);}
-.rule1{font-size:14.5px;line-height:1.7;margin-top:6px;}
-.rule1 b{color:var(--accent-ink);}
-.more{display:inline-block;margin-top:10px;font-size:13.5px;font-weight:700;text-decoration:none;}
-.ver{text-align:center;font-size:11px;color:var(--ink-faint);padding:6px 0 4px;}
-.oops{position:fixed;left:12px;right:12px;bottom:calc(var(--bar) + env(safe-area-inset-bottom) + 8px);z-index:11;max-width:536px;margin:0 auto;
-  display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ink);color:#fff;border-radius:var(--r-md);padding:10px 12px;font-size:13.5px;}
-.oops button{flex:0 0 auto;border:0;border-radius:999px;background:#fff;color:var(--ink);font-weight:700;font-size:13px;padding:6px 12px;min-height:34px;cursor:pointer;}
+.wait{font-size:13px;color:var(--mute);margin-top:10px;}
+.band .wait{color:var(--band-label);}
+.fail{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--body);padding:8px 0 2px;}
+.band .fail{color:var(--band-label);margin-top:14px;}
+.band .fail a{color:var(--acc);}
+.retry{border:1px solid var(--line);background:#fff;color:var(--ink);font-weight:700;font-size:13.5px;border-radius:999px;padding:0 16px;min-height:44px;cursor:pointer;}
+.band .retry{background:var(--band-cell);border-color:var(--band-line);color:#fff;}
+
+/* 카드 */
+main{padding-top:14px;}
+.card{background:var(--card);border-radius:var(--r-card);box-shadow:var(--shadow);padding:16px;margin-bottom:12px;}
+.card-h{font-size:17px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.card-sub{font-size:13px;color:var(--mute);margin-top:2px;}
+.note{font-size:12.5px;color:var(--mute);}
+.msg{font-size:14px;color:var(--body);padding:14px 2px;text-align:center;}
+.more{display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:700;color:var(--link);text-decoration:none;}
+.list{list-style:none;margin-top:6px;}
+.list li{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:10px;padding:10px 8px;border-radius:12px;}
+.list li + li{border-top:1px solid var(--line);border-radius:0;}
+.list li.first{background:var(--acc-soft);border-radius:12px;}
+.list li.first + li{border-top:0;}
+.list .rk{font-family:var(--display);font-size:22px;font-weight:800;text-align:center;color:var(--mute);line-height:1;}
+.list li.first .rk{color:var(--ink);}
+.list .nm{font-weight:700;font-size:15px;overflow-wrap:anywhere;min-width:0;}
+.list .nm small{display:block;font-weight:400;font-size:12.5px;color:var(--mute);}
+.list .val{font-family:var(--display);font-size:24px;font-weight:800;line-height:1;text-align:right;}
+.list .val small{display:block;font-family:var(--font);font-size:11.5px;font-weight:500;color:var(--mute);}
+.minus{color:var(--bad);}
+.banner{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);border:2px solid var(--acc);}
+.banner b{display:block;font-size:16px;color:var(--ink);}
+.banner > span > span{display:block;font-size:13px;color:var(--mute);}
+.banner svg{flex:0 0 auto;margin-left:auto;width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 
 /* 점수판 */
-.pick{display:block;margin-bottom:10px;}
-.pick select{width:100%;min-height:44px;border:1px solid var(--line);border-radius:var(--r-md);background:#fff;padding:0 12px;font-size:15px;}
-.state{font-size:13px;color:var(--ink-dim);margin-bottom:10px;}
-.team{border:1px solid var(--line);border-radius:var(--r-md);background:#fff;margin-bottom:8px;overflow:hidden;}
-.team.first{border-color:var(--sun);}
-.team-h{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;padding:12px;cursor:pointer;}
-.team-h .rk{font-family:var(--display);font-size:24px;font-weight:800;text-align:center;color:var(--ink-faint);}
-.team.first .rk{color:var(--sun);}
-.team-h .name{font-weight:800;font-size:15.5px;display:block;overflow-wrap:anywhere;}
-.team-h .sub{font-size:12.5px;color:var(--ink-faint);display:block;}
+.rchips{display:flex;flex-wrap:wrap;gap:6px;}
+.rchip{background:var(--chip);border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:600;color:var(--ink);}
+.rchip.bad{background:var(--bad-soft);color:var(--bad);}
+.team{background:var(--card);border-radius:var(--r-card);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden;}
+.team.first{box-shadow:var(--shadow),inset 0 0 0 2px var(--acc);}
+.team-h{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;padding:14px;cursor:pointer;min-height:64px;}
+.team-h .rk{font-family:var(--display);font-size:24px;font-weight:800;text-align:center;color:var(--mute);line-height:1;}
+.team.first .team-h .rk{color:var(--ink);}
+.team-h .name{font-weight:700;font-size:15.5px;display:block;overflow-wrap:anywhere;}
+.team-h .sub{font-size:12.5px;color:var(--mute);display:block;}
 .team-h .total{font-family:var(--display);font-size:30px;font-weight:800;line-height:1;}
-.detail{border-top:1px solid var(--line);padding:8px 12px 12px;}
-.members{font-size:13px;color:var(--ink-dim);margin-bottom:6px;overflow-wrap:anywhere;}
-.game{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:7px 0;border-top:1px dashed var(--line);}
-.game:first-of-type{border-top:0;}
+.team.first .team-h .total{color:var(--ink);}
+.detail{border-top:1px solid var(--line);padding:10px 14px 14px;}
+.mem{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:14px;}
+.mem .t{flex:0 0 auto;min-width:40px;text-align:center;background:var(--band);color:var(--acc);font-family:var(--display);font-weight:800;font-size:14px;border-radius:999px;padding:1px 8px;}
+.mem .n{flex:1 1 auto;overflow-wrap:anywhere;min-width:0;}
+.mem .p{flex:0 0 auto;font-size:12.5px;color:var(--bad);font-weight:600;}
+.game{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-top:1px dashed var(--line);}
 .game-h{font-size:13.5px;font-weight:700;}
-.game-h span{font-weight:400;color:var(--ink-faint);}
+.game-h span{font-weight:400;color:var(--mute);}
 .game-s{font-family:var(--display);font-size:20px;font-weight:800;grid-row:span 2;align-self:center;}
-.game-d{font-size:12.5px;color:var(--ink-dim);}
-.game.void{opacity:.7;}
-.mini-board .team-h{cursor:default;padding:9px 12px;}
+.game-d{font-size:12.5px;color:var(--body);}
+.game.void .game-h,.game.void .game-s{color:var(--mute);}
+.foot{font-size:12.5px;color:var(--mute);text-align:center;padding:4px 8px 8px;}
+.foot a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;}
 
 /* 내 기록 */
-.row{display:flex;gap:8px;}
-.input{flex:1 1 auto;min-width:0;min-height:46px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--field);padding:0 12px;font-size:16px;}
-.row .btn{width:auto;flex:0 0 auto;padding:0 18px;}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 4px;}
-.stat{background:var(--field);border-radius:var(--r-md);padding:10px 8px;text-align:center;}
-.stat .num{display:block;font-size:26px;font-weight:800;line-height:1.1;}
-.stat small{font-size:12px;color:var(--ink-dim);}
-.me-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
-.me-h b{font-size:19px;overflow-wrap:anywhere;}
-.tag{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--accent-soft);color:var(--accent-ink);}
-.tag.low{background:var(--field);color:var(--ink-dim);}
-.tag.sun{background:var(--cream);color:#7A4B00;border:1px solid var(--cream-line);}
-table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px;}
-th{font-size:12px;color:var(--ink-faint);font-weight:600;text-align:right;padding:6px 4px;border-bottom:1px solid var(--line);}
-th:first-child,td:first-child{text-align:left;}
-td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;}
-td.ev{font-weight:700;}
-td.ev small{display:block;font-weight:400;color:var(--ink-faint);font-size:12px;}
+.prog{height:10px;border-radius:999px;background:var(--chip);overflow:hidden;margin:10px 0 8px;}
+.prog i{display:block;height:100%;background:var(--acc);}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px;}
+.kv div{background:var(--bg);border-radius:12px;padding:10px 12px;}
+.kv small{display:block;font-size:12px;color:var(--mute);}
+.kv b{font-family:var(--display);font-weight:800;font-size:24px;line-height:1.1;}
+.evs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.evs a{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;background:var(--chip);color:var(--ink);font-size:13.5px;font-weight:600;text-decoration:none;}
 
-/* 티어표 */
-.tier{border:1px solid var(--line);border-radius:var(--r-md);background:#fff;padding:10px 12px;margin-bottom:8px;}
-.tier-h{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;}
-.tier-h .num{font-size:26px;font-weight:800;line-height:1;}
-.tier-h small{font-size:12.5px;color:var(--ink-faint);}
-.tier.lowt .tier-h .num{color:var(--accent-ink);}
-.nicks{display:flex;flex-wrap:wrap;gap:6px;}
-.nick{font-size:13px;border:1px solid var(--line);background:var(--field);border-radius:999px;padding:3px 10px;overflow-wrap:anywhere;}
-.nick.thin{background:#fff;border-style:dashed;color:var(--ink-dim);}
-.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px;color:var(--ink-dim);margin:8px 0 2px;}
-.legend .nick{font-size:12px;padding:1px 8px;}
+/* 선물함 */
+.gift{border-radius:14px;padding:14px;background:var(--bg);margin-top:10px;}
+.gift.new{background:#fff;box-shadow:inset 0 0 0 2px var(--acc);}
+.gift.dim b{color:var(--body);font-weight:600;}
+.gift-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.gift-h b{display:block;font-size:15.5px;overflow-wrap:anywhere;}
+.gift-h small{display:block;font-size:12.5px;color:var(--mute);}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:var(--r-btn);border:0;font-weight:700;font-size:15px;cursor:pointer;text-decoration:none;}
+.btn.dark{background:var(--band);color:#fff;}
+.btn.line{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line);}
+.btn.wide{width:100%;margin-top:10px;}
+.code{margin-top:10px;background:#fff;border-radius:12px;padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:17px;font-weight:700;letter-spacing:.06em;text-align:center;overflow-wrap:anywhere;box-shadow:inset 0 0 0 1px var(--line);}
+.code img{max-width:100%;border-radius:8px;}
+.hist{list-style:none;margin-top:6px;}
+.hist li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:14px;}
+.hist li:first-child{border-top:0;}
+.hist small{display:block;font-size:12px;color:var(--mute);}
+.hist .amt{font-family:var(--display);font-weight:800;font-size:20px;white-space:nowrap;}
+.hist .amt.plus{color:var(--ok);}
+.ready{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.ready b{font-size:15px;}
 
-/* 룰 — 신청 폼(killnaegi.html)의 #rules · #faq 를 그대로 가져와 그린다 */
+/* 매점 투표 */
+.opt{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:14px;margin-top:10px;border:0;border-radius:var(--r-card);background:#fff;box-shadow:var(--shadow);text-align:left;cursor:pointer;}
+.opt[aria-pressed="true"]{background:var(--pick);box-shadow:var(--shadow),inset 0 0 0 2px var(--acc);}
+.opt .ck{flex:0 0 auto;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;}
+.opt[aria-pressed="true"] .ck{background:var(--acc);border-color:var(--acc);}
+.opt .ck svg{width:15px;height:15px;stroke:var(--band);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0;}
+.opt[aria-pressed="true"] .ck svg{opacity:1;}
+.opt b{display:block;font-size:16px;}
+.opt small{display:block;font-size:12.5px;color:var(--mute);}
+.opt:disabled{cursor:default;}
+.sugg{width:100%;min-height:48px;margin-top:8px;border:1px solid var(--line);border-radius:var(--r-btn);background:#fff;padding:0 14px;font-size:16px;}
+.count{text-align:right;font-size:12px;color:var(--mute);margin-top:4px;}
+.res{margin-top:10px;}
+.res-row{margin-top:10px;font-size:14px;}
+.res-row div{display:flex;justify-content:space-between;}
+.res-bar{height:10px;border-radius:999px;background:var(--chip);overflow:hidden;margin-top:4px;}
+.res-bar i{display:block;height:100%;background:var(--acc);}
+.dock{position:fixed;left:0;right:0;bottom:calc(var(--bar) + env(safe-area-inset-bottom));z-index:9;background:linear-gradient(rgba(226,238,213,0),var(--bg) 30%);padding:18px 0 10px;}
+.dock .btn{width:100%;min-height:52px;font-size:16px;}
+.btn.ok{background:var(--ok);color:#fff;}
+.vote-pad{height:90px;}
+.lock{background:var(--bad-soft);color:var(--bad);border-radius:14px;padding:12px 14px;font-size:14px;margin-top:10px;}
+
+/* 룰 · 티어 */
+.seg{display:flex;gap:6px;background:var(--chip);border-radius:999px;padding:4px;margin-bottom:12px;}
+.seg a{flex:1 1 0;display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:999px;font-weight:700;font-size:14px;color:var(--body);text-decoration:none;}
+.seg a[aria-current="page"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(22,33,26,.1);}
 .rule-list{list-style:none;font-size:14.5px;line-height:1.9;margin-top:6px;}
-.rule-list b{color:var(--accent-ink);}
+.rule-list b{color:var(--ink);}
+.rule-list .note{color:var(--mute);}
 .pen-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0;}
-.pen{background:var(--red-soft);border-radius:var(--r-md);padding:8px 4px;text-align:center;font-size:12.5px;color:var(--ink-dim);}
-.pen b{display:block;font-family:var(--display);font-size:22px;color:var(--red);line-height:1.1;}
-.drop-list{list-style:none;margin:6px 0 2px;padding:0;font-size:13.5px;color:var(--ink-dim);}
-.drop-list li{padding:2px 0;}
-.drop-list b{color:var(--ink);margin-right:6px;}
+.pen{background:var(--bad-soft);border-radius:12px;padding:8px 4px;text-align:center;font-size:12.5px;color:var(--body);}
+.pen b{display:block;font-family:var(--display);font-size:22px;color:var(--bad);line-height:1.1;}
+.drop-list{list-style:none;margin:6px 0 2px;padding:0;font-size:13.5px;color:var(--body);}
+.drop-list b{margin-right:6px;}
 details{border-top:1px solid var(--line);}
 details:first-of-type{border-top:0;}
-summary{cursor:pointer;font-weight:700;font-size:14.5px;padding:11px 0;list-style:none;}
+summary{cursor:pointer;font-weight:700;font-size:14.5px;padding:12px 0;list-style:none;min-height:44px;}
 summary::-webkit-details-marker{display:none;}
-summary::after{content:"+";float:right;color:var(--ink-faint);font-weight:400;}
+summary::after{content:"+";float:right;color:var(--mute);font-weight:400;}
 details[open] summary::after{content:"−";}
-details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
+details p{font-size:14px;color:var(--body);padding:0 0 12px;}
+.tier{background:var(--bg);border-radius:14px;padding:10px 12px;margin-bottom:8px;}
+.tier-h{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;}
+.tier-h .num{font-size:26px;line-height:1;}
+.tier-h small{font-size:12.5px;color:var(--mute);}
+.nicks{display:flex;flex-wrap:wrap;gap:6px;}
+.nick{font-size:13px;background:#fff;border-radius:999px;padding:3px 10px;overflow-wrap:anywhere;box-shadow:inset 0 0 0 1px var(--line);}
+.nick.thin{background:transparent;box-shadow:inset 0 0 0 1px var(--mute);color:var(--body);border-style:dashed;}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px;color:var(--body);margin:8px 0 2px;}
 
-/* 아래 탭바 */
+/* 아래 탭바 — 비활성 아이콘 tab-off · 글자는 대비 4.5:1 을 위해 mute · 활성은 ink + 라임 점 */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);}
 .tabbar .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);}
-.tabbar a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:var(--bar);text-decoration:none;color:var(--ink-faint);font-size:12px;font-weight:700;}
-.tabbar a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
-.tabbar a[aria-current="page"]{color:var(--accent-ink);}
+.tabbar a{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:var(--bar);text-decoration:none;color:var(--mute);font-size:12px;font-weight:600;}
+.tabbar a svg{width:22px;height:22px;stroke:var(--tab-off);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+.tabbar a[aria-current="page"]{color:var(--ink);}
+.tabbar a[aria-current="page"] svg{stroke:var(--ink);}
+.tabbar a[aria-current="page"]::after{content:"";position:absolute;bottom:6px;width:5px;height:5px;border-radius:50%;background:var(--acc);}
+.ver{text-align:center;font-size:11px;color:var(--mute);padding:6px 0 4px;}
+.oops{position:fixed;left:12px;right:12px;bottom:calc(var(--bar) + env(safe-area-inset-bottom) + 8px);z-index:11;max-width:536px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--band);color:#fff;border-radius:var(--r-btn);padding:10px 12px;font-size:13.5px;}
+.oops button{flex:0 0 auto;border:0;border-radius:999px;background:#fff;color:var(--ink);font-weight:700;font-size:13px;padding:0 14px;min-height:40px;cursor:pointer;}
 @media (min-width:900px){ .wrap{max-width:640px;} .tabbar .in{max-width:640px;} }
 </style>
 </head>
 <body>
-<header class="top"><div class="wrap">
-  <a class="brand" href="#home">GmI <span>킬내기</span></a>
-  <a class="top-link" id="who" href="killrace/">연결하기</a>
-</div></header>
 
-<main class="wrap" id="main" aria-live="polite">
-  <!-- 홈 -->
-  <section id="v-home" data-view>
-    <div class="card next" id="nextCard" aria-busy="true">
-      <div class="kicker">다음 회차</div>
-      <!-- 처음 모습 = 불러오는 중. 데이터가 와야 회차 · 칩 · 신청 버튼이 그려진다 -->
-      <div id="nextLoad">
-        <span class="sk sk-t"></span><span class="sk sk-c"></span><span class="sk sk-b"></span>
-        <p class="wait" id="nextWait">불러오는 중이에요</p>
-      </div>
-      <div id="nextBody" hidden>
-        <h2 id="nextTitle">킬내기</h2>
-        <div class="chips" id="nextChips"></div>
-        <div id="seatBox" hidden>
-          <div class="seat"><span class="num" id="seatNum"></span><small id="seatSub"></small></div>
-          <div class="bar"><i id="seatBar" style="width:0"></i></div>
-        </div>
-        <a class="btn main" id="applyBtn" href="killnaegi.html">신청하기</a>
-      </div>
-      <div class="fail" id="nextFail" hidden><span>다음 회차를 불러오지 못했어요 · <a href="killnaegi.html">신청 페이지</a></span><button type="button" class="retry" data-retry="next">다시 시도</button></div>
+<!-- 홈 -->
+<section id="v-home" data-view>
+  <div class="band"><div class="wrap">
+    <div class="b-top">
+      <a class="logo" href="#home">GmI <span>킬내기</span></a>
+      <a class="who plain" id="who" href="killrace/">연결하기</a>
     </div>
+    <!-- 처음 모습 = 불러오는 중. 데이터가 와야 회차 · 칸 · 신청 버튼이 그려진다 -->
+    <div id="nextLoad" aria-busy="true">
+      <span class="sk sk-t"></span><span class="sk sk-c"></span><span class="sk sk-b"></span>
+      <p class="wait" id="nextWait">불러오는 중이에요</p>
+    </div>
+    <div id="nextBody" hidden>
+      <p class="b-label" id="nextLabel">다음 회차</p>
+      <div class="b-hero"><span class="b-big" id="nextRound"></span><span class="b-when"><span id="nextWhen"></span><span class="dchip" id="nextD" hidden></span></span></div>
+      <div class="cells">
+        <div class="cell"><small>신청</small><b id="cSeat"></b></div>
+        <div class="cell"><small>신청 마감</small><b id="cClose"></b></div>
+        <div class="cell"><small>드래프트</small><b class="txt">마감 직후</b></div>
+      </div>
+      <a class="cta" id="applyBtn" href="killnaegi.html">솔로로 신청하기 →</a>
+    </div>
+    <div class="fail" id="nextFail" hidden><span>다음 회차를 불러오지 못했어요 · <a href="killnaegi.html">신청 페이지</a></span><button type="button" class="retry" data-retry="next">다시 시도</button></div>
+  </div></div>
+
+  <main class="wrap">
+    <a class="card banner" id="voteBanner" href="#vote" hidden>
+      <span><b>매점 투표 중이에요</b><span id="voteBannerSub">매점에 뭐가 들어오면 좋을지 골라 주세요</span></span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
     <div class="card" id="liveCard" hidden>
-      <div class="me-h"><h2 class="card-h" id="liveTitle">지금 점수판</h2><span class="tag sun" id="liveTag"></span></div>
+      <h2 class="card-h"><span id="liveTitle">지금 점수판</span><span class="tag-live" id="liveTag">LIVE</span></h2>
       <p class="card-sub" id="liveSub"></p>
-      <div class="mini-board" id="liveList" style="margin-top:10px;"></div>
-      <a class="btn line" href="#board">점수판 전체 보기</a>
+      <ol class="list" id="liveList"></ol>
+      <a class="more" href="#board">점수판 전체 보기 →</a>
     </div>
-    <div class="card" id="lastCard" aria-busy="true">
+    <div class="card" id="lastCard">
       <h2 class="card-h" id="lastTitle">지난 회차 결과</h2>
-      <div id="lastLoad"><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span></div>
+      <div id="lastLoad" aria-busy="true"><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span></div>
       <ol class="list" id="lastList" hidden></ol>
-      <a class="more" id="lastMore" href="#board" hidden>판별 점수 보기</a>
+      <a class="more" id="lastMore" href="#board" hidden>판별 점수 보기 →</a>
       <div class="fail" id="lastFail" hidden><span>지난 회차를 불러오지 못했어요</span><button type="button" class="retry" data-retry="last">다시 시도</button></div>
     </div>
-    <div class="card" id="topCard" aria-busy="true">
-      <h2 class="card-h">주간 순위 TOP 5</h2>
-      <p class="card-sub" id="topSub">판당 킬 · 판당 딜로 매기는 개인 순위예요</p>
-      <div id="topLoad"><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span></div>
+    <div class="card" id="topCard">
+      <h2 class="card-h">개인 순위 TOP 5</h2>
+      <p class="card-sub" id="topSub">판당 킬 · 판당 딜로 매겨요</p>
+      <div id="topLoad" aria-busy="true"><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span></div>
       <ol class="list" id="topList" hidden></ol>
       <div class="fail" id="topFail" hidden><span>순위를 불러오지 못했어요</span><button type="button" class="retry" data-retry="top">다시 시도</button></div>
     </div>
-    <div class="card" id="ruleCard" aria-busy="true">
-      <h2 class="card-h">룰 한 줄</h2>
-      <div id="ruleLoad"><span class="sk sk-l"></span><span class="sk sk-l s"></span></div>
-      <p class="rule1" id="ruleOne" hidden></p>
-      <a class="more" href="#rule">룰 전체 보기</a>
-      <div class="fail" id="ruleFail" hidden><span>룰 요약을 불러오지 못했어요</span><button type="button" class="retry" data-retry="rule">다시 시도</button></div>
-    </div>
-  </section>
+  </main>
+</section>
 
-  <!-- 점수판 -->
-  <section id="v-board" data-view hidden>
-    <div class="card">
-      <h2 class="card-h">점수판</h2>
-      <p class="card-sub">팀 이름을 누르면 판별 점수가 보여요</p>
-      <label class="pick" style="margin-top:10px;" id="evPickRow" hidden><select id="evSel" aria-label="회차 고르기"></select></label>
-      <p class="state" id="boardState"></p>
-      <div id="standings"></div>
-      <a class="btn line" id="boardFull" href="killnaegi-board.html">큰 화면 점수판 열기</a>
+<!-- 점수판 -->
+<section id="v-board" data-view hidden>
+  <div class="band"><div class="wrap">
+    <div class="b-top"><a class="back" href="#home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>홈</a><span class="tag-done" id="bTag" hidden></span></div>
+    <h1 class="b-title" id="bTitle">점수판</h1>
+    <p class="b-sub" id="bSub"></p>
+    <div class="cells" id="bCells" hidden>
+      <div class="cell"><small>1위 점수</small><b id="bTop"></b></div>
+      <div class="cell"><small>전체 킬</small><b id="bKills"></b></div>
+      <div class="cell"><small>치킨</small><b id="bChk"></b></div>
     </div>
-  </section>
+    <select class="b-select" id="evSel" aria-label="회차 고르기" hidden></select>
+  </div></div>
+  <main class="wrap">
+    <div class="rchips" id="rChips" style="margin:2px 0 12px;"></div>
+    <div id="standings"><div class="card"><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><p class="wait">불러오는 중이에요</p></div></div>
+    <p class="foot">판이 끝나면 1~2분 뒤 공식 기록으로 자동 반영돼요</p>
+    <p class="foot"><a href="killnaegi-board.html" id="boardFull">큰 화면 점수판 열기</a></p>
+  </main>
+</section>
 
-  <!-- 내 기록 -->
-  <section id="v-me" data-view hidden>
-    <div class="card">
-      <h2 class="card-h">내 기록</h2>
-      <p class="card-sub">스팀 닉을 적으면 지금까지 킬내기 기록을 모아 보여 줘요</p>
-      <form class="row" id="meForm" style="margin-top:12px;" autocomplete="off">
-        <input class="input" id="meIgn" maxlength="40" autocapitalize="off" spellcheck="false" placeholder="스팀 닉" aria-label="스팀 닉">
-        <button class="btn main" type="submit">보기</button>
-      </form>
-      <p class="note" style="margin-top:6px;">닉은 이 폰에만 기억해 둬요 · 봇 킬 · 딜은 빼고 세요</p>
+<!-- 내 기록 -->
+<section id="v-me" data-view hidden>
+  <div class="band"><div class="wrap">
+    <div class="b-top"><span class="logo">내 기록</span></div>
+    <form class="b-form" id="meForm" autocomplete="off">
+      <input class="b-input" id="meIgn" maxlength="40" autocapitalize="off" spellcheck="false" placeholder="스팀 닉" aria-label="스팀 닉">
+      <button class="b-btn" type="submit">보기</button>
+    </form>
+    <div id="meBand" hidden>
+      <div class="me-top">
+        <div class="tier-sq" id="meTier"><b></b><small>티어</small></div>
+        <div style="min-width:0;"><h1 class="b-title" id="meName"></h1><p class="b-sub" id="meSub"></p></div>
+      </div>
+      <div class="cells">
+        <div class="cell"><small>판당 킬</small><b id="meKpg"></b></div>
+        <div class="cell"><small>판당 딜</small><b id="meDpg"></b></div>
+        <div class="cell"><small>뛴 판</small><b id="meGames"></b></div>
+      </div>
+      <button type="button" class="b-link" id="meChange">다른 닉 보기</button>
     </div>
-    <div id="meOut"></div>
-  </section>
+  </div></div>
+  <main class="wrap" id="meOut">
+    <div class="card"><p class="msg">스팀 닉을 적으면 지금까지 킬내기 기록을 모아 보여 줘요</p><p class="note" style="text-align:center;">닉은 이 폰에만 기억해 둬요</p></div>
+  </main>
+</section>
 
-  <!-- 티어표 -->
-  <section id="v-tier" data-view hidden>
-    <div class="card">
-      <h2 class="card-h">티어표</h2>
-      <p class="card-sub">드래프트 · 사망 감점 순서에 쓰는 표예요. 숫자가 작을수록 위예요</p>
-      <div class="legend"><span><span class="nick">닉</span> 10판 이상</span><span><span class="nick thin">닉</span> 10판 미만</span></div>
-      <div id="tierList" style="margin-top:10px;"></div>
-      <p class="note" style="margin-top:6px;">5~8티어가 한 분이라도 있으면 저티어 판이에요</p>
+<!-- 선물함 -->
+<section id="v-gift" data-view hidden>
+  <div class="band"><div class="wrap">
+    <div class="b-top"><span class="logo">선물함</span></div>
+    <div class="cells two">
+      <div class="cell"><small>내 코인</small><b id="gCoin">—</b></div>
+      <div class="cell"><small>받을 상금</small><b id="gPrize">—</b></div>
     </div>
-  </section>
+  </div></div>
+  <main class="wrap" id="giftOut">
+    <div class="card"><span class="sk sk-l"></span><span class="sk sk-l s"></span><p class="wait">불러오는 중이에요</p></div>
+  </main>
+</section>
 
-  <!-- 룰 -->
-  <section id="v-rule" data-view hidden>
+<!-- 매점 투표 (홈 배너 · 선물함에서 들어온다 · 탭 없음) -->
+<section id="v-vote" data-view hidden>
+  <div class="band"><div class="wrap">
+    <div class="b-top"><a class="back" href="#home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>홈</a></div>
+    <p class="b-label">매점 투표</p>
+    <h1 class="b-title" id="vTitle">매점에 뭐가 들어오면 좋을까요</h1>
+    <p class="b-sub" id="vClose"></p>
+  </div></div>
+  <main class="wrap" id="voteOut">
+    <div class="card"><span class="sk sk-l"></span><span class="sk sk-l s"></span><p class="wait">불러오는 중이에요</p></div>
+  </main>
+  <div class="dock" id="voteDock" hidden><div class="wrap"><button type="button" class="btn dark" id="voteBtn">골라 주세요</button></div></div>
+</section>
+
+<!-- 룰 · 티어 -->
+<section id="v-rule" data-view hidden>
+  <div class="band"><div class="wrap">
+    <div class="b-top"><span class="logo">룰 · 티어</span></div>
+    <p class="b-sub">룰은 신청 페이지와 같은 내용이에요</p>
+  </div></div>
+  <main class="wrap">
+    <nav class="seg" aria-label="룰 · 티어 고르기"><a href="#rule" data-seg="rule">룰</a><a href="#tier" data-seg="tier">티어표</a></nav>
     <div id="ruleBox"></div>
-  </section>
-  <!-- 판 표시 — Pages 는 10분 캐시라 배포 직후엔 옛 판이 보일 수 있다. 이 글자로 어느 판인지 본다 -->
-  <p class="ver" id="ver">v2026.10.11-2</p>
-</main>
+    <div id="tierBox" hidden>
+      <div class="card">
+        <h2 class="card-h">티어표</h2>
+        <p class="card-sub">드래프트 · 사망 감점 순서에 쓰는 표예요. 숫자가 작을수록 위예요</p>
+        <div class="legend"><span><span class="nick">닉</span> 10판 이상</span><span><span class="nick thin">닉</span> 10판 미만</span></div>
+        <div id="tierList" style="margin-top:10px;"></div>
+        <p class="note" style="margin-top:6px;">5~8티어가 한 분이라도 있으면 저티어 판이에요</p>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- 판 표시 — Pages 는 10분 캐시라 배포 직후엔 옛 판이 보일 수 있다. version.json(배포 때 Jekyll 이 커밋 번호 · 시각을 채움)을 읽어 쓴다 -->
+<p class="ver" id="ver">판 확인 중</p>
 
 <div class="oops" id="oops" role="alert" hidden><span id="oopsMsg">화면을 그리다 멈췄어요. 새로고침해 주세요</span><button type="button" onclick="location.reload()">새로고침</button></div>
 
 <nav class="tabbar" aria-label="킬내기 메뉴"><div class="in">
-  <a href="#home" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>홈</a>
-  <a href="#board" data-tab="board"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>점수판</a>
+  <a href="#home" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg>홈</a>
+  <a href="#board" data-tab="board"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18"/><path d="M6 17V11"/><path d="M12 17V5"/><path d="M18 17v-4"/></svg>점수판</a>
   <a href="#me" data-tab="me"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>내 기록</a>
-  <a href="#tier" data-tab="tier"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h6"/></svg>티어표</a>
-  <a href="#rule" data-tab="rule"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6z"/><path d="M9 11h6M9 15h6"/></svg>룰</a>
+  <a href="#gift" data-tab="gift"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>선물함</a>
+  <a href="#rule" data-tab="rule"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>룰 · 티어</a>
 </div></nav>
 
 <script>
-/* 킬내기 앱 v1 — 이미 있는 읽기 API 만 쓴다(서버 · DB 변경 없음 · 쓰기 호출 없음).
- *  홈     = GET /api/killrace/apply(label · closeAt · count · cap · mode · closed) + GET /api/killrace/board(지금 회차 시각 · 대회 중이면 순위 미니)
- *  점수판 = GET /api/killrace/events(회차 고르기) + GET /api/killrace/board?event=
- *  내 기록 = GET /api/killrace/career(전체 · 계정 기준 누적 · 봇 몫 뺀 값) → 그 사람 key 로 GET /api/killrace/career?events=N(회차별 줄) + GET /api/killrace/leaderboard(주간 순위)
- *  티어   = GET /api/killrace/tiers(· ?ign= · §1.28) 먼저 3초 · 안 되면 killnaegi-draft.html 의 TIER_TEXT · ALIAS(표를 여기에 다시 적지 않는다) · 판 수는 career
- *  검색은 대표 닉 · aka(옛 이름 · 부계) · 드래프트 별칭을 대소문자 무시로 본다
- *  룰     = killnaegi.html 의 #rules · #faq 를 그대로 가져온다 — 룰 정본은 신청 폼 하나
- * 화면에 이름은 없다(스팀 닉 · 팀 이름만). 실패하면 빈 화면 대신 안내 한 줄. */
+/* 킬내기 앱 — 화면 5개(홈 · 점수판 · 내 기록 · 선물함 · 룰 · 티어) + 매점 투표. 서버 · DB 변경 없음.
+ *  홈     = GET /api/killrace/apply(label · closeAt · count · cap · mode · closed) + /board(다음 회차 시각 · 대회 중 순위) + /events → /board?event=(지난 회차 1~3등)
+ *           + /leaderboard(§1.18 서버 순위 그대로 위 5줄) + /switches(shop_vote 켜졌을 때만 투표 배너)
+ *  점수판 = /events(회차 고르기) + /board?event= · 룰 칩은 신청 폼(killnaegi.html #rules)에서 뽑고 봇 칩은 회차 설정 excludeBots 대로
+ *           팀원 티어 · 사망 감점 순서는 /tiers 표(§1.29)로 팀 안 줄 세우기(§1.22)
+ *  내 기록 = /career(계정 기준 누적 · 봇 몫 뺀 값) + /tiers?ign= + /leaderboard(순위 · 20판 기준)
+ *  선물함 = 로그인(killrace/ 와 같은 토큰 kr_token) → /me/coin · /me/prize · /me/gifts(열기 · 받았어요) · /switches(coin_shop)
+ *  투표   = /me/vote/shop-2026-10 (§1.31 · 경비 #566)
+ * 화면에 실명 · 계좌 · 디스코드 번호는 없다(스팀 닉 · 팀 이름만). 숫자는 전부 서버 값 — 없으면 「불러오는 중」 · 빈 상태 문구 */
 (function () {
   "use strict";
   var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
   var GAPI = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
+  var POLL = "shop-2026-10";
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); };
   var kst = function (ms) { return new Date(ms + 9 * 3600000); };
@@ -339,327 +459,98 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
   var hm = function (ms) { var d = kst(ms); return two(d.getUTCHours()) + ":" + two(d.getUTCMinutes()); };
   var md = function (ms) { var d = kst(ms); return (d.getUTCMonth() + 1) + "/" + d.getUTCDate(); };
   var mdw = function (ms) { return md(ms) + "(" + "일월화수목금토".charAt(kst(ms).getUTCDay()) + ")"; };
+  var dayNo = function (ms) { var d = kst(ms); return Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) / 86400000); };
   var signed = function (n) { return n > 0 ? "+" + n : n < 0 ? "−" + Math.abs(n) : "0"; };
+  var comma = function (n) { return Number(n || 0).toLocaleString("ko-KR"); };
   var toMs = function (v) { if (typeof v === "number" && isFinite(v)) return v; var t = Date.parse(v); return isFinite(t) ? t : null; };
   var roundOf = function (name, id) { var m = /(\d+)\s*회/.exec(name || ""); return m ? m[1] + "회" : /번외/.test(name || "") ? "번외" : (id ? id + "회" : ""); };
-  // 읽기 요청 — 8초 안에 안 오면 끊고(폰 · 느린 망에서 끝없이 기다리던 것이 10/11 빈 카드의 원인) 1.5초 뒤 한 번만 다시 받는다(서버가 막 깨어나는 경우).
-  // 다시 받는 건 연결 실패 · 시간 초과 · 5xx 뿐이다. 404 같은 답은 그대로 실패로 돌린다. 모두 GET 이라 두 번 불러도 바뀌는 것이 없다
-  var WAIT_MS = 8000;
-  function once(url, kind, ms) {
-    var ctl = typeof AbortController === "function" ? new AbortController() : null;
-    var req = fetch(url, ctl ? { cache: "no-store", signal: ctl.signal } : { cache: "no-store" }).then(function (r) {
-      if (!r.ok) return Promise.reject({ status: r.status, again: r.status >= 500 });
-      return kind === "text" ? r.text() : r.json();
-    }, function () { return Promise.reject({ status: 0, again: true }); });
-    var t = null;
-    var late = new Promise(function (_, no) { t = setTimeout(function () { if (ctl) ctl.abort(); no({ status: 0, again: true, timeout: true }); }, ms || WAIT_MS); });
-    return Promise.race([req, late]).then(function (v) { clearTimeout(t); return v; }, function (e) { clearTimeout(t); throw e; });
-  }
-  function fetchTry(url, kind, onRetry) {
-    return once(url, kind).catch(function (e) {
-      if (!e || !e.again) throw e;
-      if (onRetry) onRetry();
-      return new Promise(function (ok) { setTimeout(ok, 1500); }).then(function () { return once(url, kind); });
-    });
-  }
-  var getJSON = function (path, onRetry) { return fetchTry(GAPI + path, "json", onRetry); };
-  var getText = function (path, onRetry) { return fetchTry(path, "text", onRetry); };
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) { /* 저장을 못 해도 화면은 돈다 */ } }
   };
   var FAIL = '<p class="msg">지금 불러오지 못했어요. 잠시 뒤 다시 열어 주세요 · <a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">디스코드</a></p>';
 
-  /* ---------- 탭 ---------- */
-  var VIEWS = ["home", "board", "me", "tier", "rule"], loaded = {}, timer = null;
-  function show() {
-    var v = (location.hash || "").replace("#", "");
-    if (VIEWS.indexOf(v) < 0) v = "home";
-    VIEWS.forEach(function (k) { $("v-" + k).hidden = k !== v; });
-    document.querySelectorAll("[data-tab]").forEach(function (a) { if (a.getAttribute("data-tab") === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
-    clearInterval(timer); timer = null;
-    if (v === "home") { loadHome(); timer = setInterval(loadHome, 30000); }
-    if (v === "board") { loadBoard(); timer = setInterval(loadBoard, 15000); }
-    if (v === "me" && !loaded.me) { loaded.me = true; initMe(); }
-    if (v === "tier" && !loaded.tier) { loaded.tier = true; loadTier(); }
-    if (v === "rule" && !loaded.rule) { loaded.rule = true; loadRule(); }
-    window.scrollTo(0, 0);
+  /* ---------- 서버 호출 ----------
+   * 읽기 — 8초 안에 안 오면 끊고(폰 · 느린 망에서 끝없이 기다리던 것이 10/11 빈 카드의 원인) 1.5초 뒤 한 번만 다시 받는다(서버가 막 깨어나는 경우).
+   * 다시 받는 건 연결 실패 · 시간 초과 · 5xx 뿐이다. 쓰기(POST)는 다시 보내지 않는다 */
+  var WAIT_MS = 8000;
+  function once(url, kind, opt) {
+    var ctl = typeof AbortController === "function" ? new AbortController() : null;
+    var o = { cache: "no-store" };
+    if (opt) { if (opt.method) o.method = opt.method; if (opt.headers) o.headers = opt.headers; if (opt.body) o.body = opt.body; }
+    if (ctl) o.signal = ctl.signal;
+    var req = fetch(url, o).then(function (r) {
+      if (kind === "raw") return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, body: j, code: j && j.error && j.error.code ? j.error.code : null }; });
+      if (!r.ok) return Promise.reject({ status: r.status, again: r.status >= 500 });
+      return kind === "text" ? r.text() : r.json();
+    }, function () { return Promise.reject({ status: 0, again: true }); });
+    var t = null;
+    var late = new Promise(function (_, no) { t = setTimeout(function () { if (ctl) ctl.abort(); no({ status: 0, again: true, timeout: true }); }, WAIT_MS); });
+    return Promise.race([req, late]).then(function (v) { clearTimeout(t); return v; }, function (e) { clearTimeout(t); throw e; });
   }
-  window.addEventListener("hashchange", show);
-
-  /* ---------- 홈 ----------
-   * 카드마다 따로 받는다(하나가 늦어도 다른 카드는 먼저 뜬다). 카드 상태는 셋 — 불러오는 중(스켈레톤) · 내용 · 실패(다시 시도 칩).
-   * 한 번 내용이 뜬 카드는 30초 새로고침이 실패해도 내용을 지우지 않는다. 받는 중에는 같은 카드를 또 부르지 않는다 */
-  var HOME = { a: null, b: null }, busy = {};
-  function cardState(k, state) {
-    var load = $(k + "Load"), fail = $(k + "Fail"), card = $(k + "Card");
-    if (load) load.hidden = state !== "load";
-    if (fail) fail.hidden = state !== "fail";
-    if (card) card.setAttribute("aria-busy", state === "load" ? "true" : "false");
-  }
-  function job(k, fn) {
-    if (busy[k]) return;
-    busy[k] = true;
-    var p;
-    try { p = fn(); } catch (e) { p = Promise.reject(e); }
-    Promise.resolve(p).then(function () { busy[k] = false; }, function () { busy[k] = false; });
-  }
-  function loadHome(force) {
-    job("next", function () {
-      if (!HOME.a || force) { cardState("next", "load"); $("nextBody").hidden = true; $("nextWait").textContent = "불러오는 중이에요"; }
-      return getJSON("/api/killrace/apply", function () { $("nextWait").textContent = "서버가 깨어나는 중이에요. 조금만 기다려 주세요"; })
-        .then(function (a) { HOME.a = a; paintNext(); }, function () { if (!HOME.a) { cardState("next", "fail"); $("nextBody").hidden = true; } });
+  function fetchTry(url, kind, onRetry, opt) {
+    return once(url, kind, opt).then(function (v) {
+      if (kind === "raw" && v.status >= 500) return Promise.reject({ status: v.status, again: true, raw: v });
+      return v;
+    }).catch(function (e) {
+      if (!e || !e.again || (opt && opt.method === "POST")) return e && e.raw ? e.raw : Promise.reject(e);
+      if (onRetry) onRetry();
+      return new Promise(function (ok) { setTimeout(ok, 1500); }).then(function () { return once(url, kind, opt); });
     });
-    job("board", function () {
-      return getJSON("/api/killrace/board").then(function (b) { HOME.b = b; paintLive(b); if (HOME.a) paintNext(); }, function () { /* 점수판은 덧붙이는 칩 · 대회 중 카드뿐 — 실패해도 다음 회차는 그대로 */ });
-    });
-    if (!loaded.last || force) job("last", loadLast);
-    if (!loaded.top || force) job("top", loadTop);
-    if (!loaded.rule1 || force) job("rule1", loadRuleOne);
   }
-  $("v-home").addEventListener("click", function (e) {
-    var b = e.target.closest("[data-retry]"); if (!b) return;
-    var k = b.getAttribute("data-retry");
-    if (k === "next") { HOME.a = null; loadHome(false); }
-    if (k === "last") job("last", loadLast);
-    if (k === "top") job("top", loadTop);
-    if (k === "rule") job("rule1", loadRuleOne);
-  });
-  // 지난 회차 결과 — 회차 목록에서 끝난 회차 중 가장 최근 것 → 그 회차 점수판 1 ~ 3등
-  function loadLast() {
-    cardState("last", "load"); $("lastList").hidden = true; $("lastMore").hidden = true;
-    return loadEvents().then(function (evs) {
-      if (!evs) return Promise.reject("events");
-      var now = Date.now();
-      var done = evs.events.filter(function (e) { return isFinite(e.end) && e.end < now; }).sort(function (x, y) { return y.end - x.end; })[0];
-      if (!done) { $("lastCard").hidden = true; loaded.last = true; return; }
-      return getJSON("/api/killrace/board?event=" + done.id).then(function (b) {
-        var teams = (b && b.teams || []).slice(0, 3);
-        $("lastTitle").textContent = "지난 회차 결과 · " + roundOf(done.name, done.id) + " " + md(done.start);
-        $("lastList").innerHTML = teams.length ? teams.map(function (t) {
-          return '<li' + (t.rank === 1 ? ' class="gold"' : "") + '><span class="rk">' + esc(t.rank) + '</span><span class="nm">' + esc(t.name) +
-            "<small>" + esc((t.members || []).map(function (m) { return m.ign; }).join(" · ")) + '</small></span><span class="val' + (t.total < 0 ? " minus" : "") + '">' + esc(t.total) + "<small>점</small></span></li>";
-        }).join("") : '<li><span></span><span class="nm"><small>이 회차는 기록된 팀이 없어요</small></span><span></span></li>';
-        $("lastMore").href = "killnaegi-board.html?event=" + done.id;
-        cardState("last", "done"); $("lastList").hidden = false; $("lastMore").hidden = !teams.length; loaded.last = true;
-      });
-    }).catch(function () { cardState("last", "fail"); });
-  }
-  // 주간 순위 — 서버 저장본(§1.18 · 수요일 09:00 갱신) 위 다섯 줄. 순위 계산은 서버 한 곳에서만 한다
-  function loadTop() {
-    cardState("top", "load"); $("topList").hidden = true;
-    return getJSON("/api/killrace/leaderboard").then(function (j) {
-      var list = (j && j.list || []).slice(0, 5), rules = j && j.rules || {};
-      if (rules.minGames) $("topSub").textContent = "판당 킬 · 판당 딜로 매겨요 · " + rules.minGames + "판 이상 · 최근 " + (rules.recentDays || 30) + "일 안에 뛴 사람";
-      $("topList").innerHTML = list.length ? list.map(function (x) {
-        return '<li' + (x.rank === 1 ? ' class="gold"' : "") + '><span class="rk">' + esc(x.rank) + '</span><span class="nm">' + esc(x.ign) + "<small>" + esc(x.games) + "판 · 판당 딜 " + esc(x.dpg) +
-          '</small></span><span class="val">' + esc(x.kpg) + "<small>판당 킬</small></span></li>";
-      }).join("") : '<li><span></span><span class="nm"><small>아직 순위에 든 사람이 없어요</small></span><span></span></li>';
-      cardState("top", "done"); $("topList").hidden = false; loaded.top = true;
-    }).catch(function () { cardState("top", "fail"); });
-  }
-  // 룰 한 줄 — 신청 폼(killnaegi.html) #rules 첫 목록 + 사망 감점 칸에서 뽑는다. 룰 정본은 신청 폼 하나라 여기에 다시 적지 않는다
-  function loadRuleOne() {
-    cardState("rule", "load"); $("ruleOne").hidden = true;
-    return getText("killnaegi.html").then(function (html) {
-      var doc = new DOMParser().parseFromString(html, "text/html"), rules = doc.getElementById("rules");
-      var first = rules && rules.querySelector(".rule-list");
-      if (!first) return Promise.reject("no_rules");
-      // 목록 줄마다 괄호 설명(.note)은 빼고, 굵은 글씨(b)만 살려 글자로 옮긴다
-      var line = function (el) {
-        return Array.prototype.map.call(el.childNodes, function (n) {
-          if (n.nodeType === 3) return esc(n.textContent);
-          if (n.nodeType !== 1 || (n.classList && n.classList.contains("note"))) return "";
-          return n.tagName === "B" ? "<b>" + esc(n.textContent) + "</b>" : esc(n.textContent);
-        }).join("").replace(/\s+/g, " ").trim();
-      };
-      var parts = Array.prototype.filter.call(first.children, function (li) { return li.tagName === "LI"; }).map(line);
-      var pens = Array.prototype.map.call(rules.querySelectorAll(".pen b"), function (b) { return b.textContent.trim(); });
-      if (pens.length) parts.push("사망 감점 <b>" + esc(pens[0]) + (pens.length > 1 ? " ~ " + esc(pens[pens.length - 1]) : "") + "</b>");
-      $("ruleOne").innerHTML = parts.join(" · ");
-      cardState("rule", "done"); $("ruleOne").hidden = false; loaded.rule1 = true;
-    }).catch(function () { cardState("rule", "fail"); });
-  }
-  function paintNext() {
-    var a = HOME.a, b = HOME.b;
-    if (!a) return;
-    var ev = b && b.event, now = Date.now() + (b && b.serverNow ? b.serverNow - Date.now() : 0);
-    cardState("next", "done"); $("nextBody").hidden = false;
-    var label = a.label ? String(a.label).slice(0, 20) : "";
-    $("nextTitle").innerHTML = "킬내기 <span>" + esc(label || "다음 회차") + "</span>";
-    document.title = "GmI 킬내기" + (label ? " " + label : "");
-    var close = toMs(a.closeAt), chips = [];
-    // 점수판의 지금 회차가 이 신청 회차일 때만 시각 칩을 단다(마감 뒤 12시간 안에 시작) — 끝난 회차 시각이 다음 회차 칩에 붙지 않게
-    var upcoming = ev && isFinite(ev.start) && isFinite(ev.end) && now < ev.end + 60000 && (close == null || (ev.start >= close && ev.start - close < 12 * 3600000));
-    if (upcoming) chips.push('<span class="chip"><b>' + mdw(ev.start) + " " + hm(ev.start) + "~" + hm(ev.end) + "</b></span>");
-    if (close != null) chips.push('<span class="chip">신청 마감 <b>' + mdw(close) + " " + hm(close) + "</b></span>");
-    if (a.mode === "low") chips.push('<span class="chip mode">저티어 판</span>');
-    else if (a.mode === "high") chips.push('<span class="chip mode">고티어 판</span>');
-    $("nextChips").innerHTML = chips.join("");
-    var cap = Number(a.cap) || 0, count = Number(a.count) || 0, wait = Number(a.waiting) || 0;
-    $("seatBox").hidden = !cap;
-    if (cap) {
-      $("seatNum").textContent = count;
-      $("seatSub").textContent = "/ " + cap + "명" + (wait ? " · 대기 " + wait + "명" : "");
-      $("seatBar").style.width = Math.min(100, Math.round(count / cap * 100)) + "%";
-    }
-    $("applyBtn").hidden = false;
-    if (a.closed) { $("applyBtn").className = "btn off"; $("applyBtn").textContent = "신청이 마감됐어요"; $("applyBtn").href = "killnaegi.html#people"; }
-    else { $("applyBtn").className = "btn main"; $("applyBtn").textContent = count >= cap && cap ? "대기로 신청하기" : "신청하기"; $("applyBtn").href = "killnaegi.html"; }
-  }
-  function paintLive(b) {
-    var ev = b && b.event;
-    if (!ev || !b.teams || !b.teams.length) { $("liveCard").hidden = true; return; }
-    var now = Date.now() + (b.serverNow ? b.serverNow - Date.now() : 0);
-    var live = now >= ev.start && now < ev.end + 30 * 60000;      // 끝나고 30분까지는 막판 집계를 보여 준다
-    $("liveCard").hidden = !live;
-    if (!live) return;
-    $("liveTitle").textContent = roundOf(ev.name, b.eventId) + " 점수판";
-    $("liveTag").textContent = now < ev.end ? "진행 중" : "집계 중";
-    var last = b.run && b.run.ok && b.run.at ? b.run.at : b.updatedAt ? Date.parse(b.updatedAt) : null;
-    $("liveSub").textContent = (now < ev.end ? "끝까지 " + Math.max(0, Math.ceil((ev.end - now) / 60000)) + "분" : hm(ev.end) + " 마감 · 돌던 판까지 집계해요") + (last ? " · " + hm(last) + " 갱신" : "");
-    $("liveList").innerHTML = b.teams.slice(0, 4).map(function (t) { return teamHead(t, false); }).join("");
+  var getJSON = function (path, onRetry) { return fetchTry(GAPI + path, "json", onRetry); };
+  var getText = function (path, onRetry) { return fetchTry(path, "text", onRetry); };
+  // 서버 · 연결 실패는 { status } 모양으로 온다(카드가 「다시 시도」로 받는다). 그 밖은 화면을 그리다 난 오류 —
+  // 카드 실패로 조용히 묻히면 대회 중 점수판이 비어도 아무도 모른다(10/11 지휘 검수) → 아래 오류 줄을 띄운다
+  var isNet = function (e) { return !!(e && typeof e === "object" && "status" in e); };
+  function bug(e) { if (!isNet(e) && window.knOops) window.knOops("화면을 그리다 멈췄어요. 새로고침해 주세요"); }
+  // 로그인 호출 — { ok, status, body, code } · 연결이 안 되면 status 0. 401 이면 토큰을 지운다(killrace/ 와 같다)
+  var token = function () { return store.get("kr_token") || ""; };
+  function api(path, body) {
+    var h = { "Content-Type": "application/json" };
+    if (token()) h.Authorization = "Bearer " + token();
+    var opt = body ? { method: "POST", headers: h, body: JSON.stringify(body) } : { headers: h };
+    return fetchTry(GAPI + path, "raw", null, opt).then(function (r) {
+      if (r.status === 401) { try { localStorage.removeItem("kr_token"); } catch (e) { /* 그대로 */ } }
+      return r;
+    }, function () { return { ok: false, status: 0, body: {}, code: "network" }; });
   }
 
-  /* ---------- 점수판 ---------- */
-  var EVS = null, evWant = null, B = null, open = {};
-  function teamHead(t, clickable) {
-    var sub = t.games + "판 · 킬 " + t.kills + " · 치킨 " + t.chickens + (t.bonus ? " · 보너스 " + signed(t.bonus) : "");
-    var inner = '<span class="rk">' + t.rank + '</span><span><span class="name">' + esc(t.name) + '</span><span class="sub">' + sub + "</span></span>" +
-      '<span class="total' + (t.total < 0 ? " minus" : "") + '">' + t.total + "</span>";
-    if (!clickable) return '<div class="team' + (t.rank === 1 ? " first" : "") + '"><div class="team-h">' + inner + "</div></div>";
-    var isOpen = !!open[t.name];
-    return '<article class="team' + (t.rank === 1 ? " first" : "") + '"><button type="button" class="team-h" data-team="' + esc(t.name) + '" aria-expanded="' + isOpen + '">' + inner + "</button>" +
-      (isOpen ? '<div class="detail"><p class="members">' + (t.members || []).map(function (m) { return m.slot + "번 " + esc(m.ign); }).join(" · ") + "</p>" +
-        ((t.rows || []).length ? t.rows.map(gameRow).join("") : '<p class="note">끝난 판이 아직 없어요</p>') + "</div>" : "") + "</article>";
-  }
-  function gameRow(g) {
-    if (g.void) return '<div class="game void"><div class="game-h">' + esc(g.map) + " <span>" + hm(g.startedAt) + '</span></div><div class="game-s">0</div><div class="game-d">무효 판이에요</div></div>';
-    var parts = ["킬 " + g.kills, "딜 " + g.damage + " +" + g.dmgPts];
-    if (g.chicken) parts.push("치킨 +" + g.chicken);
-    if (g.penalty) parts.push('<span class="minus">사망 ' + (g.deadSlots || []).join("·") + "번 −" + g.penalty + "</span>");
-    if (g.leave) parts.push('<span class="minus">이탈 −10</span>');
-    if (g.revive && g.revive.state === "late") parts.push("늦은 부활 표시");
-    if (g.boost) parts.push(g.base + " ×" + g.boost);
-    return '<div class="game"><div class="game-h">' + g.seq + "판 " + esc(g.map) + " <span>" + hm(g.startedAt) + (g.place ? " · " + g.place + "위" : "") + "</span></div>" +
-      '<div class="game-s' + (g.score < 0 ? " minus" : "") + '">' + signed(g.score) + '</div><div class="game-d">' + parts.join(" · ") + "</div></div>";
-  }
+  /* ---------- 공용 데이터 (한 번만 받는다) ---------- */
+  var EVS = null, SW = null, RULES = null, TIERS = null;
   function loadEvents() {
     if (EVS) return Promise.resolve(EVS);
     return getJSON("/api/killrace/events").then(function (j) { if (j && Array.isArray(j.events)) EVS = j; return EVS; }).catch(function () { return null; });
   }
-  function renderPick() {
-    if (!EVS || EVS.events.length < 2) { $("evPickRow").hidden = true; return; }
-    var cur = evWant != null ? evWant : EVS.currentId;
-    $("evSel").innerHTML = EVS.events.map(function (e) {
-      return '<option value="' + e.id + '"' + (e.id === cur ? " selected" : "") + ">" + esc(roundOf(e.name, e.id)) + " · " + md(e.start) + (e.id === EVS.currentId ? " (지금)" : "") + "</option>";
-    }).join("");
-    $("evPickRow").hidden = false;
+  function loadSwitches() {
+    if (SW) return Promise.resolve(SW);
+    return getJSON("/api/killrace/switches").then(function (j) { SW = (j && j.switches) || j || {}; return SW; }).catch(function () { return {}; });   // 못 읽으면 전부 꺼짐으로 본다
   }
-  function loadBoard() {
-    loadEvents().then(renderPick);
-    getJSON("/api/killrace/board" + (evWant != null ? "?event=" + evWant : "")).then(function (b) { B = b; renderBoard(); }).catch(function () {
-      if (B) { $("boardState").textContent = "연결이 끊겼어요. 다시 받는 중이에요"; return; }
-      $("boardState").textContent = ""; $("standings").innerHTML = FAIL;
-    });
+  // 룰 정본 = 신청 폼 #rules. 칩 · 한 줄에 쓸 값만 뽑는다(여기에 숫자를 다시 적지 않는다)
+  var rulesPromise = null;
+  function loadRules() {
+    if (!rulesPromise) rulesPromise = getText("killnaegi.html").then(function (html) {
+      var doc = new DOMParser().parseFromString(html, "text/html");
+      var rules = doc.getElementById("rules"); if (!rules) return null;
+      var lists = rules.querySelectorAll(".rule-list"), first = lists[0];
+      var lis = first ? Array.prototype.filter.call(first.children, function (li) { return li.tagName === "LI"; }) : [];
+      var bOf = function (li) { var b = li && li.querySelector("b"); return b ? b.textContent.trim() : null; };
+      var allLi = Array.prototype.slice.call(rules.querySelectorAll(".rule-list > li"));
+      var find = function (re) { return allLi.filter(function (li) { return re.test(li.textContent); })[0] || null; };
+      var leave = find(/나가면/), maps = find(/맵은/);
+      var dealN = lis[1] ? /딜\s*(\d+)/.exec(lis[1].textContent) : null;
+      RULES = {
+        doc: doc,
+        kill: bOf(lis[0]), deal: bOf(lis[1]), dealUnit: dealN ? dealN[1] : null, chicken: bOf(lis[2]),
+        pens: Array.prototype.map.call(rules.querySelectorAll(".pen b"), function (b) { return b.textContent.trim(); }),
+        leave: leave && leave.querySelector(".minus") ? leave.querySelector(".minus").textContent.trim() : null,
+        maps: maps ? (/맵은\s*(.+?)\s*순서/.exec(maps.textContent.replace(/\s+/g, " ")) || [])[1] || null : null
+      };
+      return RULES;
+    }).catch(function (e) { bug(e); rulesPromise = null; return null; });
+    return rulesPromise;
   }
-  function renderBoard() {
-    var ev = B.event, now = Date.now() + (B.serverNow ? B.serverNow - Date.now() : 0);
-    var last = B.run && B.run.ok && B.run.at ? B.run.at : B.updatedAt ? Date.parse(B.updatedAt) : null;
-    $("boardState").textContent = roundOf(ev.name, B.eventId) + " · " + md(ev.start) + " " + hm(ev.start) + "~" + hm(ev.end) + " · " +
-      (B.past || now >= ev.end ? "끝난 회차예요" : now < ev.start ? "시작 전이에요" : "진행 중") + (last && !B.past ? " · " + hm(last) + " 갱신" : "");
-    $("boardFull").href = "killnaegi-board.html" + (B.past ? "?event=" + B.eventId : "");
-    $("standings").innerHTML = B.teams.length ? B.teams.map(function (t) { return teamHead(t, true); }).join("") : '<p class="msg">팀이 아직 없어요. 드래프트가 끝나면 올라와요</p>';
-  }
-  $("standings").addEventListener("click", function (e) {
-    var b = e.target.closest("[data-team]"); if (!b) return;
-    var n = b.getAttribute("data-team"); open[n] = !open[n]; renderBoard();
-  });
-  $("evSel").addEventListener("change", function () {
-    var id = Number(this.value); evWant = EVS && id === EVS.currentId ? null : id; open = {}; B = null;
-    $("standings").innerHTML = '<p class="msg">불러오는 중이에요</p>'; loadBoard();
-  });
-
-  /* ---------- 내 기록 ---------- */
-  var CAREER = null, LB = null;
-  function loadCareer() {
-    if (CAREER) return Promise.resolve(CAREER);
-    return getJSON("/api/killrace/career").then(function (j) { CAREER = j; return j; });
-  }
-  function initMe() {
-    var saved = store.get("kn_ign");
-    if (saved) { $("meIgn").value = saved; findMe(saved); }
-  }
-  $("meForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var ign = $("meIgn").value.trim();
-    if (!ign) { $("meOut").innerHTML = '<p class="msg">스팀 닉을 적어 주세요</p>'; return; }
-    store.set("kn_ign", ign); findMe(ign);
-  });
-  // 닉(대소문자 무시)이 대표 닉 · aka(옛 이름 · 부계 · §1.28) 중 하나와 같은 줄
-  function careerOf(players, ign) {
-    var low = String(ign).toLowerCase();
-    return (players || []).filter(function (x) {
-      return String(x.ign).toLowerCase() === low || (x.aka || []).some(function (a) { return String(a).toLowerCase() === low; });
-    })[0] || null;
-  }
-  function findMe(ign) {
-    $("meOut").innerHTML = '<p class="msg">불러오는 중이에요</p>';
-    var low = ign.toLowerCase();
-    Promise.all([loadCareer().catch(function () { return null; }), loadEvents(), TABLE_P(),
-      getJSON("/api/killrace/leaderboard").catch(function () { return null; }), tierOfIgn(ign)]).then(function (r) {
-      var career = r[0], local = r[2], t = r[4];
-      LB = r[3];
-      var main = local && local.alias[low];                     // 부계 → 본계(드래프트 별칭)
-      var p = career ? careerOf(career.players, ign) || (main ? careerOf(career.players, main) : null) : null;
-      if (!t && p && local) t = localTier(local, p.ign) || (p.aka || []).map(function (a) { return localTier(local, a); }).filter(Boolean)[0] || null;
-      if (!career && !t) { $("meOut").innerHTML = '<div class="card">' + FAIL + "</div>"; return; }
-      if (!p && !t) { $("meOut").innerHTML = '<div class="card"><p class="msg">「' + esc(ign) + '」 기록을 찾지 못했어요. 배그 프로필의 스팀 닉 그대로인지 봐 주세요</p></div>'; return; }
-      paintMe(p, t, ign, !career);
-      if (p) perEvent(p);
-    });
-  }
-  function paintMe(p, t, ign, careerFail) {
-    var lb = p && LB && (LB.list || []).filter(function (x) { return x.key === p.key; })[0];
-    var name = p ? p.ign : ign;
-    var via = t && t.tierIgn && t.tierIgn.toLowerCase() !== String(name).toLowerCase() ? ' <span class="note">(' + esc(t.tierIgn) + " 기준)</span>" : "";
-    var head = '<div class="me-h"><b>' + esc(name) + "</b><span>" +
-      (t ? '<span class="tag">' + t.tier + "티어</span> " : "") + (lb ? '<span class="tag sun">주간 ' + lb.rank + "위</span> " : "") +
-      (p && p.sample === "low" ? '<span class="tag low">10판 미만</span>' : "") + "</span></div>" + (via ? '<p class="note" style="margin-top:2px;">티어' + via + "</p>" : "");
-    var aka = p && p.aka && p.aka.length ? '<p class="note">같은 사람 다른 닉 · ' + p.aka.map(esc).join(" · ") + "</p>" : "";
-    if (!p) {
-      $("meOut").innerHTML = '<div class="card">' + head + '<p class="note" style="margin-top:10px;">' + (careerFail ? "기록은 지금 불러오지 못했어요. 잠시 뒤 다시 열어 주세요" : "킬내기 기록은 아직 없어요") + "</p></div>";
-      return;
-    }
-    $("meOut").innerHTML = '<div class="card">' + head +
-      '<div class="stats"><div class="stat"><span class="num">' + p.killsPerGame + '</span><small>판당 킬</small></div>' +
-      '<div class="stat"><span class="num">' + p.damagePerGame + '</span><small>판당 딜</small></div>' +
-      '<div class="stat"><span class="num">' + p.games + "</span><small>판 수</small></div></div>" +
-      '<p class="note">누적 킬 ' + p.kills + " · 딜 " + p.damage + " · 사망 " + p.deaths + " · 팀 안 킬 1등 " + p.teamTopKills + "번" +
-        (p.pendingGames ? " · 집계 중 " + p.pendingGames + "판" : "") + "</p>" + aka +
-      '<h3 class="card-h" style="font-size:15.5px;margin-top:14px;">회차별</h3><div id="meEvents"><p class="note" style="margin-top:6px;">불러오는 중이에요</p></div></div>';
-  }
-  function perEvent(p) {
-    var ids = (p.events || []).slice(-12);
-    Promise.all(ids.map(function (id) {
-      return getJSON("/api/killrace/career?events=" + id).then(function (j) {
-        return { id: id, me: (j.players || []).filter(function (x) { return x.key === p.key; })[0] || null };
-      }).catch(function () { return { id: id, me: null, fail: true }; });
-    })).then(function (rows) {
-      var name = function (id) { var e = EVS && EVS.events.filter(function (x) { return x.id === id; })[0]; return e ? { r: roundOf(e.name, id), d: md(e.start) } : { r: id + "회차", d: "" }; };
-      var body = rows.slice().reverse().map(function (x) {
-        var n = name(x.id);
-        if (!x.me) return '<tr><td class="ev">' + esc(n.r) + "<small>" + n.d + '</small></td><td colspan="4" class="note">' + (x.fail ? "못 불러왔어요" : "기록 없음") + "</td></tr>";
-        return '<tr><td class="ev">' + esc(n.r) + "<small>" + n.d + "</small></td><td>" + x.me.games + "</td><td>" + x.me.kills + "</td><td>" + x.me.damage + "</td><td>" + x.me.killsPerGame + "</td></tr>";
-      }).join("");
-      var el = $("meEvents"); if (!el) return;
-      el.innerHTML = rows.length ? "<table><thead><tr><th>회차</th><th>판</th><th>킬</th><th>딜</th><th>판당 킬</th></tr></thead><tbody>" + body + "</tbody></table>" : '<p class="note">아직 없어요</p>';
-    });
-  }
-
-  /* ---------- 티어 ---------- */
-  // 서버 표(§1.28 GET /api/killrace/tiers · mri-academy #561)를 먼저 3초 안에 읽고, 404 · 실패 · 시간 초과면
-  // killnaegi-draft.html 의 TIER_TEXT · ALIAS 로 조용히 대체한다(표를 이 파일에 다시 적지 않는다 · 두 벌이 되면 어긋난다)
+  // 티어 — 서버 표(§1.29 GET /api/killrace/tiers)를 먼저 3초 · 안 되면 killnaegi-draft.html 의 TIER_TEXT · ALIAS(표를 이 파일에 다시 적지 않는다)
   var TIER_WAIT = 3000;
   function quick(path) {
     var ctl = typeof AbortController === "function" ? new AbortController() : null;
@@ -670,7 +561,6 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
     return Promise.race([req, late]).then(function (j) { clearTimeout(timer); return j; }, function (e) { clearTimeout(timer); throw e; });
   }
   var tablePromise = null;
-  // 드래프트 표 → { rows: 소문자 닉 → { ign, tier, rank }, alias: 소문자 부계 → 본계 닉 }
   function TABLE_P() {
     if (!tablePromise) tablePromise = getText("killnaegi-draft.html").then(function (html) {
       var m = /TIER_TEXT\s*=\s*"([^"]+)"/.exec(html), rows = {}, alias = {};
@@ -689,7 +579,6 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
     var low = String(ign).toLowerCase(), r = local.rows[low] || (local.alias[low] && local.rows[local.alias[low].toLowerCase()]);
     return r ? { tier: r.tier, rank: r.rank, tierIgn: r.ign } : null;
   }
-  // 닉 하나의 티어 — 서버 ?ign= 먼저(§1.28 · 합치기 표 반영) · 안 되면 드래프트 표 + 별칭. 못 찾으면 null(오류 화면 없음)
   function tierOfIgn(ign) {
     return quick("/api/killrace/tiers?ign=" + encodeURIComponent(ign)).then(function (j) {
       if (j && j.found && isFinite(j.tier)) return { tier: Number(j.tier), rank: j.rank, tierIgn: j.tierIgn || ign };
@@ -698,20 +587,518 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
       return TABLE_P().then(function (local) { return local ? localTier(local, ign) : null; });
     });
   }
-  // 표 전체 — 서버 목록 먼저 · 안 되면 드래프트 표. [{ ign, tier, rank }]
   function tierList() {
+    if (TIERS) return Promise.resolve(TIERS);
     return quick("/api/killrace/tiers").then(function (j) {
       if (j && Array.isArray(j.list) && j.list.length) return j.list.filter(function (r) { return r && r.ign && isFinite(r.tier); });
       return Promise.reject("empty");
     }).catch(function () {
       return TABLE_P().then(function (local) { return local ? Object.keys(local.rows).map(function (k) { return local.rows[k]; }) : null; });
+    }).then(function (list) { if (list) TIERS = list; return list; });
+  }
+  var tierNum = function (t) { return Number.isInteger(t) ? String(t) : String(t); };
+
+  /* ---------- 탭 ---------- */
+  var VIEWS = ["home", "board", "me", "gift", "vote", "rule"], loaded = {}, timer = null;
+  function show() {
+    var h = (location.hash || "").replace("#", ""), v = h === "tier" ? "rule" : h;
+    if (VIEWS.indexOf(v) < 0) v = "home";
+    VIEWS.forEach(function (k) { $("v-" + k).hidden = k !== v; });
+    var tab = v === "vote" ? "home" : v;
+    document.querySelectorAll("[data-tab]").forEach(function (a) { if (a.getAttribute("data-tab") === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    clearInterval(timer); timer = null;
+    if (v === "home") { loadHome(); timer = setInterval(loadHome, 30000); }
+    if (v === "board") { loadBoard(); timer = setInterval(loadBoard, 15000); }
+    if (v === "me" && !loaded.me) { loaded.me = true; initMe(); }
+    if (v === "gift") loadGift();
+    if (v === "vote") loadVote();
+    if (v === "rule") showSeg(h === "tier" ? "tier" : "rule");
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", show);
+
+  /* ---------- 홈 ----------
+   * 카드마다 따로 받는다(하나가 늦어도 다른 카드는 먼저 뜬다). 카드 상태는 셋 — 불러오는 중(스켈레톤) · 내용 · 실패(다시 시도 칩).
+   * 한 번 내용이 뜬 카드는 30초 새로고침이 실패해도 내용을 지우지 않는다. 받는 중에는 같은 카드를 또 부르지 않는다 */
+  var HOME = { a: null, b: null }, busy = {};
+  function cardState(k, state) {
+    var load = $(k + "Load"), fail = $(k + "Fail");
+    if (load) load.hidden = state !== "load";
+    if (fail) fail.hidden = state !== "fail";
+  }
+  function job(k, fn) {
+    if (busy[k]) return;
+    busy[k] = true;
+    var p;
+    try { p = fn(); } catch (e) { p = Promise.reject(e); }
+    Promise.resolve(p).then(function () { busy[k] = false; }, function (e) { busy[k] = false; bug(e); });
+  }
+  function loadHome() {
+    job("next", function () {
+      if (!HOME.a) { cardState("next", "load"); $("nextBody").hidden = true; $("nextWait").textContent = "불러오는 중이에요"; }
+      return getJSON("/api/killrace/apply", function () { $("nextWait").textContent = "서버가 깨어나는 중이에요. 조금만 기다려 주세요"; })
+        .then(function (a) { HOME.a = a; paintNext(); }, function (e) { bug(e); if (!HOME.a) { cardState("next", "fail"); $("nextBody").hidden = true; } })
+        .catch(bug);
+    });
+    job("board", function () {
+      return getJSON("/api/killrace/board").then(function (b) { HOME.b = b; paintLive(b); if (HOME.a) paintNext(); }, function (e) { bug(e); /* 다음 회차 시각 · 대회 중 카드만 — 실패해도 다음 회차는 그대로 */ });
+    });
+    if (!loaded.last) job("last", loadLast);
+    if (!loaded.top) job("top", loadTop);
+    job("sw", function () {
+      return loadSwitches().then(function (sw) {
+        $("voteBanner").hidden = sw.shop_vote !== true;
+      });
     });
   }
+  $("v-home").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-retry]"); if (!b) return;
+    var k = b.getAttribute("data-retry");
+    if (k === "next") { HOME.a = null; loadHome(); }
+    if (k === "last") job("last", loadLast);
+    if (k === "top") job("top", loadTop);
+  });
+  function paintNext() {
+    var a = HOME.a, b = HOME.b;
+    if (!a) return;
+    var ev = b && b.event, now = Date.now() + (b && b.serverNow ? b.serverNow - Date.now() : 0);
+    cardState("next", "done"); $("nextBody").hidden = false;
+    var label = a.label ? String(a.label).slice(0, 20) : "";
+    document.title = "GmI 킬내기" + (label ? " " + label : "");
+    $("nextLabel").textContent = "다음 회차" + (a.mode === "low" ? " · 저티어 판" : a.mode === "high" ? " · 고티어 판" : "");
+    $("nextRound").textContent = label || "킬내기";
+    var close = toMs(a.closeAt);
+    // 점수판의 지금 회차가 이 신청 회차일 때만 시작 시각을 쓴다(마감 뒤 12시간 안에 시작) — 끝난 회차 시각이 다음 회차에 붙지 않게
+    var upcoming = ev && isFinite(ev.start) && isFinite(ev.end) && now < ev.end + 60000 && (close == null || (ev.start >= close && ev.start - close < 12 * 3600000));
+    var at = upcoming ? ev.start : close;
+    $("nextWhen").textContent = at != null ? mdw(at) + " " + hm(at) + (upcoming ? "" : " 마감") : "";
+    var dd = at != null ? dayNo(at) - dayNo(now) : null;
+    $("nextD").hidden = dd == null || dd < 0;
+    $("nextD").textContent = dd === 0 ? "오늘" : "D-" + dd;
+    var cap = Number(a.cap) || 0, count = Number(a.count) || 0, wait = Number(a.waiting) || 0;
+    $("cSeat").textContent = cap ? count + "/" + cap + (wait ? " +" + wait : "") : String(count);
+    $("cClose").textContent = close != null ? (upcoming && dayNo(close) === dayNo(ev.start) ? hm(close) : md(close) + " " + hm(close)) : "—";
+    var btn = $("applyBtn");
+    if (a.closed) { btn.className = "cta off"; btn.textContent = "신청이 마감됐어요 · 명단 보기"; btn.href = "killnaegi.html#people"; }
+    else { btn.className = "cta"; btn.textContent = cap && count >= cap ? "대기로 신청하기 →" : "솔로로 신청하기 →"; btn.href = "killnaegi.html"; }
+  }
+  function rowLi(rank, name, sub, val, unit, first) {
+    return '<li' + (first ? ' class="first"' : "") + '><span class="rk">' + esc(rank) + '</span><span class="nm">' + esc(name) + "<small>" + esc(sub) + '</small></span><span class="val' + (Number(val) < 0 ? " minus" : "") + '">' + esc(val) + "<small>" + esc(unit) + "</small></span></li>";
+  }
+  function paintLive(b) {
+    var ev = b && b.event;
+    if (!ev || !b.teams || !b.teams.length) { $("liveCard").hidden = true; return; }
+    var now = Date.now() + (b.serverNow ? b.serverNow - Date.now() : 0);
+    var live = now >= ev.start && now < ev.end + 30 * 60000;      // 끝나고 30분까지는 막판 집계를 보여 준다
+    $("liveCard").hidden = !live;
+    if (!live) return;
+    $("liveTitle").textContent = roundOf(ev.name, b.eventId) + " 점수판";
+    $("liveTag").textContent = now < ev.end ? "LIVE" : "집계 중";
+    var last = b.run && b.run.ok && b.run.at ? b.run.at : b.updatedAt ? Date.parse(b.updatedAt) : null;
+    $("liveSub").textContent = (now < ev.end ? "끝까지 " + Math.max(0, Math.ceil((ev.end - now) / 60000)) + "분" : hm(ev.end) + " 마감 · 돌던 판까지 집계해요") + (last ? " · " + hm(last) + " 갱신" : "");
+    $("liveList").innerHTML = b.teams.slice(0, 4).map(function (t) { return rowLi(t.rank, t.name, "치킨 " + t.chickens + " · 킬 " + t.kills, t.total, "점", t.rank === 1); }).join("");
+  }
+  // 지난 회차 결과 — 회차 목록에서 끝난 회차 중 가장 최근 것 → 그 회차 점수판 1 ~ 3등
+  function loadLast() {
+    cardState("last", "load"); $("lastList").hidden = true; $("lastMore").hidden = true;
+    return loadEvents().then(function (evs) {
+      if (!evs) return Promise.reject({ status: 0 });
+      var now = Date.now();
+      var done = evs.events.filter(function (e) { return isFinite(e.end) && e.end < now; }).sort(function (x, y) { return y.end - x.end; })[0];
+      if (!done) { $("lastCard").hidden = true; loaded.last = true; return; }
+      return getJSON("/api/killrace/board?event=" + done.id).then(function (b) {
+        var teams = (b && b.teams || []).slice(0, 3);
+        $("lastTitle").textContent = "지난 회차 결과 · " + roundOf(done.name, done.id);
+        $("lastList").innerHTML = teams.length ? teams.map(function (t) { return rowLi(t.rank, t.name, "치킨 " + t.chickens + " · 킬 " + t.kills, t.total, "점", t.rank === 1); }).join("")
+          : '<li><span></span><span class="nm"><small>이 회차는 기록된 팀이 없어요</small></span><span></span></li>';
+        $("lastMore").onclick = function () { evWant = done.id; };
+        cardState("last", "done"); $("lastList").hidden = false; $("lastMore").hidden = !teams.length; loaded.last = true;
+      });
+    }).catch(function (e) { bug(e); cardState("last", "fail"); });
+  }
+  // 개인 순위 — 서버 저장본(§1.18 · 수요일 09:00 갱신) 위 다섯 줄. 순위는 서버가 판당 킬 · 판당 딜로 매긴 그대로(앱이 다시 줄 세우지 않는다)
+  var LB = null;
+  function loadLb() {
+    if (LB) return Promise.resolve(LB);
+    return getJSON("/api/killrace/leaderboard").then(function (j) { LB = j; return j; });
+  }
+  function loadTop() {
+    cardState("top", "load"); $("topList").hidden = true;
+    return loadLb().then(function (j) {
+      var list = (j && j.list || []).slice(0, 5), rules = j && j.rules || {};
+      $("topSub").textContent = "판당 킬 · 판당 딜로 매겨요" + (rules.minGames ? " · 최근 " + (rules.recentDays || 30) + "일 · " + rules.minGames + "판 이상" : "");
+      $("topList").innerHTML = list.length ? list.map(function (x) { return rowLi(x.rank, x.ign, x.games + "판 · 판당 딜 " + x.dpg, x.kpg, "판당 킬", x.rank === 1); }).join("")
+        : '<li><span></span><span class="nm"><small>아직 순위에 든 사람이 없어요</small></span><span></span></li>';
+      cardState("top", "done"); $("topList").hidden = false; loaded.top = true;
+    }).catch(function (e) { bug(e); cardState("top", "fail"); });
+  }
+
+  /* ---------- 점수판 ---------- */
+  var evWant = null, B = null, open = {};
+  function teamCard(t) {
+    var sub = "킬 " + t.kills + " · 딜 " + comma(t.damage) + " · 치킨 " + t.chickens + " · " + t.games + "판" + (t.bonus ? " · 보너스 " + signed(t.bonus) : "");
+    var isOpen = !!open[t.name];
+    return '<article class="team' + (t.rank === 1 ? " first" : "") + '"><button type="button" class="team-h" data-team="' + esc(t.name) + '" aria-expanded="' + isOpen + '">' +
+      '<span class="rk">' + t.rank + '</span><span><span class="name">' + esc(t.name) + '</span><span class="sub">' + sub + "</span></span>" +
+      '<span class="total' + (t.total < 0 ? " minus" : "") + '">' + t.total + "</span></button>" +
+      (isOpen ? '<div class="detail">' + membersOf(t) + ((t.rows || []).length ? t.rows.map(gameRow).join("") : '<p class="note" style="margin-top:6px;">끝난 판이 아직 없어요</p>') + "</div>" : "") + "</article>";
+  }
+  // 팀원 — 티어 칩 · 닉 · 사망 감점 순서(팀 안 티어가 높은 순서 · §1.22). 한 명이라도 티어를 모르면 순서는 적지 않는다
+  function membersOf(t) {
+    var tiers = {};
+    (TIERS || []).forEach(function (r) { tiers[String(r.ign).toLowerCase()] = r; });
+    var ms = (t.members || []).map(function (m) { return { slot: m.slot, ign: m.ign, t: tiers[String(m.ign).toLowerCase()] || null }; });
+    var known = ms.every(function (m) { return m.t; }), pens = RULES && RULES.pens || [];
+    if (known && pens.length) {
+      ms.slice().sort(function (a, b) { return a.t.tier - b.t.tier || (a.t.rank || 999) - (b.t.rank || 999); }).forEach(function (m, i) { m.pen = pens[i] || null; });
+    }
+    return ms.map(function (m) {
+      return '<div class="mem"><span class="t">' + (m.t ? esc(tierNum(m.t.tier)) + "티어" : "—") + '</span><span class="n">' + esc(m.ign) + "</span>" + (m.pen ? '<span class="p">사망 ' + esc(m.pen) + "</span>" : "") + "</div>";
+    }).join("");
+  }
+  function gameRow(g) {
+    if (g.void) return '<div class="game void"><div class="game-h">' + esc(g.map) + " <span>" + hm(g.startedAt) + '</span></div><div class="game-s">0</div><div class="game-d">무효 판이에요</div></div>';
+    var parts = ["킬 " + g.kills, "딜 " + g.damage + " +" + g.dmgPts];
+    if (g.chicken) parts.push("치킨 +" + g.chicken);
+    if (g.penalty) parts.push('<span class="minus">사망 ' + (g.deadSlots || []).join("·") + "번 −" + g.penalty + "</span>");
+    if (g.leave) parts.push('<span class="minus">이탈</span>');
+    if (g.revive && g.revive.state === "late") parts.push("늦은 부활 표시");
+    if (g.boost) parts.push(g.base + " ×" + g.boost);
+    return '<div class="game"><div class="game-h">' + g.seq + "판 " + esc(g.map) + " <span>" + hm(g.startedAt) + (g.place ? " · " + g.place + "위" : "") + "</span></div>" +
+      '<div class="game-s' + (g.score < 0 ? " minus" : "") + '">' + signed(g.score) + '</div><div class="game-d">' + parts.join(" · ") + "</div></div>";
+  }
+  function renderPick() {
+    if (!EVS || EVS.events.length < 2) { $("evSel").hidden = true; return; }
+    var cur = evWant != null ? evWant : EVS.currentId;
+    $("evSel").innerHTML = EVS.events.map(function (e) {
+      return '<option value="' + e.id + '"' + (e.id === cur ? " selected" : "") + ">" + esc(roundOf(e.name, e.id)) + " · " + md(e.start) + (e.id === EVS.currentId ? " (지금)" : "") + "</option>";
+    }).join("");
+    $("evSel").hidden = false;
+  }
+  function loadBoard() {
+    loadEvents().then(renderPick);
+    loadRules().then(function () { if (B) renderBoard(); }).catch(bug);
+    tierList().then(function () { if (B) renderBoard(); }).catch(bug);
+    job("boardView", function () {
+      return getJSON("/api/killrace/board" + (evWant != null ? "?event=" + evWant : "")).then(function (b) { B = b; renderBoard(); }).catch(function (e) {
+        bug(e);
+        if (B) { $("bSub").textContent = "연결이 끊겼어요. 다시 받는 중이에요"; return; }
+        $("standings").innerHTML = '<div class="card"><div class="fail"><span>점수판을 불러오지 못했어요</span><button type="button" class="retry" data-retry="board">다시 시도</button></div></div>';
+      });
+    });
+  }
+  function renderBoard() {
+    var ev = B.event, now = Date.now() + (B.serverNow ? B.serverNow - Date.now() : 0);
+    var last = B.run && B.run.ok && B.run.at ? B.run.at : B.updatedAt ? Date.parse(B.updatedAt) : null;
+    var done = B.past || now >= ev.end + 30 * 60000, live = !done && now >= ev.start && now < ev.end;
+    $("bTitle").textContent = "킬내기 " + roundOf(ev.name, B.eventId);
+    $("bSub").textContent = mdw(ev.start) + " " + hm(ev.start) + "~" + hm(ev.end) + " · 팀 " + B.teams.length + (RULES && RULES.maps ? " · " + RULES.maps : "") + (last && !done ? " · " + hm(last) + " 갱신" : "");
+    var tag = $("bTag");
+    tag.hidden = false;
+    tag.className = live ? "tag-live" : "tag-done";
+    tag.textContent = live ? "LIVE" : done ? "최종" : now >= ev.end ? "집계 중" : "시작 전";
+    var sum = function (k) { return B.teams.reduce(function (s, t) { return s + (Number(t[k]) || 0); }, 0); };
+    $("bCells").hidden = !B.teams.length;
+    if (B.teams.length) { $("bTop").textContent = B.teams[0].total; $("bKills").textContent = sum("kills"); $("bChk").textContent = sum("chickens"); }
+    $("boardFull").href = "killnaegi-board.html" + (B.past ? "?event=" + B.eventId : "");
+    // 룰 칩 — 숫자는 신청 폼에서, 봇 칩은 이 회차 설정(excludeBots)대로
+    var R = RULES, chips = [];
+    if (R) {
+      if (R.kill) chips.push('<span class="rchip">킬 ' + esc(R.kill) + "</span>");
+      if (R.deal) chips.push('<span class="rchip">팀 딜 ' + esc(R.dealUnit || "100") + " = " + esc(R.deal) + "</span>");
+      if (R.chicken) chips.push('<span class="rchip">치킨 ' + esc(R.chicken) + "</span>");
+      if (R.pens.length) chips.push('<span class="rchip bad">사망 ' + esc(R.pens[0]) + " ~ " + esc(R.pens[R.pens.length - 1]) + " · 티어 순</span>");
+      if (R.leave) chips.push('<span class="rchip bad">이탈 ' + esc(R.leave) + "</span>");
+    }
+    chips.push('<span class="rchip">' + (B.excludeBots ? "봇 킬 · 딜 제외" : "봇 킬도 인정") + "</span>");
+    $("rChips").innerHTML = chips.join("");
+    $("standings").innerHTML = B.teams.length ? B.teams.map(teamCard).join("") : '<div class="card"><p class="msg">팀이 아직 없어요. 드래프트가 끝나면 올라와요</p></div>';
+  }
+  $("standings").addEventListener("click", function (e) {
+    if (e.target.closest("[data-retry]")) { $("standings").innerHTML = '<div class="card"><p class="wait">불러오는 중이에요</p></div>'; loadBoard(); return; }
+    var b = e.target.closest("[data-team]"); if (!b) return;
+    var n = b.getAttribute("data-team"); open[n] = !open[n]; renderBoard();
+  });
+  $("evSel").addEventListener("change", function () {
+    var id = Number(this.value); evWant = EVS && id === EVS.currentId ? null : id; open = {}; B = null;
+    $("standings").innerHTML = '<div class="card"><p class="wait">불러오는 중이에요</p></div>'; loadBoard();
+  });
+
+  /* ---------- 내 기록 ---------- */
+  var CAREER = null;
+  function loadCareer() {
+    if (CAREER) return Promise.resolve(CAREER);
+    return getJSON("/api/killrace/career").then(function (j) { CAREER = j; return j; });
+  }
+  function initMe() {
+    var saved = store.get("kn_ign") || ME_IGN;
+    if (saved) { $("meIgn").value = saved; findMe(saved); }
+  }
+  $("meForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var ign = $("meIgn").value.trim();
+    if (!ign) { $("meOut").innerHTML = '<div class="card"><p class="msg">스팀 닉을 적어 주세요</p></div>'; return; }
+    store.set("kn_ign", ign); findMe(ign);
+  });
+  $("meChange").addEventListener("click", function () { $("meBand").hidden = true; $("meForm").hidden = false; $("meIgn").focus(); });
+  function careerOf(players, ign) {
+    var low = String(ign).toLowerCase();
+    return (players || []).filter(function (x) {
+      return String(x.ign).toLowerCase() === low || (x.aka || []).some(function (a) { return String(a).toLowerCase() === low; });
+    })[0] || null;
+  }
+  function findMe(ign) {
+    $("meOut").innerHTML = '<div class="card"><span class="sk sk-l"></span><span class="sk sk-l s"></span><p class="wait">불러오는 중이에요</p></div>';
+    var low = ign.toLowerCase();
+    Promise.all([loadCareer().catch(function () { return null; }), loadEvents(), TABLE_P(), loadLb().catch(function () { return null; }), tierOfIgn(ign)]).then(function (r) {
+      var career = r[0], local = r[2], lb = r[3], t = r[4];
+      var main = local && local.alias[low];
+      var p = career ? careerOf(career.players, ign) || (main ? careerOf(career.players, main) : null) : null;
+      if (!t && p && local) t = localTier(local, p.ign) || (p.aka || []).map(function (a) { return localTier(local, a); }).filter(Boolean)[0] || null;
+      if (!career && !t) { $("meOut").innerHTML = '<div class="card">' + FAIL + "</div>"; return; }
+      if (!p && !t) { $("meOut").innerHTML = '<div class="card"><p class="msg">「' + esc(ign) + '」 기록을 찾지 못했어요. 배그 프로필의 스팀 닉 그대로인지 봐 주세요</p></div>'; return; }
+      paintMe(p, t, ign, !career, lb);
+    });
+  }
+  function paintMe(p, t, ign, careerFail, lb) {
+    var name = p ? p.ign : ign;
+    $("meForm").hidden = true; $("meBand").hidden = false;
+    $("meName").textContent = name;
+    var sq = $("meTier");
+    sq.className = "tier-sq" + (t ? "" : " none");
+    sq.querySelector("b").textContent = t ? tierNum(t.tier) : "?";
+    var subs = [];
+    if (p && p.aka && p.aka.length) subs.push("다른 닉 " + p.aka.join(" · ") + " 합쳐서 보여요");
+    if (t && t.rank) subs.push("티어 순위 " + t.rank + "위" + (t.tierIgn && t.tierIgn.toLowerCase() !== String(name).toLowerCase() ? "(" + t.tierIgn + " 기준)" : ""));
+    $("meSub").textContent = subs.join(" · ");
+    $("meKpg").textContent = p ? p.killsPerGame : "—";
+    $("meDpg").textContent = p ? p.damagePerGame : "—";
+    $("meGames").textContent = p ? p.games : "—";
+    if (!p) {
+      $("meOut").innerHTML = '<div class="card"><p class="msg">' + (careerFail ? "기록은 지금 불러오지 못했어요. 잠시 뒤 다시 열어 주세요" : "킬내기 기록은 아직 없어요") + "</p></div>";
+      return;
+    }
+    // 순위까지 — 서버 리더보드 기준(rules.minGames · recentDays). 순위 계산은 서버 몫이고 여기서는 판 수만 견준다
+    var rules = lb && lb.rules || {}, min = Number(rules.minGames) || 0;
+    var mine = lb && (lb.list || []).filter(function (x) { return x.key === p.key; })[0];
+    var rankCard = "";
+    if (mine) rankCard = '<div class="card"><h2 class="card-h">개인 순위 ' + mine.rank + '위</h2><p class="card-sub">판당 킬 · 판당 딜로 매겨요 · 수요일 아침에 새로 매겨요</p></div>';
+    else if (min && p.games < min) rankCard = '<div class="card"><h2 class="card-h">개인 순위까지 <span class="num" style="font-size:22px;">' + p.games + "/" + min + '판</span></h2>' +
+      '<div class="prog"><i style="width:' + Math.min(100, Math.round(p.games / min * 100)) + '%"></i></div><p class="note">' + (min - p.games) + "판 더 뛰면 순위에 들어요 · 최근 " + (rules.recentDays || 30) + "일 안에 뛴 판이 있어야 해요</p></div>";
+    else if (min) rankCard = '<div class="card"><h2 class="card-h">개인 순위</h2><p class="card-sub">' + min + "판은 넘었어요. 최근 " + (rules.recentDays || 30) + "일 안에 뛰면 수요일 아침에 순위에 올라요</p></div>";
+    var evs = (p.events || []).slice().reverse().map(function (id) {
+      var e = EVS && EVS.events.filter(function (x) { return x.id === id; })[0];
+      return '<a href="#board" data-ev="' + id + '">' + esc(e ? roundOf(e.name, id) + " · " + md(e.start) : id + "회차") + "</a>";
+    }).join("");
+    $("meOut").innerHTML = rankCard +
+      '<div class="card"><h2 class="card-h">누적</h2><div class="kv">' +
+      "<div><small>킬</small><b>" + comma(p.kills) + "</b></div><div><small>딜</small><b>" + comma(p.damage) + "</b></div>" +
+      "<div><small>팀 내 최다 킬</small><b>" + p.teamTopKills + "번</b></div><div><small>사망</small><b>" + comma(p.deaths) + "</b></div></div>" +
+      '<p class="note" style="margin-top:10px;">봇 킬 · 딜은 빼고 셌어요' + (p.pendingGames ? " · 집계 중 " + p.pendingGames + "판" : "") + "</p></div>" +
+      (evs ? '<div class="card"><h2 class="card-h">나간 회차</h2><p class="card-sub">누르면 그 회차 점수판이 열려요</p><div class="evs">' + evs + "</div></div>" : "");
+  }
+  $("meOut").addEventListener("click", function (e) {
+    var a = e.target.closest("[data-ev]"); if (!a) return;
+    var id = Number(a.getAttribute("data-ev"));
+    evWant = EVS && id === EVS.currentId ? null : id; open = {}; B = null;
+  });
+
+  /* ---------- 내 계정 · 우상단 ----------
+   * 로그인은 killrace/ 화면이 한다(같은 주소라 토큰 kr_token 을 같이 본다 · 앱 계약 §2 · §3). 여기서는 닉 · 티어만 읽어 보여 준다 */
+  var ME = null, ME_IGN = "";
+  var mePromise = null;
+  function loadMe() {
+    if (!token()) return Promise.resolve(null);
+    if (!mePromise) mePromise = api("/api/killrace/me").then(function (r) { ME = r.ok ? r.body : null; return r; });
+    return mePromise;
+  }
+  function loadWho() {
+    if (!token()) return;
+    $("who").textContent = "내 계정";
+    loadMe().then(function (r) {
+      if (r && r.status === 401) { $("who").textContent = "연결하기"; return; }
+      var ign = ME && ME.member && ME.member.ign;
+      if (!ign) return;
+      ME_IGN = ign;
+      $("who").className = "who";
+      $("who").innerHTML = '<span class="tdot" id="whoTier">·</span>' + esc(ign);
+      tierOfIgn(ign).then(function (t) { if (t) $("whoTier").textContent = tierNum(t.tier); else $("who").className = "who plain", $("whoTier").remove(); });
+    });
+  }
+
+  /* ---------- 선물함 ---------- */
+  var GIFT = { coin: null, prize: null, gifts: null }, OPENED = {};
+  var connectCard = '<div class="card"><h2 class="card-h">디스코드로 연결하면 보여요</h2><p class="card-sub">코인 · 상금 · 선물은 내 계정에 쌓여요</p><a class="btn dark wide" href="killrace/">연결하기</a></div>';
+  function loadGift() {
+    if (!token()) { $("gCoin").textContent = "—"; $("gPrize").textContent = "—"; $("giftOut").innerHTML = connectCard + giftNote(); return; }
+    Promise.all([api("/api/killrace/me/coin"), api("/api/killrace/me/prize"), api("/api/killrace/me/gifts"), loadSwitches()]).then(function (r) {
+      if (r[0].status === 401 || r[2].status === 401) { $("giftOut").innerHTML = connectCard + giftNote(); return; }
+      GIFT.coin = r[0]; GIFT.prize = r[1]; GIFT.gifts = r[2];
+      paintGift(r[3] || {});
+    });
+  }
+  function giftNote() { return '<p class="foot">코인은 참여 보상이에요 · 돈으로 바꾸거나 다른 사람에게 줄 수 없어요</p>'; }
+  var failRow = function (what) { return '<div class="fail"><span>' + what + ' 불러오지 못했어요</span><button type="button" class="retry" data-gift="reload">다시 시도</button></div>'; };
+  function paintGift(sw) {
+    var c = GIFT.coin, pz = GIFT.prize, g = GIFT.gifts, html = "";
+    $("gCoin").textContent = c && c.ok ? comma(c.body.balance) : "—";
+    $("gPrize").textContent = pz && pz.ok && pz.body.linked !== false ? comma(pz.body.balance) : "—";
+    // 계정 연결 안내 — 스팀을 아직 안 이었으면 0 으로 보이니 먼저 알린다
+    if ((c && c.ok && c.body.linked === false) || (g && g.ok && g.body.linked === false)) html += '<div class="card"><h2 class="card-h">스팀 닉을 연결해 주세요</h2><p class="card-sub">연결하면 그동안 쌓인 코인이 바로 보여요</p><a class="btn line wide" href="killrace/">내 계정으로</a></div>';
+    // 도착한 선물
+    html += '<div class="card"><h2 class="card-h">도착한 선물</h2>';
+    if (!g || !g.ok) html += failRow("선물을");
+    else {
+      var items = g.body.items || [];
+      if (!items.length) html += '<p class="msg">아직 도착한 선물이 없어요</p>';
+      items.forEach(function (x) { html += giftCard(x, g.body.verified !== false); });
+    }
+    html += "</div>";
+    // 투표 배너 · 매점
+    if (sw.shop_vote === true) html += '<a class="card banner" href="#vote"><span><b>매점 투표 중이에요</b><span>매점에 뭐가 들어오면 좋을지 골라 주세요</span></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>';
+    html += '<div class="card ready"><span><b>매점</b><span class="card-sub" style="display:block;">' + (sw.coin_shop === true ? "코인으로 경품을 받아요" : "준비 중이에요") + "</span></span>" +
+      (sw.coin_shop === true ? '<a class="btn dark" href="killrace/coin.html">매점 열기</a>' : "") + "</div>";
+    // 코인 내역
+    html += '<div class="card"><h2 class="card-h">코인 내역</h2>';
+    if (!c || !c.ok) html += failRow("내역을");
+    else if (c.body.on === false) html += '<p class="msg">코인은 아직 준비 중이에요</p>';
+    else if (!(c.body.items || []).length) html += '<p class="msg">아직 받은 코인이 없어요. 코인 회차에 뛰면 쌓여요</p>';
+    else html += '<ul class="hist">' + c.body.items.map(histRow).join("") + "</ul>";
+    html += "</div>" + giftNote();
+    $("giftOut").innerHTML = html;
+  }
+  var KIND = { earn: "받음", spend: "교환", refund: "돌려받음" };
+  function histRow(x) {
+    var plus = x.kind !== "spend", amt = Math.abs(Number(x.amount) || 0);
+    var what = x.kind === "earn" ? (x.event ? roundOf(x.event.name, x.event.id) + " 참여" : "참여 보상") : x.exchange && x.exchange.item ? x.exchange.item : KIND[x.kind] || "코인";
+    var at = toMs(x.at);
+    return '<li><span>' + esc(what) + "<small>" + (at ? mdw(at) : "") + " · " + esc(KIND[x.kind] || "") + '</small></span><span class="amt' + (plus ? " plus" : "") + '">' + (plus ? "+" : "−") + comma(amt) + "</span></li>";
+  }
+  function giftCard(x, verified) {
+    var sub = [x.event && x.event.name ? roundOf(x.event.name, x.event.id) : null, x.reason, x.expiresOn ? x.expiresOn.replace(/^\d{4}-0?(\d+)-0?(\d+)$/, "$1/$2") + "까지" : null].filter(Boolean).join(" · ");
+    var head = '<div class="gift-h"><span><b>' + esc(x.item) + "</b><small>" + esc(sub) + "</small></span>";
+    if (x.kind === "physical") {
+      var st = x.ship && x.ship.state;
+      var txt = !x.ship ? "받는 곳을 적어 주세요" : st === "shipped" ? "보냈어요" + (x.ship.trackingNo ? " · 송장 " + x.ship.trackingNo : "") : st === "received" ? "받았어요" : st === "expired" ? "기한이 지났어요" : "배송 정보 받았어요";
+      return '<div class="gift' + (!x.ship ? " new" : st === "received" || st === "expired" ? " dim" : "") + '">' + head + "</div>" +
+        '<p class="note" style="margin-top:6px;">' + esc(txt) + "</p>" + (!x.ship || st === "shipped" ? '<a class="btn line wide" href="killrace/gifts.html">' + (!x.ship ? "받는 곳 적기" : "받았는지 알려 주기") + "</a>" : "") + "</div>";
+    }
+    if (x.state === "registered") {
+      return '<div class="gift new">' + head + (verified ? '<button type="button" class="btn dark" data-gift="open" data-id="' + esc(x.id) + '">열기</button>' : "") + "</div>" +
+        (verified ? "" : '<p class="note" style="margin-top:6px;">진행자 본인 확인 뒤에 열 수 있어요 · 디스코드 운영진에게 알려 주세요</p>') + "</div>";
+    }
+    if (x.state === "opened") {
+      var o = OPENED[x.id];
+      return '<div class="gift">' + head + "</div>" + (o ? '<div class="code">' + (o.code ? esc(o.code) : o.imageUrl ? '<img src="' + esc(o.imageUrl) + '" alt="기프티콘">' : "") + "</div>" : '<button type="button" class="btn line wide" data-gift="open" data-id="' + esc(x.id) + '">다시 보기</button>') +
+        '<button type="button" class="btn dark wide" data-gift="received" data-id="' + esc(x.id) + '">받았어요</button></div>';
+    }
+    var gone = x.state === "expired" ? "기한이 지났어요" : x.purged ? "코드를 지웠어요" : "코드는 30일 뒤 지워져요";
+    return '<div class="gift dim">' + head + "</div>" + '<p class="note" style="margin-top:6px;">' + (x.state === "received" ? "받았어요 · " : "") + gone + "</p></div>";
+  }
+  $("giftOut").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-gift]"); if (!b) return;
+    var act = b.getAttribute("data-gift"), id = b.getAttribute("data-id");
+    if (act === "reload") { loadGift(); return; }
+    b.disabled = true;
+    api("/api/killrace/me/gifts/" + encodeURIComponent(id) + "/" + act, {}).then(function (r) {
+      if (!r.ok) { b.disabled = false; b.textContent = r.code === "not_verified" ? "본인 확인 뒤에 열 수 있어요" : "다시 눌러 주세요"; return; }
+      if (act === "open") OPENED[id] = r.body;
+      loadGift();
+    });
+  });
+
+  /* ---------- 매점 투표 (§1.31) ---------- */
+  var V = null, pick = {};
+  var LOCK = {
+    off: "투표가 아직 열리지 않았어요",
+    not_member: "먼저 킬내기 동의가 필요해요",
+    not_linked: "스팀 닉을 연결하면 투표할 수 있어요",
+    not_clan: "클랜원 투표예요 · 궁금한 건 디스코드 운영진에게 물어봐 주세요",
+    clan_check_unavailable: "잠깐 확인 중이에요"
+  };
+  var closesText = function (ms) { var d = kst(ms), h = d.getUTCHours(); return (d.getUTCMonth() + 1) + "월 " + d.getUTCDate() + "일 " + (h < 12 ? "오전 " : "밤 ") + ((h % 12) || 12) + "시" + (d.getUTCMinutes() ? " " + d.getUTCMinutes() + "분" : "") + "까지"; };
+  function loadVote() {
+    $("voteDock").hidden = true;
+    if (!token()) { $("voteOut").innerHTML = connectCard + voteNotes(); return; }
+    $("voteOut").innerHTML = '<div class="card"><span class="sk sk-l"></span><span class="sk sk-l s"></span><p class="wait">불러오는 중이에요</p></div>';
+    api("/api/killrace/me/vote/" + POLL).then(function (r) {
+      if (r.status === 401) { $("voteOut").innerHTML = connectCard + voteNotes(); return; }
+      if (r.code === "clan_check_unavailable") { V = null; $("voteOut").innerHTML = '<div class="card"><p class="msg">잠깐 확인 중이에요</p><button type="button" class="btn line wide" data-vote="reload">다시 확인하기</button></div>'; return; }
+      if (!r.ok) { $("voteOut").innerHTML = '<div class="card">' + (r.code === "poll_not_found" ? '<p class="msg">투표가 아직 열리지 않았어요</p>' : '<div class="fail"><span>투표를 불러오지 못했어요</span><button type="button" class="retry" data-vote="reload">다시 시도</button></div>') + "</div>"; return; }
+      V = r.body; pick = {};
+      ((V.mine && V.mine.choices) || []).forEach(function (k) { pick[k] = true; });
+      paintVote();
+    });
+  }
+  function voteNotes() { return '<p class="foot">계정당 한 표 · 부계는 본계와 합쳐 한 표예요<br>결과는 참고해서 오너가 매점 품목을 정해요<br>코인은 킬내기 참여 보상이에요 · 돈으로 바꿀 수 없어요</p>'; }
+  function paintVote() {
+    var p = V.poll || {}, closed = p.state === "closed", can = !!V.canVote;
+    $("vTitle").textContent = p.title || "매점에 뭐가 들어오면 좋을까요";
+    var cl = toMs(p.closesAt);
+    $("vClose").textContent = closed ? "투표가 끝났어요" : cl ? closesText(cl) : "";
+    var html = "";
+    var lock = V.lockedReason && V.lockedReason !== "closed" ? V.lockedReason : null;
+    if (lock) html += '<div class="lock">' + esc(LOCK[lock] || "지금은 투표할 수 없어요") + "</div>" +
+      (lock === "not_member" || lock === "not_linked" ? '<a class="btn line wide" href="killrace/">내 계정으로</a>' : "");
+    if (closed && V.results) {
+      var res = V.results, max = Math.max.apply(null, [1].concat((res.counts || []).map(function (c) { return c.votes; })));
+      var cnt = {}; (res.counts || []).forEach(function (c) { cnt[c.key] = c.votes; });
+      html += '<div class="card"><h2 class="card-h">결과 <span class="note">' + comma(res.voters) + "명 참여</span></h2>" +
+        (p.options || []).map(function (o) {
+          var n = cnt[o.key] || 0;
+          return '<div class="res-row"><div><b>' + esc(o.label) + (pick[o.key] ? ' <span class="note">내가 고름</span>' : "") + "</b><span>" + n + '표</span></div><div class="res-bar"><i style="width:' + Math.round(n / max * 100) + '%"></i></div></div>';
+        }).join("") + '<p class="note" style="margin-top:10px;">자유 제안 ' + comma(res.suggestions) + "개</p></div>";
+    } else {
+      html += (p.options || []).map(function (o) {
+        return '<button type="button" class="opt" data-opt="' + esc(o.key) + '" aria-pressed="' + !!pick[o.key] + '"' + (can ? "" : " disabled") + '><span class="ck"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span>' +
+          "<span><b>" + esc(o.label) + "</b><small>" + (o.kind === "physical" ? "택배로 받아요" : "기프티콘으로 받아요") + "</small></span></button>";
+      }).join("");
+      html += '<div class="card" style="margin-top:12px;"><label class="card-h" for="sugg">이런 것도 있으면 좋겠어요</label>' +
+        '<input class="sugg" id="sugg" maxlength="40" placeholder="자유롭게 한 줄(40자까지)" value="' + esc((V.mine && V.mine.suggestion) || "") + '"' + (can ? "" : " disabled") + '><p class="count" id="suggN"></p></div>';
+    }
+    html += voteNotes() + (closed ? "" : '<div class="vote-pad"></div>');
+    $("voteOut").innerHTML = html;
+    if (!closed) { $("voteDock").hidden = !can; voteBtn(); }
+  }
+  function voteBtn(done) {
+    var n = Object.keys(pick).filter(function (k) { return pick[k]; }).length, s = $("sugg") ? $("sugg").value.trim() : "";
+    if ($("suggN")) $("suggN").textContent = s.length + " / 40";
+    var b = $("voteBtn");
+    if (done) { b.className = "btn ok"; b.textContent = "투표했어요 · 마감 전엔 바꿀 수 있어요"; b.disabled = false; return; }
+    b.className = "btn dark";
+    b.disabled = !n && !s;
+    b.textContent = n ? n + "개 골라 " + (V && V.mine ? "투표 고치기" : "투표하기") : s ? "제안만 보내기" : "골라 주세요";
+  }
+  $("voteOut").addEventListener("click", function (e) {
+    if (e.target.closest("[data-vote]")) { loadVote(); return; }
+    var o = e.target.closest("[data-opt]"); if (!o || o.disabled) return;
+    var k = o.getAttribute("data-opt"); pick[k] = !pick[k]; o.setAttribute("aria-pressed", String(!!pick[k])); voteBtn();
+  });
+  $("voteOut").addEventListener("input", function (e) { if (e.target.id === "sugg") voteBtn(); });
+  var VERR = { invalid_body: "고른 것을 다시 봐 주세요 · 제안에는 링크를 넣을 수 없어요", vote_closed: "투표가 끝났어요", switch_off: "투표가 아직 열리지 않았어요", not_linked: LOCK.not_linked, not_member: LOCK.not_member, not_clan: LOCK.not_clan, clan_check_unavailable: LOCK.clan_check_unavailable };
+  $("voteBtn").addEventListener("click", function () {
+    var b = this; if (b.className.indexOf("ok") >= 0) return;
+    var choices = Object.keys(pick).filter(function (k) { return pick[k]; }), s = $("sugg") ? $("sugg").value.trim() : "";
+    var body = { choices: choices }; if (s) body.suggestion = s;
+    b.disabled = true; b.textContent = "보내는 중이에요";
+    api("/api/killrace/me/vote/" + POLL, body).then(function (r) {
+      if (r.ok) { V.mine = r.body && r.body.mine || { choices: choices }; voteBtn(true); return; }
+      b.disabled = false; b.className = "btn dark"; b.textContent = VERR[r.code] || "다시 눌러 주세요";
+    });
+  });
+
+  /* ---------- 룰 · 티어 ---------- */
+  function showSeg(seg) {
+    document.querySelectorAll("[data-seg]").forEach(function (a) { if (a.getAttribute("data-seg") === seg) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    $("ruleBox").hidden = seg !== "rule"; $("tierBox").hidden = seg !== "tier";
+    if (seg === "rule" && !loaded.rule) { loaded.rule = true; loadRule(); }
+    if (seg === "tier" && !loaded.tier) { loaded.tier = true; loadTier(); }
+  }
   function loadTier() {
-    $("tierList").innerHTML = '<p class="msg">불러오는 중이에요</p>';
+    $("tierList").innerHTML = '<span class="sk sk-l"></span><span class="sk sk-l s"></span><p class="wait">불러오는 중이에요</p>';
     Promise.all([tierList(), loadCareer().catch(function () { return null; })]).then(function (r) {
       var list = r[0], career = r[1];
-      if (!list || !list.length) { $("tierList").innerHTML = FAIL; return; }
+      if (!list || !list.length) { $("tierList").innerHTML = FAIL; loaded.tier = false; return; }
       var games = {};
       if (career) (career.players || []).forEach(function (p) {
         [p.ign].concat(p.aka || []).forEach(function (n) { games[String(n).toLowerCase()] = p.games; });
@@ -720,7 +1107,7 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
       list.forEach(function (t) { (by[t.tier] = by[t.tier] || []).push(t); });
       $("tierList").innerHTML = Object.keys(by).map(Number).sort(function (a, b) { return a - b; }).map(function (tier) {
         var row = by[tier].sort(function (a, b) { return (a.rank == null ? 999 : a.rank) - (b.rank == null ? 999 : b.rank); });
-        return '<div class="tier' + (tier >= 5 ? " lowt" : "") + '"><div class="tier-h"><span class="num">' + tier + "</span><small>티어 · " + row.length + "명</small></div>" +
+        return '<div class="tier"><div class="tier-h"><span class="num">' + tier + "</span><small>티어 · " + row.length + "명</small></div>" +
           '<div class="nicks">' + row.map(function (t) {
             var g = games[String(t.ign).toLowerCase()], thin = career && !(g >= 10);
             return '<span class="nick' + (thin ? " thin" : "") + '"' + (career ? ' title="' + (g || 0) + '판"' : "") + ">" + esc(t.ign) + "</span>";
@@ -728,46 +1115,40 @@ details p{font-size:14px;color:var(--ink-dim);padding:0 0 12px;}
       }).join("") + (career ? "" : '<p class="note">판 수를 불러오지 못해 점선 표시는 빠졌어요</p>');
     });
   }
-
-  /* ---------- 룰 ---------- */
+  // 룰 — 신청 폼(killnaegi.html)의 #rules · #faq 를 그대로 가져온다(룰 정본은 신청 폼 하나)
   function loadRule() {
-    $("ruleBox").innerHTML = '<p class="msg">불러오는 중이에요</p>';
-    Promise.all([getText("killnaegi.html"), getJSON("/api/killrace/apply").catch(function () { return null; }), getJSON("/api/killrace/board").catch(function () { return null; })]).then(function (r) {
-      var doc = new DOMParser().parseFromString(r[0], "text/html");
-      var parts = ["rules", "faq"].map(function (id) { return doc.getElementById(id); }).filter(Boolean);
-      if (!parts.length) { $("ruleBox").innerHTML = '<div class="card"><p class="msg">룰을 불러오지 못했어요 · <a href="killnaegi.html#rules">신청 페이지</a>에서 봐 주세요</p></div>'; return; }
-      $("ruleBox").innerHTML = parts.map(function (el) { el.removeAttribute("id"); el.querySelectorAll("[id]").forEach(function (x) { x.removeAttribute("id"); }); el.removeAttribute("aria-labelledby"); return el.outerHTML; }).join("");
-      // 신청 폼처럼 시각 글자를 채운다(마감 = apply · 끝 = board). 모르면 빈 채로 둔다
-      var t = { close: r[1] ? toMs(r[1].closeAt) : null, end: r[2] && r[2].event ? r[2].event.end : null };
+    $("ruleBox").innerHTML = '<div class="card"><span class="sk sk-l"></span><span class="sk sk-l s"></span><p class="wait">불러오는 중이에요</p></div>';
+    var failBox = '<div class="card"><p class="msg">룰을 불러오지 못했어요 · <a href="killnaegi.html#rules">신청 페이지</a>에서 봐 주세요</p></div>';
+    Promise.all([loadRules(), getJSON("/api/killrace/apply").catch(function () { return null; }), getJSON("/api/killrace/board").catch(function () { return null; })]).then(function (r) {
+      var doc = r[0] && r[0].doc;
+      var parts = doc ? ["rules", "faq"].map(function (id) { return doc.getElementById(id); }).filter(Boolean) : [];
+      if (!parts.length) { $("ruleBox").innerHTML = failBox; loaded.rule = false; return; }
+      $("ruleBox").innerHTML = parts.map(function (el) {
+        var c = el.cloneNode(true);
+        c.removeAttribute("id"); c.querySelectorAll("[id]").forEach(function (x) { x.removeAttribute("id"); }); c.removeAttribute("aria-labelledby");
+        return c.outerHTML;
+      }).join("");
+      // 신청 폼처럼 시각 글자를 채운다(마감 = apply · 시작 · 끝 = board). 모르면 빈 채로 둔다
+      var ev = r[2] && r[2].event;
+      var t = { close: r[1] ? toMs(r[1].closeAt) : null, start: ev ? ev.start : null, end: ev ? ev.end : null };
       $("ruleBox").querySelectorAll("[data-t]").forEach(function (s) {
         var v = t[s.getAttribute("data-t")];
         s.textContent = v != null && isFinite(v) ? (s.getAttribute("data-pre") || "") + hm(v) + (s.getAttribute("data-post") || "") : "";
       });
-    }).catch(function () { $("ruleBox").innerHTML = '<div class="card"><p class="msg">룰을 불러오지 못했어요 · <a href="killnaegi.html#rules">신청 페이지</a>에서 봐 주세요</p></div>'; });
+    }).catch(function (e) { bug(e); $("ruleBox").innerHTML = failBox; loaded.rule = false; });
   }
 
-  /* ---------- 내 계정(우상단) ----------
-   * 로그인은 killrace/ 화면이 한다(같은 주소라 토큰 kr_token 을 같이 본다 · 앱 계약 §2 · §3). 여기서는 닉만 읽어 보여 준다.
-   * 토큰이 없거나 401 이면 「연결하기」, 서버가 안 되면 「내 계정」으로 둔다(로그인 상태를 모른 채 지우지 않는다) */
-  function loadWho() {
-    var tok = store.get("kr_token");
-    if (!tok) return;
-    $("who").textContent = "내 계정";
-    var ctl = typeof AbortController === "function" ? new AbortController() : null;
-    if (ctl) setTimeout(function () { ctl.abort(); }, WAIT_MS);
-    var opt = { cache: "no-store", headers: { Authorization: "Bearer " + tok } };
-    if (ctl) opt.signal = ctl.signal;
-    fetch(GAPI + "/api/killrace/me", opt).then(function (r) {
-      if (r.status === 401) { $("who").textContent = "연결하기"; return null; }
-      return r.ok ? r.json() : null;
-    }).then(function (me) {
-      var ign = me && me.member && me.member.ign;
-      if (ign) $("who").innerHTML = "<b>" + esc(ign) + "</b>";
-    }).catch(function () { /* 그대로 「내 계정」 */ });
+  // 판 표시 — 배포 때 채워진 커밋 번호 앞 7자리 + 배포 시각(KST). 틀 그대로(로컬)거나 못 읽으면 「개발 판」
+  function loadVer() {
+    getText("version.json").then(function (t) {
+      var j = JSON.parse(t.replace(/^---[\s\S]*?---\s*/, "")), at = toMs(j.at);
+      $("ver").textContent = /^[0-9a-f]{7,40}$/.test(j.rev || "") ? "v" + (at ? md(at) + " " + hm(at) + " · " : "") + j.rev.slice(0, 7) : "개발 판";
+    }).catch(function () { $("ver").textContent = "개발 판"; });
   }
 
-  show();
   loadWho();
+  loadVer();
+  show();
   window.knReady = true;
 })();
 </script>

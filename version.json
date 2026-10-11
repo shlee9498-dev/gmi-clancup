@@ -1,0 +1,4 @@
+---
+# Pages(Jekyll)가 배포할 때 채운다 — 킬내기 앱 맨 아래 판 표시(손으로 적지 않는다). 로컬에서 열면 이 틀 그대로 보여 앱은 「개발 판」으로 읽는다
+---
+{"rev":"{{ site.github.build_revision }}","at":"{{ site.time | date_to_xmlschema }}"}
