@@ -213,13 +213,17 @@ details summary{cursor:pointer;font-weight:700;font-size:14px;}
  * 3 드래프트: 라운드 0 = 4번 칸이 팀을 하나씩 세움(팀 번호는 핀볼) → 라운드 1 · 2 · 3 = 핀볼로 순서를 다시 섞고 3번 → 2번 → 1번 칸에서 고름(1번 = 팀장)
  * 4 팀마다 /킬내기팀등록 문안 복사
  * 저장은 이 브라우저 localStorage 와 JSON 내보내기 · 불러오기뿐이다. 서버 · DB 에 아무것도 쓰지 않는다.
- * 티어표는 스팀 닉 기준(2~6회 · 6회 봇판 제외 · 지휘 10/10). 부르는 이름(닉 표)은 실명이 섞여 있어 저장소에 넣지 않고 원장이 한 번 붙여 넣는다. */
+ * 티어표는 스팀 닉 기준(서버 killrace:tiers 와 같은 49줄 · 지휘 10/11). 부르는 이름(닉 표)은 실명이 섞여 있어 저장소에 넣지 않고 원장이 한 번 붙여 넣는다. */
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
   var KEY = "kn_draft_v1", NAMES_KEY = "kn_draft_names";
-  var TIER_TEXT = "GmI_MinChun:1/1 GmI_yoonpyo:1/2 wuslrhdwb:1.5/3 GmI_Hyun:1.5/4 GmI_HYE0N:1.5/5 GmI_Pompitz:2/6 GmI_rabbit:2/7 eogeumni_10:2/8 WINMIN_-:2/9 GmI_mri:2/10 2U_EEND:2/11 GmI_bbak:3/12 GmI_CHANGE:3/13 II_instinct:3/14 GmI_mkmk:3/15 GmI_HJ:3/16 GmI_RED:3/17 New_we:3/18 Aizawa_Hikari:3/19 GmI_WxxGiDA:4/20 GMI_JS:4/21 lilililil1illil1:4/22 dwvXvwb:4/23 GmI_CUTMONEYY:4/24 007591:4/25 GmI_Eve:4/26 Gmi_brw:4/27 suzzy___:4/28 GmI_heoppy:5/29 joonsunmom:5/30 GmI_SIN:5/31 JooProTV:5/32 Hanni_heart1006:5/33 zizonJunhyung:5/34 wkfgoqhfRkdy:5/35 GmI_Terror:5/36 GmI_4ONSS:6/37 s1Nyrx_:6/38 Hoonbro-:6/39 JoosiKGaeMI:6/40 yeopomalgo:6/41 Y4shX-:6/42 Naver_net:7/43 HHeeJunn:7/44 GmI_Nowitzki:7/45 516PIXEL:8/46 qhwh1707:8/47";
-  var ALIAS = { pineapplepxssy: "GmI_MinChun" };            // 같은 사람의 다른 계정
+  var TIER_TEXT = "GmI_MinChun:1/1 GmI_yoonpyo:1/2 wuslrhdwb:1.5/3 GmI_HYE0N:1.5/4 GmI_Hyun:1.5/5 GmI_mri:2/6 GmI_Pompitz:2/7 GmI_rabbit:2/8 eogeumni_10:2/9 WINMIN_-:2/10 2U_EEND:2/11 GmI_bbak:3/12 GmI_CHANGE:3/13 II_instinct:3/14 GmI_mkmk:3/15 GmI_HJ:3/16 New_we:3/17 GmI_bbubbu:3/18 GmI_RED:3/19 Aizawa_Hikari:3/20 GmI_WxxGiDA:4/21 GMI_JS:4/22 lilililil1illil1:4/23 dwvXvwb:4/24 suzzy___:4/25 GmI_CUTMONEYY:4/26 007591:4/27 Gmi_brw:4/28 GmI_heoppy:4/29 GmI_SIN:5/30 joonsunmom:5/31 Hanni_heart1006:5/32 GmI_Eve:5/33 GmI_4ONSS:5/34 zizonJunhyung:5/35 wkfgoqhfRkdy:5/36 s1Nyrx_:5/37 JooProTV:5/38 GmI_Terror:6/39 yeopomalgo:6/40 Hoonbro-:6/41 Y4shX-:6/42 JoosiKGaeMI:6/43 Naver_net:6/44 HHeeJunn:7/45 GmI_Nowitzki:7/46 516PIXEL:7/47 GmI_ILLPI:8/48 qhwh1707:8/49";
+  var ALIAS = {                                             // 부계 닉 → 본계(드래프트 입력에서 부계를 쳐도 본계 티어로 · 지휘 10/11)
+    pineapplepxssy: "GmI_MinChun", gmi_hudal: "GmI_Hyun", gmi_2muri: "GmI_mri", gmi_ninja: "GmI_Pompitz", gmi_jang: "JoosiKGaeMI",
+    "zhao-wei_": "GmI_Terror", ddi__yong: "zizonJunhyung", "xi-ry": "II_instinct", bbubbu1993: "GmI_bbubbu",
+    munmakgunslinger: "wuslrhdwb"
+  };
   var TIERS = [1, 1.5, 2, 3, 4, 5, 6, 7, 8];
   var LOW_TIER = 5;                                          // 5~8티어가 1명이라도 있으면 「저티어 판」 추천(오너 10/10 · 7~8 → 5~8) · 최종은 원장 토글
   var TABLE = {};                                            // 소문자 닉 → { ign, tier, rank }
