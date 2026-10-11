@@ -16,7 +16,7 @@
 </head>
 <body>
 <header class="top"><div class="top-in"><a class="brand" href="./">킬내기 <span>앱</span></a><div class="who" id="who"></div></div></header>
-<nav class="tabs"><a class="tab" href="./">내 계정</a><a class="tab on" href="prize.html">내 상금</a></nav>
+<nav class="tabs four"><a class="tab" href="./">내 계정</a><a class="tab on" href="prize.html">내 상금</a><a class="tab" href="gifts.html">기프티콘함</a><a class="tab" href="coin.html">코인</a></nav>
 
 <main aria-live="polite">
   <section class="card" id="gate" hidden><div class="empty" id="gateBody"></div></section>
@@ -24,6 +24,7 @@
   <section class="card" id="mine" hidden>
     <h2 class="card-h">내 상금</h2>
     <p class="card-sub">적립과 지급은 서버 기록 그대로예요. 계좌는 여기에 없어요</p>
+    <p class="note" id="accrueNote" hidden>상금이 적립되면 디스코드로 한 번 알려 드려요. 3만 원부터 지급 요청할 수 있어요</p>
     <div class="balance">
       <div><div class="amt num" id="balance"></div><div class="sub" id="balSub"></div></div>
       <div id="action"></div>
@@ -68,7 +69,8 @@
   };
   function lineHtml(l) {
     if (l.kind === "accrue") {
-      return '<li class="line"><span class="t">' + esc(l.eventName || (l.event != null ? l.event + "회" : "적립")) + '</span><span class="a num plus">+' + won(l.amount) + '</span><span class="s">' + esc(l.reason || "상금") + (l.at ? " · " + when(l.at) : "") + "</span></li>";
+      // 적립 안내(§1.30.2 · 설정 줄 killrace:prize:notified) — 서버가 notifiedAt 을 주면 「안내됨」만 덧붙인다(없으면 종전 그대로)
+      return '<li class="line"><span class="t">' + esc(l.eventName || (l.event != null ? l.event + "회" : "적립")) + '</span><span class="a num plus">+' + won(l.amount) + '</span><span class="s">' + esc(l.reason || "상금") + (l.at ? " · " + when(l.at) : "") + (l.notifiedAt ? " · 디스코드 안내됨" : "") + "</span></li>";
     }
     var st = l.status === "paid" ? '<span class="tag paid">지급 완료</span>' : l.status === "cancelled" ? '<span class="tag cancel">취소</span>' : '<span class="tag req">요청 중</span>';
     var sub = l.status === "paid" ? "지급 " + when(l.paidAt || l.at) : l.status === "cancelled" ? "취소 " + when(l.at) : "요청 " + when(l.requestedAt || l.at);
@@ -127,7 +129,7 @@
       if (r.status === 401) { gate("로그인이 필요해요", '<button type="button" class="btn main" data-act="login" style="margin-top:10px;">디스코드로 로그인</button>'); return; }
       if (r.code === "not_member") { gate("먼저 동의가 필요해요", '<a class="btn main" href="./" style="margin-top:10px;">내 계정으로</a>'); return; }
       if (!r.ok) { gate(r.code === "table_missing" ? "아직 준비 중이에요" : "불러오지 못했어요", "잠시 뒤 다시 열어 주세요. 계속 안 되면 디스코드에서 진행자에게 알려 주세요"); return; }
-      P = r.body; $("gate").hidden = true; $("mine").hidden = false; renderMine();
+      P = r.body; $("gate").hidden = true; $("mine").hidden = false; $("accrueNote").hidden = !P.linked; renderMine();
       KR.header(P.ign || "");
     });
   }
@@ -158,7 +160,8 @@
         who = "디스코드 " + esc(m.name || "이름 없음") + " · 연결 " + when(m.linkedAt);
         act = '<button type="button" class="btn main sm" data-verify="' + esc(p.key) + '" data-ign="' + esc(p.ign) + '" data-name="' + esc(m.name || "이름 없음") + '">본인 확인</button>';
       }
-      return '<li><div class="pl"><b>' + esc(p.ign) + "</b><span>" + won(p.balance) + (st ? " · " + st : "") + '</span><span class="who-line">' + who + "</span></div>" + act + "</li>";
+      var noti = p.unnotified > 0 ? ' <span class="tag nonoti">적립 안내 안 감 ' + p.unnotified + "</span>" : "";
+      return '<li><div class="pl"><b>' + esc(p.ign) + noti + "</b><span>" + won(p.balance) + (st ? " · " + st : "") + '</span><span class="who-line">' + who + "</span></div>" + act + "</li>";
     }).join("") : '<li class="muted" style="padding:8px 0;">아직 없어요</li>';
     $("playersSum").textContent = "선수별 잔액" + (waiting ? " · 본인 확인 대기 " + waiting + "명" : "");
     if (waiting) $("playersBox").open = true;
