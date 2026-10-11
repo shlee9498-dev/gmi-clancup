@@ -400,6 +400,10 @@ var STYLES = ["공격적","밸런스","안정적"];
 var KINDS = [{ key: "lesson", label: "레슨생" }, { key: "clan", label: "클랜원" }, { key: "external", label: "외부 참가" }];
 var KIND_TO = { lesson: "레슨생으로", clan: "클랜원으로", external: "외부 참가로" };
 var fee = 10000, payAccount = null;                       // 서버 응답(fee.external · payInfo.account)으로 덮는다
+/* 보증금(앱 계약 §17 · 스위치 deposit) — 서버 공개 응답에 deposit.external 이 있을 때만 보증금 문구 · 진행자 칸. 없으면 종전 참가비 그대로.
+ * 돈 문구라 느낌표 · 이모지 없음. 보증금은 상금이 되지 않고, 돌려주는 곳은 입금한 계좌다(계좌를 화면에서 받지 않는다) */
+var deposit = null;
+var FORFEIT = [{ code: "no_show", label: "노쇼" }, { code: "left", label: "중도 이탈" }, { code: "cheat", label: "불법 프로그램" }, { code: "shared", label: "계정 공유" }];
 var $ = function (id) { return document.getElementById(id); };
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]; }); }
 
@@ -429,6 +433,10 @@ function won(n) { return Number(n).toLocaleString("ko-KR") + "원"; }
 function kindLabel(k) { var f = KINDS.filter(function (x) { return x.key === k; })[0]; return f ? f.label : ""; }
 function payLine() { return payAccount ? '입금 계좌 <b>' + esc(payAccount) + "</b>" : "입금 안내는 디스코드에서 드려요"; }
 function feeHtml() {
+  if (deposit) return '<div class="acct-h">보증금 ' + won(deposit) + " · 회차가 끝나면 돌려드려요</div>" +
+    '<ul class="fee-list"><li>레슨생 · 클랜원은 보증금이 없어요</li><li>' + payLine() + "</li>" +
+    "<li>입금자명은 신청한 스팀 닉으로 해 주세요</li></ul>" +
+    '<p class="note" style="margin-top:6px;">노쇼 · 중도 이탈 · 불법 프로그램 · 계정 공유가 있으면 돌려드리지 않아요<br>돌려드리는 곳은 입금한 계좌예요 · 회차가 끝나고 3일 안에 보내 드려요</p>';
   return '<div class="acct-h">외부 참가비 ' + won(fee) + "</div>" +
     '<ul class="fee-list"><li>레슨생 · 클랜원은 무료예요</li><li>' + payLine() + "</li>" +
     "<li>입금자명은 신청한 스팀 닉으로 해 주세요</li><li>디스코드에서 진행자가 확인해요</li></ul>";
@@ -440,7 +448,8 @@ function syncFee(p) {
 }
 function syncPayInfo() {
   syncFee("n"); syncFee("m");
-  $("sponsorHow").innerHTML = payAccount ? "보태고 싶은 분은 여기로 <span>" + esc(payAccount) + "</span>" : "보태고 싶은 분은 디스코드로 알려 주세요";
+  // 보증금이 켜지면 보증금 계좌와 후원 통장을 섞지 않는다(§17.5) — 후원은 디스코드로만 안내
+  $("sponsorHow").innerHTML = payAccount && !deposit ? "보태고 싶은 분은 여기로 <span>" + esc(payAccount) + "</span>" : "보태고 싶은 분은 디스코드로 알려 주세요";
 }
 function picked(p, key) { var c = document.querySelector('input[name="' + p + key + '"]:checked'); return c ? c.value : ""; }
 function pick(p, key, value) { Array.prototype.forEach.call(document.querySelectorAll('input[name="' + p + key + '"]'), function (r) { r.checked = r.value === value; }); }
@@ -481,6 +490,8 @@ function lookup(force) {
 }
 
 var ERR = {
+  need_reason: "몰수 사유와 메모를 다 적어 주세요",
+  not_held: "받은 상태인 보증금만 돌려주거나 몰수할 수 있어요",
   no_discord: "디스코드 닉을 적어 주세요",
   no_ign: "스팀 닉을 띄어쓰기 없이 적어 주세요",
   steam_only: "이번에는 스팀 닉으로만 신청할 수 있어요",
@@ -537,7 +548,7 @@ function submit(e) {
       var d = res.d, done = $("done");
       // 외부 참가면 참가비 안내를 완료 칸에도 남긴다(신청 칸이 닫히면 위 안내 칸도 같이 닫힌다)
       var feeNote = (d.kind || body.kind) === "external"
-        ? "<span>외부 참가비 " + won(fee) + " " + (payAccount ? "입금 계좌 " + esc(payAccount) : "입금 안내는 디스코드에서 드려요") + "</span><span>입금자명은 신청한 스팀 닉으로 해 주세요</span>" : "";
+        ? "<span>" + (deposit ? "보증금 " + won(deposit) + " · 회차가 끝나면 돌려드려요 " : "외부 참가비 " + won(fee) + " ") + (payAccount ? "입금 계좌 " + esc(payAccount) : "입금 안내는 디스코드에서 드려요") + "</span><span>입금자명은 신청한 스팀 닉으로 해 주세요</span>" : "";
       done.innerHTML = (d.waiting
         ? "정원이 차서 대기 " + (d.order - d.cap) + "번으로 받았어요<span>자리가 나면 디스코드로 알려 드려요</span>"
         : esc(d.ign) + " 님 신청됐어요 · " + d.order + "번째<span>" + (whenText("close") ? whenText("day") + " " + whenText("close") + "에 " : "") + "디스코드 음성 채널에서 만나요</span>") + feeNote;
@@ -602,6 +613,7 @@ function load() {
     applyRound(d);
     if (NEED_ACCOUNT !== (d.needAccount !== false)) { NEED_ACCOUNT = d.needAccount !== false; applyAcct(); }
     if (d.fee && d.fee.external) fee = d.fee.external;
+    deposit = d.deposit && Number(d.deposit.external) > 0 ? Number(d.deposit.external) : null;
     payAccount = d.payInfo && d.payInfo.account ? d.payInfo.account : null;
     syncPayInfo();
     $("countLine").innerHTML = closed ? "신청이 마감됐어요"
@@ -689,12 +701,16 @@ function hostRender(d) {
   var kc = d.kindCounts || null;
   $("hostKinds").innerHTML = kc ? KINDS.map(function (k) { return '<span class="h-tag kind">' + k.label + " " + kc[k.key] + "</span>"; }).join("") +
     (kc.none ? '<span class="h-tag none">구분 안 고름 ' + kc.none + "</span>" : "") : "";
+  if (d.deposit && Number(d.deposit.external) > 0) deposit = Number(d.deposit.external);
+  if (deposit) { $("hostFee").innerHTML = depositTop(d, kc); }
+  else {
   var unpaid = d.feeUnpaid || [];
   $("hostFee").innerHTML = unpaid.length
     ? '<div class="h-fee"><b>참가비 확인 전 ' + unpaid.length + "명</b><br>" + unpaid.map(function (x) {
         return x.order + ". " + esc(x.ign) + " (" + esc(x.discord) + ")" + (x.waiting ? " 대기" : "");
       }).join("<br>") + "</div>"
     : kc && kc.external ? '<p class="h-ok" style="margin:-4px 0 10px;">외부 참가 ' + kc.external + "명 참가비를 다 확인했어요</p>" : "";
+  }
   $("hostMiss").innerHTML = d.introMissing.length
     ? '<div class="h-miss"><b>안 채운 사람 ' + d.introMissing.length + "명</b><br>" + d.introMissing.map(function (x) {
         return x.order + ". " + esc(x.ign) + " (" + esc(x.discord) + ") · " + x.missing.map(function (k) { return MISS_KO[k] || k; }).join(", ") + " 빠짐";
@@ -711,7 +727,8 @@ function hostRender(d) {
     var acts = '<div class="h-acts"><button type="button" class="btn btn-soft" data-edit="' + esc(x.id) + '">고치기</button>' +
       (i ? '<button type="button" class="btn btn-soft" data-clear="' + esc(x.id) + '">비우기</button>' : "") +
       '<button type="button" class="btn btn-soft" data-kind="' + esc(x.id) + '">구분 바꾸기</button>' +
-      (x.kind === "external" ? '<button type="button" class="btn btn-soft" data-fee="' + (x.fee && x.fee.paid ? "0" : "1") + '" data-id="' + esc(x.id) + '">' +
+      (x.kind === "external" && deposit ? depositActs(x) : "") +
+      (x.kind === "external" && !deposit ? '<button type="button" class="btn btn-soft" data-fee="' + (x.fee && x.fee.paid ? "0" : "1") + '" data-id="' + esc(x.id) + '">' +
         (x.fee && x.fee.paid ? "확인 풀기" : "참가비 확인") + "</button>" : "") +
       '</div><div class="h-edit" id="edit-' + esc(x.id) + '"></div>';
     if (!i) return '<div class="h-row">' + top + '<div class="h-none">아직 안 채웠어요 · 디스코드 ' + esc(x.discord) + "</div>" + join + stats + acts + "</div>";
@@ -727,10 +744,71 @@ function joinLines(x) {
   var who = x.kindBy ? " 진행자 " + esc(x.kindBy) + " 님이 고름" : x.kindSaves > 1 ? " 본인이 다시 고름" : "";
   var line = '<div class="h-line">구분 ' + tag + (who ? '<span class="h-meta">' + who + "</span>" : "") + "</div>";
   if (x.kind !== "external") return line;
+  if (deposit) return line + depositLine(x);
   var f = x.fee || {};
   return line + (f.paid
     ? '<div class="h-ok">참가비 ' + won(fee) + " 확인 " + (f.at ? kstTime(f.at) : "") + (f.by ? " 진행자 " + esc(f.by) : "") + "</div>"
     : '<div class="h-none">참가비 확인 전' + (f.by ? '<span class="h-meta"> 진행자 ' + esc(f.by) + " 님이 " + (f.at ? kstTime(f.at) : "") + "에 풀었어요</span>" : "") + "</div>");
+}
+/* ── 보증금 진행자 칸(§17.4) — 받음 확인 · 돌려줌 · 몰수(사유 필수). 상태는 서버 줄(x.deposit · 옛 줄은 x.fee) 그대로 ── */
+function depState(x) {
+  var f = x.deposit || x.fee || {};
+  return f.state || (f.paid ? "held" : "unpaid");
+}
+function depositTop(d, kc) {
+  var held = d.depositHeld || [], unpaid = d.depositUnpaid || d.feeUnpaid || [];
+  var out = "";
+  if (held.length) out += '<div class="h-fee"><b>돌려줄 보증금 ' + held.length + "명</b><br>" + held.map(function (x) {
+    return x.order + ". " + esc(x.ign) + (x.due ? " · " + kstTime(Date.parse(x.due)) + "까지" : "") + (x.daysLeft != null ? " · " + x.daysLeft + "일 남음" : "");
+  }).join("<br>") + "</div>";
+  if (unpaid.length) out += '<div class="h-fee"><b>보증금 받기 전 ' + unpaid.length + "명</b><br>" + unpaid.map(function (x) {
+    return x.order + ". " + esc(x.ign) + (x.waiting ? " 대기" : "");
+  }).join("<br>") + "</div>";
+  return out || (kc && kc.external ? '<p class="h-ok" style="margin:-4px 0 10px;">외부 참가 ' + kc.external + "명 보증금 처리가 끝났어요</p>" : "");
+}
+function depositLine(x) {
+  var f = x.deposit || x.fee || {}, st = depState(x);
+  if (st === "returned") return '<div class="h-ok">보증금 ' + won(deposit) + " 돌려줌" + (f.returnedAt ? " " + kstTime(Date.parse(f.returnedAt) || f.returnedAt) : "") + (f.returnedBy ? " 진행자 " + esc(f.returnedBy) : "") + "</div>";
+  if (st === "forfeited") {
+    var why = f.forfeit || {}, lab = FORFEIT.filter(function (r) { return r.code === why.code; })[0];
+    return '<div class="h-none">보증금 몰수 · ' + esc(lab ? lab.label : why.code || "") + (why.memo ? " · " + esc(why.memo) : "") + (why.by ? '<span class="h-meta"> 진행자 ' + esc(why.by) + "</span>" : "") + "</div>";
+  }
+  if (st === "held") return '<div class="h-ok">보증금 ' + won(deposit) + " 받음" + (f.at ? " " + kstTime(f.at) : "") + (f.by ? " 진행자 " + esc(f.by) : "") + "</div>";
+  return '<div class="h-none">보증금 받기 전</div>';
+}
+function depositActs(x) {
+  var st = depState(x), id = esc(x.id);
+  if (st === "unpaid") return '<button type="button" class="btn btn-soft" data-dep="set" data-id="' + id + '">받음 확인</button>';
+  if (st === "held") return '<button type="button" class="btn btn-soft" data-dep="return" data-id="' + id + '">돌려줌</button>' +
+    '<button type="button" class="btn btn-soft" data-dep="forfeit" data-id="' + id + '">몰수</button>';
+  return "";
+}
+function openForfeit(id) {
+  var x = hostRow(id); if (!x) return;
+  closeEditors();
+  $("edit-" + id).innerHTML = '<div class="acct"><fieldset><legend class="label">몰수 사유 <span class="req">*</span></legend><div class="seg">' +
+    FORFEIT.map(function (r) { return '<label><input type="radio" name="fCode" value="' + r.code + '"><span>' + r.label + "</span></label>"; }).join("") + "</div></fieldset>" +
+    '<div class="field" style="margin-bottom:0;"><label class="label" for="fMemo">메모 <span class="req">*</span></label><input type="text" class="input" id="fMemo" maxlength="80" autocomplete="off" placeholder="예: 2판째 첫 낙하 전에 나감"></div></div>' +
+    '<div class="h-edit-acts"><button type="button" class="btn btn-main" data-dep="forfeitSave" data-id="' + esc(id) + '">몰수로 남기기</button>' +
+    '<button type="button" class="btn btn-line" data-close="1">닫기</button></div>';
+}
+function depositClick(t) {
+  var act = t.getAttribute("data-dep"), id = t.getAttribute("data-id"), x = hostRow(id);
+  if (!x) return;
+  if (act === "set") {
+    if (!window.confirm("통장에서 " + x.ign + " 님 보증금 " + won(deposit) + " 입금을 봤나요?")) return;
+    hostPost({ action: "depositSet", id: id, paid: true }, x.ign + " 님 보증금을 받았어요");
+  } else if (act === "return") {
+    if (!window.confirm(x.ign + " 님 보증금 " + won(deposit) + "을 입금한 계좌로 돌려보냈나요?\n한 번 남기면 오너만 되돌릴 수 있어요")) return;
+    hostPost({ action: "depositReturn", id: id }, x.ign + " 님 보증금을 돌려준 걸로 남겼어요");
+  } else if (act === "forfeit") {
+    setHostMsg(""); openForfeit(id);
+  } else if (act === "forfeitSave") {
+    var code = picked("f", "Code"), memo = ($("fMemo").value || "").trim();
+    if (!code || !memo) { setHostMsg("몰수 사유와 메모를 다 적어 주세요", true); return; }
+    if (!window.confirm(x.ign + " 님 보증금을 몰수로 남길까요? 몰수한 돈은 상금에 쓰지 않아요")) return;
+    hostPost({ action: "depositForfeit", id: id, code: code, memo: memo }, x.ign + " 님 보증금을 몰수로 남겼어요");
+  }
 }
 function openKindEditor(id) {
   var x = hostRow(id); if (!x) return;
@@ -781,6 +859,7 @@ function hostClick(e) {
     hostPost({ action: "kindSet", id: kid, kind: k }, kx.ign + " 님 구분을 " + KIND_TO[k] + " 바꿨어요");
     return;
   }
+  if (t.getAttribute("data-dep")) { depositClick(t); return; }
   if (t.getAttribute("data-fee")) {
     var fid = t.getAttribute("data-id"), fx = hostRow(fid), paid = t.getAttribute("data-fee") === "1";
     if (!fx) return;

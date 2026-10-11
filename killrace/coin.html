@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>킬내기 앱 | 코인</title>
+<meta name="description" content="GmI 킬내기 앱. 연습판에서 받은 코인과 매점 교환을 봐요.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F5F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="app.css">
+<style>/* 공통 토큰은 app.css · 본문 글꼴만 여기 한 줄(검사기가 외부 파일을 못 본다) */body{font-family:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;}.brand,.num,.balance .amt{font-family:'Saira Condensed','Pretendard Variable',sans-serif;}</style>
+</head>
+<body>
+<header class="top"><div class="top-in"><a class="brand" href="./">킬내기 <span>앱</span></a><div class="who" id="who"></div></div></header>
+<nav class="tabs four"><a class="tab" href="./">내 계정</a><a class="tab" href="prize.html">내 상금</a><a class="tab" href="gifts.html">기프티콘함</a><a class="tab on" href="coin.html">코인</a></nav>
+
+<main aria-live="polite">
+  <section class="card" id="gate" hidden><div class="empty" id="gateBody"></div></section>
+
+  <section class="card" id="wallet" hidden>
+    <h2 class="card-h">내 코인</h2>
+    <p class="card-sub">상금 없는 연습판에서 받아요. 매점 경품으로만 바꿀 수 있어요</p>
+    <div class="balance"><div><div class="amt num" id="bal"></div><div class="sub" id="balSub"></div></div></div>
+    <p class="note" id="walletNote"></p>
+    <ul class="lines" id="coinLines"></ul>
+  </section>
+
+  <section class="card" id="openBox" hidden>
+    <h2 class="card-h">교환 신청</h2>
+    <div id="openBody"></div>
+    <p class="msg" id="openMsg" role="status"></p>
+  </section>
+
+  <section class="card" id="shop" hidden>
+    <h2 class="card-h">매점</h2>
+    <p class="card-sub" id="shopSub">코인으로 경품을 바꿔요. 한 번에 하나씩 신청할 수 있어요</p>
+    <div id="shopBody"></div>
+    <p class="msg" id="shopMsg" role="status"></p>
+  </section>
+</main>
+<p class="foot"><a href="../killnaegi-app.html">킬내기 홈</a> · <a href="../killnaegi-board.html">점수판</a></p>
+
+<script src="app.js"></script>
+<script>
+/* 코인 · 매점(계약 killrace-api §1.28 · 앱 계약 §18) — 잔액 · 한도 · 잠김 이유는 전부 서버 값이다(앱이 계산하지 않는다).
+ * 매점은 스위치 coin_shop 이 켜졌을 때만 열린다. 꺼져 있으면 「준비 중이에요」. 지갑은 스위치와 상관없이 보인다.
+ * 실물 경품은 배송 동의(§1.28.11b) 세 칸만 받고, 보낸 뒤에는 화면 어디에도 주소 · 연락처를 다시 보여 주지 않는다. */
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = KR.esc, num = KR.num, when = KR.when;
+  var SW = null, W = null, S = null, busy = false, pick = null;
+  var SHIP_CONSENT = "경품 배송을 위해 받는 이름 · 주소 · 연락처예요. 배송에만 쓰고, 받았다고 눌러 주시거나 보낸 지 14일이 지나면 지워요. 동의하지 않으면 실물 경품은 받을 수 없어요";
+  var LOCKED = {
+    shop_off: "지금은 쉬고 있어요",
+    budget_full: "이번 달 교환이 다 찼어요 · 다음 달 1일에 다시 열려요",
+    off: "코인이 아직 열리지 않았어요",
+    not_linked: "스팀 닉을 연결하면 바꿀 수 있어요",
+    not_verified: "본인 확인이 끝나면 바꿀 수 있어요",
+    open_request: "신청한 경품이 끝나면 다음 것을 바꿀 수 있어요"
+  };
+  var ERR = {
+    insufficient_coin: "코인이 모자라요", out_of_stock: "이번 달 수량이 다 나갔어요", item_unavailable: "지금은 바꿀 수 없는 경품이에요",
+    open_request: "이미 신청한 경품이 있어요", not_verified: "본인 확인이 끝나면 바꿀 수 있어요", not_linked: "스팀 닉을 먼저 연결해 주세요",
+    switch_off: "지금은 쉬고 있어요", budget_full: LOCKED.budget_full, coin_off: "코인이 아직 열리지 않았어요",
+    consent_required: "배송 정보 동의에 체크해 주세요", under_14: "실물 경품은 만 14세부터 받을 수 있어요 · 기프티콘은 바꿀 수 있어요",
+    invalid_body: "배송 정보를 다시 봐 주세요", not_shipped: "아직 보내기 전이에요", rate_limited: "너무 자주 눌렀어요. 잠시 뒤 다시 해 주세요",
+    network: "서버에 닿지 않았어요. 잠시 뒤 다시 해 주세요"
+  };
+  var ST = { requested: "승인 기다리는 중", approved: "보낼 준비 중", sent: "보냈어요", rejected: "어려워요", cancelled: "취소했어요" };
+  var KIND = { earn: "받음", spend: "교환", refund: "돌려받음", adjust: "정정", expire: "소멸" };
+
+  function gate(title, body) { $("gate").hidden = false; ["wallet", "shop", "openBox"].forEach(function (k) { $(k).hidden = true; }); $("gateBody").innerHTML = "<b>" + esc(title) + "</b>" + body; KR.header(""); }
+
+  function renderWallet() {
+    var w = W;
+    $("wallet").hidden = false;
+    if (!w.linked) {
+      $("bal").textContent = "–"; $("balSub").textContent = "";
+      $("walletNote").innerHTML = '스팀 닉을 연결하면 내 코인이 보여요 <a href="./">내 계정</a>';
+      $("coinLines").innerHTML = ""; return;
+    }
+    $("bal").innerHTML = num(w.balance) + "<small>코인</small>";
+    $("balSub").textContent = "받은 " + num(w.earned) + " · 쓴 " + num(w.spent);
+    $("walletNote").textContent = w.on === false ? "코인이 아직 열리지 않았어요. 연습판 기록은 그대로 쌓여요" : (w.month ? "이번 달 연습판 코인 " + num(w.month.issued) + " 나갔어요" : "");
+    $("coinLines").innerHTML = (w.items || []).length ? w.items.map(function (l) {
+      var plus = l.amount > 0;
+      var title = l.event ? esc(l.event.name) : l.exchange ? esc(l.exchange.item) : KIND[l.kind] || l.kind;
+      var sub = (KIND[l.kind] || l.kind) + (l.exchange && l.exchange.status ? " · " + (ST[l.exchange.status] || l.exchange.status) : "") + (l.at ? " · " + when(l.at) : "");
+      return '<li class="line"><span class="t">' + title + '</span><span class="a num ' + (plus ? "plus" : "minus") + '">' + (plus ? "+" : "−") + num(Math.abs(l.amount)) + '</span><span class="s">' + sub + "</span></li>";
+    }).join("") : '<li class="muted" style="padding:8px 0;">아직 받은 코인이 없어요. 상금 없는 연습판에 나가면 쌓여요</li>';
+  }
+
+  function shipForm(prefix, label) {
+    return '<div class="ship" id="' + prefix + 'Ship"><div class="consent">' + esc(SHIP_CONSENT) + "</div>" +
+      '<label class="check"><input type="checkbox" id="' + prefix + 'Agree"><span><b>동의해요</b></span></label>' +
+      '<div class="field"><label class="label" for="' + prefix + 'Name">받는 사람</label><input class="input" id="' + prefix + 'Name" maxlength="20" autocomplete="off"></div>' +
+      '<div class="field"><label class="label" for="' + prefix + 'Addr">주소</label><input class="input" id="' + prefix + 'Addr" maxlength="120" autocomplete="off"></div>' +
+      '<div class="field"><label class="label" for="' + prefix + 'Phone">연락처</label><input class="input" id="' + prefix + 'Phone" maxlength="13" inputmode="tel" autocomplete="off" placeholder="010-0000-0000"></div>' +
+      '<button type="button" class="btn main wide" id="' + prefix + 'Go" disabled>' + esc(label) + "</button></div>";
+  }
+  // 세 칸 모양만 본다(서버가 다시 본다) · 값은 보내고 나면 칸을 비운다
+  function shipValues(prefix) {
+    var v = { consent: $(prefix + "Agree").checked, name: $(prefix + "Name").value.trim(), address: $(prefix + "Addr").value.trim(), phone: $(prefix + "Phone").value.trim() };
+    if (!v.consent) return { err: ERR.consent_required };
+    if (v.name.length < 1 || v.name.length > 20) return { err: "받는 사람 이름을 적어 주세요" };
+    if (v.address.length < 5 || v.address.length > 120) return { err: "주소를 끝까지 적어 주세요" };
+    if (!/^[0-9-]{9,13}$/.test(v.phone)) return { err: "연락처는 숫자와 하이픈으로 적어 주세요" };
+    return { v: v };
+  }
+  function clearShip(prefix) { ["Name", "Addr", "Phone"].forEach(function (k) { var el = $(prefix + k); if (el) el.value = ""; }); var a = $(prefix + "Agree"); if (a) a.checked = false; }
+  function bindShip(prefix, onGo) {
+    var sync = function () { $(prefix + "Go").disabled = !$(prefix + "Agree").checked; };
+    $(prefix + "Agree").addEventListener("change", sync);
+    $(prefix + "Go").addEventListener("click", onGo);
+  }
+
+  function renderShop() {
+    $("shop").hidden = false;
+    if (!SW.coin_shop) {
+      $("shopSub").textContent = "코인으로 경품을 바꾸는 곳이에요";
+      $("shopBody").innerHTML = '<div class="ready"><b>준비 중이에요</b>매점이 열리면 여기서 바꿀 수 있어요. 코인은 그대로 쌓여요</div>';
+      return;
+    }
+    if (!S) { $("shopBody").innerHTML = '<div class="ready"><b>매점을 불러오지 못했어요</b>잠시 뒤 다시 열어 주세요</div>'; return; }
+    var lock = S.lockedReason, bal = W && W.linked ? Number(W.balance) || 0 : 0;
+    var head = lock ? '<p class="note" style="margin:-4px 0 8px;">' + esc(LOCKED[lock] || "지금은 바꿀 수 없어요") + "</p>" : "";
+    if (!(S.items || []).length) { $("shopBody").innerHTML = head + '<div class="ready"><b>이번 달 경품이 아직 없어요</b>경품이 들어오면 여기에 보여요</div>'; return; }
+    $("shopBody").innerHTML = head + '<ul class="shop">' + S.items.map(function (it) {
+      var out = it.stock === 0, short = bal < it.coinPrice, phys = it.delivery === "physical";
+      var why = out ? "이번 달 다 나갔어요" : short ? num(it.coinPrice - bal) + "코인 더 모으면 돼요" : "";
+      var can = !lock && !out && !short && S.canExchange !== false;
+      return '<li><span class="nm">' + esc(it.name) + (phys ? ' <span class="tag">실물</span>' : "") + '</span><span class="pr">' + num(it.coinPrice) + "코인" +
+        (it.stock != null ? " · 남은 " + num(it.stock) + "개" : "") + (why ? " · " + why : "") + "</span>" +
+        '<button type="button" class="btn ' + (can ? "main" : "line") + ' sm" data-item="' + esc(it.id) + '"' + (can ? "" : " disabled") + ">바꾸기</button></li>" +
+        (pick === it.id && phys ? '<li style="display:block;border-top:0;padding-top:0;">' + shipForm("n", num(it.coinPrice) + "코인으로 바꾸기") + "</li>" : "");
+    }).join("") + "</ul>";
+    if (pick != null && $("nGo")) bindShip("n", function () { exchange(itemOf(pick), true); });
+  }
+  function itemOf(id) { return (S.items || []).filter(function (x) { return String(x.id) === String(id); })[0]; }
+
+  function renderOpen() {
+    var o = S && S.open;
+    $("openBox").hidden = !o;
+    if (!o) return;
+    var phys = o.delivery === "physical", ship = o.shipState || null;
+    var html = '<div class="gift"><div class="gift-h"><b>' + esc(o.item) + '</b><span class="num">' + num(o.coinPrice) + "코인</span></div>" +
+      '<div class="s">' + (ST[o.status] || o.status) + (o.requestedAt ? " · " + when(o.requestedAt) + " 신청" : "") + (phys && o.trackingNo ? " · 송장 " + esc(o.trackingNo) : "") + "</div>";
+    if (o.status === "requested") html += '<div class="row"><button type="button" class="btn line" id="cancelBtn">신청 취소</button></div>';
+    if (phys && o.status === "requested") html += '<p class="note">배송 정보 받았어요</p>';
+    if (phys && ship === "shipped") html += '<p class="note">보냈어요. 받으면 눌러 주세요</p><div class="row"><button type="button" class="btn main" id="gotBtn">받았어요</button><button type="button" class="btn line" id="lostBtn">못 받았어요</button></div>';
+    if (phys && ship === "reship_pending") html += '<p class="note">다시 보내 드릴게요. 받는 곳을 새로 적어 주세요</p>' + shipForm("r", "다시 보내 주세요");
+    if (!phys && o.status === "sent") html += '<p class="note">디스코드 DM 으로 보냈어요</p>';
+    $("openBody").innerHTML = html + "</div>";
+    if ($("cancelBtn")) $("cancelBtn").addEventListener("click", cancel);
+    if ($("gotBtn")) $("gotBtn").addEventListener("click", function () { shipAct("received", "받았다고 남길까요? 배송 정보는 바로 지워져요"); });
+    if ($("lostBtn")) $("lostBtn").addEventListener("click", function () { shipAct("lost", "못 받았다고 남길까요? 지난 배송 정보는 지우고 새로 받아요"); });
+    if ($("rGo")) bindShip("r", reAddress);
+  }
+
+  function msg(id, text, ok) { $(id).className = "msg" + (ok ? " ok" : ""); $(id).textContent = text || ""; }
+  function exchange(it, withShip) {
+    if (busy || !it) return;
+    var body = { itemId: it.id };
+    if (it.delivery === "physical") {
+      if (!withShip) { pick = it.id; renderShop(); return; }
+      var s = shipValues("n"); if (s.err) { msg("shopMsg", s.err); return; }
+      body.consent = true; body.name = s.v.name; body.address = s.v.address; body.phone = s.v.phone;
+    } else if (!confirm(it.name + " 을 " + num(it.coinPrice) + "코인으로 바꿀까요? 오너가 확인한 뒤 디스코드 DM 으로 보내 드려요")) return;
+    busy = true; msg("shopMsg", "");
+    KR.api("/api/killrace/me/coin/exchange", body).then(function (r) {
+      busy = false;
+      if (it.delivery === "physical") clearShip("n");
+      if (r.ok) { pick = null; msg("shopMsg", "신청했어요. 오너가 확인하면 알려 드려요", true); return load(); }
+      msg("shopMsg", ERR[r.code] || "신청하지 못했어요. 잠시 뒤 다시 해 주세요");
+      if (/^(open_request|budget_full|switch_off|out_of_stock|insufficient_coin)$/.test(r.code || "")) load();
+    });
+  }
+  function cancel() {
+    if (busy || !confirm("신청을 취소할까요? 쓴 코인은 돌려받아요")) return;
+    busy = true;
+    KR.api("/api/killrace/me/coin/exchange/cancel", {}).then(function (r) {
+      busy = false;
+      if (r.ok) { msg("openMsg", "취소했어요. 코인을 돌려받았어요", true); return load(); }
+      msg("openMsg", r.code === "not_requested" ? "이미 처리가 시작됐어요" : ERR[r.code] || "취소하지 못했어요. 잠시 뒤 다시 해 주세요");
+    });
+  }
+  function shipAct(kind, ask) {
+    var o = S && S.open; if (busy || !o || !confirm(ask)) return;
+    busy = true;
+    KR.api("/api/killrace/me/coin/exchange/" + encodeURIComponent(o.id) + "/" + kind, {}).then(function (r) {
+      busy = false;
+      if (r.ok) { msg("openMsg", kind === "received" ? "받았다고 남겼어요. 배송 정보는 지웠어요" : "남겼어요. 받는 곳을 새로 적어 주세요", true); return load(); }
+      msg("openMsg", ERR[r.code] || "남기지 못했어요. 잠시 뒤 다시 해 주세요");
+    });
+  }
+  function reAddress() {
+    var o = S && S.open; if (busy || !o) return;
+    var s = shipValues("r"); if (s.err) { msg("openMsg", s.err); return; }
+    busy = true;
+    KR.api("/api/killrace/me/coin/exchange/" + encodeURIComponent(o.id) + "/address", { consent: true, name: s.v.name, address: s.v.address, phone: s.v.phone }).then(function (r) {
+      busy = false; clearShip("r");
+      if (r.ok) { msg("openMsg", "받는 곳을 받았어요. 다시 보내 드릴게요", true); return load(); }
+      msg("openMsg", ERR[r.code] || "보내지 못했어요. 잠시 뒤 다시 해 주세요");
+    });
+  }
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-item]"); if (!b || b.disabled) return;
+    exchange(itemOf(b.getAttribute("data-item")), false);
+  });
+
+  function load() {
+    return Promise.all([KR.switches(), KR.api("/api/killrace/me/coin"), KR.api("/api/killrace/me/coin/shop")]).then(function (r) {
+      SW = r[0]; var w = r[1], s = r[2];
+      if (w.status === 401) { gate("로그인이 필요해요", '<button type="button" class="btn main" data-act="login" style="margin-top:10px;">디스코드로 로그인</button>'); return; }
+      if (w.code === "not_member") { gate("먼저 동의가 필요해요", '<a class="btn main" href="./" style="margin-top:10px;">내 계정으로</a>'); return; }
+      if (!w.ok) {
+        // 서버 길이 아직 없거나(404) 표가 없으면(503) — 지금 화면 + 준비 중
+        gate(w.status === 404 || w.code === "table_missing" ? "준비 중이에요" : "불러오지 못했어요", w.status === 404 || w.code === "table_missing" ? "코인은 연습판이 열리면 시작해요" : "잠시 뒤 다시 열어 주세요");
+        return;
+      }
+      $("gate").hidden = true;
+      W = w.body; S = s.ok ? s.body : null;
+      renderWallet(); renderOpen(); renderShop();
+    });
+  }
+  if (!KR.token()) gate("로그인이 필요해요", '<button type="button" class="btn main" data-act="login" style="margin-top:10px;">디스코드로 로그인</button>');
+  else { KR.api("/api/killrace/me").then(function (r) { KR.header(r.ok && r.body ? r.body.ign || "" : ""); }); load(); }
+})();
+</script>
+</body>
+</html>

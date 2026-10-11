@@ -71,5 +71,23 @@
     if (b.getAttribute("data-act") === "login") login();
     if (b.getAttribute("data-act") === "logout") { logout(); location.reload(); }
   });
-  window.KR = { API: API, api: api, token: token, login: login, logout: logout, esc: esc, won: won, when: when, header: header };
+  // 스위치(앱 계약 §18.1 · GET /api/killrace/switches · 누구나) — 못 읽으면 전부 꺼진 것으로 본다(안전한 쪽)
+  var OFF = { coin_shop: false, casino_link: false, deposit: false, monthly_budget_krw: 0, budget: null };
+  var swP = null;
+  function switches() {
+    if (!swP) swP = fetch(API + "/api/killrace/switches", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      var s = j && (j.switches || j);                      // { switches: {...}, budget } 또는 평평한 모양 둘 다 읽는다
+      if (!s || typeof s !== "object") return OFF;
+      return { coin_shop: s.coin_shop === true, casino_link: s.casino_link === true, deposit: s.deposit === true,
+        monthly_budget_krw: Number(s.monthly_budget_krw) || 0, budget: (j && j.budget) || s.budget || null };
+    }).catch(function () { return OFF; });
+    return swP;
+  }
+  function num(n) { return Number(n || 0).toLocaleString("ko-KR"); }
+  function day(iso) {
+    var t = Date.parse(iso || ""); if (!isFinite(t)) return "";
+    var d = new Date(t + 9 * 3600000);
+    return d.getUTCFullYear() + "." + (d.getUTCMonth() + 1) + "." + d.getUTCDate();
+  }
+  window.KR = { API: API, api: api, token: token, login: login, logout: logout, esc: esc, won: won, when: when, header: header, switches: switches, num: num, day: day };
 })();

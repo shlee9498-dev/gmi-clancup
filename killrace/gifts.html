@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>킬내기 앱 | 기프티콘함</title>
+<meta name="description" content="GmI 킬내기 앱. 받은 기프티콘을 열고 받았다고 남겨요.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F5F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="app.css">
+<style>/* 공통 토큰은 app.css · 본문 글꼴만 여기 한 줄(검사기가 외부 파일을 못 본다) */body{font-family:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;}.brand,.num,.code{font-family:'Saira Condensed','Pretendard Variable',sans-serif;}</style>
+</head>
+<body>
+<header class="top"><div class="top-in"><a class="brand" href="./">킬내기 <span>앱</span></a><div class="who" id="who"></div></div></header>
+<nav class="tabs four"><a class="tab" href="./">내 계정</a><a class="tab" href="prize.html">내 상금</a><a class="tab on" href="gifts.html">기프티콘함</a><a class="tab" href="coin.html">코인</a></nav>
+
+<main aria-live="polite">
+  <section class="card" id="gate" hidden><div class="empty" id="gateBody"></div></section>
+
+  <section class="card" id="box" hidden>
+    <h2 class="card-h">기프티콘함</h2>
+    <p class="card-sub">받은 상품은 여기서 열어요. 코드는 열 때만 보여요</p>
+    <div id="boxBody"></div>
+    <p class="msg" id="boxMsg" role="status"></p>
+  </section>
+
+  <section class="card" id="owner" hidden>
+    <h2 class="card-h">기프티콘 넣기</h2>
+    <p class="card-sub">받는 사람 함에 바로 들어가고 알림이 한 번 가요. 사진은 디스코드 /기프티콘넣기 로 넣어 주세요</p>
+    <div class="field"><label class="label" for="gIgn">받는 사람 스팀 닉</label><input class="input" id="gIgn" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div class="field"><label class="label" for="gItem">상품</label><input class="input" id="gItem" maxlength="60" autocomplete="off" placeholder="치킨 기프티콘"></div>
+    <div class="field"><label class="label" for="gExp">만료일(필수)</label><input class="input" id="gExp" type="date" required></div>
+    <div class="field"><label class="label" for="gCode">기프티콘 번호</label><input class="input" id="gCode" maxlength="120" autocomplete="off" spellcheck="false"></div>
+    <div class="row">
+      <div class="field" style="flex:1 1 120px;"><label class="label" for="gFund">재원</label><select class="input" id="gFund"><option value="owner">오너 사비</option><option value="sponsor">후원</option></select></div>
+      <div class="field" style="flex:1 1 90px;"><label class="label" for="gEvent">회차 번호</label><input class="input" id="gEvent" inputmode="numeric" maxlength="4" autocomplete="off"></div>
+    </div>
+    <div class="field"><label class="label" for="gReason">사유</label><input class="input" id="gReason" maxlength="40" autocomplete="off" placeholder="1등 팀"></div>
+    <button type="button" class="btn main wide" id="gAdd">함에 넣기</button>
+    <p class="msg" id="ownerMsg" role="status"></p>
+    <h3 class="card-h" style="font-size:16px;margin-top:16px;">안 받은 기프티콘</h3>
+    <div id="pending"></div>
+  </section>
+</main>
+<p class="foot"><a href="../killnaegi-app.html">킬내기 홈</a> · <a href="../killnaegi-board.html">점수판</a></p>
+
+<script src="app.js"></script>
+<script>
+/* 기프티콘함(계약 killrace-api §1.30.3) — 스위치와 상관없다. 목록에는 코드가 없고 「열기」를 누를 때만 받는다(사진은 1분짜리 주소).
+ * 받는 사람 = 그 PUBG 계정을 연결한 회원 + 본인 확인(§1.20). 실물이면 열기 대신 배송 동의(§1.28.11b).
+ * 오너로 로그인하면 「기프티콘 넣기」(만료일 필수)와 「안 받은 기프티콘」이 보인다(gifts/admin 이 200 일 때만). */
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = KR.esc, when = KR.when, day = KR.day;
+  var G = null, opened = {}, busy = false, shipFor = null;
+  var SHIP_CONSENT = "경품 배송을 위해 받는 이름 · 주소 · 연락처예요. 배송에만 쓰고, 받았다고 눌러 주시거나 보낸 지 14일이 지나면 지워요. 동의하지 않으면 실물 경품은 받을 수 없어요";
+  var ERR = {
+    not_verified: "본인 확인이 끝나면 열 수 있어요. 디스코드에서 진행자에게 알려 주세요",
+    not_linked: "스팀 닉을 연결하면 기프티콘함이 보여요", forbidden: "이 상품은 열 수 없어요", not_found: "그 상품을 못 찾았어요",
+    expired: "유효기간이 지났어요", purged: "코드가 지워졌어요", consent_required: "배송 정보 동의에 체크해 주세요",
+    under_14: "실물 경품은 만 14세부터 받을 수 있어요", not_shipped: "아직 보내기 전이에요", rate_limited: "너무 자주 눌렀어요. 잠시 뒤 다시 해 주세요",
+    network: "서버에 닿지 않았어요. 잠시 뒤 다시 해 주세요"
+  };
+  function gate(title, body) { $("gate").hidden = false; $("box").hidden = true; $("gateBody").innerHTML = "<b>" + esc(title) + "</b>" + body; }
+  function msg(id, t, ok) { $(id).className = "msg" + (ok ? " ok" : ""); $(id).textContent = t || ""; }
+  // 상태 — 서버 시각 칸으로 읽고, 없으면 status 글자
+  function stateOf(g) {
+    if (g.cancelledAt || g.status === "cancelled") return "cancelled";
+    if (g.receivedAt || g.status === "received") return "received";
+    if (g.status === "expired" || (g.expiresAt && Date.parse(g.expiresAt) < Date.now())) return "expired";
+    if (g.openedAt || g.status === "opened") return "opened";
+    return "new";
+  }
+  var TAG = { new: '<span class="tag new">새로 왔어요</span>', opened: '<span class="tag req">열어 봤어요</span>', received: '<span class="tag got">받았어요</span>', expired: '<span class="tag">기간 지남</span>', cancelled: '<span class="tag cancel">취소됨</span>' };
+
+  function giftHtml(g) {
+    var st = stateOf(g), phys = g.kind === "physical" || g.delivery === "physical";
+    var sub = [g.event && g.event.name ? esc(g.event.name) : "", g.reason ? esc(g.reason) : "", g.expiresAt && !phys ? day(g.expiresAt) + "까지" : "", g.at || g.createdAt ? when(g.at || g.createdAt) + " 도착" : ""].filter(Boolean).join(" · ");
+    var h = '<div class="gift"><div class="gift-h"><b>' + esc(g.item) + "</b>" + TAG[st] + '</div><div class="s">' + sub + "</div>";
+    if (phys) {
+      var ship = g.shipState || null;
+      if (st === "received") h += '<p class="note">받았다고 남겼어요. 배송 정보는 지웠어요</p>';
+      else if (ship === "shipped") h += '<p class="note">보냈어요' + (g.trackingNo ? " · 송장 " + esc(g.trackingNo) : "") + '</p><div class="row"><button type="button" class="btn main" data-got="' + esc(g.id) + '">받았어요</button><button type="button" class="btn line" data-lost="' + esc(g.id) + '">못 받았어요</button></div>';
+      else if (ship === "requested") h += '<p class="note">배송 정보 받았어요. 보내면 알려 드려요</p>';
+      else if (st !== "cancelled") h += shipFor === String(g.id) ? shipForm() : '<div class="row"><button type="button" class="btn main" data-ship="' + esc(g.id) + '">받는 곳 적기</button></div>';
+      return h + "</div>";
+    }
+    if (st === "new" || st === "opened") {
+      var c = opened[g.id];
+      h += c ? '<div class="code">' + (c.imageUrl ? '<img src="' + esc(c.imageUrl) + '" alt="' + esc(g.item) + ' 기프티콘">' : esc(c.code || "")) + "</div>" +
+        '<p class="note">' + (c.imageUrl ? "사진 주소는 1분 뒤 닫혀요. 필요하면 다시 열어 주세요" : "매장에서 이 번호를 보여 주세요") + "</p>" : "";
+      h += '<div class="row">' + (c ? "" : '<button type="button" class="btn main" data-open="' + esc(g.id) + '">열기</button>') +
+        (st === "opened" || c ? '<button type="button" class="btn line" data-got="' + esc(g.id) + '">받았어요</button>' : "") + "</div>";
+    } else if (g.codePurged) h += '<p class="note">코드 지움</p>';
+    return h + "</div>";
+  }
+  function shipForm() {
+    return '<div class="ship"><div class="consent">' + esc(SHIP_CONSENT) + '</div><label class="check"><input type="checkbox" id="sAgree"><span><b>동의해요</b></span></label>' +
+      '<div class="field"><label class="label" for="sName">받는 사람</label><input class="input" id="sName" maxlength="20" autocomplete="off"></div>' +
+      '<div class="field"><label class="label" for="sAddr">주소</label><input class="input" id="sAddr" maxlength="120" autocomplete="off"></div>' +
+      '<div class="field"><label class="label" for="sPhone">연락처</label><input class="input" id="sPhone" maxlength="13" inputmode="tel" autocomplete="off" placeholder="010-0000-0000"></div>' +
+      '<button type="button" class="btn main wide" id="sGo" disabled>보내 주세요</button></div>';
+  }
+  function render() {
+    var list = (G.items || G.gifts || []).slice();
+    var live = list.filter(function (g) { return /new|opened/.test(stateOf(g)); }), done = list.filter(function (g) { return !/new|opened/.test(stateOf(g)); });
+    $("boxBody").innerHTML = list.length ? live.map(giftHtml).join("") + (done.length ? '<details style="margin-top:12px;"><summary style="cursor:pointer;font-weight:700;font-size:14px;">지난 상품 ' + done.length + "개</summary>" + done.map(giftHtml).join("") + "</details>" : "")
+      : '<div class="empty"><b>아직 받은 상품이 없어요</b>상품이 오면 디스코드로 알려 드려요</div>';
+    if ($("sAgree")) $("sAgree").addEventListener("change", function () { $("sGo").disabled = !this.checked; });
+    if ($("sGo")) $("sGo").addEventListener("click", sendShip);
+  }
+  function post(path, body) { return KR.api("/api/killrace/me/gifts/" + path, body || {}); }
+  function sendShip() {
+    if (busy || !shipFor) return;
+    var v = { consent: $("sAgree").checked, name: $("sName").value.trim(), address: $("sAddr").value.trim(), phone: $("sPhone").value.trim() };
+    if (!v.consent) return msg("boxMsg", ERR.consent_required);
+    if (!v.name || v.name.length > 20) return msg("boxMsg", "받는 사람 이름을 적어 주세요");
+    if (v.address.length < 5) return msg("boxMsg", "주소를 끝까지 적어 주세요");
+    if (!/^[0-9-]{9,13}$/.test(v.phone)) return msg("boxMsg", "연락처는 숫자와 하이픈으로 적어 주세요");
+    busy = true;
+    post(encodeURIComponent(shipFor) + "/address", v).then(function (r) {
+      busy = false; $("sName").value = $("sAddr").value = $("sPhone").value = "";
+      if (r.ok) { shipFor = null; msg("boxMsg", "받는 곳을 받았어요. 보내면 알려 드려요", true); return load(); }
+      msg("boxMsg", ERR[r.code] || "보내지 못했어요. 잠시 뒤 다시 해 주세요");
+    });
+  }
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-open],[data-got],[data-lost],[data-ship]"); if (!b || busy) return;
+    if (b.hasAttribute("data-ship")) { shipFor = b.getAttribute("data-ship"); render(); return; }
+    var id = b.getAttribute("data-open") || b.getAttribute("data-got") || b.getAttribute("data-lost");
+    var kind = b.hasAttribute("data-open") ? "open" : b.hasAttribute("data-got") ? "received" : "lost";
+    if (kind === "received" && !confirm("받았다고 남길까요? 남기면 코드는 나중에 지워져요")) return;
+    if (kind === "lost" && !confirm("못 받았다고 남길까요? 받는 곳을 새로 적어 주셔야 해요")) return;
+    busy = true; b.disabled = true; msg("boxMsg", "");
+    post(encodeURIComponent(id) + "/" + kind).then(function (r) {
+      busy = false;
+      if (!r.ok) { b.disabled = false; return msg("boxMsg", ERR[r.code] || "처리하지 못했어요. 잠시 뒤 다시 해 주세요"); }
+      if (kind === "open") { opened[id] = { code: r.body.code || null, imageUrl: r.body.imageUrl || r.body.url || null }; return load(); }
+      if (kind === "received") { delete opened[id]; msg("boxMsg", "받았다고 남겼어요", true); }
+      if (kind === "lost") { shipFor = id; msg("boxMsg", "받는 곳을 새로 적어 주세요", true); }
+      return load();
+    });
+  });
+  function load() {
+    return KR.api("/api/killrace/me/gifts").then(function (r) {
+      if (r.status === 401) { gate("로그인이 필요해요", '<button type="button" class="btn main" data-act="login" style="margin-top:10px;">디스코드로 로그인</button>'); return; }
+      if (r.code === "not_member") { gate("먼저 동의가 필요해요", '<a class="btn main" href="./" style="margin-top:10px;">내 계정으로</a>'); return; }
+      if (r.code === "not_linked") { gate("스팀 닉을 연결해 주세요", '<a class="btn main" href="./" style="margin-top:10px;">내 계정으로</a>'); return; }
+      if (!r.ok) { gate(r.status === 404 || r.code === "table_missing" ? "준비 중이에요" : "불러오지 못했어요", r.status === 404 || r.code === "table_missing" ? "기프티콘함이 열리면 여기서 받아요" : "잠시 뒤 다시 열어 주세요"); return; }
+      $("gate").hidden = true; $("box").hidden = false; G = r.body; render();
+    });
+  }
+
+  // ── 오너 ──
+  function renderOwner(a) {
+    var list = a.pending || a.items || [];
+    $("pending").innerHTML = list.length ? list.map(function (g) {
+      var st = g.receivedAt ? "받음" : g.openedAt ? "열어 봄" : g.notified === false || g.notifyFailedAt ? "알림 안 감" : "안내됨";
+      var soon = g.expiresAt && Date.parse(g.expiresAt) - Date.now() < 7 * 86400000;
+      return '<div class="pend"><div class="pend-h"><b>' + esc(g.ign) + " · " + esc(g.item) + (st === "알림 안 감" ? ' <span class="tag nonoti">알림 안 감</span>' : "") + "</b></div>" +
+        '<div class="per">' + [g.event && g.event.name ? esc(g.event.name) : "", g.funding === "sponsor" ? "후원" : "오너 사비", g.expiresAt ? day(g.expiresAt) + "까지" + (soon ? " · 곧 만료" : "") : "", g.createdAt ? when(g.createdAt) + " 넣음" : "", st].filter(Boolean).join(" · ") + "</div>" +
+        (g.receivedAt ? "" : '<div class="row"><button type="button" class="btn line sm" data-gcancel="' + esc(g.id) + '" data-name="' + esc(g.ign + " " + g.item) + '">취소</button></div>') + "</div>";
+    }).join("") : '<div class="empty"><b>안 받은 기프티콘 0개</b>넣으면 여기에 보여요</div>';
+  }
+  function loadOwner() {
+    return KR.api("/api/killrace/gifts/admin").then(function (r) {
+      if (!r.ok) { $("owner").hidden = true; return; }        // 오너가 아니면 403 · 길이 아직 없으면 404 — 조용히 숨긴다
+      $("owner").hidden = false; renderOwner(r.body);
+    });
+  }
+  var ADD_ERR = { need_expiry: "만료일을 넣어 주세요", need_media: "기프티콘 번호를 넣어 주세요(사진은 디스코드 명령으로)", not_found: "그 닉으로 받을 사람을 못 찾았어요", owner_only: "오너만 넣을 수 있어요" };
+  $("gAdd").addEventListener("click", function () {
+    if (busy) return;
+    var ign = $("gIgn").value.trim(), item = $("gItem").value.trim(), exp = $("gExp").value, code = $("gCode").value.trim(), ev = $("gEvent").value.trim();
+    if (!ign || !item) return msg("ownerMsg", "닉과 상품을 적어 주세요");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(exp)) return msg("ownerMsg", ADD_ERR.need_expiry);
+    if (Date.parse(exp + "T23:59:59+09:00") < Date.now()) return msg("ownerMsg", "이미 지난 날짜예요");
+    if (!code) return msg("ownerMsg", ADD_ERR.need_media);
+    if (ev && !/^\d{1,4}$/.test(ev)) return msg("ownerMsg", "회차는 숫자로 적어 주세요");
+    if (!confirm(ign + " 님 함에 「" + item + "」 을 넣을까요? 바로 알림이 가요")) return;
+    busy = true;
+    KR.api("/api/killrace/gifts/admin", { action: "add", ign: ign, item: item, expiresAt: new Date(Date.parse(exp + "T23:59:59+09:00")).toISOString(), code: code,
+      funding: $("gFund").value, eventId: ev ? Number(ev) : null, reason: $("gReason").value.trim() || null }).then(function (r) {
+      busy = false;
+      if (r.ok) {
+        $("gCode").value = "";                               // 번호는 넣자마자 칸에서 지운다(화면에 남기지 않는다)
+        msg("ownerMsg", ign + " 님 함에 넣었어요 · 알림 " + (r.body.notified ? "보냄" : "못 보냄(직접 알려 주세요)"), true);
+        return loadOwner();
+      }
+      msg("ownerMsg", ADD_ERR[r.code] || "넣지 못했어요. 잠시 뒤 다시 해 주세요");
+    });
+  });
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-gcancel]"); if (!b || busy) return;
+    var why = prompt(b.getAttribute("data-name") + " 을 취소할까요? 사유를 한 줄 적어 주세요");
+    if (!why || !why.trim()) return;
+    busy = true;
+    KR.api("/api/killrace/gifts/admin", { action: "cancel", id: b.getAttribute("data-gcancel"), reason: why.trim() }).then(function (r) {
+      busy = false;
+      msg("ownerMsg", r.ok ? "취소했어요. 코드는 바로 지워요" : r.code === "already_received" ? "이미 받은 상품이에요" : "취소하지 못했어요", r.ok);
+      return loadOwner();
+    });
+  });
+
+  if (!KR.token()) gate("로그인이 필요해요", '<button type="button" class="btn main" data-act="login" style="margin-top:10px;">디스코드로 로그인</button>');
+  else { KR.api("/api/killrace/me").then(function (r) { KR.header(r.ok && r.body ? r.body.ign || "" : ""); }); load().then(loadOwner); }
+})();
+</script>
+</body>
+</html>
