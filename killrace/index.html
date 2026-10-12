@@ -6,13 +6,12 @@
 <title>킬내기 앱 | 내 계정</title>
 <meta name="description" content="GmI 킬내기 앱. 디스코드로 로그인하고 스팀 닉을 연결하면 내 상금과 기록을 볼 수 있어요.">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#F5F6F8">
+<meta name="theme-color" content="#0F2B1C">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@800&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
-<style>/* 공통 토큰은 app.css · 본문 글꼴만 여기 한 줄(검사기가 외부 파일을 못 본다) */body{font-family:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;}.brand,.num,.balance .amt{font-family:'Saira Condensed','Pretendard Variable',sans-serif;}</style>
+<style>/* 공통 토큰은 app.css · 본문 글꼴만 여기 한 줄(검사기가 외부 파일을 못 본다) */body{font-family:'IBM Plex Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;}.brand{font-family:'Big Shoulders Stencil Display','Saira Condensed',sans-serif;}.num,.balance .amt{font-family:'Saira Condensed','IBM Plex Sans KR',sans-serif;}</style>
 </head>
 <body>
 <header class="top"><div class="top-in"><a class="brand" href="./">킬내기 <span>앱</span></a><div class="who" id="who"></div></div></header>
@@ -56,6 +55,7 @@
   <section class="card" id="errCard" hidden><div class="empty"><b id="errTitle"></b><span id="errBody"></span></div></section>
 </main>
 <p class="foot"><a href="../killnaegi-board.html">점수판</a> · <a href="../killnaegi.html">신청</a></p>
+<p class="ver" id="ver">판 확인 중</p>
 
 <script src="app.js"></script>
 <script>
