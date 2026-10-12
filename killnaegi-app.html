@@ -275,6 +275,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 .fb-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12.5px;color:var(--mute);}
 .fb-kind{background:var(--chip);color:var(--ink);font-weight:700;border-radius:999px;padding:2px 9px;}
 .fb-same{background:var(--bad-soft);color:var(--bad);font-weight:700;border-radius:999px;padding:2px 9px;}
+.fb-st-tag{margin-left:auto;background:var(--acc-soft);color:var(--ink);font-weight:700;border-radius:999px;padding:2px 9px;}
 .fb-msg{font-size:14.5px;line-height:1.65;margin-top:6px;white-space:pre-wrap;overflow-wrap:anywhere;}
 .fb-states{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .fb-st{min-height:44px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--body);font-size:13px;font-weight:600;cursor:pointer;}
@@ -454,7 +455,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
       </div>
       <div class="card" id="fbAdmin" hidden>
         <h2 class="card-h">받은 건의 <span class="note" id="fbAdminCount"></span></h2>
-        <p class="card-sub">오너만 보는 칸이에요 · 지우지 않고 상태만 바꿔요</p>
+        <p class="card-sub">오너만 보는 칸이에요 · 글쓴이는 안 보이고 지우지 않고 상태만 바꿔요</p>
         <div class="fb-filters">
           <select class="fb-sel" id="fbKindF" aria-label="종류로 거르기"></select>
           <select class="fb-sel" id="fbStateF" aria-label="상태로 거르기"></select>
@@ -1128,25 +1129,26 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     });
   });
 
-  /* ---------- 건의함 ----------
-   * 로그인 필수 · 누가 보냈는지는 화면 어디에도 없음 · 읽는 곳은 오너 관리 칸뿐 · 디스코드 알림 없음(10/12 오너 결정).
-   * 서버 길은 경비 계약 절이 나오기 전 가정이다 — 아래 FB 한 곳만 계약대로 고치면 된다(화면 코드는 그대로).
-   *   스위치  GET  /api/killrace/switches → feedback(true 일 때만 열림)
-   *   내 상태 GET  /api/killrace/me/feedback → { left, limit }(오늘 남은 횟수 · 없어도 화면은 돈다)
-   *   보내기  POST /api/killrace/me/feedback { kind, eventId|null, body } → { ok, left } (다시 보내지 않는다)
-   *   오너    GET  /api/killrace/feedback/admin?kind=&state= → { items: [{ id, kind, eventId, eventName, body, state, createdAt, sameCount? }], total }
-   *           POST /api/killrace/feedback/admin { id, state } → { ok } */
+  /* ---------- 건의함 (계약 killrace-api §1.32 · 서버 mri-academy #571) ----------
+   * 로그인 필수 · 글쓴이는 서버도 지문(HMAC)으로만 갖고 화면 어디에도 없다 · 읽는 곳은 오너 관리 칸뿐 · 디스코드 알림 없음.
+   *   스위치  GET  /api/killrace/switches → feedback(꺼지면 쓰기만 409 · 「내 건의」 · 오너 읽기는 열림)
+   *   쓰기    POST /api/killrace/feedback { category, eventId|null, body } → { ok, id, createdAt, todayLeft } (다시 보내지 않는다)
+   *   내 건의 GET  /api/killrace/feedback/mine → { count, todayLeft, items: [{ id, category, eventId, body, status, createdAt }] }
+   *   오너    GET  /api/killrace/feedback/admin?status=&category= → { counts, items: [{ id, category, event, body, status, createdAt, statusAt, group, sameAuthor }], nextCursor }
+   *           POST /api/killrace/feedback/admin { id, status } → { ok, id, status } · 지우기 없음 */
   var FB = {
-    me: function () { return api("/api/killrace/me/feedback"); },
-    send: function (b) { return api("/api/killrace/me/feedback", b); },
-    list: function (kind, state) { return api("/api/killrace/feedback/admin" + "?kind=" + encodeURIComponent(kind || "") + "&state=" + encodeURIComponent(state || "")); },
-    set: function (id, state) { return api("/api/killrace/feedback/admin", { id: id, state: state }); }
+    mine: function () { return api("/api/killrace/feedback/mine"); },
+    send: function (b) { return api("/api/killrace/feedback", b); },
+    list: function (category, status) { return api("/api/killrace/feedback/admin?status=" + encodeURIComponent(status || "") + "&category=" + encodeURIComponent(category || "")); },
+    set: function (id, status) { return api("/api/killrace/feedback/admin", { id: id, status: status }); }
   };
-  var FB_KINDS = [{ key: "rule", label: "룰" }, { key: "balance", label: "밸런스" }, { key: "incident", label: "경기 중 있었던 일" }, { key: "app", label: "앱 오류" }, { key: "etc", label: "기타" }];
+  var FB_KINDS = [{ key: "rule", label: "룰" }, { key: "balance", label: "밸런스" }, { key: "match", label: "경기 중 있었던 일" }, { key: "app", label: "앱 오류" }, { key: "etc", label: "기타" }];
   var FB_STATES = [{ key: "new", label: "새 글" }, { key: "read", label: "읽음" }, { key: "applied", label: "반영함" }, { key: "held", label: "보류" }, { key: "hidden", label: "숨김" }];
   var FB_MIN = 10, FB_MAX = 500, FB_DAY = 3;
-  var fbPick = null, fbLeft = null;
+  var fbPick = null, fbLeft = null, fbMine = null, fbOn = false;
   var labelOf = function (list, k) { var f = list.filter(function (x) { return x.key === k; })[0]; return f ? f.label : k || ""; };
+  var fbLen = function (t) { return Array.from ? Array.from(t).length : t.length; };   // 글자 수 = 코드 포인트(§1.32.3)
+  var leftText = function () { return fbLeft === 0 ? "오늘은 " + FB_DAY + "건까지 남길 수 있어요 · 내일 다시 남길 수 있어요" : fbLeft != null ? "오늘 " + fbLeft + "번 더 남길 수 있어요" : "하루 " + FB_DAY + "번까지 남길 수 있어요"; };
   function fbState(state, html) {
     $("fbLoad").hidden = state !== "load"; $("fbFail").hidden = state !== "fail"; $("fbBody").hidden = state !== "body";
     if (state === "body") $("fbBody").innerHTML = html;
@@ -1154,43 +1156,58 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
   function loadFeedback() {
     fbState("load");
     var sw = getJSON("/api/killrace/switches").then(function (j) { return (j && j.switches) || j || {}; });
-    var me = token() ? FB.me() : Promise.resolve(null);
-    Promise.all([sw, me, loadEvents()]).then(function (r) {
-      var on = r[0].feedback === true, m = r[1];
-      if (!on) { fbState("body", '<div class="ready" style="margin-top:12px;"><span><b>준비 중이에요</b><span class="card-sub" style="display:block;">건의함이 열리면 여기서 남길 수 있어요</span></span></div>'); $("fbAdmin").hidden = true; return; }
+    var mine = token() ? FB.mine() : Promise.resolve(null);
+    Promise.all([sw, mine, loadEvents()]).then(function (r) {
+      var m = r[1];
+      fbOn = r[0].feedback === true;
       if (!token() || (m && m.status === 401)) {
-        fbState("body", '<p class="msg">디스코드로 연결하면 남길 수 있어요</p><a class="btn dark wide" href="killrace/">연결하기</a>');
+        fbState("body", fbOn ? '<p class="msg">디스코드로 연결하면 남길 수 있어요</p><a class="btn dark wide" href="killrace/">연결하기</a>' : fbReady());
         $("fbAdmin").hidden = true; return;
       }
       if (m && (m.status === 0 || m.status >= 500)) { fbState("fail"); return; }
-      fbLeft = m && m.ok && isFinite(m.body.left) ? Number(m.body.left) : null;
-      fbForm();
+      fbMine = m && m.ok ? m.body : null;
+      fbLeft = fbMine && isFinite(fbMine.todayLeft) ? Number(fbMine.todayLeft) : null;
+      if (!fbOn) fbState("body", fbReady() + mineHtml());      // 꺼져도 「내 건의」는 보인다(§1.32.1)
+      else fbForm();
       loadFbAdmin();
     }, function (e) { bug(e); fbState("fail"); });
   }
+  function fbReady() { return '<div class="ready" style="margin-top:12px;"><span><b>준비 중이에요</b><span class="card-sub" style="display:block;">건의함이 열리면 여기서 남길 수 있어요</span></span></div>'; }
+  // 「내 건의 n건」 — 내 지문 글만 · 오너가 숨긴 글은 서버가 「읽음」으로 준다
+  function mineHtml() {
+    var items = fbMine && fbMine.items || [];
+    if (!items.length) return "";
+    return '<h3 class="fb-label" style="margin-top:18px;">내 건의 ' + esc(isFinite(fbMine.count) ? fbMine.count : items.length) + "건</h3>" + items.slice(0, 10).map(function (x) {
+      var at = toMs(x.createdAt), ev = x.eventId && EVS ? EVS.events.filter(function (e) { return e.id === x.eventId; })[0] : null;
+      return '<div class="fb-item"><div class="fb-meta"><span class="fb-kind">' + esc(labelOf(FB_KINDS, x.category)) + "</span>" +
+        (x.eventId ? "<span>" + esc(ev ? roundOf(ev.name, x.eventId) : x.eventId + "회차") + "</span>" : "") + (at ? "<span>" + mdw(at) + "</span>" : "") +
+        '<span class="fb-st-tag">' + esc(labelOf(FB_STATES, x.status)) + '</span></div><p class="fb-msg">' + esc(x.body) + "</p></div>";
+    }).join("");
+  }
   function fbForm() {
-    if (fbLeft === 0) { fbState("body", '<div class="fb-done"><b>오늘은 ' + FB_DAY + '건을 다 남겼어요</b><p class="note">내일 다시 남길 수 있어요</p></div>'); return; }
+    if (fbLeft === 0) { fbState("body", '<div class="fb-done"><b>오늘은 ' + FB_DAY + '건까지 남길 수 있어요</b><p class="note">내일 다시 남길 수 있어요</p></div>' + mineHtml()); return; }
     var evs = (EVS && EVS.events || []).slice(0, 12);
     fbState("body",
       '<div class="kchips" role="group" aria-label="건의 종류">' + FB_KINDS.map(function (k) { return '<button type="button" class="kchip" data-kind="' + k.key + '" aria-pressed="' + (fbPick === k.key) + '">' + esc(k.label) + "</button>"; }).join("") + "</div>" +
-      '<label class="fb-label" for="fbEv">회차</label><select class="fb-sel" id="fbEv"><option value="">회차 없음</option>' +
+      '<label class="fb-label" for="fbEv">회차</label><select class="fb-sel" id="fbEv"><option value="">없음</option>' +
       evs.map(function (e) { return '<option value="' + e.id + '">' + esc(roundOf(e.name, e.id)) + " · " + md(e.start) + "</option>"; }).join("") + "</select>" +
-      '<label class="fb-label" for="fbText">내용</label><textarea class="fb-text" id="fbText" maxlength="' + FB_MAX + '" placeholder="있었던 일을 차근차근 적어 주세요"></textarea>' +
+      '<label class="fb-label" for="fbText">내용</label>' +
+      '<p class="note" style="margin-top:4px;">특정 사람을 탓하는 글보다 있었던 일을 적어 주세요</p>' +
+      '<textarea class="fb-text" id="fbText" maxlength="' + FB_MAX + '" placeholder="있었던 일을 차근차근 적어 주세요"></textarea>' +
       '<p class="count" id="fbCount">0 / ' + FB_MAX + "</p>" +
-      '<p class="note">특정 사람을 탓하기보다 있었던 일을 적어 주세요</p>' +
-      '<p class="fb-anon">누가 보냈는지는 운영진도 몰라요</p>' +
-      '<button type="button" class="btn dark wide" id="fbSend" disabled>익명으로 보내기</button>' +
-      '<p class="note" id="fbMsg" style="text-align:center;margin-top:8px;">' + (fbLeft != null ? "오늘 " + fbLeft + "번 더 남길 수 있어요" : "하루 " + FB_DAY + "번까지 남길 수 있어요") + "</p>");
+      '<p class="fb-anon">누가 썼는지는 오너에게도 보이지 않아요</p>' +
+      '<button type="button" class="btn dark wide" id="fbSend" disabled>보내기</button>' +
+      '<p class="note" id="fbMsg" style="text-align:center;margin-top:8px;">' + leftText() + "</p>" + mineHtml());
     fbCheck();
   }
   function fbCheck() {
-    var t = $("fbText") ? $("fbText").value.trim() : "", n = t.length, b = $("fbSend");
+    var t = $("fbText") ? $("fbText").value.trim() : "", n = fbLen(t), b = $("fbSend");
     if (!b) return;
     $("fbCount").textContent = n + " / " + FB_MAX + (n && n < FB_MIN ? " · " + FB_MIN + "자 이상 적어 주세요" : "");
     b.disabled = !fbPick || n < FB_MIN || n > FB_MAX;
   }
-  var FB_ERR = { daily_limit: "오늘은 " + FB_DAY + "건을 다 남겼어요 · 내일 다시 남길 수 있어요", too_many_requests: "오늘은 " + FB_DAY + "건을 다 남겼어요 · 내일 다시 남길 수 있어요",
-    invalid_body: FB_MIN + "~" + FB_MAX + "자로 적어 주세요 · 링크는 넣을 수 없어요", switch_off: "건의함이 잠깐 닫혔어요", not_member: "먼저 킬내기 동의가 필요해요 · 내 계정에서 할 수 있어요" };
+  var FB_ERR = { daily_limit: "오늘은 " + FB_DAY + "건까지 남길 수 있어요", invalid_body: FB_MIN + "~" + FB_MAX + "자로 적어 주세요", event_not_found: "고른 회차를 찾지 못했어요 · 회차를 다시 골라 주세요",
+    switch_off: "건의함이 잠깐 닫혔어요", unavailable: "지금은 받을 수 없어요 · 잠시 뒤 다시 눌러 주세요", table_missing: "지금은 받을 수 없어요 · 잠시 뒤 다시 눌러 주세요" };
   $("fbBox").addEventListener("click", function (e) {
     var k = e.target.closest("[data-kind]");
     if (k) { fbPick = k.getAttribute("data-kind"); document.querySelectorAll("[data-kind]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === k)); }); fbCheck(); return; }
@@ -1199,59 +1216,63 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     var st = e.target.closest("[data-st]");
     if (st) { fbSetState(st); return; }
     if (e.target.id !== "fbSend") return;
-    var b = e.target, ev = $("fbEv").value, body = { kind: fbPick, eventId: ev ? Number(ev) : null, body: $("fbText").value.trim() };
+    var b = e.target, ev = $("fbEv").value, body = { category: fbPick, eventId: ev ? Number(ev) : null, body: $("fbText").value.trim() };
     b.disabled = true; b.textContent = "보내는 중이에요";
     FB.send(body).then(function (r) {
       if (r.ok) {
-        fbLeft = r.body && isFinite(r.body.left) ? Number(r.body.left) : fbLeft != null ? Math.max(0, fbLeft - 1) : null;
+        fbLeft = r.body && isFinite(r.body.todayLeft) ? Number(r.body.todayLeft) : fbLeft != null ? Math.max(0, fbLeft - 1) : null;
         fbPick = null;
-        fbState("body", '<div class="fb-done"><b>잘 받았어요</b><p class="note">' + (fbLeft === 0 ? "오늘은 " + FB_DAY + "건을 다 남겼어요 · 내일 다시 남길 수 있어요" : fbLeft != null ? "오늘 " + fbLeft + "번 더 남길 수 있어요" : "하루 " + FB_DAY + "번까지 남길 수 있어요") + "</p>" +
-          (fbLeft !== 0 ? '<button type="button" class="btn line wide" data-fb="again">하나 더 남기기</button>' : "") + "</div>");
+        // 「내 건의」를 다시 받아 방금 글까지 보여 준다(못 받으면 목록 없이)
+        FB.mine().then(function (m) {
+          if (m.ok) fbMine = m.body;
+          fbState("body", '<div class="fb-done"><b>건의를 받았어요</b><p class="note">' + leftText() + "</p>" +
+            (fbLeft !== 0 ? '<button type="button" class="btn line wide" data-fb="again">하나 더 남기기</button>' : "") + "</div>" + mineHtml());
+        });
         if (!$("fbAdmin").hidden) loadFbAdmin();
         return;
       }
       if (r.status === 401) { loadFeedback(); return; }
       if (r.code === "daily_limit" || r.status === 429) fbLeft = 0;
-      b.textContent = "익명으로 보내기"; fbCheck();
+      b.textContent = "보내기"; fbCheck();
       $("fbMsg").textContent = FB_ERR[r.code] || (r.status === 429 ? FB_ERR.daily_limit : "보내지 못했어요 · 적은 글은 그대로 있어요 · 다시 눌러 주세요");
     });
   });
   $("fbBox").addEventListener("input", function (e) { if (e.target.id === "fbText") fbCheck(); });
 
-  // 오너 관리 칸 — 서버가 오너인지 판정(아니면 403 → 칸을 숨긴다). 지우기 버튼은 없다
+  // 오너 관리 칸 — 서버가 오너인지 판정(아니면 403 → 칸을 숨긴다). 지우기 버튼은 없다 · 기본 목록은 숨김을 뺀 전부(§1.32.5)
   function fbFilters() {
     if ($("fbKindF").options.length) return;
     $("fbKindF").innerHTML = '<option value="">종류 전체</option>' + FB_KINDS.map(function (k) { return '<option value="' + k.key + '">' + esc(k.label) + "</option>"; }).join("");
-    $("fbStateF").innerHTML = '<option value="">상태 전체</option>' + FB_STATES.map(function (k) { return '<option value="' + k.key + '">' + esc(k.label) + "</option>"; }).join("");
+    $("fbStateF").innerHTML = '<option value="">숨김 빼고 전체</option>' + FB_STATES.map(function (k) { return '<option value="' + k.key + '">' + esc(k.label) + "</option>"; }).join("");
   }
   function loadFbAdmin() {
-    var kind = $("fbKindF").value, state = $("fbStateF").value;
+    var category = $("fbKindF").value, status = $("fbStateF").value;
     $("fbList").innerHTML = '<span class="sk sk-l"></span><span class="sk sk-l s"></span><p class="wait">불러오는 중이에요</p>';
-    FB.list(kind, state).then(function (r) {
+    FB.list(category, status).then(function (r) {
       if (r.status === 401 || r.status === 403 || r.status === 404) { $("fbAdmin").hidden = true; return; }
       fbFilters(); $("fbAdmin").hidden = false;
       if (!r.ok) { $("fbList").innerHTML = '<div class="fail"><span>받은 건의를 불러오지 못했어요</span><button type="button" class="retry" data-fb="admin">다시 시도</button></div>'; return; }
-      var items = r.body.items || [];
-      $("fbAdminCount").textContent = isFinite(r.body.total) ? r.body.total + "건" : items.length + "건";
-      $("fbList").innerHTML = items.length ? items.map(fbItem).join("") : '<p class="msg">' + (kind || state ? "이 조건에 맞는 건의가 없어요" : "아직 받은 건의가 없어요") + "</p>";
+      var items = r.body.items || [], c = r.body.counts || {};
+      $("fbAdminCount").textContent = isFinite(c.new) ? "새 글 " + c.new + "건" : items.length + "건";
+      $("fbList").innerHTML = items.length ? items.map(fbItem).join("") : '<p class="msg">' + (category || status ? "이 조건에 맞는 건의가 없어요" : "아직 받은 건의가 없어요") + "</p>";
     });
   }
   function fbItem(x) {
     var at = toMs(x.createdAt);
-    return '<div class="fb-item" data-id="' + esc(x.id) + '"><div class="fb-meta"><span class="fb-kind">' + esc(labelOf(FB_KINDS, x.kind)) + "</span>" +
-      (x.eventId ? "<span>" + esc(x.eventName ? roundOf(x.eventName, x.eventId) : x.eventId + "회차") + "</span>" : "") +
+    return '<div class="fb-item" data-id="' + esc(x.id) + '"><div class="fb-meta"><span class="fb-kind">' + esc(labelOf(FB_KINDS, x.category)) + "</span>" +
+      (x.event ? "<span>" + esc(x.event.name ? roundOf(x.event.name, x.event.id) : x.event.id + "회차") + "</span>" : "") +
       (at ? "<span>" + mdw(at) + " " + hm(at) + "</span>" : "") +
-      (x.sameCount > 1 ? '<span class="fb-same">같은 사람 ' + esc(x.sameCount) + "건</span>" : "") + "</div>" +
+      (x.sameAuthor > 1 ? '<span class="fb-same">같은 사람 ' + esc(x.sameAuthor) + "건" + (x.group ? " · 묶음 " + esc(x.group) : "") + "</span>" : "") + "</div>" +
       '<p class="fb-msg">' + esc(x.body) + "</p>" +
       '<div class="fb-states" role="group" aria-label="상태 바꾸기">' + FB_STATES.map(function (s) {
-        return '<button type="button" class="fb-st" data-st="' + s.key + '" aria-pressed="' + (x.state === s.key) + '">' + esc(s.label) + "</button>";
+        return '<button type="button" class="fb-st" data-st="' + s.key + '" aria-pressed="' + (x.status === s.key) + '">' + esc(s.label) + "</button>";
       }).join("") + "</div></div>";
   }
   function fbSetState(btn) {
     var item = btn.closest("[data-id]"), id = item.getAttribute("data-id"), st = btn.getAttribute("data-st");
     if (btn.getAttribute("aria-pressed") === "true") return;
     item.querySelectorAll("[data-st]").forEach(function (x) { x.disabled = true; });
-    FB.set(id, st).then(function (r) {
+    FB.set(isFinite(Number(id)) ? Number(id) : id, st).then(function (r) {
       item.querySelectorAll("[data-st]").forEach(function (x) { x.disabled = false; if (r.ok) x.setAttribute("aria-pressed", String(x === btn)); });
       if (!r.ok) btn.textContent = "다시 눌러 주세요";
     });
