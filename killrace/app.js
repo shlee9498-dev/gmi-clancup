@@ -107,5 +107,16 @@
   // 처음 모습 · 실패 모습 — 화면이 빈칸으로 남지 않게(10/12 지휘 검수 · #113 과 같은 기준)
   var LOADING = ["불러오는 중이에요", "잠깐만 기다려 주세요"];
   var RETRY = '잠시 뒤 다시 시도해 주세요<br><button type="button" class="btn" data-act="retry" style="margin-top:10px;">다시 시도</button>';
+  // 판 표시 — 맨 아래 「v월/일 시:분 · 커밋 7자리」(../version.json · 배포 때 채워짐 · killnaegi-app.html 과 같은 모양). 틀 그대로(로컬)거나 못 읽으면 「개발 판」
+  (function loadVer() {
+    var el = document.getElementById("ver"); if (!el || !window.fetch) return;
+    function two(n) { return (n < 10 ? "0" : "") + n; }
+    fetch("../version.json", { cache: "no-store" }).then(function (r) { return r.text(); }).then(function (t) {
+      var j = JSON.parse(t.replace(/^---[\s\S]*?---\s*/, "")), at = Date.parse(j.at || ""), rev = j.rev || "";
+      if (!/^[0-9a-f]{7,40}$/.test(rev)) { el.textContent = "개발 판"; return; }
+      var d = isFinite(at) ? new Date(at + 9 * 3600000) : null;
+      el.textContent = "v" + (d ? (d.getUTCMonth() + 1) + "/" + d.getUTCDate() + " " + two(d.getUTCHours()) + ":" + two(d.getUTCMinutes()) + " · " : "") + rev.slice(0, 7);
+    }).catch(function () { el.textContent = "개발 판"; });
+  })();
   window.KR = { LOADING: LOADING, RETRY: RETRY, API: API, api: api, token: token, login: login, logout: logout, esc: esc, won: won, when: when, header: header, switches: switches, num: num, day: day };
 })();
