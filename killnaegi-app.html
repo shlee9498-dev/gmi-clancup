@@ -45,13 +45,17 @@
   --bg:#E2EED5; --card:#FFFFFF;
   --band:#0F2B1C; --band-cell:#17402A; --band-line:#2F6342; --band-label:#B3CBAF; --acc:#C6E266; --acc-soft:#E9F2D3; --pick:#F3F8E4;
   --band-bg:repeating-radial-gradient(circle at 88% 12%,rgba(198,226,102,.07) 0 1px,transparent 1px 16px),linear-gradient(160deg,#1D5233 0%,#0F2B1C 70%);
-  --ink:#16211A; --body:#434F40; --mute:#5A6658; --line:#CADDB8; --chip:#D3E5C2; --link:#2D6A3E;
-  --ok:#1F7A4D; --bad:#A8431F; --bad-soft:#F6E3D9; --tab-off:#7C8878;
+  --ink:#16211A; --body:#3B4738; --mute:#4E5A4C; --line:#BFD4AB; --chip:#D3E5C2; --link:#2D6A3E;
+  --ok:#1F7A4D; --bad:#A8431F; --bad-soft:#F6E3D9; --tab-off:#6E7A6A;
   --shadow:0 1px 2px rgba(22,33,26,.05),0 8px 22px rgba(22,33,26,.08);
   --stencil:'Big Shoulders Stencil Display','Saira Condensed','IBM Plex Sans KR',sans-serif;
   --display:'Saira Condensed','IBM Plex Sans KR',sans-serif;
   --font:'IBM Plex Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
   --r-card:18px; --r-btn:14px; --bar:64px;
+  /* 무뚝이(킬내기 마스코트 · 10/13 오너) — 이미지는 app/assets 의 webp. 기준 그림은 승리 포즈(victory) · 기본 포즈(base)는 배 글자가 Gml 처럼 보여 작은 자리(로딩 · 빈 화면)에만. 파일을 못 읽으면 html.has-mt 가 안 붙어 그림 자리만 비고 화면은 그대로 */
+  --mt-base:url(app/assets/mutteok-base-256.webp); --mt-win:url(app/assets/mutteok-victory-256.webp);
+  --gold:linear-gradient(135deg,#FFF3B0 0%,#F2C94C 38%,#C9962B 62%,#FCE38A 100%);
+  --gold-line:#D4A62A;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 [hidden]{display:none !important;}
@@ -66,7 +70,7 @@ a{color:var(--link);}
 .band{background:var(--band);background-image:var(--band-bg);color:#fff;padding:calc(env(safe-area-inset-top) + 14px) 0 20px;border-radius:0 0 22px 22px;}
 .b-top{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:40px;}
 .logo{display:inline-flex;align-items:center;min-height:44px;font-family:var(--stencil);font-weight:800;font-size:26px;line-height:1;color:#fff;text-decoration:none;}
-.logo span{color:var(--acc);margin-left:.3em;font-family:var(--font);font-weight:700;font-size:.92em;}
+.logo > span + span{color:var(--acc);margin-left:.3em;font-family:var(--font);font-weight:700;font-size:.92em;}
 .who{display:inline-flex;align-items:center;gap:7px;max-width:58vw;min-height:44px;padding:4px 12px 4px 5px;border-radius:999px;background:var(--band-cell);border:1px solid var(--band-line);
   color:#fff;font-size:13.5px;font-weight:600;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .who.plain{padding-left:12px;}
@@ -86,8 +90,8 @@ a{color:var(--link);}
 .cells{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;}
 .cells.two{grid-template-columns:repeat(2,1fr);}
 .cell{background:var(--band-cell);border:1px solid var(--band-line);border-radius:14px;padding:10px 10px 9px;min-width:0;}
-.cell small{display:block;font-size:12px;color:var(--band-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.cell b{display:block;font-family:var(--display);font-weight:800;font-size:24px;line-height:1.15;color:var(--acc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cell small{display:block;font-size:11.5px;letter-spacing:.01em;color:var(--band-label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cell b{display:block;font-family:var(--display);font-weight:800;font-size:29px;line-height:1.1;color:var(--acc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cell b.txt{font-family:var(--font);font-size:15px;font-weight:700;line-height:1.6;color:#fff;}
 .cta{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:52px;margin-top:14px;border-radius:var(--r-btn);background:var(--acc);color:var(--band);
   font-weight:700;font-size:16.5px;text-decoration:none;border:0;cursor:pointer;}
@@ -140,7 +144,7 @@ main{padding-top:14px;}
 .list li.first .rk{color:var(--ink);}
 .list .nm{font-weight:700;font-size:15px;overflow-wrap:anywhere;min-width:0;}
 .list .nm small{display:block;font-weight:400;font-size:12.5px;color:var(--mute);}
-.list .val{font-family:var(--display);font-size:24px;font-weight:800;line-height:1;text-align:right;}
+.list .val{font-family:var(--display);font-size:28px;font-weight:800;line-height:1;text-align:right;}
 .list .val small{display:block;font-family:var(--font);font-size:11.5px;font-weight:500;color:var(--mute);}
 .minus{color:var(--bad);}
 .banner{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);border:2px solid var(--acc);}
@@ -159,7 +163,7 @@ main{padding-top:14px;}
 .team.first .team-h .rk{color:var(--ink);}
 .team-h .name{font-weight:700;font-size:15.5px;display:block;overflow-wrap:anywhere;}
 .team-h .sub{font-size:12.5px;color:var(--mute);display:block;}
-.team-h .total{font-family:var(--display);font-size:30px;font-weight:800;line-height:1;}
+.team-h .total{font-family:var(--display);font-size:34px;font-weight:800;line-height:1;}
 .team.first .team-h .total{color:var(--ink);}
 .detail{border-top:1px solid var(--line);padding:10px 14px 14px;}
 .mem{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:14px;}
@@ -192,7 +196,7 @@ main{padding-top:14px;}
 .cmp{margin-top:14px;}
 .cmp-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
 .cmp-h span{font-size:14px;font-weight:600;color:var(--body);}
-.cmp-h b{font-size:26px;line-height:1;}
+.cmp-h b{font-size:30px;line-height:1;}
 .cmp-bar{position:relative;height:12px;border-radius:999px;background:var(--chip);margin:8px 0 6px;}
 .cmp-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--link);}
 .cmp-bar s{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--ink);}
@@ -299,15 +303,15 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 
 /* 이름표 · 내 순위 칩 — 이름표 글꼴은 로고와 같은 스텐실(10/12 지휘 허용) · 순위 · 묶음은 서버 값(§1.18 group) 그대로 */
 .badge{display:inline-flex;align-items:center;font-family:var(--stencil);font-weight:800;font-size:13px;letter-spacing:.06em;line-height:1;padding:4px 7px 3px;border-radius:6px;white-space:nowrap;vertical-align:1px;}
-.badge.u{background:var(--band);color:var(--acc);}
-.badge.c{background:var(--band-cell);color:#fff;}
-.badge.m{background:var(--chip);color:var(--ink);}
+/* 메탈 이름표(10/13 지휘) — 금 · 보라 · 하늘. 글자 대비 4.5:1 이상(금 · 하늘은 짙은 글자 · 보라는 흰 글자 · 보라 가장 옅은 끝 #8558E6 = 4.63:1) */
+.badge.u{background:var(--gold);color:#3A2A05;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -1px 0 rgba(120,80,0,.35),0 1px 2px rgba(60,40,0,.25);}
+.badge.c{background:linear-gradient(135deg,#8558E6 0%,#7B4FE0 45%,#4B2A9E 70%,#8558E6 100%);color:#fff;text-shadow:0 1px 0 rgba(30,10,70,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 1px 2px rgba(30,10,70,.25);}
+.badge.m{background:linear-gradient(135deg,#E6F7FF 0%,#8FD3F5 40%,#4FA9D8 65%,#C9EEFF 100%);color:#0C2E42;box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 1px 2px rgba(10,40,60,.22);}
 .list .nm .badge{margin-bottom:4px;}
 .lb-more{display:flex;justify-content:center;align-items:center;width:100%;min-height:44px;margin-top:4px;border:0;background:transparent;color:var(--link);font-weight:700;font-size:14px;cursor:pointer;}
 .lb-note{font-size:12.5px;color:var(--mute);text-align:center;margin-top:6px;}
 .rankchip{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;min-height:44px;margin-top:12px;padding:8px 12px;border-radius:12px;background:var(--band-cell);border:1px solid var(--band-line);color:#fff;font-size:14px;font-weight:600;text-decoration:none;}
 .rankchip b{font-family:var(--display);font-size:17px;font-weight:800;}
-.rankchip .badge.c{background:var(--band);box-shadow:inset 0 0 0 1px var(--band-line);}
 .rankchip .need{color:var(--band-label);font-weight:500;}
 .rankchip .basis{margin-left:auto;color:var(--band-label);font-size:12.5px;font-weight:500;}
 /* 룰 한눈에 — 팀장 · 맵 순서 · 지정 낙하 · 상금 배분 예시 */
@@ -345,6 +349,56 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 .oops{position:fixed;left:12px;right:12px;bottom:calc(var(--bar) + env(safe-area-inset-bottom) + 8px);z-index:11;max-width:536px;margin:0 auto;
   display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--band);color:#fff;border-radius:var(--r-btn);padding:10px 12px;font-size:13.5px;}
 .oops button{flex:0 0 auto;border:0;border-radius:999px;background:#fff;color:var(--ink);font-weight:700;font-size:13px;padding:0 14px;min-height:40px;cursor:pointer;}
+/* 로고 「GmI」 — 스텐실 글꼴의 대문자 I 가 l 처럼 보여 위아래 가로획(세리프)을 그린다 */
+.logo .ii{position:relative;display:inline-block;padding:0 .08em;font-weight:inherit;}
+.logo .ii::before,.logo .ii::after{content:"";position:absolute;left:-.04em;right:-.04em;height:.1em;background:currentColor;border-radius:1px;}
+.logo .ii::before{top:.12em;}
+.logo .ii::after{bottom:.1em;}
+
+/* 홈 정글 장면 — 잎 2~3겹(SVG) 사이에 무뚝이. 잎은 살짝 흔들리고 「움직임 줄이기」면 멈춘다 */
+.band{position:relative;overflow:hidden;}
+.hero-row{position:relative;padding-right:118px;min-height:112px;}
+.jungle{position:absolute;right:-14px;bottom:-10px;width:140px;height:136px;pointer-events:none;}
+.jungle svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+.jungle .lv{transform-box:fill-box;transform-origin:50% 100%;animation:sway 5.5s ease-in-out infinite alternate;}
+.jungle .lv.b{animation-duration:7s;animation-delay:-2s;}
+.jungle .lv.c{animation-duration:6.2s;animation-delay:-4s;}
+.mt-hero{position:absolute;left:22px;bottom:6px;width:104px;height:104px;background:none;}
+.has-mt .mt-hero{background:var(--mt-win) center bottom/contain no-repeat;background-image:image-set(url(app/assets/mutteok-victory-256.webp) 1x,url(app/assets/mutteok-victory-512.webp) 3x);
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));}
+@keyframes sway{0%{transform:rotate(-3deg);}100%{transform:rotate(3deg);}}
+
+/* 불러오는 중 · 빈 화면 — 작은 무뚝이. 로딩은 헬멧이 까딱 */
+.has-mt .card .wait{display:flex;align-items:center;gap:8px;}
+.has-mt .card .wait::before{content:"";flex:0 0 auto;width:40px;height:40px;background:var(--mt-base) center/contain no-repeat;transform-origin:50% 90%;animation:nod 1.6s ease-in-out infinite;}
+@keyframes nod{0%,100%{transform:rotate(0);}30%{transform:rotate(-7deg);}60%{transform:rotate(4deg);}}
+.has-mt .msg.empty::before{content:"";display:block;width:72px;height:72px;margin:0 auto 8px;background:var(--mt-base) center/contain no-repeat;}
+
+/* 1위 순간 — 개인 순위 1위 카드 · 점수판 1등 팀: 승리 포즈 무뚝이 + 금빛 테두리 · 1위 카드는 살짝 기운 입체 + 빛 한 번 */
+.rank1{position:relative;overflow:hidden;border:2px solid var(--gold-line);background:linear-gradient(160deg,#FFFDF2 0%,#FFF6D6 100%);
+  transform:perspective(700px) rotateX(5deg) rotateY(-4deg);transform-origin:50% 100%;box-shadow:0 2px 0 #E9C969,0 14px 28px rgba(150,110,10,.22);}
+.rank1 .card-h{justify-content:flex-start;gap:10px;flex-wrap:wrap;padding-right:84px;}
+.rank1 .card-sub{padding-right:84px;}
+.has-mt .rank1::before{content:"";position:absolute;right:6px;bottom:-4px;width:92px;height:92px;background:var(--mt-win) center bottom/contain no-repeat;}
+/* 빛이 지나갈 때도 이름표 글자 대비가 떨어지지 않게 — 이름표를 빛 위로 */
+.rank1 .badge{position:relative;z-index:1;}
+.rank1::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-18deg);animation:shine 1.4s ease-out .4s 1 both;pointer-events:none;}
+@keyframes shine{from{left:-60%;}to{left:130%;}}
+.list li.first{background:linear-gradient(135deg,#FFF8DC 0%,#FBEBB0 100%);box-shadow:inset 0 0 0 1.5px var(--gold-line);}
+.has-mt .list li.first .rk{background:var(--mt-win) center/contain no-repeat;color:transparent;height:34px;}
+.team.first{box-shadow:var(--shadow),inset 0 0 0 2px var(--gold-line);background:linear-gradient(160deg,#FFFFFF 0%,#FFF8E1 100%);}
+.has-mt .team.first .total::before{content:"";display:inline-block;width:38px;height:38px;margin-right:4px;vertical-align:-6px;background:var(--mt-win) center/contain no-repeat;}
+
+/* 배경음악 — 기본 꺼짐 · 누를 때만 재생 · 음원 경로가 비면 버튼 숨김 */
+.b-right{display:flex;align-items:center;gap:8px;min-width:0;}
+.bgm{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;background:var(--band-cell);border:1px solid var(--band-line);color:var(--band-label);cursor:pointer;padding:0;}
+.bgm svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.bgm[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--band);}
+.bgm .on{display:none;}
+.bgm[aria-pressed="true"] .on{display:inline;}
+.bgm[aria-pressed="true"] .off{display:none;}
+
+@media (prefers-reduced-motion:reduce){ .jungle .lv,.has-mt .card .wait::before{animation:none;} .rank1::after{display:none;} }
 @media (min-width:900px){ .wrap{max-width:640px;} .tabbar .in{max-width:640px;} }
 </style>
 </head>
@@ -354,8 +408,13 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 <section id="v-home" data-view>
   <div class="band"><div class="wrap">
     <div class="b-top">
-      <a class="logo" href="#home">GmI <span>킬내기</span></a>
-      <a class="who plain" id="who" href="killrace/">연결하기</a>
+      <a class="logo" href="#home" aria-label="GmI 킬내기"><span aria-hidden="true">Gm<b class="ii">I</b></span> <span>킬내기</span></a>
+      <span class="b-right">
+        <button type="button" class="bgm" id="bgm" aria-pressed="false" aria-label="배경음악 켜기" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="on" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="off" d="M17 9l5 6M22 9l-5 6"/></svg>
+        </button>
+        <a class="who plain" id="who" href="killrace/">연결하기</a>
+      </span>
     </div>
     <!-- 내 티어 · 순위 한 줄 — 로그인했을 때만 · 누르면 내 기록 -->
     <a class="rankchip" id="rankChip" href="#me" hidden></a>
@@ -365,8 +424,18 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
       <p class="wait" id="nextWait">불러오는 중이에요</p>
     </div>
     <div id="nextBody" hidden>
-      <p class="b-label" id="nextLabel">다음 회차</p>
-      <div class="b-hero"><span class="b-big" id="nextRound"></span><span class="b-when"><span id="nextWhen"></span><span class="dchip" id="nextD" hidden></span></span></div>
+      <div class="hero-row">
+        <p class="b-label" id="nextLabel">다음 회차</p>
+        <div class="b-hero"><span class="b-big" id="nextRound"></span><span class="b-when"><span id="nextWhen"></span><span class="dchip" id="nextD" hidden></span></span></div>
+        <!-- 정글 장면 — 뒤 잎 · 무뚝이 · 앞 잎(장식이라 읽지 않는다) -->
+        <div class="jungle" aria-hidden="true">
+          <svg viewBox="0 0 140 136"><g class="lv b" fill="#1F5A36"><path d="M10 136C4 96 18 60 46 38c-4 34-14 66-36 98z"/><path d="M128 136c6-44-6-78-30-102 2 38 10 70 30 102z"/></g>
+            <g class="lv" fill="#2E7A45"><path d="M30 136c-10-30-2-58 22-78-2 28-8 54-22 78z"/><path d="M114 136c8-26 2-52-18-70 0 26 6 50 18 70z"/></g></svg>
+          <span class="mt-hero"></span>
+          <svg viewBox="0 0 140 136"><g class="lv c" fill="#4C9A4A"><path d="M0 136c14-22 34-34 58-36-16 14-34 26-58 36z"/><path d="M140 136c-14-20-32-30-54-32 14 12 32 24 54 32z"/></g>
+            <g class="lv" fill="#C6E266" opacity=".85"><path d="M18 136c10-12 22-18 36-18-10 8-22 14-36 18z"/></g></svg>
+        </div>
+      </div>
       <div class="cells">
         <div class="cell"><small>신청</small><b id="cSeat"></b></div>
         <div class="cell"><small>신청 마감</small><b id="cClose"></b></div>
@@ -982,7 +1051,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     }
     chips.push('<span class="rchip">' + (B.excludeBots ? "봇 킬 · 딜 제외" : "봇 킬도 인정") + "</span>");
     $("rChips").innerHTML = chips.join("");
-    $("standings").innerHTML = B.teams.length ? B.teams.map(teamCard).join("") : '<div class="card"><p class="msg">팀이 아직 없어요. 드래프트가 끝나면 올라와요</p></div>';
+    $("standings").innerHTML = B.teams.length ? B.teams.map(teamCard).join("") : '<div class="card"><p class="msg empty">팀이 아직 없어요. 드래프트가 끝나면 올라와요</p></div>';
   }
   $("standings").addEventListener("click", function (e) {
     if (e.target.closest("[data-retry]")) { $("standings").innerHTML = '<div class="card"><p class="wait">불러오는 중이에요</p></div>'; loadBoard(); return; }
@@ -1052,7 +1121,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     var rules = lb && lb.rules || {}, min = Number(rules.minGames) || 0;
     var mine = lb && (lb.list || []).filter(function (x) { return x.key === p.key; })[0];
     var rankCard = "";
-    if (mine) rankCard = '<div class="card"><h2 class="card-h">' + badgeHtml(mine.label) + " 개인 순위 " + mine.rank + '위</h2><p class="card-sub">판당 킬 · 판당 딜로 매겨요 · 수요일 아침에 새로 매겨요</p></div>';
+    if (mine) rankCard = '<div class="card' + (mine.rank === 1 ? " rank1" : "") + '"><h2 class="card-h">' + badgeHtml(mine.label) + " 개인 순위 " + mine.rank + '위</h2><p class="card-sub">판당 킬 · 판당 딜로 매겨요 · 수요일 아침에 새로 매겨요</p></div>';
     else if (min && p.games < min) rankCard = '<div class="card"><h2 class="card-h">개인 순위까지 <span class="num" style="font-size:22px;">' + p.games + "/" + min + '판</span></h2>' +
       '<div class="prog"><i style="width:' + Math.min(100, Math.round(p.games / min * 100)) + '%"></i></div><p class="note">' + (min - p.games) + "판 더 뛰면 순위에 들어요" + (rules.season ? " · " + rules.season.number + "시즌 판만 세요" : " · 최근 " + (rules.recentDays || 30) + "일 안에 뛴 판이 있어야 해요") + "</p></div>";
     else if (min) rankCard = '<div class="card"><h2 class="card-h">개인 순위</h2><p class="card-sub">' + min + "판은 넘었어요. " + (rules.season ? "수요일 아침에 순위를 새로 매겨요" : "최근 " + (rules.recentDays || 30) + "일 안에 뛰면 수요일 아침에 순위에 올라요") + "</p></div>";
@@ -1533,6 +1602,43 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
   loadWho();
   loadVer();
   show();
+
+  /* ---------- 무뚝이 · 배경음악 (10/13 오너) ----------
+   * 무뚝이: 글자가 다 뜬 뒤(load 다음 쉬는 틈) 작은 그림 하나를 읽어 보고, 읽히면 html.has-mt — 그때부터 CSS 가 그림을 쓴다.
+   *   파일이 없거나 느린 망에서 못 읽어도 화면은 그대로(그림 자리만 빔). 승리 포즈는 1위 카드가 그려질 때만 CSS 가 읽는다.
+   * 배경음악: 기본 꺼짐 · 누를 때만 재생(자동재생 없음) · 고른 값은 이 폰에만. BGM_SRC 가 비면 버튼을 숨긴다
+   *   (음원은 오너가 저작권 확인된 파일을 주면 경로를 적는다). */
+  (function () {
+    var go = function () {
+      var im = new Image();
+      im.onload = function () { document.documentElement.classList.add("has-mt"); };
+      im.src = "app/assets/mutteok-victory-256.webp";
+    };
+    var idle = function () { (window.requestIdleCallback || function (f) { setTimeout(f, 200); })(go); };
+    if (document.readyState === "complete") idle(); else window.addEventListener("load", idle);
+  })();
+  var BGM_SRC = "";
+  (function () {
+    var btn = $("bgm"); if (!btn || !BGM_SRC) return;
+    var audio = null;
+    var set = function (on) {
+      btn.setAttribute("aria-pressed", String(on)); btn.setAttribute("aria-label", on ? "배경음악 끄기" : "배경음악 켜기");
+      store.set("kn_bgm", on ? "on" : "off");
+    };
+    var play = function () {
+      if (!audio) { audio = new Audio(BGM_SRC); audio.loop = true; audio.volume = 0.4; }
+      var p = audio.play(); if (p && p.catch) p.catch(function () { set(false); });
+    };
+    btn.hidden = false;
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var on = btn.getAttribute("aria-pressed") !== "true";
+      if (on) play(); else if (audio) audio.pause();
+      set(on);
+    });
+    // 지난번에 켜 둔 폰이면 — 열자마자 틀지 않고, 화면을 처음 누를 때 이어서 튼다(브라우저 자동재생 막기와 같은 선)
+    if (store.get("kn_bgm") === "on") document.addEventListener("click", function once() { document.removeEventListener("click", once); if (btn.getAttribute("aria-pressed") !== "true") { play(); set(true); } });
+  })();
   window.knReady = true;
 })();
 </script>
