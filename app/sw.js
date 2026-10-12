@@ -4,9 +4,12 @@
    - API는 항상 네트워크 (실시간 데이터)
    ============================================ */
 
-const CACHE_VERSION = "gmi-v9";
+const CACHE_VERSION = "gmi-v10";
 const STATIC_ASSETS = [
   "index.html",
+  "brain.html",
+  "brain-room.html",
+  "brain.css?v=1",
   "casino.html",
   "duel.html",
   "matches.html",

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F2B1C">
+<meta name="gmi-api-base" content="https://worker-production-06b8.up.railway.app">
+<title>GmI 브레인 챌린지</title>
+<meta name="description" content="숫자야구 · 흑과 백 같은 두뇌 · 심리전 보드게임. 명예 점수와 시즌 순위만 걸려요">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@800&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="brain.css?v=1">
+</head>
+<body>
+<div class="band"><div class="wrap">
+  <div class="b-top"><a class="logo" href="brain.html">GmI <span>브레인 챌린지</span></a></div>
+  <p class="b-sub">두뇌 · 심리전 보드게임이에요. 걸리는 건 명예 점수와 시즌 순위뿐이에요</p>
+  <span class="b-chip">지금은 오너만 열려 있어요</span>
+</div></div>
+
+<main class="wrap">
+  <section class="card" aria-labelledby="gTitle">
+    <h2 class="card-h" id="gTitle">게임 고르기</h2>
+    <div id="games"><p class="msg">불러오는 중이에요</p></div>
+    <p class="err" id="gErr" role="status"></p>
+  </section>
+
+  <section class="card" aria-labelledby="wTitle">
+    <h2 class="card-h" id="wTitle">기다리는 방</h2>
+    <ul class="rooms" id="waiting"><li><span class="msg">불러오는 중이에요</span></li></ul>
+  </section>
+
+  <section class="card" aria-labelledby="mTitle">
+    <h2 class="card-h" id="mTitle">내 판</h2>
+    <ul class="rooms" id="mine"><li><span class="msg">불러오는 중이에요</span></li></ul>
+  </section>
+
+  <section class="card" aria-labelledby="rTitle">
+    <h2 class="card-h" id="rTitle">시즌 순위 <span class="note" id="season"></span></h2>
+    <div class="seg" role="group" aria-label="게임 고르기" id="rankSeg"></div>
+    <ol class="rank" id="rank"><li><span></span><span class="msg">불러오는 중이에요</span><span></span></li></ol>
+  </section>
+
+  <p class="foot">명예 점수와 칭호만 있어요 · 코인 · 매점 · 상금과 바꾸지 않아요 · 참가할 때 거는 것도 없어요</p>
+</main>
+
+<script src="app.js?v=7"></script>
+<script>
+/* 브레인 챌린지 로비 — 서버 /api/brain(gmi-casino-bot · 오너 전용 잠금) 값만 보인다. 순위 · 점수 계산은 서버 몫 */
+(function () {
+  "use strict";
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function bapi(path, body) {
+    var h = { "Content-Type": "application/json" }, t = getToken();
+    if (t) h.Authorization = "Bearer " + t;
+    return fetch(API_BASE + "/api/brain" + path, body ? { method: "POST", headers: h, body: JSON.stringify(body) } : { headers: h })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, status: r.status, data: d }; }); },
+            function () { return { ok: false, status: 0, data: {} }; });
+  }
+  function fail(r) {
+    if (r.status === 403) { showClosed(); return "지금은 쉬고 있어요"; }
+    return r.data && r.data.detail ? String(r.data.detail) : "잠시 뒤 다시 눌러 주세요";
+  }
+  var GAMES = {}, rankGame = "baseball";
+  var ST = { waiting: "기다리는 중", playing: "진행 중", done: "끝남", closed: "닫힘" };
+
+  function loadGames() {
+    bapi("/games").then(function (r) {
+      if (!r.ok) { $("games").innerHTML = '<p class="msg">' + esc(fail(r)) + "</p>"; return; }
+      $("season").textContent = r.data.season ? r.data.season + " 시즌" : "";
+      $("games").innerHTML = r.data.games.map(function (g) {
+        GAMES[g.key] = g;
+        return '<div class="game"><h3>' + esc(g.name) + "</h3>" +
+          "<p>" + esc(g.desc) + " · " + g.players + '인</p><button type="button" class="btn dark" data-make="' + esc(g.key) + '">방 만들기</button></div>';
+      }).join("");
+      $("rankSeg").innerHTML = r.data.games.map(function (g) {
+        return '<button type="button" data-rank="' + esc(g.key) + '" aria-pressed="' + (g.key === rankGame) + '">' + esc(g.name) + "</button>";
+      }).join("");
+      loadRooms(); loadRank();
+    });
+  }
+  function roomLi(x, mine) {
+    var g = GAMES[x.game] ? GAMES[x.game].name : x.game;
+    var who = esc(x.players.p1) + (x.players.p2 ? " · " + esc(x.players.p2) : "");
+    var tag = x.status === "playing" ? '<span class="tag live">진행 중</span>' : x.test ? '<span class="tag">시험판</span>' : "";
+    var acts = "";
+    if (!mine && x.status === "waiting") acts = '<button type="button" class="btn dark" data-join="' + x.id + '">들어가기</button>';
+    else if (x.host && x.status === "waiting") acts = '<button type="button" class="btn line" data-test="' + x.id + '">시험판</button><button type="button" class="btn line" data-cancel="' + x.id + '">닫기</button>';
+    else acts = '<a class="btn line" href="brain-room.html?id=' + x.id + '">' + (x.status === "done" ? "결과" : "열기") + "</a>";
+    return "<li><span><b>" + esc(g) + "</b> " + tag + "<small>#" + x.id + " · " + who + " · " + esc(ST[x.status] || x.status) + '</small></span><span class="acts">' + acts + "</span></li>";
+  }
+  function loadRooms() {
+    bapi("/rooms").then(function (r) {
+      if (!r.ok) { $("waiting").innerHTML = $("mine").innerHTML = '<li><span class="msg">' + esc(fail(r)) + "</span></li>"; return; }
+      var w = r.data.rooms.filter(function (x) { return x.status === "waiting"; });
+      var m = r.data.rooms.filter(function (x) { return x.mine && x.status !== "waiting"; });
+      $("waiting").innerHTML = w.length ? w.map(function (x) { return roomLi(x, x.host); }).join("") : '<li><span class="msg">기다리는 방이 없어요 · 위에서 방을 만들어 주세요</span></li>';
+      $("mine").innerHTML = m.length ? m.slice(0, 10).map(function (x) { return roomLi(x, true); }).join("") : '<li><span class="msg">아직 둔 판이 없어요</span></li>';
+    });
+  }
+  function loadRank() {
+    bapi("/ranking?game=" + encodeURIComponent(rankGame)).then(function (r) {
+      if (!r.ok) { $("rank").innerHTML = '<li><span></span><span class="msg">' + esc(fail(r)) + "</span><span></span></li>"; return; }
+      var list = r.data.list || [];
+      $("rank").innerHTML = list.length ? list.map(function (x) {
+        return '<li><span class="rk">' + x.rank + "</span><span><b>" + esc(x.name) + "</b><small>" + x.wins + "승 " + x.draws + "무 " + x.losses + '패</small></span><span class="rt">' + x.rating + "</span></li>";
+      }).join("") : '<li><span></span><span class="msg">이번 시즌 기록이 아직 없어요</span><span></span></li>';
+    });
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-make],[data-join],[data-test],[data-cancel],[data-rank]");
+    if (!b) return;
+    if (b.hasAttribute("data-rank")) {
+      rankGame = b.getAttribute("data-rank");
+      document.querySelectorAll("[data-rank]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      loadRank(); return;
+    }
+    $("gErr").textContent = "";
+    b.disabled = true;
+    var go = function (r, toRoom) {
+      b.disabled = false;
+      if (!r.ok) { $("gErr").textContent = fail(r); loadRooms(); return; }
+      if (toRoom) location.href = "brain-room.html?id=" + r.data.room.id; else loadRooms();
+    };
+    if (b.hasAttribute("data-make")) bapi("/rooms", { game: b.getAttribute("data-make") }).then(function (r) { go(r, false); });
+    if (b.hasAttribute("data-join")) bapi("/rooms/" + b.getAttribute("data-join") + "/join", {}).then(function (r) { go(r, true); });
+    if (b.hasAttribute("data-test")) bapi("/rooms/" + b.getAttribute("data-test") + "/test", {}).then(function (r) { go(r, true); });
+    if (b.hasAttribute("data-cancel")) bapi("/rooms/" + b.getAttribute("data-cancel") + "/cancel", {}).then(function (r) { go(r, false); });
+  });
+  loadGames();
+  setInterval(function () { if (!document.hidden) loadRooms(); }, 8000);
+})();
+</script>
+</body>
+</html>
