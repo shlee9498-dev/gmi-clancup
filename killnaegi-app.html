@@ -52,8 +52,8 @@
   --display:'Saira Condensed','IBM Plex Sans KR',sans-serif;
   --font:'IBM Plex Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
   --r-card:18px; --r-btn:14px; --bar:64px;
-  /* 무뚝이(킬내기 마스코트 · 10/13 오너) — 이미지는 app/assets 의 webp. 파일을 못 읽으면 html.has-mt 가 안 붙어 그림 자리만 비고 화면은 그대로 */
-  --mt-base:url(app/assets/muttuki-base-256.webp); --mt-win:url(app/assets/muttuki-win-256.webp);
+  /* 무뚝이(킬내기 마스코트 · 10/13 오너) — 이미지는 app/assets 의 webp. 기준 그림은 승리 포즈(victory) · 기본 포즈(base)는 배 글자가 Gml 처럼 보여 작은 자리(로딩 · 빈 화면)에만. 파일을 못 읽으면 html.has-mt 가 안 붙어 그림 자리만 비고 화면은 그대로 */
+  --mt-base:url(app/assets/mutteok-base-256.webp); --mt-win:url(app/assets/mutteok-victory-256.webp);
   --gold:linear-gradient(135deg,#FFF3B0 0%,#F2C94C 38%,#C9962B 62%,#FCE38A 100%);
   --gold-line:#D4A62A;
 }
@@ -364,7 +364,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 .jungle .lv.b{animation-duration:7s;animation-delay:-2s;}
 .jungle .lv.c{animation-duration:6.2s;animation-delay:-4s;}
 .mt-hero{position:absolute;left:22px;bottom:6px;width:104px;height:104px;background:none;}
-.has-mt .mt-hero{background:var(--mt-base) center bottom/contain no-repeat;background-image:image-set(url(app/assets/muttuki-base-256.webp) 1x,url(app/assets/muttuki-base-512.webp) 3x);
+.has-mt .mt-hero{background:var(--mt-win) center bottom/contain no-repeat;background-image:image-set(url(app/assets/mutteok-victory-256.webp) 1x,url(app/assets/mutteok-victory-512.webp) 3x);
   filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));}
 @keyframes sway{0%{transform:rotate(-3deg);}100%{transform:rotate(3deg);}}
 
@@ -372,7 +372,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 .has-mt .card .wait{display:flex;align-items:center;gap:8px;}
 .has-mt .card .wait::before{content:"";flex:0 0 auto;width:40px;height:40px;background:var(--mt-base) center/contain no-repeat;transform-origin:50% 90%;animation:nod 1.6s ease-in-out infinite;}
 @keyframes nod{0%,100%{transform:rotate(0);}30%{transform:rotate(-7deg);}60%{transform:rotate(4deg);}}
-.has-mt .msg.empty::before{content:"";display:block;width:96px;height:96px;margin:0 auto 8px;background:var(--mt-base) center/contain no-repeat;}
+.has-mt .msg.empty::before{content:"";display:block;width:72px;height:72px;margin:0 auto 8px;background:var(--mt-base) center/contain no-repeat;}
 
 /* 1위 순간 — 개인 순위 1위 카드 · 점수판 1등 팀: 승리 포즈 무뚝이 + 금빛 테두리 · 1위 카드는 살짝 기운 입체 + 빛 한 번 */
 .rank1{position:relative;overflow:hidden;border:2px solid var(--gold-line);background:linear-gradient(160deg,#FFFDF2 0%,#FFF6D6 100%);
@@ -1610,7 +1610,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     var go = function () {
       var im = new Image();
       im.onload = function () { document.documentElement.classList.add("has-mt"); };
-      im.src = "app/assets/muttuki-base-256.webp";
+      im.src = "app/assets/mutteok-victory-256.webp";
     };
     var idle = function () { (window.requestIdleCallback || function (f) { setTimeout(f, 200); })(go); };
     if (document.readyState === "complete") idle(); else window.addEventListener("load", idle);
