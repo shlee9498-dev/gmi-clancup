@@ -4,7 +4,7 @@
   --bg:#E2EED5; --card:#FFFFFF; --field:#EDF5E3;
   --band:#0F2B1C; --band-cell:#17402A; --band-line:#2F6342; --band-label:#B3CBAF; --acc:#C6E266; --acc-soft:#E9F2D3;
   --band-bg:repeating-radial-gradient(circle at 88% 12%,rgba(198,226,102,.07) 0 1px,transparent 1px 16px),linear-gradient(160deg,#1D5233 0%,#0F2B1C 70%);
-  --ink:#16211A; --body:#434F40; --mute:#5A6658; --line:#CADDB8; --chip:#D3E5C2; --link:#2D6A3E;
+  --ink:#16211A; --body:#3B4738; --mute:#4E5A4C; --line:#BFD4AB; --chip:#D3E5C2; --link:#2D6A3E;
   --ok:#1F7A4D; --bad:#A8431F; --bad-soft:#F6E3D9;
   --shadow:0 1px 2px rgba(22,33,26,.05),0 8px 22px rgba(22,33,26,.08);
   --stencil:'Big Shoulders Stencil Display','Saira Condensed','IBM Plex Sans KR',sans-serif;
