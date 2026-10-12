@@ -303,9 +303,9 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 
 /* 이름표 · 내 순위 칩 — 이름표 글꼴은 로고와 같은 스텐실(10/12 지휘 허용) · 순위 · 묶음은 서버 값(§1.18 group) 그대로 */
 .badge{display:inline-flex;align-items:center;font-family:var(--stencil);font-weight:800;font-size:13px;letter-spacing:.06em;line-height:1;padding:4px 7px 3px;border-radius:6px;white-space:nowrap;vertical-align:1px;}
-/* 메탈 이름표(10/13 지휘) — 금 · 보라 · 하늘. 글자 대비 4.5:1 이상(금 · 하늘은 짙은 글자 · 보라는 흰 글자) */
+/* 메탈 이름표(10/13 지휘) — 금 · 보라 · 하늘. 글자 대비 4.5:1 이상(금 · 하늘은 짙은 글자 · 보라는 흰 글자 · 보라 가장 옅은 끝 #8558E6 = 4.63:1) */
 .badge.u{background:var(--gold);color:#3A2A05;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -1px 0 rgba(120,80,0,.35),0 1px 2px rgba(60,40,0,.25);}
-.badge.c{background:linear-gradient(135deg,#C9B6FF 0%,#7B4FE0 45%,#4B2A9E 70%,#A98BFF 100%);color:#fff;text-shadow:0 1px 0 rgba(30,10,70,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 1px 2px rgba(30,10,70,.25);}
+.badge.c{background:linear-gradient(135deg,#8558E6 0%,#7B4FE0 45%,#4B2A9E 70%,#8558E6 100%);color:#fff;text-shadow:0 1px 0 rgba(30,10,70,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 1px 2px rgba(30,10,70,.25);}
 .badge.m{background:linear-gradient(135deg,#E6F7FF 0%,#8FD3F5 40%,#4FA9D8 65%,#C9EEFF 100%);color:#0C2E42;box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 1px 2px rgba(10,40,60,.22);}
 .list .nm .badge{margin-bottom:4px;}
 .lb-more{display:flex;justify-content:center;align-items:center;width:100%;min-height:44px;margin-top:4px;border:0;background:transparent;color:var(--link);font-weight:700;font-size:14px;cursor:pointer;}
@@ -380,6 +380,8 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 .rank1 .card-h{justify-content:flex-start;gap:10px;flex-wrap:wrap;padding-right:84px;}
 .rank1 .card-sub{padding-right:84px;}
 .has-mt .rank1::before{content:"";position:absolute;right:6px;bottom:-4px;width:92px;height:92px;background:var(--mt-win) center bottom/contain no-repeat;}
+/* 빛이 지나갈 때도 이름표 글자 대비가 떨어지지 않게 — 이름표를 빛 위로 */
+.rank1 .badge{position:relative;z-index:1;}
 .rank1::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-18deg);animation:shine 1.4s ease-out .4s 1 both;pointer-events:none;}
 @keyframes shine{from{left:-60%;}to{left:130%;}}
 .list li.first{background:linear-gradient(135deg,#FFF8DC 0%,#FBEBB0 100%);box-shadow:inset 0 0 0 1.5px var(--gold-line);}
