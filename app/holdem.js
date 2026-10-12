@@ -23,7 +23,7 @@ let reconnectTimer = null;
 
 function startStream() {
   const url = `${API_BASE}/api/holdem/${matchId}/stream`;
-  evtSource = new EventSource(url);
+  evtSource = new EventSource(withToken(url));
 
   evtSource.addEventListener("update", (e) => {
     try {

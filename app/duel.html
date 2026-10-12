@@ -47,7 +47,7 @@
 
 </main>
 
-<script src="app.js?v=6"></script>
+<script src="app.js?v=7"></script>
 <script>
 const matchId = parseInt(new URLSearchParams(location.search).get("id") || "0");
 if (!matchId) {
@@ -71,7 +71,7 @@ function startStream() {
   // SSE는 헤더 인자를 못 받아서 URL query로 전달 (다만 보안상 토큰을 URL에 두는 건 한계)
   // 현재 백엔드는 매치 보기 자체에 auth 안 걸어둠 (관전 자유). 토큰 불필요.
   const url = `${API_BASE}/api/duel/${matchId}/stream`;
-  evtSource = new EventSource(url);
+  evtSource = new EventSource(withToken(url));
 
   evtSource.addEventListener("update", (e) => {
     try {
