@@ -5,7 +5,9 @@
   "use strict";
   var LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
   var API = LOCAL ? location.origin : "https://mri-academy-production.up.railway.app";
-  var APP_BASE = LOCAL ? location.origin + "/killrace/" : "https://shlee9498-dev.github.io/gmi-clancup/killrace/";
+  // 로그인 뒤 돌아올 폴더 = 지금 화면이 있는 폴더(주소를 박아 두지 않는다 · 주소가 바뀌어도 그대로 · 10/12 지휘).
+  // 받아 줄지는 서버가 정한다(killrace-members.cjs APP_HOME 앞부분 대조 · 앱 계약 §2)
+  var APP_BASE = location.origin + location.pathname.replace(/[^\/]*$/, "");
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
