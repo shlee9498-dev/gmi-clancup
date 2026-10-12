@@ -752,9 +752,9 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
   });
   // 상금 스폰서 줄 — 신청 페이지(killnaegi.html)와 같은 규칙. 보증금이 꺼져 있으면 외부 참가는 참가비가 있어 문구를 나눈다
   function paintSponsor(a) {
-    // 스폰서 표기 = 본인 동의한 이름 글자만(10/12 세무 자문: 로고 · 링크 · 배너는 광고 대가가 되어 매출로 잡힘) — 주소 모양이면 아예 안 보인다
+    // 스폰서 표기 = 본인 동의한 이름 글자만(10/12 세무 자문: 로고 · 링크 · 배너는 광고 대가가 되어 매출로 잡힘) — 이름 글자가 아닌 게 섞이면 아예 안 보인다
     var sp = typeof a.sponsor === "string" ? a.sponsor.trim().replace(/님$/, "").slice(0, 30) : "";
-    if (/https?:|www\.|\.(com|kr|gg|net|io)\b/i.test(sp)) sp = "";
+    if (!/^[가-힣ㄱ-ㅎㅏ-ㅣA-Za-z0-9 ]+$/.test(sp)) sp = "";   // 허용 목록 — 한글 · 영문 · 숫자 · 공백만(. / : @ 등이 하나라도 있으면 숨김)
     $("sponName").hidden = !sp; $("sponName").textContent = sp ? "이번 회차 상금 스폰서: " + sp + "님" : "";
     var dep = a.deposit && Number(a.deposit.external) > 0;
     $("sponFree").textContent = (dep ? "선수는" : "클랜원 · 레슨생은") + " 참가비 없이 뛰어요 · 상금은 스폰서와 운영진이 내요";

@@ -599,9 +599,9 @@ function applyRound(d) {
   var prize = typeof d.prize === "string" ? d.prize.trim().slice(0, 60) : "";
   $("prizeChip").hidden = !prize; $("prizeChip").innerHTML = prize ? "<b>" + esc(prize) + "</b>" : "";
   // 스폰서 이름은 서버가 sponsor 글자를 줄 때만 「이번 회차 상금 스폰서: ○○님」 — 없으면 줄을 숨긴다
-  // 스폰서 표기 = 본인 동의한 이름 글자만(10/12 세무 자문: 로고 · 링크 · 배너는 광고 대가가 되어 매출로 잡힘) — 주소 모양이면 아예 안 보인다
+  // 스폰서 표기 = 본인 동의한 이름 글자만(10/12 세무 자문: 로고 · 링크 · 배너는 광고 대가가 되어 매출로 잡힘) — 이름 글자가 아닌 게 섞이면 아예 안 보인다
   var sp = typeof d.sponsor === "string" ? d.sponsor.trim().replace(/님$/, "").slice(0, 30) : "";
-  if (/https?:|www\.|\.(com|kr|gg|net|io)\b/i.test(sp)) sp = "";
+  if (!/^[가-힣ㄱ-ㅎㅏ-ㅣA-Za-z0-9 ]+$/.test(sp)) sp = "";   // 허용 목록 — 한글 · 영문 · 숫자 · 공백만(. / : @ 등이 하나라도 있으면 숨김)
   $("sponsorLine").hidden = !sp; $("sponsorLine").textContent = sp ? "이번 회차 상금 스폰서: " + sp + "님" : "";
   paintRound();
 }
