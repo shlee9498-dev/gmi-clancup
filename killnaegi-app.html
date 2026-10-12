@@ -281,6 +281,43 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 .fb-st{min-height:44px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--body);font-size:13px;font-weight:600;cursor:pointer;}
 .fb-st[aria-pressed="true"]{background:var(--band);border-color:var(--band);color:#fff;}
 
+/* 이름표 · 내 순위 칩 — 이름표 글꼴은 로고와 같은 스텐실(10/12 지휘 허용) · 순위 · 묶음은 서버 값(§1.18 group) 그대로 */
+.badge{display:inline-flex;align-items:center;font-family:var(--stencil);font-weight:800;font-size:13px;letter-spacing:.06em;line-height:1;padding:4px 7px 3px;border-radius:6px;white-space:nowrap;vertical-align:1px;}
+.badge.u{background:var(--band);color:var(--acc);}
+.badge.c{background:var(--band-cell);color:#fff;}
+.badge.m{background:var(--chip);color:var(--ink);}
+.list .nm .badge{margin-bottom:4px;}
+.lb-more{display:flex;justify-content:center;align-items:center;width:100%;min-height:44px;margin-top:4px;border:0;background:transparent;color:var(--link);font-weight:700;font-size:14px;cursor:pointer;}
+.lb-note{font-size:12.5px;color:var(--mute);text-align:center;margin-top:6px;}
+.rankchip{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;min-height:44px;margin-top:12px;padding:8px 12px;border-radius:12px;background:var(--band-cell);border:1px solid var(--band-line);color:#fff;font-size:14px;font-weight:600;text-decoration:none;}
+.rankchip b{font-family:var(--display);font-size:17px;font-weight:800;}
+.rankchip .badge.c{background:var(--band);box-shadow:inset 0 0 0 1px var(--band-line);}
+.rankchip .need{color:var(--band-label);font-weight:500;}
+.rankchip .basis{margin-left:auto;color:var(--band-label);font-size:12.5px;font-weight:500;}
+/* 룰 한눈에 — 팀장 · 맵 순서 · 지정 낙하 · 상금 배분 예시 */
+.sum-row{padding:12px 0;border-top:1px solid var(--line);}
+.sum-row:first-of-type{border-top:0;padding-top:4px;}
+.sum-row h3{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.sum-row h3 .no{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--band);color:var(--acc);font-family:var(--display);font-size:13px;}
+.sum-row p{font-size:14px;color:var(--body);}
+.maps{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.maps span{background:var(--chip);color:var(--ink);font-weight:700;font-size:13.5px;border-radius:999px;padding:4px 11px;}
+.maps i{font-style:normal;color:var(--mute);}
+.split{width:100%;border-collapse:collapse;font-size:14px;margin-top:2px;}
+.split th,.split td{padding:8px 6px;text-align:center;border-top:1px solid var(--line);}
+.split th{font-size:12.5px;font-weight:600;color:var(--mute);border-top:0;}
+.split tbody th{border-top:1px solid var(--line);text-align:left;line-height:1.35;}
+.split td.num{font-size:16px;}
+.sum-row h3 .sec{margin-left:auto;font-size:11.5px;font-weight:600;color:var(--mute);}
+.tscroll{overflow-x:auto;}
+.dtab{width:100%;border-collapse:collapse;font-size:13px;}
+.dtab th,.dtab td{padding:8px 5px;border-top:1px solid var(--line);vertical-align:top;color:var(--body);}
+.dtab tr:first-child th,.dtab tr:first-child td{border-top:0;}
+.dtab th{color:var(--ink);font-weight:700;text-align:left;white-space:nowrap;}
+.split td.num{font-family:var(--display);font-weight:800;font-size:17px;}
+.split tr.ratio td{color:var(--body);font-weight:600;}
+.ex-tag{display:inline-block;font-size:12px;font-weight:700;color:var(--ink);background:var(--acc-soft);border-radius:999px;padding:1px 8px;}
+
 /* 아래 탭바 — 비활성 아이콘 tab-off · 글자는 대비 4.5:1 을 위해 mute · 활성은 ink + 라임 점 */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);}
 .tabbar .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);}
@@ -305,6 +342,8 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
       <a class="logo" href="#home">GmI <span>킬내기</span></a>
       <a class="who plain" id="who" href="killrace/">연결하기</a>
     </div>
+    <!-- 내 티어 · 순위 한 줄 — 로그인했을 때만 · 누르면 내 기록 -->
+    <a class="rankchip" id="rankChip" href="#me" hidden></a>
     <!-- 처음 모습 = 불러오는 중. 데이터가 와야 회차 · 칸 · 신청 버튼이 그려진다 -->
     <div id="nextLoad" aria-busy="true">
       <span class="sk sk-t"></span><span class="sk sk-c"></span><span class="sk sk-b"></span>
@@ -342,10 +381,12 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
       <div class="fail" id="lastFail" hidden><span>지난 회차를 불러오지 못했어요</span><button type="button" class="retry" data-retry="last">다시 시도</button></div>
     </div>
     <div class="card" id="topCard">
-      <h2 class="card-h">개인 순위 TOP 5</h2>
+      <h2 class="card-h">개인 순위 TOP 10</h2>
       <p class="card-sub" id="topSub">판당 킬 · 판당 딜로 매겨요</p>
       <div id="topLoad" aria-busy="true"><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span></div>
       <ol class="list" id="topList" hidden></ol>
+      <button type="button" class="lb-more" id="topMore" hidden aria-expanded="false">6~10위 보기</button>
+      <p class="lb-note" id="topNote" hidden>상금은 없고 이름표만 달려요 · 배그 시즌마다 새로 시작해요</p>
       <div class="fail" id="topFail" hidden><span>순위를 불러오지 못했어요</span><button type="button" class="retry" data-retry="top">다시 시도</button></div>
     </div>
   </main>
@@ -764,15 +805,58 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     if (LB) return Promise.resolve(LB);
     return getJSON("/api/killrace/leaderboard").then(function (j) { LB = j; return j; });
   }
+  // 이름표 — 글자는 서버 label 그대로(§1.33.1 · 번역 · 하드코딩 금지) · 여기서는 색만 고른다
+  var BADGE_CLS = { UNTOUCHABLE: "u", CHALLENGER: "c", MASTER: "m" };
+  function badgeHtml(label) { return label ? '<span class="badge ' + (BADGE_CLS[label] || "m") + '">' + esc(label) + "</span>" : ""; }
+  // 기준 — 시즌 설정이 있으면 「43시즌」 · 비어 있으면 「최근 30일」(§1.33.2 rules.season)
+  function basisText(rules) {
+    rules = rules || {};
+    var min = rules.minGames ? " · " + rules.minGames + "판 이상" : "";
+    return rules.season && rules.season.number ? rules.season.number + "시즌" + min : "최근 " + (rules.recentDays || 30) + "일" + min;
+  }
+  function topLi(x, i) {
+    return '<li' + (x.rank === 1 ? ' class="first"' : "") + (i >= 5 ? ' data-more hidden' : "") + '><span class="rk">' + esc(x.rank) + '</span><span class="nm">' + badgeHtml(x.label) +
+      '<span style="display:block;">' + esc(x.ign) + "</span><small>" + esc(x.games + "판 · 판당 딜 " + x.dpg) + '</small></span><span class="val">' + esc(x.kpg) + "<small>판당 킬</small></span></li>";
+  }
   function loadTop() {
-    cardState("top", "load"); $("topList").hidden = true;
+    cardState("top", "load"); $("topList").hidden = true; $("topMore").hidden = true; $("topNote").hidden = true;
     return loadLb().then(function (j) {
-      var list = (j && j.list || []).slice(0, 5), rules = j && j.rules || {};
-      $("topSub").textContent = "판당 킬 · 판당 딜로 매겨요" + (rules.minGames ? " · 최근 " + (rules.recentDays || 30) + "일 · " + rules.minGames + "판 이상" : "");
-      $("topList").innerHTML = list.length ? list.map(function (x) { return rowLi(x.rank, x.ign, x.games + "판 · 판당 딜 " + x.dpg, x.kpg, "판당 킬", x.rank === 1); }).join("")
+      var list = (j && j.list || []).slice(0, 10), rules = j && j.rules || {};
+      $("topSub").textContent = "판당 킬 · 판당 딜로 매겨요 · " + basisText(rules);
+      $("topList").innerHTML = list.length ? list.map(topLi).join("")
         : '<li><span></span><span class="nm"><small>아직 순위에 든 사람이 없어요</small></span><span></span></li>';
+      $("topMore").hidden = list.length <= 5; $("topMore").setAttribute("aria-expanded", "false"); $("topMore").textContent = "6~" + list.length + "위 보기";
+      $("topNote").hidden = !list.length;
       cardState("top", "done"); $("topList").hidden = false; loaded.top = true;
     }).catch(function (e) { bug(e); cardState("top", "fail"); });
+  }
+  $("topMore").addEventListener("click", function () {
+    var open = this.getAttribute("aria-expanded") !== "true";
+    $("topList").querySelectorAll("[data-more]").forEach(function (li) { li.hidden = !open; });
+    this.setAttribute("aria-expanded", String(open)); this.textContent = open ? "5위까지만 보기" : "6~" + $("topList").children.length + "위 보기";
+  });
+
+  // 내 티어 · 순위 한 줄(홈 띠) — GET /api/killrace/me/standing 하나만 읽는다(앱 계약 §19 · killrace-api §1.33.3).
+  // 티어 · 순위 · 남은 판은 서버 값 그대로 · 로그인 전 · 스팀 연결 전 · 못 읽으면 숨긴다
+  function loadStanding() {
+    var chip = $("rankChip");
+    if (!token()) { chip.hidden = true; return; }
+    api("/api/killrace/me/standing").then(function (r) {
+      var d = r.ok ? r.body : null;
+      if (!d || !d.linked) { chip.hidden = true; return; }
+      var t = d.tier, lb = d.leaderboard, parts = [];
+      parts.push(t && t.tier != null ? "나는 <b>" + esc(tierNum(t.tier)) + "티어</b>" : "나는 <b>티어 미정</b>");
+      if (lb) {
+        if (lb.standingKnown === false) parts.push('<span class="need">순위는 다음 갱신 뒤 보여요</span>');
+        else if (lb.rank) parts.push(badgeHtml(lb.label) + " <b>" + esc(lb.rank) + "위</b>");
+        else if (lb.needGames > 0) parts.push('<span class="need">' + esc(lb.minGames || 20) + "판까지 " + esc(lb.needGames) + "판</span>");
+        else if (lb.recentOk === false) parts.push('<span class="need">최근 30일 안에 한 판 뛰면 올라가요</span>');
+      }
+      var basis = lb ? (lb.season && lb.season.number ? lb.season.number + "시즌" : "최근 30일") : "";
+      chip.innerHTML = parts.join(" · ") + (basis ? '<span class="basis">' + esc(basis) + " 기준</span>" : "");
+      chip.setAttribute("aria-label", chip.textContent + " · 내 기록 보기");
+      chip.hidden = false;
+    }, function (e) { bug(e); chip.hidden = true; });
   }
 
   /* ---------- 점수판 ---------- */
@@ -924,10 +1008,10 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     var rules = lb && lb.rules || {}, min = Number(rules.minGames) || 0;
     var mine = lb && (lb.list || []).filter(function (x) { return x.key === p.key; })[0];
     var rankCard = "";
-    if (mine) rankCard = '<div class="card"><h2 class="card-h">개인 순위 ' + mine.rank + '위</h2><p class="card-sub">판당 킬 · 판당 딜로 매겨요 · 수요일 아침에 새로 매겨요</p></div>';
+    if (mine) rankCard = '<div class="card"><h2 class="card-h">' + badgeHtml(mine.label) + " 개인 순위 " + mine.rank + '위</h2><p class="card-sub">판당 킬 · 판당 딜로 매겨요 · 수요일 아침에 새로 매겨요</p></div>';
     else if (min && p.games < min) rankCard = '<div class="card"><h2 class="card-h">개인 순위까지 <span class="num" style="font-size:22px;">' + p.games + "/" + min + '판</span></h2>' +
-      '<div class="prog"><i style="width:' + Math.min(100, Math.round(p.games / min * 100)) + '%"></i></div><p class="note">' + (min - p.games) + "판 더 뛰면 순위에 들어요 · 최근 " + (rules.recentDays || 30) + "일 안에 뛴 판이 있어야 해요</p></div>";
-    else if (min) rankCard = '<div class="card"><h2 class="card-h">개인 순위</h2><p class="card-sub">' + min + "판은 넘었어요. 최근 " + (rules.recentDays || 30) + "일 안에 뛰면 수요일 아침에 순위에 올라요</p></div>";
+      '<div class="prog"><i style="width:' + Math.min(100, Math.round(p.games / min * 100)) + '%"></i></div><p class="note">' + (min - p.games) + "판 더 뛰면 순위에 들어요" + (rules.season ? " · " + rules.season.number + "시즌 판만 세요" : " · 최근 " + (rules.recentDays || 30) + "일 안에 뛴 판이 있어야 해요") + "</p></div>";
+    else if (min) rankCard = '<div class="card"><h2 class="card-h">개인 순위</h2><p class="card-sub">' + min + "판은 넘었어요. " + (rules.season ? "수요일 아침에 순위를 새로 매겨요" : "최근 " + (rules.recentDays || 30) + "일 안에 뛰면 수요일 아침에 순위에 올라요") + "</p></div>";
     var evs = (p.events || []).slice().reverse().map(function (id) {
       var e = EVS && EVS.events.filter(function (x) { return x.id === id; })[0];
       return '<a href="#board" data-ev="' + id + '">' + esc(e ? roundOf(e.name, id) + " · " + md(e.start) : id + "회차") + "</a>";
@@ -956,6 +1040,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
   }
   function loadWho() {
     if (!token()) return;
+    loadStanding();
     $("who").textContent = "내 계정";
     loadMe().then(function (r) {
       if (r && r.status === 401) { $("who").textContent = "연결하기"; return; }
@@ -1311,6 +1396,41 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     });
   }
   // 룰 — 신청 폼(killnaegi.html)의 #rules · #faq 를 그대로 가져온다(룰 정본은 신청 폼 하나)
+  /* 룰 한눈에 — killrace-api §1.33.5(팀장 · 맵 · 낙하지) · §1.33.6(상금 나누기 예시). 절 번호를 달고 표 그대로 보인다.
+   * 맵 순서 · 낙하지는 신청 페이지 룰(killnaegi.html #rules · 같은 PR에서 §1.33.5 와 맞춤)에서 읽는다 — 표를 이 파일에 다시 적지 않는다.
+   * 상금 표는 계약 예시 숫자를 그대로 적은 것(계산 아님 · 서버도 이 비율로 계산하지 않는다 §1.33.6) */
+  function splitTop(t) {          // 「학교(수영장 가능 · 아파트 불가) · 밀베 ㄷ자」 → 괄호 밖 「 · 」에서만 자른다
+    var out = [], cur = "", depth = 0;
+    for (var i = 0; i < t.length; i++) {
+      var c = t.charAt(i);
+      if (c === "(") depth++; else if (c === ")") depth = Math.max(0, depth - 1);
+      if (depth === 0 && t.substr(i, 3) === " · ") { out.push(cur.trim()); cur = ""; i += 2; continue; }
+      cur += c;
+    }
+    if (cur.trim()) out.push(cur.trim());
+    return out;
+  }
+  function ruleSummary(rules) {
+    var doc = rules && rules.doc;
+    var maps = rules && rules.maps ? rules.maps.split(/\s*→\s*/) : [];
+    var drops = doc ? Array.prototype.map.call(doc.querySelectorAll(".drop-list li"), function (li) {
+      var b = li.querySelector("b"), map = b ? b.textContent.trim() : "", spots = splitTop(li.textContent.replace(map, "").replace(/\s+/g, " ").trim());
+      return map && spots.length ? "<tr><th scope=\"row\">" + esc(map) + "</th>" + spots.map(function (x) { return "<td>" + esc(x) + "</td>"; }).join("") + "</tr>" : "";
+    }).join("") : "";
+    var row = function (no, title, sec, body) { return '<div class="sum-row"><h3><span class="no">' + no + "</span>" + title + '<span class="sec">' + sec + "</span></h3>" + body + "</div>"; };
+    return '<div class="card"><h2 class="card-h">한눈에 보기</h2><p class="card-sub">자세한 룰은 아래에 있어요</p>' +
+      row(1, "1번 = 팀장", "§1.33.5", "<p>팀 안에서 티어가 가장 높은 사람이 1번(팀장)이에요. 티어가 같으면 티어표 순위가 높은 쪽이에요. 1번부터 4번까지 같은 순서로 줄 세워요</p>") +
+      (maps.length ? row(2, "맵 4개 고정", "§1.33.5", '<div class="maps">' + maps.map(function (m) { return "<span>" + esc(m) + "</span>"; }).join("<i>→</i>") + "</div>") : "") +
+      (drops ? row(3, "낙하지 — 맵마다 3곳", "§1.33.5", '<p style="margin-bottom:4px;">팀은 이 중에서 골라 내려요</p><div class="tscroll"><table class="dtab"><tbody>' + drops + "</tbody></table></div>") : "") +
+      row(4, '팀 안 상금 나누기 <span class="ex-tag">예시예요</span>', "§1.33.6",
+        "<p style=\"margin-bottom:6px;\">팀 안 1번부터 4번까지 10 : 7 : 5 : 2로 나눠요. 상금 30만 원 회차라면 이렇게 돼요</p>" +
+        '<table class="split"><thead><tr><th scope="col"></th><th scope="col">1번</th><th scope="col">2번</th><th scope="col">3번</th><th scope="col">4번</th></tr></thead><tbody>' +
+        '<tr class="ratio"><th scope="row">비율</th><td>10</td><td>7</td><td>5</td><td>2</td></tr>' +
+        '<tr><th scope="row">1등 팀<br>24만</th><td class="num">10만</td><td class="num">7만</td><td class="num">5만</td><td class="num">2만</td></tr>' +
+        '<tr><th scope="row">2등 팀<br>6만</th><td class="num">2.5만</td><td class="num">1.75만</td><td class="num">1.25만</td><td class="num">0.5만</td></tr></tbody></table>' +
+        '<p class="note" style="margin-top:6px;">상금 총액 · 팀 몫은 그 회차 공지를 따라요</p>') +
+      "</div>";
+  }
   function loadRule() {
     $("ruleBox").innerHTML = '<div class="card"><span class="sk sk-l"></span><span class="sk sk-l s"></span><p class="wait">불러오는 중이에요</p></div>';
     var failBox = '<div class="card"><p class="msg">룰을 불러오지 못했어요 · <a href="killnaegi.html#rules">신청 페이지</a>에서 봐 주세요</p></div>';
@@ -1318,7 +1438,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
       var doc = r[0] && r[0].doc;
       var parts = doc ? ["rules", "faq"].map(function (id) { return doc.getElementById(id); }).filter(Boolean) : [];
       if (!parts.length) { $("ruleBox").innerHTML = failBox; loaded.rule = false; return; }
-      $("ruleBox").innerHTML = parts.map(function (el) {
+      $("ruleBox").innerHTML = ruleSummary(r[0]) + parts.map(function (el) {
         var c = el.cloneNode(true);
         c.removeAttribute("id"); c.querySelectorAll("[id]").forEach(function (x) { x.removeAttribute("id"); }); c.removeAttribute("aria-labelledby");
         return c.outerHTML;
