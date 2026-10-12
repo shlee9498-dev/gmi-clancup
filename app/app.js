@@ -240,7 +240,8 @@ function renderNav(currentPage = "") {
       <div class="spacer"></div>
       <div class="links">
         <a href="index.html" class="${currentPage === 'index' ? 'active' : ''}">홈</a>
-        <a href="casino.html" class="${currentPage === 'casino' ? 'active' : ''}">🎰 카지노</a>
+        <a href="brain.html" class="${currentPage === 'brain' ? 'active' : ''}">브레인 챌린지</a>
+        <a href="casino.html" class="${currentPage === 'casino' ? 'active' : ''}">보관 게임</a>
         <a href="matches.html" class="${currentPage === 'matches' ? 'active' : ''}">매치</a>
         <a href="shop.html" class="${currentPage === 'shop' ? 'active' : ''}">🛒 G샵</a>
         <a href="https://shlee9498-dev.github.io/gmi-clancup/gdcup-s3.html">G드컵</a>

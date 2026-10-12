@@ -27,9 +27,12 @@
 - 브랜드: 다크+골드(#f5c518), index 스타일 통일.
 - **브랜드는 두 갈래다 (2026-08 확정).** 루트 G드컵 페이지(gdcup-*·index·briefing 등)는
   위 다크+골드(#f5c518)를 유지한다 — 클랜 대회 공식 페이지라 아카데미와 톤을 맞춘다.
-  `app/`(카지노 PWA)만 "NIGHT OPERATION" 신규 브랜드(펠트그린 #05130F·황동 #C9A227·
-  골드 #F3CE6A)를 쓴다. 카지노는 별도 세계관이다. 토큰 정본은 `app/tokens.css` 하나뿐이고
-  **두 갈래를 서로 섞지 말 것.**
+  `app/` 의 **GmI 브레인 챌린지**(brain*.html · 2026-10-12 오너 「킬내기와 같은 정글」)는 킬내기 앱과 같은
+  정글 토큰(띠 #0F2B1C · 라임 #C6E266 · 바탕 #E2EED5 · 토큰 정본 `app/brain.css` :root = killnaegi-app.html :root 값)을 쓴다.
+  `app/` 의 잠금 보관 게임(옛 카지노 · 오너 전용)만 "NIGHT OPERATION"(펠트그린 #05130F·황동 #C9A227·
+  골드 #F3CE6A · `app/tokens.css`)을 그대로 둔다 — 새 화면에는 쓰지 않는다. **갈래를 서로 섞지 말 것.**
+  브레인 챌린지 지킬 선(10/12 변호사 · 자문): 족보 · 칩 걸기 · 레이즈 · 올인 · 배율 금지 · 보상은 명예(점수 · 칭호 · 시즌 순위)만 ·
+  코인 · 매점 · 상금과 교환 없음 · 방송 프로그램 이름 · 로고 · 소품 디자인 안 씀 · 금지어(베팅 · 판돈 · 충전 · 환전 · 카지노 · 칩) 화면에 0.
 - **디자인 계약: mri-academy의 DESIGN.md v2·PRODUCT.md 준수** (2026-07 리디자인 확정).
   AI 티 5대 패턴 금지, 페이지 작업 후 impeccable detect 무출력까지 수정
   (`node <mri-academy>/.claude/skills/impeccable/scripts/detect.mjs <파일>` — v4, 인라인 예외 지원).

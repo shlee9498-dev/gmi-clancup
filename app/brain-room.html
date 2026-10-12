@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F2B1C">
+<meta name="gmi-api-base" content="https://worker-production-06b8.up.railway.app">
+<title>GmI 브레인 챌린지 — 판</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@800&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="brain.css?v=1">
+</head>
+<body>
+<div class="band"><div class="wrap">
+  <div class="b-top"><a class="back" href="brain.html">← 로비</a><span class="b-chip" id="roomNo" style="margin-top:0;"></span></div>
+  <h1 class="b-title" id="gName">불러오는 중이에요</h1>
+  <div class="vs" id="vs" hidden>
+    <div class="p" id="p1"><small>1번</small><b id="p1n"></b><span class="sc" id="p1s"></span></div><i>대</i>
+    <div class="p" id="p2"><small>2번</small><b id="p2n"></b><span class="sc" id="p2s"></span></div>
+  </div>
+  <div class="timer" id="timer" hidden><i id="timerBar"></i></div>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+  <div class="sides" id="sides" role="group" aria-label="시험판 자리 고르기" hidden>
+    <button type="button" data-side="p1" aria-pressed="true">1번 자리로 두기</button>
+    <button type="button" data-side="p2" aria-pressed="false">2번 자리로 두기</button>
+  </div>
+</div></div>
+
+<main class="wrap">
+  <div id="play"></div>
+  <p class="err" id="err" role="alert"></p>
+  <div id="log"></div>
+  <p class="foot">명예 점수만 걸려요 · 코인 · 매점 · 상금과 바꾸지 않아요</p>
+</main>
+
+<script src="app.js?v=7"></script>
+<script>
+/* 브레인 챌린지 판 화면 — 숫자야구 · 흑과 백. 판정 · 시간 · 점수는 전부 서버(gmi-casino-bot brain/) 몫, 화면은 보이기만 한다.
+ * 실시간 = EventSource(?token=&side=) · 끊기면 3초마다 다시 읽기 */
+(function () {
+  "use strict";
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  var RID = Number(new URLSearchParams(location.search).get("id")) || 0;
+  var V = null, side = "p1", typed = "", pick = null, skew = 0, es = null, poll = null, busy = false;
+  var NAMES = { baseball: "숫자야구", blackwhite: "흑과 백" };
+
+  function bapi(path, body) {
+    var h = { "Content-Type": "application/json" }, t = getToken();
+    if (t) h.Authorization = "Bearer " + t;
+    return fetch(API_BASE + "/api/brain" + path, body ? { method: "POST", headers: h, body: JSON.stringify(body) } : { headers: h })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, status: r.status, data: d }; }); },
+            function () { return { ok: false, status: 0, data: {} }; });
+  }
+  function fail(r) {
+    if (r.status === 403) { showClosed(); return "지금은 쉬고 있어요"; }
+    return r.data && r.data.detail ? String(r.data.detail) : "잠시 뒤 다시 눌러 주세요";
+  }
+  function other(s) { return s === "p1" ? "p2" : "p1"; }
+  function me() { return V && V.side ? V.side : side; }
+
+  function apply(v) {
+    if (!v || !v.room) return;
+    V = v; skew = v.now - Date.now();
+    if (v.room.test && v.side) side = v.side;
+    render();
+  }
+  function load() {
+    return bapi("/rooms/" + RID + "?side=" + side).then(function (r) {
+      if (!r.ok) { $("gName").textContent = fail(r); return; }
+      apply(r.data);
+    });
+  }
+  function connect() {
+    if (es) es.close();
+    var t = getToken(); if (!t || !window.EventSource) { startPoll(); return; }
+    es = new EventSource(API_BASE + "/api/brain/rooms/" + RID + "/stream?token=" + encodeURIComponent(t) + "&side=" + side);
+    es.addEventListener("state", function (e) { try { apply(JSON.parse(e.data)); } catch (x) { /* 다음 것을 기다린다 */ } });
+    es.onerror = function () { es.close(); es = null; startPoll(); };
+  }
+  function startPoll() { if (!poll) poll = setInterval(function () { if (!document.hidden) load(); }, 3000); }
+  function act(action, value) {
+    if (busy) return;
+    busy = true; $("err").textContent = "";
+    bapi("/rooms/" + RID + "/act", { action: action, value: value, side: side }).then(function (r) {
+      busy = false;
+      if (!r.ok) { $("err").textContent = fail(r); return; }
+      typed = ""; pick = null; apply(r.data);
+    });
+  }
+
+  /* ---------- 공통 머리 ---------- */
+  function head() {
+    var room = V.room, st = V.state;
+    $("roomNo").textContent = "#" + room.id + (room.test ? " · 시험판" : "");
+    $("gName").textContent = NAMES[room.game] || room.game;
+    document.title = "GmI 브레인 챌린지 — " + (NAMES[room.game] || "판");
+    $("vs").hidden = !room.players.p2;
+    $("p1n").textContent = room.players.p1; $("p2n").textContent = room.players.p2 || "기다리는 중";
+    $("sides").hidden = !(room.test && room.status === "playing");
+    document.querySelectorAll("[data-side]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-side") === side)); });
+    if (!st) { $("status").textContent = room.status === "waiting" ? "상대를 기다리고 있어요" : "닫힌 방이에요"; $("timer").hidden = true; return; }
+    if (room.game === "blackwhite") { $("p1s").textContent = st.scores.p1; $("p2s").textContent = st.scores.p2; }
+    else { $("p1s").textContent = ""; $("p2s").textContent = ""; }
+    var turn = st.turn || null;
+    $("p1").className = "p" + (turn === "p1" ? " on" : ""); $("p2").className = "p" + (turn === "p2" ? " on" : "");
+    $("timer").hidden = st.phase === "done" || !st.deadline;
+  }
+  function tickTimer() {
+    if (!V || !V.state || !V.state.deadline || V.state.phase === "done") return;
+    var st = V.state, total = st.turnMs || st.roundMs || 60000, left = Math.max(0, st.deadline - (Date.now() + skew));
+    $("timerBar").style.width = Math.round(left / total * 100) + "%";
+    var sec = Math.ceil(left / 1000);
+    var s = statusText(); $("status").textContent = s + (s ? " · " : "") + sec + "초";
+    if (left <= 0 && !busy) load();
+  }
+  function resultText(st) {
+    if (st.result === "draw") return "무승부예요";
+    var mine = st.result === me();
+    var why = { forfeit: "기권", timeout: "시간 초과 세 번", hit: "", both_hit: "", score: "", out_of_turns: "" }[st.reason] || "";
+    return (V.room.test ? (st.result === "p1" ? "1번" : "2번") + " 자리가 이겼어요" : mine ? "이겼어요" : "졌어요") + (why ? " · " + why : "");
+  }
+
+  /* ---------- 숫자야구 ---------- */
+  function statusText() {
+    var st = V.state; if (!st) return "";
+    if (st.phase === "done") return resultText(st);
+    if (V.room.game === "baseball") {
+      if (st.phase === "setup") return st.secretSet[me()] ? "상대가 숫자를 정하는 중이에요" : "내 비밀 숫자 4개를 정해 주세요";
+      return st.turn === me() ? (st.finalFor === me() ? "마지막 한 번이에요" : "내 차례예요") : "상대 차례예요";
+    }
+    return st.submitted[me()] ? (st.submitted[other(me())] ? "" : "상대가 고르는 중이에요") : st.round + "라운드 · 카드를 골라 주세요";
+  }
+  function keypad(disabled) {
+    var used = typed.split("");
+    var k = "1234567890".split("").map(function (d) {
+      return '<button type="button" class="key" data-key="' + d + '"' + (disabled || used.indexOf(d) >= 0 || typed.length >= 4 ? " disabled" : "") + ">" + d + "</button>";
+    }).join("");
+    return '<div class="slots" aria-label="입력한 숫자">' + [0, 1, 2, 3].map(function (i) { return "<span>" + (typed.charAt(i) || "") + "</span>"; }).join("") + "</div>" +
+      '<div class="keys">' + k + '</div><div class="row2"><button type="button" class="btn line" data-key="del"' + (disabled || !typed ? " disabled" : "") + '>지우기</button>' +
+      '<button type="button" class="btn dark" data-key="ok"' + (disabled || typed.length !== 4 ? " disabled" : "") + ">보내기</button></div>";
+  }
+  function sb(h) {
+    if (h.timeout) return '<span class="sb"><em class="o">시간 초과</em></span>';
+    if (!h.s && !h.b) return '<span class="sb"><em class="o">아웃</em></span>';
+    return '<span class="sb">' + (h.s ? '<em class="s">' + h.s + "S</em>" : "") + (h.b ? '<em class="b">' + h.b + "B</em>" : "") + "</span>";
+  }
+  function baseball() {
+    var st = V.state, m = me(), o = other(m), html = "";
+    if (st.phase === "setup" && !st.secretSet[m]) {
+      html = '<section class="card"><h2 class="card-h">내 비밀 숫자</h2><p class="card-sub">서로 다른 숫자 4개예요 · 60초 안에 안 정하면 자동으로 정해져요</p>' + keypad(false) + "</section>";
+    } else if (st.phase === "play" && st.turn === m) {
+      html = '<section class="card"><h2 class="card-h">상대 숫자 맞히기 <span class="note">' + st.history.filter(function (h) { return h.side === m; }).length + "/" + st.maxGuesses + '</span></h2><p class="card-sub">스트라이크는 자리까지 맞음 · 볼은 숫자만 맞음이에요</p>' + keypad(false) + "</section>";
+    } else if (st.phase !== "done") {
+      html = '<section class="card"><p class="msg">' + esc(statusText()) + "</p></section>";
+    } else {
+      html = '<section class="card result"><b>' + esc(resultText(st)) + '</b><p class="note">1번 숫자 ' + esc(st.secrets.p1 || "") + " · 2번 숫자 " + esc(st.secrets.p2 || "") + '</p><a class="btn dark wide" href="brain.html">로비로</a></section>';
+    }
+    $("play").innerHTML = html;
+    var mineRows = st.history.filter(function (h) { return h.side === m; }), theirRows = st.history.filter(function (h) { return h.side === o; });
+    var n = Math.max(mineRows.length, theirRows.length), rows = "";
+    for (var i = n - 1; i >= 0; i--) {
+      var a = mineRows[i], b = theirRows[i];
+      rows += "<tr><td>" + (i + 1) + "</td><td>" + (a ? '<span class="g">' + esc(a.guess || "----") + "</span> " + sb(a) : "") + "</td><td>" + (b ? '<span class="g">' + esc(b.guess || "----") + "</span> " + sb(b) : "") + "</td></tr>";
+    }
+    $("log").innerHTML = '<section class="card"><h2 class="card-h">기록 <span class="note">내 숫자 ' + esc(st.secrets[m] || "아직") + "</span></h2>" +
+      (rows ? '<table class="hist"><thead><tr><th scope="col">#</th><th scope="col">' + (V.room.test ? m === "p1" ? "1번" : "2번" : "나") + '</th><th scope="col">' + (V.room.test ? o === "p1" ? "1번" : "2번" : "상대") + "</th></tr></thead><tbody>" + rows + "</tbody></table>" : '<p class="msg">아직 추측이 없어요</p>') + "</section>";
+  }
+
+  /* ---------- 흑과 백 ---------- */
+  function blackwhite() {
+    var st = V.state, m = me(), o = other(m), used = st.used[m];
+    if (st.phase === "done") {
+      $("play").innerHTML = '<section class="card result"><b>' + esc(resultText(st)) + '</b><p class="note">' + st.scores.p1 + " : " + st.scores.p2 + '</p><a class="btn dark wide" href="brain.html">로비로</a></section>';
+    } else if (st.submitted[m]) {
+      $("play").innerHTML = '<section class="card"><p class="msg">' + st.round + "라운드에 " + esc(st.myPick) + "을 냈어요 · " + (st.submitted[o] ? "공개 중이에요" : "상대를 기다려요") + "</p></section>";
+    } else {
+      var cards = [0, 1, 2, 3, 4, 5, 6, 7, 8].map(function (c) {
+        return '<button type="button" class="hcard" data-card="' + c + '" aria-pressed="' + (pick === c) + '"' + (used.indexOf(c) >= 0 ? " disabled" : "") + ">" + c + "</button>";
+      }).join("");
+      var od = st.decl[o], md = st.decl[m];
+      $("play").innerHTML = '<section class="card"><h2 class="card-h">' + st.round + '라운드 <span class="note">' + st.winScore + "점 먼저 · " + st.totalRounds + '라운드까지</span></h2>' +
+        '<p class="decl">상대 선언 <b>' + (od == null ? "없음" : od) + "</b> · 내 선언 <b>" + (md == null ? "없음" : md) + '</b></p>' +
+        '<p class="card-sub" style="margin:6px 0 10px;">선언은 상대에게 바로 보여요 · 실제와 달라도 돼요</p><div class="hand">' + cards + "</div>" +
+        '<div class="row2"><button type="button" class="btn line" data-bw="declare"' + (pick == null ? " disabled" : "") + '>이 숫자로 선언</button><button type="button" class="btn dark" data-bw="submit"' + (pick == null ? " disabled" : "") + ">이 카드 내기</button></div></section>";
+    }
+    var rs = st.rounds.slice().reverse().map(function (r) {
+      var mc = r[m], oc = r[o], md = r[m + "Decl"], od = r[o + "Decl"];
+      var out = r.outcome === "tie" ? '<span class="tag">무</span>' : r.outcome === m ? '<span class="tag win">승</span>' : '<span class="tag lose">패</span>';
+      var lie = (od != null && od !== oc ? "상대 선언 " + od + "(거짓)" : od != null ? "상대 선언 " + od : "") + (md != null && md !== mc ? (od != null ? " · " : "") + "내 선언 " + md + "(거짓)" : "");
+      return '<li><span class="rn">' + r.round + 'R</span><span><span class="cc">' + mc + " : " + oc + "</span>" + (lie ? "<small>" + esc(lie) + "</small>" : "") + "</span>" + out + "</li>";
+    }).join("");
+    $("log").innerHTML = '<section class="card"><h2 class="card-h">라운드 기록 <span class="note">왼쪽이 ' + (V.room.test ? (m === "p1" ? "1번" : "2번") : "나") + "</span></h2>" + (rs ? '<ul class="rlist">' + rs + "</ul>" : '<p class="msg">아직 공개된 라운드가 없어요</p>') + "</section>";
+  }
+
+  function render() {
+    head();
+    if (!V.state) {
+      $("play").innerHTML = '<section class="card"><p class="msg">' + (V.room.status === "waiting" ? "상대가 들어오면 바로 시작해요" : "닫힌 방이에요") + '</p><a class="btn line wide" href="brain.html">로비로</a></section>';
+      $("log").innerHTML = ""; $("status").textContent = $("status").textContent || ""; return;
+    }
+    if (V.room.game === "baseball") baseball(); else blackwhite();
+    $("status").textContent = statusText();
+    tickTimer();
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-key],[data-card],[data-bw],[data-side]");
+    if (!b || b.disabled) return;
+    if (b.hasAttribute("data-side")) { side = b.getAttribute("data-side"); typed = ""; pick = null; load().then(connect); return; }
+    if (b.hasAttribute("data-card")) { pick = Number(b.getAttribute("data-card")); render(); return; }
+    if (b.hasAttribute("data-bw")) { act(b.getAttribute("data-bw"), pick); return; }
+    var k = b.getAttribute("data-key");
+    if (k === "del") typed = typed.slice(0, -1);
+    else if (k === "ok") { act(V.state.phase === "setup" ? "secret" : "guess", typed); return; }
+    else if (typed.length < 4 && typed.indexOf(k) < 0) typed += k;
+    render();
+  });
+  if (!RID) { $("gName").textContent = "방 번호가 없어요"; return; }
+  load().then(connect);
+  setInterval(tickTimer, 1000);
+})();
+</script>
+</body>
+</html>
