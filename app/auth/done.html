@@ -29,7 +29,11 @@ const error = params.get("error");
 const statusEl = document.getElementById("status");
 const errorEl = document.getElementById("error");
 
-if (error) {
+if (error === "closed") {
+  // 오너 전용 잠금(10/12) — 오너가 아니면 서버가 토큰을 만들지 않는다
+  statusEl.textContent = "지금은 쉬고 있어요";
+  errorEl.innerHTML = '소식은 <a href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">클랜 디스코드</a>에서 알려 드려요';
+} else if (error) {
   statusEl.textContent = "로그인 거절";
   errorEl.textContent = `사유: ${error}`;
   setTimeout(() => location.href = "../login.html", 2000);

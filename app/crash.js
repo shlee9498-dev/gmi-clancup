@@ -149,7 +149,7 @@ function paintPurse() {
 /* ============================================================ SSE */
 
 function connect() {
-  stream = new EventSource(`${API_BASE}/api/crash/stream`);
+  stream = new EventSource(withToken(`${API_BASE}/api/crash/stream`));
 
   stream.addEventListener("update", (e) => {
     let next;

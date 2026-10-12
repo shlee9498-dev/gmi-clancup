@@ -56,6 +56,77 @@ function logout() {
   location.href = "login.html";
 }
 
+/* ============================================
+   오너 전용 잠금 (2026-10-12 오너 결정 · 변호사 검토)
+   카지노 · 카드 게임은 오너 한 명만 들어간다 — 서버(gmi-casino-bot)가 /api 를 오너 토큰만 받고
+   그 밖은 403 "closed" 를 준다. 화면은 그 판정을 따라 「지금은 쉬고 있어요」만 보인다(데이터는 서버가 안 준다).
+   지우지 않고 잠근다 — 오너가 로그인하면 그대로 동작한다.
+   ============================================ */
+const CLAN_DISCORD = "https://discord.gg/YfZD8d22wJ";
+
+function showClosed(opts) {
+  opts = opts || {};
+  if (document.getElementById("gmiClosed")) return;
+  const css = document.createElement("style");
+  css.textContent =
+    "body.gmi-closed>*:not(#gmiClosed){display:none !important}" +
+    "#gmiClosed{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px 16px;" +
+    "background:var(--deep,#05130F);color:var(--ivory,#F2E9D8);font-family:var(--f-ui,system-ui,-apple-system,sans-serif)}" +
+    "#gmiClosed .box{max-width:360px;width:100%;text-align:center;background:var(--felt,#0C2A22);border:1px solid var(--line,rgba(201,162,39,.18));border-radius:6px;padding:28px 20px}" +
+    "#gmiClosed h1{font-size:22px;font-weight:800;margin:0 0 8px}" +
+    "#gmiClosed p{font-size:14px;line-height:1.6;color:var(--smoke,#8B9A92);margin:0 0 20px}" +
+    "#gmiClosed a.go{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:6px;background:var(--brass,#C9A227);color:#05130F;font-weight:700;text-decoration:none}" +
+    "#gmiClosed button{margin-top:14px;min-height:44px;padding:0 12px;background:none;border:0;color:var(--smoke,#8B9A92);font-size:13px;text-decoration:underline;cursor:pointer}";
+  document.head.appendChild(css);
+  const box = document.createElement("div");
+  box.id = "gmiClosed";
+  box.setAttribute("role", "status");
+  box.innerHTML =
+    '<div class="box"><h1>지금은 쉬고 있어요</h1>' +
+    "<p>" + (opts.sub || "소식은 클랜 디스코드에서 알려 드려요") + "</p>" +
+    '<a class="go" href="' + CLAN_DISCORD + '" target="_blank" rel="noopener">클랜 디스코드</a>' +
+    '<button type="button" id="gmiOwnerLogin">운영자 로그인</button></div>';
+  document.body.appendChild(box);
+  document.body.classList.add("gmi-closed");
+  document.documentElement.style.visibility = "";
+  document.getElementById("gmiOwnerLogin").addEventListener("click", startLogin);
+}
+
+// 처음 열 때 — 오너 토큰이면 그대로, 아니면 잠금 화면. 확인 전엔 화면을 가려 둔다(서버가 데이터를 안 주니 비어 보이는 것만 막는다)
+(function casinoGate() {
+  const page = location.pathname.split("/").pop() || "index.html";
+  if (page === "login.html") {
+    document.addEventListener("DOMContentLoaded", function () { showClosed({ sub: "소식은 클랜 디스코드에서 알려 드려요" }); });
+    if (document.readyState !== "loading") showClosed();
+    return;
+  }
+  const t = getToken();
+  if (!isTokenValid(t)) {                        // 로그인 전 — 안내 화면(게임 설명 how.html 포함)도 잠금 화면만
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { showClosed(); }); else showClosed();
+    return;
+  }
+  document.documentElement.style.visibility = "hidden";
+  fetch(`${API_BASE}/api/me`, { headers: { Authorization: `Bearer ${t}` } }).then(function (r) {
+    if (r.status === 403 || r.status === 401) {
+      localStorage.removeItem(TOKEN_KEY);
+      const go = function () { showClosed(); };
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go); else go();
+      return;
+    }
+    document.documentElement.style.visibility = "";
+  }).catch(function () {
+    const go = function () { showClosed({ sub: "지금은 연결되지 않아요. 잠시 뒤 다시 열어 주세요" }); };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go); else go();
+  });
+})();
+
+/** EventSource 주소에 토큰 붙이기(EventSource 는 헤더를 못 보낸다 · 서버가 ?token= 으로 오너인지 본다). */
+function withToken(url) {
+  const t = getToken();
+  if (!t) return url;
+  return url + (url.indexOf("?") >= 0 ? "&" : "?") + "token=" + encodeURIComponent(t);
+}
+
 /** API 호출 wrapper. 401이면 자동 로그아웃. */
 async function api(path, opts = {}) {
   const token = getToken();
@@ -69,6 +140,11 @@ async function api(path, opts = {}) {
   if (res.status === 401) {
     logout();
     throw new Error("로그인 필요");
+  }
+  if (res.status === 403) {
+    localStorage.removeItem(TOKEN_KEY);
+    showClosed();
+    throw new Error("closed");
   }
   if (!res.ok) {
     let detail = res.statusText;
