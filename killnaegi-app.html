@@ -293,6 +293,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 .rankchip b{font-family:var(--display);font-size:17px;font-weight:800;}
 .rankchip .badge.c{background:var(--band);box-shadow:inset 0 0 0 1px var(--band-line);}
 .rankchip .need{color:var(--band-label);font-weight:500;}
+.rankchip .basis{margin-left:auto;color:var(--band-label);font-size:12.5px;font-weight:500;}
 /* 룰 한눈에 — 팀장 · 맵 순서 · 지정 낙하 · 상금 배분 예시 */
 .sum-row{padding:12px 0;border-top:1px solid var(--line);}
 .sum-row:first-of-type{border-top:0;padding-top:4px;}
@@ -302,12 +303,17 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 .maps{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
 .maps span{background:var(--chip);color:var(--ink);font-weight:700;font-size:13.5px;border-radius:999px;padding:4px 11px;}
 .maps i{font-style:normal;color:var(--mute);}
-.drops{list-style:none;}
-.drops li{display:grid;grid-template-columns:58px 1fr;gap:8px;padding:6px 0;font-size:13.5px;color:var(--body);}
-.drops li b{color:var(--ink);}
 .split{width:100%;border-collapse:collapse;font-size:14px;margin-top:2px;}
 .split th,.split td{padding:8px 6px;text-align:center;border-top:1px solid var(--line);}
 .split th{font-size:12.5px;font-weight:600;color:var(--mute);border-top:0;}
+.split tbody th{border-top:1px solid var(--line);text-align:left;line-height:1.35;}
+.split td.num{font-size:16px;}
+.sum-row h3 .sec{margin-left:auto;font-size:11.5px;font-weight:600;color:var(--mute);}
+.tscroll{overflow-x:auto;}
+.dtab{width:100%;border-collapse:collapse;font-size:13px;}
+.dtab th,.dtab td{padding:8px 5px;border-top:1px solid var(--line);vertical-align:top;color:var(--body);}
+.dtab tr:first-child th,.dtab tr:first-child td{border-top:0;}
+.dtab th{color:var(--ink);font-weight:700;text-align:left;white-space:nowrap;}
 .split td.num{font-family:var(--display);font-weight:800;font-size:17px;}
 .split tr.ratio td{color:var(--body);font-weight:600;}
 .ex-tag{display:inline-block;font-size:12px;font-weight:700;color:var(--ink);background:var(--acc-soft);border-radius:999px;padding:1px 8px;}
@@ -799,18 +805,24 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     if (LB) return Promise.resolve(LB);
     return getJSON("/api/killrace/leaderboard").then(function (j) { LB = j; return j; });
   }
-  // 이름표 — 서버 묶음(§1.18 group "1" · "2-4" · "5-10")을 이름으로만 바꾼다. 묶음 · 순위는 서버가 정한다
-  var BADGE = { "1": { name: "UNTOUCHABLE", cls: "u" }, "2-4": { name: "CHALLENGER", cls: "c" }, "5-10": { name: "MASTER", cls: "m" } };
-  function badgeHtml(group) { var b = BADGE[group]; return b ? '<span class="badge ' + b.cls + '">' + b.name + "</span>" : ""; }
+  // 이름표 — 글자는 서버 label 그대로(§1.33.1 · 번역 · 하드코딩 금지) · 여기서는 색만 고른다
+  var BADGE_CLS = { UNTOUCHABLE: "u", CHALLENGER: "c", MASTER: "m" };
+  function badgeHtml(label) { return label ? '<span class="badge ' + (BADGE_CLS[label] || "m") + '">' + esc(label) + "</span>" : ""; }
+  // 기준 — 시즌 설정이 있으면 「43시즌」 · 비어 있으면 「최근 30일」(§1.33.2 rules.season)
+  function basisText(rules) {
+    rules = rules || {};
+    var min = rules.minGames ? " · " + rules.minGames + "판 이상" : "";
+    return rules.season && rules.season.number ? rules.season.number + "시즌" + min : "최근 " + (rules.recentDays || 30) + "일" + min;
+  }
   function topLi(x, i) {
-    return '<li' + (x.rank === 1 ? ' class="first"' : "") + (i >= 5 ? ' data-more hidden' : "") + '><span class="rk">' + esc(x.rank) + '</span><span class="nm">' + badgeHtml(x.group) +
+    return '<li' + (x.rank === 1 ? ' class="first"' : "") + (i >= 5 ? ' data-more hidden' : "") + '><span class="rk">' + esc(x.rank) + '</span><span class="nm">' + badgeHtml(x.label) +
       '<span style="display:block;">' + esc(x.ign) + "</span><small>" + esc(x.games + "판 · 판당 딜 " + x.dpg) + '</small></span><span class="val">' + esc(x.kpg) + "<small>판당 킬</small></span></li>";
   }
   function loadTop() {
     cardState("top", "load"); $("topList").hidden = true; $("topMore").hidden = true; $("topNote").hidden = true;
     return loadLb().then(function (j) {
       var list = (j && j.list || []).slice(0, 10), rules = j && j.rules || {};
-      $("topSub").textContent = "판당 킬 · 판당 딜로 매겨요" + (rules.minGames ? " · 최근 " + (rules.recentDays || 30) + "일 · " + rules.minGames + "판 이상" : "");
+      $("topSub").textContent = "판당 킬 · 판당 딜로 매겨요 · " + basisText(rules);
       $("topList").innerHTML = list.length ? list.map(topLi).join("")
         : '<li><span></span><span class="nm"><small>아직 순위에 든 사람이 없어요</small></span><span></span></li>';
       $("topMore").hidden = list.length <= 5; $("topMore").setAttribute("aria-expanded", "false"); $("topMore").textContent = "6~" + list.length + "위 보기";
@@ -824,23 +836,27 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     this.setAttribute("aria-expanded", String(open)); this.textContent = open ? "5위까지만 보기" : "6~" + $("topList").children.length + "위 보기";
   });
 
-  // 내 티어 · 순위 한 줄(홈 띠) — 티어 = 티어표(§1.29) · 순위 · 이름표 = 리더보드(§1.18) · 판 수 = 개인 누적(§1.11). 앱은 셋을 견주기만 한다
-  function loadRankChip(ign) {
+  // 내 티어 · 순위 한 줄(홈 띠) — GET /api/killrace/me/standing 하나만 읽는다(앱 계약 §19 · killrace-api §1.33.3).
+  // 티어 · 순위 · 남은 판은 서버 값 그대로 · 로그인 전 · 스팀 연결 전 · 못 읽으면 숨긴다
+  function loadStanding() {
     var chip = $("rankChip");
-    Promise.all([tierOfIgn(ign), loadLb().catch(function () { return null; }), loadCareer().catch(function () { return null; })]).then(function (r) {
-      var t = r[0], lb = r[1], career = r[2];
-      var p = career ? careerOf(career.players, ign) : null;
-      var list = lb && lb.list || [], rules = lb && lb.rules || {}, min = Number(rules.minGames) || 0;
-      var mine = list.filter(function (x) { return p ? x.key === p.key : String(x.ign).toLowerCase() === String(ign).toLowerCase(); })[0];
-      var parts = [];
-      if (t) parts.push("나는 <b>" + esc(tierNum(t.tier)) + "티어</b>");
-      if (mine) parts.push(badgeHtml(mine.group) + " <b>" + esc(mine.rank) + "위</b>");
-      else if (p && min && p.games < min) parts.push('<span class="need">순위까지 ' + (min - p.games) + "판 남았어요</span>");
-      if (!parts.length) { chip.hidden = true; return; }
-      chip.innerHTML = parts.join(" · ");
+    if (!token()) { chip.hidden = true; return; }
+    api("/api/killrace/me/standing").then(function (r) {
+      var d = r.ok ? r.body : null;
+      if (!d || !d.linked) { chip.hidden = true; return; }
+      var t = d.tier, lb = d.leaderboard, parts = [];
+      parts.push(t && t.tier != null ? "나는 <b>" + esc(tierNum(t.tier)) + "티어</b>" : "나는 <b>티어 미정</b>");
+      if (lb) {
+        if (lb.standingKnown === false) parts.push('<span class="need">순위는 다음 갱신 뒤 보여요</span>');
+        else if (lb.rank) parts.push(badgeHtml(lb.label) + " <b>" + esc(lb.rank) + "위</b>");
+        else if (lb.needGames > 0) parts.push('<span class="need">' + esc(lb.minGames || 20) + "판까지 " + esc(lb.needGames) + "판</span>");
+        else if (lb.recentOk === false) parts.push('<span class="need">최근 30일 안에 한 판 뛰면 올라가요</span>');
+      }
+      var basis = lb ? (lb.season && lb.season.number ? lb.season.number + "시즌" : "최근 30일") : "";
+      chip.innerHTML = parts.join(" · ") + (basis ? '<span class="basis">' + esc(basis) + " 기준</span>" : "");
       chip.setAttribute("aria-label", chip.textContent + " · 내 기록 보기");
       chip.hidden = false;
-    }).catch(function (e) { bug(e); chip.hidden = true; });
+    }, function (e) { bug(e); chip.hidden = true; });
   }
 
   /* ---------- 점수판 ---------- */
@@ -992,10 +1008,10 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     var rules = lb && lb.rules || {}, min = Number(rules.minGames) || 0;
     var mine = lb && (lb.list || []).filter(function (x) { return x.key === p.key; })[0];
     var rankCard = "";
-    if (mine) rankCard = '<div class="card"><h2 class="card-h">' + badgeHtml(mine.group) + " 개인 순위 " + mine.rank + '위</h2><p class="card-sub">판당 킬 · 판당 딜로 매겨요 · 수요일 아침에 새로 매겨요</p></div>';
+    if (mine) rankCard = '<div class="card"><h2 class="card-h">' + badgeHtml(mine.label) + " 개인 순위 " + mine.rank + '위</h2><p class="card-sub">판당 킬 · 판당 딜로 매겨요 · 수요일 아침에 새로 매겨요</p></div>';
     else if (min && p.games < min) rankCard = '<div class="card"><h2 class="card-h">개인 순위까지 <span class="num" style="font-size:22px;">' + p.games + "/" + min + '판</span></h2>' +
-      '<div class="prog"><i style="width:' + Math.min(100, Math.round(p.games / min * 100)) + '%"></i></div><p class="note">' + (min - p.games) + "판 더 뛰면 순위에 들어요 · 최근 " + (rules.recentDays || 30) + "일 안에 뛴 판이 있어야 해요</p></div>";
-    else if (min) rankCard = '<div class="card"><h2 class="card-h">개인 순위</h2><p class="card-sub">' + min + "판은 넘었어요. 최근 " + (rules.recentDays || 30) + "일 안에 뛰면 수요일 아침에 순위에 올라요</p></div>";
+      '<div class="prog"><i style="width:' + Math.min(100, Math.round(p.games / min * 100)) + '%"></i></div><p class="note">' + (min - p.games) + "판 더 뛰면 순위에 들어요" + (rules.season ? " · " + rules.season.number + "시즌 판만 세요" : " · 최근 " + (rules.recentDays || 30) + "일 안에 뛴 판이 있어야 해요") + "</p></div>";
+    else if (min) rankCard = '<div class="card"><h2 class="card-h">개인 순위</h2><p class="card-sub">' + min + "판은 넘었어요. " + (rules.season ? "수요일 아침에 순위를 새로 매겨요" : "최근 " + (rules.recentDays || 30) + "일 안에 뛰면 수요일 아침에 순위에 올라요") + "</p></div>";
     var evs = (p.events || []).slice().reverse().map(function (id) {
       var e = EVS && EVS.events.filter(function (x) { return x.id === id; })[0];
       return '<a href="#board" data-ev="' + id + '">' + esc(e ? roundOf(e.name, id) + " · " + md(e.start) : id + "회차") + "</a>";
@@ -1024,6 +1040,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
   }
   function loadWho() {
     if (!token()) return;
+    loadStanding();
     $("who").textContent = "내 계정";
     loadMe().then(function (r) {
       if (r && r.status === 401) { $("who").textContent = "연결하기"; return; }
@@ -1033,7 +1050,6 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
       $("who").className = "who";
       $("who").innerHTML = '<span class="tdot" id="whoTier">·</span>' + esc(ign);
       tierOfIgn(ign).then(function (t) { if (t) $("whoTier").textContent = tierNum(t.tier); else $("who").className = "who plain", $("whoTier").remove(); });
-      loadRankChip(ign);
     });
   }
 
@@ -1380,26 +1396,39 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     });
   }
   // 룰 — 신청 폼(killnaegi.html)의 #rules · #faq 를 그대로 가져온다(룰 정본은 신청 폼 하나)
-  /* 룰 한눈에(10/12 오너 「룰 정형화」 · 계약 절은 경비 작성 중 — 번호 받으면 여기 적는다)
-   * 맵 순서 · 지정 낙하는 신청 페이지 룰(killnaegi.html #rules)에서 읽는다 — 표를 이 파일에 다시 적지 않는다.
-   * 상금 배분은 비율 예시만 보여 준다(금액 계산은 서버 몫 · 이 표는 30만 원일 때의 예시 숫자를 그대로 적은 것) */
+  /* 룰 한눈에 — killrace-api §1.33.5(팀장 · 맵 · 낙하지) · §1.33.6(상금 나누기 예시). 절 번호를 달고 표 그대로 보인다.
+   * 맵 순서 · 낙하지는 신청 페이지 룰(killnaegi.html #rules · 같은 PR에서 §1.33.5 와 맞춤)에서 읽는다 — 표를 이 파일에 다시 적지 않는다.
+   * 상금 표는 계약 예시 숫자를 그대로 적은 것(계산 아님 · 서버도 이 비율로 계산하지 않는다 §1.33.6) */
+  function splitTop(t) {          // 「학교(수영장 가능 · 아파트 불가) · 밀베 ㄷ자」 → 괄호 밖 「 · 」에서만 자른다
+    var out = [], cur = "", depth = 0;
+    for (var i = 0; i < t.length; i++) {
+      var c = t.charAt(i);
+      if (c === "(") depth++; else if (c === ")") depth = Math.max(0, depth - 1);
+      if (depth === 0 && t.substr(i, 3) === " · ") { out.push(cur.trim()); cur = ""; i += 2; continue; }
+      cur += c;
+    }
+    if (cur.trim()) out.push(cur.trim());
+    return out;
+  }
   function ruleSummary(rules) {
     var doc = rules && rules.doc;
     var maps = rules && rules.maps ? rules.maps.split(/\s*→\s*/) : [];
     var drops = doc ? Array.prototype.map.call(doc.querySelectorAll(".drop-list li"), function (li) {
-      var b = li.querySelector("b"), map = b ? b.textContent.trim() : "", rest = li.textContent.replace(map, "").trim();
-      return map && rest ? "<li><b>" + esc(map) + "</b><span>" + esc(rest) + "</span></li>" : "";
+      var b = li.querySelector("b"), map = b ? b.textContent.trim() : "", spots = splitTop(li.textContent.replace(map, "").replace(/\s+/g, " ").trim());
+      return map && spots.length ? "<tr><th scope=\"row\">" + esc(map) + "</th>" + spots.map(function (x) { return "<td>" + esc(x) + "</td>"; }).join("") + "</tr>" : "";
     }).join("") : "";
-    var no = 0, row = function (title, body) { no++; return '<div class="sum-row"><h3><span class="no">' + no + "</span>" + title + "</h3>" + body + "</div>"; };
+    var row = function (no, title, sec, body) { return '<div class="sum-row"><h3><span class="no">' + no + "</span>" + title + '<span class="sec">' + sec + "</span></h3>" + body + "</div>"; };
     return '<div class="card"><h2 class="card-h">한눈에 보기</h2><p class="card-sub">자세한 룰은 아래에 있어요</p>' +
-      row("팀장", "<p>1번이 팀장이에요 · 팀 안에서 티어가 가장 높은 사람이에요</p>") +
-      (maps.length ? row("맵 순서", '<div class="maps">' + maps.map(function (m) { return "<span>" + esc(m) + "</span>"; }).join("<i>→</i>") + "</div>") : "") +
-      (drops ? row("지정 낙하", '<p style="margin-bottom:4px;">맵마다 정해진 곳 중 비행기 경로 1.5km 안 한 곳에 내려요</p><ul class="drops">' + drops + "</ul>") : "") +
-      row('팀 안 상금 나누기 <span class="ex-tag">예시예요</span>',
-        '<p style="margin-bottom:6px;">팀 상금이 30만 원일 때 10 : 7 : 5 : 2로 나누면 이렇게 돼요</p>' +
-        '<table class="split"><thead><tr><th scope="col">1번</th><th scope="col">2번</th><th scope="col">3번</th><th scope="col">4번</th></tr></thead><tbody>' +
-        '<tr class="ratio"><td>10</td><td>7</td><td>5</td><td>2</td></tr>' +
-        '<tr><td class="num">125,000</td><td class="num">87,500</td><td class="num">62,500</td><td class="num">25,000</td></tr></tbody></table>') +
+      row(1, "1번 = 팀장", "§1.33.5", "<p>팀 안에서 티어가 가장 높은 사람이 1번(팀장)이에요. 티어가 같으면 티어표 순위가 높은 쪽이에요. 1번부터 4번까지 같은 순서로 줄 세워요</p>") +
+      (maps.length ? row(2, "맵 4개 고정", "§1.33.5", '<div class="maps">' + maps.map(function (m) { return "<span>" + esc(m) + "</span>"; }).join("<i>→</i>") + "</div>") : "") +
+      (drops ? row(3, "낙하지 — 맵마다 3곳", "§1.33.5", '<p style="margin-bottom:4px;">팀은 이 중에서 골라 내려요</p><div class="tscroll"><table class="dtab"><tbody>' + drops + "</tbody></table></div>") : "") +
+      row(4, '팀 안 상금 나누기 <span class="ex-tag">예시예요</span>', "§1.33.6",
+        "<p style=\"margin-bottom:6px;\">팀 안 1번부터 4번까지 10 : 7 : 5 : 2로 나눠요. 상금 30만 원 회차라면 이렇게 돼요</p>" +
+        '<table class="split"><thead><tr><th scope="col"></th><th scope="col">1번</th><th scope="col">2번</th><th scope="col">3번</th><th scope="col">4번</th></tr></thead><tbody>' +
+        '<tr class="ratio"><th scope="row">비율</th><td>10</td><td>7</td><td>5</td><td>2</td></tr>' +
+        '<tr><th scope="row">1등 팀<br>24만</th><td class="num">10만</td><td class="num">7만</td><td class="num">5만</td><td class="num">2만</td></tr>' +
+        '<tr><th scope="row">2등 팀<br>6만</th><td class="num">2.5만</td><td class="num">1.75만</td><td class="num">1.25만</td><td class="num">0.5만</td></tr></tbody></table>' +
+        '<p class="note" style="margin-top:6px;">상금 총액 · 팀 몫은 그 회차 공지를 따라요</p>') +
       "</div>";
   }
   function loadRule() {
