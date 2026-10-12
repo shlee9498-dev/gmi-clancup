@@ -185,6 +185,19 @@ main{padding-top:14px;}
 .kv div{background:var(--bg);border-radius:12px;padding:10px 12px;}
 .kv small{display:block;font-size:12px;color:var(--mute);}
 .kv b{font-family:var(--display);font-weight:800;font-size:24px;line-height:1.1;}
+.kv.three{grid-template-columns:1fr 1.4fr .85fr;gap:8px;}
+.kv.three div{padding:10px;min-width:0;}
+.kv.three b{font-size:21px;white-space:nowrap;}
+/* 킬내기 평균과 비교 — 막대 = 내 값 · 세로선 = 킬내기 전체 평균(값은 /career 합계로 화면이 나눈 것 · 순위 · 점수 계산 아님) */
+.cmp{margin-top:14px;}
+.cmp-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.cmp-h span{font-size:14px;font-weight:600;color:var(--body);}
+.cmp-h b{font-size:26px;line-height:1;}
+.cmp-bar{position:relative;height:12px;border-radius:999px;background:var(--chip);margin:8px 0 6px;}
+.cmp-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--link);}
+.cmp-bar s{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--ink);}
+.cmp-t{font-size:14px;color:var(--ink);}
+.cmp-t small{color:var(--mute);font-size:12.5px;margin-left:6px;}
 .evs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
 .evs a{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;background:var(--chip);color:var(--ink);font-size:13.5px;font-weight:600;text-decoration:none;}
 
@@ -311,7 +324,6 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 .split th{font-size:12.5px;font-weight:600;color:var(--mute);border-top:0;}
 .split tbody th{border-top:1px solid var(--line);text-align:left;line-height:1.35;}
 .split td.num{font-size:16px;}
-.sum-row h3 .sec{margin-left:auto;font-size:11.5px;font-weight:600;color:var(--mute);}
 .tscroll{overflow-x:auto;}
 .dtab{width:100%;border-collapse:collapse;font-size:13px;}
 .dtab th,.dtab td{padding:8px 5px;border-top:1px solid var(--line);vertical-align:top;color:var(--body);}
@@ -436,8 +448,8 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
         <div style="min-width:0;"><h1 class="b-title" id="meName"></h1><p class="b-sub" id="meSub"></p></div>
       </div>
       <div class="cells">
-        <div class="cell"><small>판당 킬</small><b id="meKpg"></b></div>
-        <div class="cell"><small>판당 딜</small><b id="meDpg"></b></div>
+        <div class="cell"><small>평균 처치</small><b id="meKpg"></b></div>
+        <div class="cell"><small>평균 딜</small><b id="meDpg"></b></div>
         <div class="cell"><small>뛴 판</small><b id="meGames"></b></div>
       </div>
       <button type="button" class="b-link" id="meChange">다른 닉 보기</button>
@@ -813,7 +825,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
         $("lastTitle").textContent = "지난 회차 결과 · " + roundOf(done.name, done.id);
         $("lastList").innerHTML = teams.length ? teams.map(function (t) { return rowLi(t.rank, t.name, "치킨 " + t.chickens + " · 킬 " + t.kills, t.total, "점", t.rank === 1); }).join("")
           : '<li><span></span><span class="nm"><small>이 회차는 기록된 팀이 없어요</small></span><span></span></li>';
-        $("lastMore").onclick = function () { evWant = done.id; };
+        $("lastMore").onclick = function () { evWant = isDef(done.id) ? null : done.id; };
         cardState("last", "done"); $("lastList").hidden = false; $("lastMore").hidden = !teams.length; loaded.last = true;
       });
     }).catch(function (e) { bug(e); cardState("last", "fail"); });
@@ -912,20 +924,33 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     return '<div class="game"><div class="game-h">' + g.seq + "판 " + esc(g.map) + " <span>" + hm(g.startedAt) + (g.place ? " · " + g.place + "위" : "") + "</span></div>" +
       '<div class="game-s' + (g.score < 0 ? " minus" : "") + '">' + signed(g.score) + '</div><div class="game-d">' + parts.join(" · ") + "</div></div>";
   }
+  // 회차 고르기 — 기본 회차는 서버 /board(event 없이)가 고른 회차(DEF · 시간창 → 다음 → 마지막)다.
+  //   /events 의 currentId 는 「가장 큰 번호」라 기본 점수판과 어긋날 수 있어 쓰지 않는다(10/13 지휘: 글자 7회 · 내용 8회).
+  //   목록에 DEF 가 없으면 맨 위에 넣고 · 「(지금)」은 실제로 진행 중인 회차에만 · 시작 전 기본 회차는 「(다음)」
+  var DEF = null;
+  function isDef(id) { return !!DEF && id === DEF.id; }
   function renderPick() {
-    if (!EVS || EVS.events.length < 2) { $("evSel").hidden = true; return; }
-    var cur = evWant != null ? evWant : EVS.currentId;
-    $("evSel").innerHTML = EVS.events.map(function (e) {
-      return '<option value="' + e.id + '"' + (e.id === cur ? " selected" : "") + ">" + esc(roundOf(e.name, e.id)) + " · " + md(e.start) + (e.id === EVS.currentId ? " (지금)" : "") + "</option>";
+    var cur = evWant != null ? evWant : DEF ? DEF.id : null;
+    var list = EVS ? EVS.events.slice() : [];
+    if (DEF && !list.some(function (e) { return e.id === DEF.id; })) list.push(DEF);
+    if (cur == null || list.length < 2) { $("evSel").hidden = true; return; }
+    list.sort(function (a, b) { return (b.start || 0) - (a.start || 0) || b.id - a.id; });
+    var now = Date.now();
+    $("evSel").innerHTML = list.map(function (e) {
+      var tag = now >= e.start && now < e.end + 30 * 60000 ? " (지금)" : isDef(e.id) && now < e.start ? " (다음)" : "";
+      return '<option value="' + e.id + '"' + (e.id === cur ? " selected" : "") + ">" + esc(roundOf(e.name, e.id)) + " · " + md(e.start) + tag + "</option>";
     }).join("");
+    $("evSel").value = String(cur);
     $("evSel").hidden = false;
   }
+  function setDef(b) { if (b && b.event) DEF = { id: b.eventId, name: b.event.name, start: b.event.start, end: b.event.end }; }
   function loadBoard() {
     loadEvents().then(renderPick);
+    if (!DEF && evWant != null) getJSON("/api/killrace/board").then(function (b) { setDef(b); renderPick(); }).catch(bug);   // 다른 회차로 바로 들어와도 기본 회차를 목록에 둔다
     loadRules().then(function () { if (B) renderBoard(); }).catch(bug);
     tierList().then(function () { if (B) renderBoard(); }).catch(bug);
     job("boardView", function () {
-      return getJSON("/api/killrace/board" + (evWant != null ? "?event=" + evWant : "")).then(function (b) { B = b; renderBoard(); }).catch(function (e) {
+      return getJSON("/api/killrace/board" + (evWant != null ? "?event=" + evWant : "")).then(function (b) { B = b; if (evWant == null) setDef(b); renderBoard(); renderPick(); }).catch(function (e) {
         bug(e);
         if (B) { $("bSub").textContent = "연결이 끊겼어요. 다시 받는 중이에요"; return; }
         $("standings").innerHTML = '<div class="card"><div class="fail"><span>점수판을 불러오지 못했어요</span><button type="button" class="retry" data-retry="board">다시 시도</button></div></div>';
@@ -965,7 +990,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     var n = b.getAttribute("data-team"); open[n] = !open[n]; renderBoard();
   });
   $("evSel").addEventListener("change", function () {
-    var id = Number(this.value); evWant = EVS && id === EVS.currentId ? null : id; open = {}; B = null;
+    var id = Number(this.value); evWant = isDef(id) ? null : id; open = {}; B = null;
     $("standings").innerHTML = '<div class="card"><p class="wait">불러오는 중이에요</p></div>'; loadBoard();
   });
 
@@ -1035,17 +1060,41 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
       var e = EVS && EVS.events.filter(function (x) { return x.id === id; })[0];
       return '<a href="#board" data-ev="' + id + '">' + esc(e ? roundOf(e.name, id) + " · " + md(e.start) : id + "회차") + "</a>";
     }).join("");
-    $("meOut").innerHTML = rankCard +
-      '<div class="card"><h2 class="card-h">누적</h2><div class="kv">' +
+    $("meOut").innerHTML = rankCard + compareCard(p, CAREER) +
+      '<div class="card"><h2 class="card-h">누적</h2><div class="kv three">' +
       "<div><small>킬</small><b>" + comma(p.kills) + "</b></div><div><small>딜</small><b>" + comma(p.damage) + "</b></div>" +
-      "<div><small>팀 내 최다 킬</small><b>" + p.teamTopKills + "번</b></div><div><small>사망</small><b>" + comma(p.deaths) + "</b></div></div>" +
-      '<p class="note" style="margin-top:10px;">봇 킬 · 딜은 빼고 셌어요' + (p.pendingGames ? " · 집계 중 " + p.pendingGames + "판" : "") + "</p></div>" +
+      "<div><small>판</small><b>" + comma(p.games) + "</b></div></div>" +
+      '<p class="note" style="margin-top:10px;">' + (p.teamTopKills ? "팀에서 킬 1등 " + p.teamTopKills + "번 · " : "") + "봇 킬 · 딜은 빼고 셌어요" + (p.pendingGames ? " · 집계 중 " + p.pendingGames + "판" : "") + "</p></div>" +
       (evs ? '<div class="card"><h2 class="card-h">나간 회차</h2><p class="card-sub">누르면 그 회차 점수판이 열려요</p><div class="evs">' + evs + "</div></div>" : "");
+  }
+  // 킬내기 평균과 비교(10/13 오너: 「KDA 아님 · 배그 전적표처럼 평균 처치 · 평균 딜 · 킬내기 인원 평균도 하나 적어 대조」)
+  //   내 값 = 서버 killsPerGame · damagePerGame 그대로 · 평균 = /career players 전체 킬 합 ÷ 판 합 · 딜 합 ÷ 판 합(사망은 안 씀)
+  function careerAvg(c) {
+    var g = 0, k = 0, d = 0;
+    (c && c.players || []).forEach(function (x) { g += Number(x.games) || 0; k += Number(x.kills) || 0; d += Number(x.damage) || 0; });
+    return g ? { games: g, kpg: k / g, dpg: d / g } : null;
+  }
+  function cmpRow(label, mine, avg, digits, unit) {
+    var top = Math.max(mine, avg) * 1.15 || 1, fmt = function (v) { return digits ? v.toFixed(digits) : comma(Math.round(v)); };
+    var r = avg > 0 ? mine / avg : 0, line;
+    if (r >= 1.05) line = "킬내기 평균의 " + r.toFixed(1) + "배";
+    else if (r > 0.95) line = "킬내기 평균과 비슷해요";
+    else { var gap = avg - mine; line = "평균까지 " + (digits ? Math.max(0.1, Math.round(gap * 10) / 10).toFixed(1) : comma(Math.max(1, Math.round(gap)))) + unit; }
+    return '<div class="cmp"><div class="cmp-h"><span>' + label + '</span><b class="num">' + fmt(mine) + "</b></div>" +
+      '<div class="cmp-bar" role="img" aria-label="' + label + " " + fmt(mine) + " · 킬내기 평균 " + fmt(avg) + '"><i style="width:' + Math.round(mine / top * 100) + '%"></i><s style="left:' + Math.round(avg / top * 100) + '%"></s></div>' +
+      '<p class="cmp-t">' + line + "<small>평균 " + fmt(avg) + "</small></p></div>";
+  }
+  function compareCard(p, c) {
+    var a = careerAvg(c);
+    if (!a || !p.games) return "";
+    return '<div class="card"><h2 class="card-h">킬내기 평균과 비교</h2>' +
+      cmpRow("평균 처치", Number(p.killsPerGame) || 0, a.kpg, 2, "킬") + cmpRow("평균 딜", Number(p.damagePerGame) || 0, a.dpg, 0, "딜") +
+      '<p class="note" style="margin-top:12px;">킬내기 전체 ' + comma(a.games) + "판 기준 · 세로선이 평균이에요</p></div>";
   }
   $("meOut").addEventListener("click", function (e) {
     var a = e.target.closest("[data-ev]"); if (!a) return;
     var id = Number(a.getAttribute("data-ev"));
-    evWant = EVS && id === EVS.currentId ? null : id; open = {}; B = null;
+    evWant = isDef(id) ? null : id; open = {}; B = null;
   });
 
   /* ---------- 내 계정 · 우상단 ----------
@@ -1436,7 +1485,8 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
       var b = li.querySelector("b"), map = b ? b.textContent.trim() : "", spots = splitTop(li.textContent.replace(map, "").replace(/\s+/g, " ").trim());
       return map && spots.length ? "<tr><th scope=\"row\">" + esc(map) + "</th>" + spots.map(function (x) { return "<td>" + esc(x) + "</td>"; }).join("") + "</tr>" : "";
     }).join("") : "";
-    var row = function (no, title, sec, body) { return '<div class="sum-row"><h3><span class="no">' + no + "</span>" + title + '<span class="sec">' + sec + "</span></h3>" + body + "</div>"; };
+    // 절 번호(§1.33.5 · §1.33.6)는 내부 계약 번호라 화면에 안 보인다 — 아래 각 줄 sec 인자는 코드 읽는 사람용(10/13 지휘)
+    var row = function (no, title, sec, body) { return '<div class="sum-row"><h3><span class="no">' + no + "</span>" + title + "</h3>" + body + "</div>"; };
     return '<div class="card"><h2 class="card-h">한눈에 보기</h2><p class="card-sub">자세한 룰은 아래에 있어요</p>' +
       row(1, "1번 = 팀장", "§1.33.5", "<p>팀 안에서 티어가 가장 높은 사람이 1번(팀장)이에요. 티어가 같으면 티어표 순위가 높은 쪽이에요. 1번부터 4번까지 같은 순서로 줄 세워요</p>") +
       (maps.length ? row(2, "맵 4개 고정", "§1.33.5", '<div class="maps">' + maps.map(function (m) { return "<span>" + esc(m) + "</span>"; }).join("<i>→</i>") + "</div>") : "") +
