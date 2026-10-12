@@ -173,6 +173,9 @@ main{padding-top:14px;}
 .game-d{font-size:12.5px;color:var(--body);}
 .game.void .game-h,.game.void .game-s{color:var(--mute);}
 .foot{font-size:12.5px;color:var(--mute);text-align:center;padding:4px 8px 8px;}
+.spon{text-align:center;padding:6px 8px 14px;font-size:12.5px;color:var(--mute);line-height:1.6;}
+.spon #sponName{color:var(--body);font-weight:600;}
+.spon-chip{display:inline-flex;align-items:center;min-height:44px;margin-top:6px;padding:0 14px;border-radius:999px;background:var(--card);box-shadow:inset 0 0 0 1px var(--line);color:var(--body);font-size:13px;font-weight:700;text-decoration:none;}
 .foot a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;}
 
 /* 내 기록 */
@@ -347,6 +350,12 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
       <div id="topLoad" aria-busy="true"><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span></div>
       <ol class="list" id="topList" hidden></ol>
       <div class="fail" id="topFail" hidden><span>순위를 불러오지 못했어요</span><button type="button" class="retry" data-retry="top">다시 시도</button></div>
+    </div>
+    <!-- 상금 스폰서 줄(10/12 자문 · 지휘) — 계좌 · 금액 안내 없이 문의는 디스코드 하나 · 스폰서 이름은 서버 sponsor 글자가 있을 때만 -->
+    <div class="spon" id="spon">
+      <p id="sponName" hidden></p>
+      <p id="sponFree">선수는 참가비 없이 뛰어요 · 상금은 스폰서와 운영진이 내요</p>
+      <a class="spon-chip" href="https://discord.gg/YfZD8d22wJ" target="_blank" rel="noopener">스폰서 문의</a>
     </div>
   </main>
 </section>
@@ -700,9 +709,17 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     if (k === "last") job("last", loadLast);
     if (k === "top") job("top", loadTop);
   });
+  // 상금 스폰서 줄 — 신청 페이지(killnaegi.html)와 같은 규칙. 보증금이 꺼져 있으면 외부 참가는 참가비가 있어 문구를 나눈다
+  function paintSponsor(a) {
+    var sp = typeof a.sponsor === "string" ? a.sponsor.trim().replace(/님$/, "").slice(0, 30) : "";
+    $("sponName").hidden = !sp; $("sponName").textContent = sp ? "이번 회차 상금 스폰서: " + sp + "님" : "";
+    var dep = a.deposit && Number(a.deposit.external) > 0;
+    $("sponFree").textContent = (dep ? "선수는" : "클랜원 · 레슨생은") + " 참가비 없이 뛰어요 · 상금은 스폰서와 운영진이 내요";
+  }
   function paintNext() {
     var a = HOME.a, b = HOME.b;
     if (!a) return;
+    paintSponsor(a);
     var ev = b && b.event, now = Date.now() + (b && b.serverNow ? b.serverNow - Date.now() : 0);
     cardState("next", "done"); $("nextBody").hidden = false;
     var label = a.label ? String(a.label).slice(0, 20) : "";
