@@ -8,7 +8,7 @@
 <meta property="og:title" content="GmI 킬내기">
 <meta property="og:description" content="신청 · 점수판 · 내 기록 · 선물함 · 룰 · 티어를 한곳에서 봐요">
 <meta name="theme-color" content="#0F2B1C">
-<meta name="color-scheme" content="light">
+<meta name="color-scheme" content="only light">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="킬내기">
@@ -134,6 +134,7 @@ main{padding-top:14px;}
 .card{background:var(--card);border-radius:var(--r-card);box-shadow:var(--shadow);padding:16px;margin-bottom:12px;}
 .card-h{font-size:17px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .card-sub{font-size:13px;color:var(--mute);margin-top:2px;}
+.nw{white-space:nowrap;}
 .note{font-size:12.5px;color:var(--mute);}
 .msg{font-size:14px;color:var(--body);padding:14px 2px;text-align:center;}
 .more{display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:700;color:var(--link);text-decoration:none;}
@@ -934,7 +935,8 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     cardState("top", "load"); $("topList").hidden = true; $("topMore").hidden = true; $("topNote").hidden = true;
     return loadLb().then(function (j) {
       var list = (j && j.list || []).slice(0, 10), rules = j && j.rules || {};
-      $("topSub").textContent = "판당 킬 · 판당 딜로 매겨요 · " + basisText(rules);
+      // 「11/9까지(D-27)」 덩어리는 한 줄로 묶는다 — 360폭에서 「(D-」 / 「27)」로 끊기던 것(#125 검수)
+      $("topSub").innerHTML = esc("판당 킬 · 판당 딜로 매겨요 · " + basisText(rules)).replace(/\d+\/\d+까지\((?:D-\d+|오늘까지)\)/, '<span class="nw">$&</span>');
       $("topList").innerHTML = list.length ? list.map(topLi).join("")
         : '<li><span></span><span class="nm"><small>아직 순위에 든 사람이 없어요</small></span><span></span></li>';
       $("topMore").hidden = list.length <= 5; $("topMore").setAttribute("aria-expanded", "false"); $("topMore").textContent = "6~" + list.length + "위 보기";
