@@ -148,9 +148,10 @@ main{padding-top:14px;}
 .list .nm{font-weight:700;font-size:15px;overflow-wrap:anywhere;min-width:0;}
 .list .nm small{display:block;font-weight:400;font-size:12.5px;color:var(--mute);}
 .list .val{font-family:var(--display);font-size:28px;font-weight:800;line-height:1;text-align:right;}
-.list .val.two{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:22px;}
-.list .val.two > span{display:flex;align-items:baseline;gap:4px;white-space:nowrap;}
-.list .val.two small{display:inline;font-size:11px;}
+.list .val.two{display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:19px;}
+.list .val.two > span{display:block;white-space:nowrap;}
+.list .val.two small{display:block;margin-top:2px;font-size:10.5px;line-height:1.1;}
+.list .nm .ig{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .list .val small{display:block;font-family:var(--font);font-size:11.5px;font-weight:500;color:var(--mute);}
 .minus{color:var(--bad);}
 .banner{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);border:2px solid var(--acc);}
@@ -972,7 +973,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
   }
   function topLi(x, i) {
     return '<li' + (x.rank === 1 ? ' class="first"' : x.rank === 2 ? ' class="silver"' : x.rank === 3 ? ' class="bronze"' : "") + (i >= 5 ? ' data-more hidden' : "") + '><span class="rk">' + esc(x.rank) + '</span><span class="nm">' + badgeHtml(x.label) +
-      '<span style="display:block;">' + esc(x.ign) + "</span><small>" + esc(x.games + "판") + '</small></span>' +
+      '<span class="ig" title="' + esc(x.ign) + '">' + esc(x.ign) + "</span><small>" + esc(x.games + "판") + '</small></span>' +
       // 순위는 판당 킬 · 판당 딜 반반(서버 공식) — 한쪽만 크게 보이면 순서가 틀려 보여 두 값을 같은 무게로 위아래(10/14 지휘)
       '<span class="val two"><span>' + esc(x.kpg) + "<small>판당 킬</small></span><span>" + esc(x.dpg) + "<small>판당 딜</small></span></span></li>";
   }
