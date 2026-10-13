@@ -148,6 +148,9 @@ main{padding-top:14px;}
 .list .nm{font-weight:700;font-size:15px;overflow-wrap:anywhere;min-width:0;}
 .list .nm small{display:block;font-weight:400;font-size:12.5px;color:var(--mute);}
 .list .val{font-family:var(--display);font-size:28px;font-weight:800;line-height:1;text-align:right;}
+.list .val.two{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:22px;}
+.list .val.two > span{display:flex;align-items:baseline;gap:4px;white-space:nowrap;}
+.list .val.two small{display:inline;font-size:11px;}
 .list .val small{display:block;font-family:var(--font);font-size:11.5px;font-weight:500;color:var(--mute);}
 .minus{color:var(--bad);}
 .banner{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);border:2px solid var(--acc);}
@@ -508,7 +511,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     </div>
     <div class="card" id="topCard">
       <h2 class="card-h">개인 순위 TOP 10</h2>
-      <p class="card-sub" id="topSub">판당 킬 · 판당 딜로 매겨요</p>
+      <p class="card-sub" id="topSub">판당 킬 · 판당 딜을 반씩 섞어 매겨요</p>
       <div id="topLoad" aria-busy="true"><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span></div>
       <ol class="list" id="topList" hidden></ol>
       <button type="button" class="lb-more" id="topMore" hidden aria-expanded="false">6~10위 보기</button>
@@ -969,14 +972,16 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
   }
   function topLi(x, i) {
     return '<li' + (x.rank === 1 ? ' class="first"' : x.rank === 2 ? ' class="silver"' : x.rank === 3 ? ' class="bronze"' : "") + (i >= 5 ? ' data-more hidden' : "") + '><span class="rk">' + esc(x.rank) + '</span><span class="nm">' + badgeHtml(x.label) +
-      '<span style="display:block;">' + esc(x.ign) + "</span><small>" + esc(x.games + "판 · 판당 딜 " + x.dpg) + '</small></span><span class="val">' + esc(x.kpg) + "<small>판당 킬</small></span></li>";
+      '<span style="display:block;">' + esc(x.ign) + "</span><small>" + esc(x.games + "판") + '</small></span>' +
+      // 순위는 판당 킬 · 판당 딜 반반(서버 공식) — 한쪽만 크게 보이면 순서가 틀려 보여 두 값을 같은 무게로 위아래(10/14 지휘)
+      '<span class="val two"><span>' + esc(x.kpg) + "<small>판당 킬</small></span><span>" + esc(x.dpg) + "<small>판당 딜</small></span></span></li>";
   }
   function loadTop() {
     cardState("top", "load"); $("topList").hidden = true; $("topMore").hidden = true; $("topNote").hidden = true;
     return loadLb().then(function (j) {
       var list = (j && j.list || []).slice(0, 10), rules = j && j.rules || {};
       // 「11/9까지(D-27)」 덩어리는 한 줄로 묶는다 — 360폭에서 「(D-」 / 「27)」로 끊기던 것(#125 검수)
-      $("topSub").innerHTML = esc("판당 킬 · 판당 딜로 매겨요 · " + basisText(rules)).replace(/\d+\/\d+까지\((?:D-\d+|오늘까지)\)/, '<span class="nw">$&</span>');
+      $("topSub").innerHTML = esc("판당 킬 · 판당 딜을 반씩 섞어 매겨요 · " + basisText(rules)).replace(/\d+\/\d+까지\((?:D-\d+|오늘까지)\)/, '<span class="nw">$&</span>');
       $("topList").innerHTML = list.length ? list.map(topLi).join("")
         : '<li><span></span><span class="nm"><small>아직 순위에 든 사람이 없어요</small></span><span></span></li>';
       $("topMore").hidden = list.length <= 5; $("topMore").setAttribute("aria-expanded", "false"); $("topMore").textContent = "6~" + list.length + "위 보기";
@@ -1190,7 +1195,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     var rules = lb && lb.rules || {}, min = Number(rules.minGames) || 0;
     var mine = lb && (lb.list || []).filter(function (x) { return x.key === p.key; })[0];
     var rankCard = "";
-    if (mine) rankCard = '<div class="card' + (mine.rank === 1 ? " rank1" : "") + '"><h2 class="card-h">' + badgeHtml(mine.label) + " 개인 순위 " + mine.rank + '위</h2><p class="card-sub">판당 킬 · 판당 딜로 매겨요 · 수요일 아침에 새로 매겨요</p></div>';
+    if (mine) rankCard = '<div class="card' + (mine.rank === 1 ? " rank1" : "") + '"><h2 class="card-h">' + badgeHtml(mine.label) + " 개인 순위 " + mine.rank + '위</h2><p class="card-sub">판당 킬 · 판당 딜을 반씩 섞어 매겨요 · 수요일 아침에 새로 매겨요</p></div>';
     else if (min && p.games < min) rankCard = '<div class="card"><h2 class="card-h">개인 순위까지 <span class="num" style="font-size:22px;">' + p.games + "/" + min + '판</span></h2>' +
       '<div class="prog"><i style="width:' + Math.min(100, Math.round(p.games / min * 100)) + '%"></i></div><p class="note">' + (min - p.games) + "판 더 뛰면 순위에 들어요" + (rules.season ? " · " + (rules.season.no || rules.season.number) + "시즌 판만 세요" : " · 최근 " + (rules.recentDays || 30) + "일 안에 뛴 판이 있어야 해요") + "</p></div>";
     else if (min) rankCard = '<div class="card"><h2 class="card-h">개인 순위</h2><p class="card-sub">' + min + "판은 넘었어요. " + (rules.season ? "수요일 아침에 순위를 새로 매겨요" : "최근 " + (rules.recentDays || 30) + "일 안에 뛰면 수요일 아침에 순위에 올라요") + "</p></div>";
