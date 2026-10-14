@@ -148,6 +148,10 @@ main{padding-top:14px;}
 .list .nm{font-weight:700;font-size:15px;overflow-wrap:anywhere;min-width:0;}
 .list .nm small{display:block;font-weight:400;font-size:12.5px;color:var(--mute);}
 .list .val{font-family:var(--display);font-size:28px;font-weight:800;line-height:1;text-align:right;}
+.list .val.two{display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:19px;}
+.list .val.two > span{display:block;white-space:nowrap;}
+.list .val.two small{display:block;margin-top:2px;font-size:10.5px;line-height:1.1;}
+.list .nm .ig{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .list .val small{display:block;font-family:var(--font);font-size:11.5px;font-weight:500;color:var(--mute);}
 .minus{color:var(--bad);}
 .banner{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);border:2px solid var(--acc);}
@@ -195,6 +199,9 @@ main{padding-top:14px;}
 .kv.three{grid-template-columns:1fr 1.4fr .85fr;gap:8px;}
 .kv.three div{padding:10px;min-width:0;}
 .kv.three b{font-size:21px;white-space:nowrap;}
+/* 팀 킬 1등 — 묻혀 있던 회색 한 줄을 금빛 배지로(0회면 안 보임) */
+.topk{display:inline-flex;align-items:baseline;gap:6px;margin-top:10px;padding:5px 12px;border-radius:999px;background:var(--gold);color:#3A2A05;font-size:13.5px;font-weight:600;box-shadow:inset 0 0 0 1px var(--gold-line);}
+.topk b{font-weight:800;}
 /* 킬내기 평균과 비교 — 막대 = 내 값 · 세로선 = 킬내기 전체 평균(값은 /career 합계로 화면이 나눈 것 · 순위 · 점수 계산 아님) */
 .cmp{margin-top:14px;}
 .cmp-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
@@ -205,6 +212,32 @@ main{padding-top:14px;}
 .cmp-bar s{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--ink);}
 .cmp-t{font-size:14px;color:var(--ink);}
 .cmp-t small{color:var(--mute);font-size:12.5px;margin-left:6px;}
+/* 불꽃 게이지(10/14 오너 시안 A) — 초록 앱 안에서 이 카드만 어둡게 · 평균보다 높으면 뜨겁게, 낮으면 파랗고 담담하게. 값 · 배수 계산은 위 cmpRow 그대로(화면 꼴만) */
+.card.flame{background:linear-gradient(160deg,#141a2a 0%,#1d1330 100%);color:#fff;}
+.flame .card-h{color:#fff;}
+.flame .note{color:rgba(255,255,255,.78);}
+.flame .cmp{margin-top:18px;}
+.flame .cmp-h span{color:rgba(255,255,255,.88);}
+.flame .cmp-h b{font-size:34px;}
+.fnum{background:linear-gradient(180deg,#ffe27a 0%,#ffb347 55%,#ff8a2f 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;} /* impeccable-disable-line gradient-text -- 10/14 오너가 고른 시안 A 「금→주황 숫자」 */
+.flame .cmp-bar{height:14px;margin:26px 0 10px;background:rgba(255,255,255,.1);}
+.flame .cmp-bar i{background:linear-gradient(90deg,#ffd84a 0%,#ff8a2f 55%,#ff4d4d 100%);
+  box-shadow:0 0 14px rgba(255,138,47,.55);} /* impeccable-disable-line dark-glow -- 10/14 오너가 고른 시안 A 「불꽃 게이지」의 주황 빛번짐 */
+.flame .cmp-bar.lo i{background:linear-gradient(90deg,#4aa3ff 0%,#7a6cff 100%);box-shadow:none;}
+.flame .cmp-bar s{background:#fff;top:-5px;bottom:-5px;}
+.flame .cmp-bar em{position:absolute;bottom:20px;transform:translateX(-50%);font-style:normal;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;}
+.flame .cmp-t{color:rgba(255,255,255,.9);min-height:28px;display:flex;align-items:center;}
+.fbadge{display:inline-flex;align-items:center;padding:3px 11px;border-radius:999px;background:linear-gradient(90deg,#ff8a2f,#ff4d4d);color:#2a0d00;font-weight:800;font-size:13.5px;
+  box-shadow:0 0 12px rgba(255,77,77,.45);} /* impeccable-disable-line dark-glow -- 시안 A 배지 빛번짐 */
+/* 움직임 — 탭을 열 때마다 한 번: 게이지 왼→오 0.8초 · 배지는 차오른 뒤 톡 */
+.play .flame .cmp-bar i{transform-origin:left center;animation:fill .8s cubic-bezier(.2,.7,.2,1) both;}
+.play .fbadge{animation:pop .35s .8s cubic-bezier(.22,1,.36,1) both;}
+@keyframes fill{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+@keyframes pop{from{transform:scale(.6);opacity:0;}to{transform:scale(1);opacity:1;}}
+/* 내 기록 위쪽 요약 칸 — 같은 금→주황 숫자 · 은은한 금 테두리 */
+#meBand .cell{border-color:rgba(255,206,110,.42);}
+#meBand .cell b{background:linear-gradient(180deg,#ffe27a 0%,#ffb347 55%,#ff8a2f 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;} /* impeccable-disable-line gradient-text -- 시안 A 요약 칸 숫자 */
+@media (prefers-reduced-motion:reduce){ .play .flame .cmp-bar i,.play .fbadge{animation:none;} }
 .evs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
 .evs a{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;background:var(--chip);color:var(--ink);font-size:13.5px;font-weight:600;text-decoration:none;}
 
@@ -323,9 +356,9 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 .sum-row h3{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
 .sum-row h3 .no{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--band);color:var(--acc);font-family:var(--display);font-size:13px;}
 .sum-row p{font-size:14px;color:var(--body);}
-.maps{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
-.maps span{background:var(--chip);color:var(--ink);font-weight:700;font-size:13.5px;border-radius:999px;padding:4px 11px;}
-.maps i{font-style:normal;color:var(--mute);}
+.maps{display:flex;flex-wrap:wrap;align-items:center;gap:3px;}
+.maps span{background:var(--chip);color:var(--ink);font-weight:700;font-size:13px;border-radius:999px;padding:4px 8px;white-space:nowrap;}
+.maps i{font-style:normal;color:var(--mute);font-size:11px;}
 .split{width:100%;border-collapse:collapse;font-size:14px;margin-top:2px;}
 .split th,.split td{padding:8px 6px;text-align:center;border-top:1px solid var(--line);}
 .split th{font-size:12.5px;font-weight:600;color:var(--mute);border-top:0;}
@@ -375,6 +408,9 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 .has-mt .card .wait{display:flex;align-items:center;gap:8px;}
 .has-mt .card .wait::before{content:"";flex:0 0 auto;width:40px;height:40px;background:var(--mt-base) center/contain no-repeat;transform-origin:50% 90%;animation:nod 1.6s ease-in-out infinite;}
 @keyframes nod{0%,100%{transform:rotate(0);}30%{transform:rotate(-7deg);}60%{transform:rotate(4deg);}}
+.wait-box{text-align:center;padding:0 0 6px;}
+.wait-box .cd{font-size:14px;color:var(--body);}
+.wait-box .cd b{font-family:var(--display);font-weight:800;font-size:20px;color:var(--ink);margin-left:4px;}
 .has-mt .msg.empty::before{content:"";display:block;width:72px;height:72px;margin:0 auto 8px;background:var(--mt-base) center/contain no-repeat;}
 
 /* 1위 순간 — 개인 순위 1위 카드 · 점수판 1등 팀: 승리 포즈 무뚝이 + 금빛 테두리 · 1위 카드는 살짝 기운 입체 + 빛 한 번 */
@@ -388,6 +424,13 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
 .rank1::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-18deg);animation:shine 1.4s ease-out .4s 1 both;pointer-events:none;}
 @keyframes shine{from{left:-60%;}to{left:130%;}}
 .list li.first{background:linear-gradient(135deg,#FFF8DC 0%,#FBEBB0 100%);box-shadow:inset 0 0 0 1.5px var(--gold-line);}
+/* TOP 10 2위 은 · 3위 동 — 테두리와 순위 숫자 색만(4위부터는 그대로) */
+.list li.silver,.list li.bronze{border-radius:12px;border-top:0;margin-top:4px;}
+.list li.silver{background:linear-gradient(135deg,#F6F8FA 0%,#E4E9EE 100%);box-shadow:inset 0 0 0 1.5px #A7B1BC;}
+.list li.bronze{background:linear-gradient(135deg,#FBF1E8 0%,#F1DCC7 100%);box-shadow:inset 0 0 0 1.5px #B9875A;}
+.list li.silver .rk{color:#5B6673;}
+.list li.bronze .rk{color:#8A5A2E;}
+.list li.silver + li,.list li.bronze + li{border-top:0;}
 .has-mt .list li.first .rk{background:var(--mt-win) center/contain no-repeat;color:transparent;height:34px;}
 .team.first{box-shadow:var(--shadow),inset 0 0 0 2px var(--gold-line);background:linear-gradient(160deg,#FFFFFF 0%,#FFF8E1 100%);}
 .has-mt .team.first .total::before{content:"";display:inline-block;width:38px;height:38px;margin-right:4px;vertical-align:-6px;background:var(--mt-win) center/contain no-repeat;}
@@ -469,7 +512,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     </div>
     <div class="card" id="topCard">
       <h2 class="card-h">개인 순위 TOP 10</h2>
-      <p class="card-sub" id="topSub">판당 킬 · 판당 딜로 매겨요</p>
+      <p class="card-sub" id="topSub">판당 킬 · 판당 딜을 반씩 섞어 매겨요</p>
       <div id="topLoad" aria-busy="true"><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span></div>
       <ol class="list" id="topList" hidden></ol>
       <button type="button" class="lb-more" id="topMore" hidden aria-expanded="false">6~10위 보기</button>
@@ -786,6 +829,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     if (v === "home") { loadHome(); timer = setInterval(loadHome, 30000); }
     if (v === "board") { loadBoard(); timer = setInterval(loadBoard, 15000); }
     if (v === "me" && !loaded.me) { loaded.me = true; initMe(); }
+    else if (v === "me" && !$("meBand").hidden) playMe();
     if (v === "gift") loadGift();
     if (v === "vote") loadVote();
     if (v === "rule") showSeg(h === "tier" ? "tier" : h === "feedback" ? "feedback" : "rule");
@@ -928,15 +972,17 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     return t;
   }
   function topLi(x, i) {
-    return '<li' + (x.rank === 1 ? ' class="first"' : "") + (i >= 5 ? ' data-more hidden' : "") + '><span class="rk">' + esc(x.rank) + '</span><span class="nm">' + badgeHtml(x.label) +
-      '<span style="display:block;">' + esc(x.ign) + "</span><small>" + esc(x.games + "판 · 판당 딜 " + x.dpg) + '</small></span><span class="val">' + esc(x.kpg) + "<small>판당 킬</small></span></li>";
+    return '<li' + (x.rank === 1 ? ' class="first"' : x.rank === 2 ? ' class="silver"' : x.rank === 3 ? ' class="bronze"' : "") + (i >= 5 ? ' data-more hidden' : "") + '><span class="rk">' + esc(x.rank) + '</span><span class="nm">' + badgeHtml(x.label) +
+      '<span class="ig" title="' + esc(x.ign) + '">' + esc(x.ign) + "</span><small>" + esc(x.games + "판") + '</small></span>' +
+      // 순위는 판당 킬 · 판당 딜 반반(서버 공식) — 한쪽만 크게 보이면 순서가 틀려 보여 두 값을 같은 무게로 위아래(10/14 지휘)
+      '<span class="val two"><span>' + esc(x.kpg) + "<small>판당 킬</small></span><span>" + esc(x.dpg) + "<small>판당 딜</small></span></span></li>";
   }
   function loadTop() {
     cardState("top", "load"); $("topList").hidden = true; $("topMore").hidden = true; $("topNote").hidden = true;
     return loadLb().then(function (j) {
       var list = (j && j.list || []).slice(0, 10), rules = j && j.rules || {};
       // 「11/9까지(D-27)」 덩어리는 한 줄로 묶는다 — 360폭에서 「(D-」 / 「27)」로 끊기던 것(#125 검수)
-      $("topSub").innerHTML = esc("판당 킬 · 판당 딜로 매겨요 · " + basisText(rules)).replace(/\d+\/\d+까지\((?:D-\d+|오늘까지)\)/, '<span class="nw">$&</span>');
+      $("topSub").innerHTML = esc("판당 킬 · 판당 딜을 반씩 섞어 매겨요 · " + basisText(rules)).replace(/\d+\/\d+까지\((?:D-\d+|오늘까지)\)/, '<span class="nw">$&</span>');
       $("topList").innerHTML = list.length ? list.map(topLi).join("")
         : '<li><span></span><span class="nm"><small>아직 순위에 든 사람이 없어요</small></span><span></span></li>';
       $("topMore").hidden = list.length <= 5; $("topMore").setAttribute("aria-expanded", "false"); $("topMore").textContent = "6~" + list.length + "위 보기";
@@ -1065,7 +1111,21 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     }
     chips.push('<span class="rchip">' + (B.excludeBots ? "봇 킬 · 딜 제외" : "봇 킬도 인정") + "</span>");
     $("rChips").innerHTML = chips.join("");
-    $("standings").innerHTML = B.teams.length ? B.teams.map(teamCard).join("") : '<div class="card"><p class="msg empty">팀이 아직 없어요. 드래프트가 끝나면 올라와요</p></div>';
+    $("standings").innerHTML = B.teams.length ? B.teams.map(teamCard).join("") : '<div class="card"><p class="msg empty">팀이 아직 없어요. 드래프트가 끝나면 올라와요</p>' + (!B.past && now < ev.start ? '<div class="wait-box" id="waitBox"><p class="cd">시작까지 <b>' + untilText(ev.start - now) + "</b></p></div>" : "") + "</div>";
+    if (!B.teams.length && !B.past && now < ev.start && isDef(B.eventId)) applyChip(now);
+  }
+  // 시작 전 빈 점수판 — 남은 시간 · 신청 마감 전이면 「솔로로 신청하기」 칩(신청 정보는 홈과 같은 /apply · 화면에만 씀)
+  function untilText(ms) {
+    var m = Math.max(0, Math.floor(ms / 60000)), d = Math.floor(m / 1440), h = Math.floor(m % 1440 / 60);
+    return d ? d + "일 " + h + "시간" : h ? h + "시간 " + (m % 60) + "분" : Math.max(1, m) + "분";
+  }
+  function applyChip(now) {
+    var put = function (a) {
+      var box = $("waitBox"), close = a && toMs(a.closeAt);
+      if (!box || !a || a.closed || !(close > now) || box.querySelector(".spon-chip")) return;
+      box.insertAdjacentHTML("beforeend", '<a class="spon-chip" href="killnaegi.html">솔로로 신청하기</a>');
+    };
+    if (HOME.a) put(HOME.a); else getJSON("/api/killrace/apply").then(put, bug);
   }
   $("standings").addEventListener("click", function (e) {
     if (e.target.closest("[data-retry]")) { $("standings").innerHTML = '<div class="card"><p class="wait">불러오는 중이에요</p></div>'; loadBoard(); return; }
@@ -1127,6 +1187,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     $("meKpg").textContent = p ? p.killsPerGame : "—";
     $("meDpg").textContent = p ? p.damagePerGame : "—";
     $("meGames").textContent = p ? p.games : "—";
+    ["meKpg", "meDpg", "meGames"].forEach(function (id, i) { var el = $(id); el.removeAttribute("data-final"); if (p) { el.setAttribute("data-count", [p.killsPerGame, p.damagePerGame, p.games][i]); el.setAttribute("data-digits", i ? 0 : 2); } else el.removeAttribute("data-count"); });
     if (!p) {
       $("meOut").innerHTML = '<div class="card"><p class="msg">' + (careerFail ? "기록은 지금 불러오지 못했어요. 잠시 뒤 다시 열어 주세요" : "킬내기 기록은 아직 없어요") + "</p></div>";
       return;
@@ -1135,7 +1196,7 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     var rules = lb && lb.rules || {}, min = Number(rules.minGames) || 0;
     var mine = lb && (lb.list || []).filter(function (x) { return x.key === p.key; })[0];
     var rankCard = "";
-    if (mine) rankCard = '<div class="card' + (mine.rank === 1 ? " rank1" : "") + '"><h2 class="card-h">' + badgeHtml(mine.label) + " 개인 순위 " + mine.rank + '위</h2><p class="card-sub">판당 킬 · 판당 딜로 매겨요 · 수요일 아침에 새로 매겨요</p></div>';
+    if (mine) rankCard = '<div class="card' + (mine.rank === 1 ? " rank1" : "") + '"><h2 class="card-h">' + badgeHtml(mine.label) + " 개인 순위 " + mine.rank + '위</h2><p class="card-sub">판당 킬 · 판당 딜을 반씩 섞어 매겨요 · 수요일 아침에 새로 매겨요</p></div>';
     else if (min && p.games < min) rankCard = '<div class="card"><h2 class="card-h">개인 순위까지 <span class="num" style="font-size:22px;">' + p.games + "/" + min + '판</span></h2>' +
       '<div class="prog"><i style="width:' + Math.min(100, Math.round(p.games / min * 100)) + '%"></i></div><p class="note">' + (min - p.games) + "판 더 뛰면 순위에 들어요" + (rules.season ? " · " + (rules.season.no || rules.season.number) + "시즌 판만 세요" : " · 최근 " + (rules.recentDays || 30) + "일 안에 뛴 판이 있어야 해요") + "</p></div>";
     else if (min) rankCard = '<div class="card"><h2 class="card-h">개인 순위</h2><p class="card-sub">' + min + "판은 넘었어요. " + (rules.season ? "수요일 아침에 순위를 새로 매겨요" : "최근 " + (rules.recentDays || 30) + "일 안에 뛰면 수요일 아침에 순위에 올라요") + "</p></div>";
@@ -1144,11 +1205,38 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
       return '<a href="#board" data-ev="' + id + '">' + esc(e ? roundOf(e.name, id) + " · " + md(e.start) : id + "회차") + "</a>";
     }).join("");
     $("meOut").innerHTML = rankCard + compareCard(p, CAREER) +
-      '<div class="card"><h2 class="card-h">누적</h2><div class="kv three">' +
-      "<div><small>킬</small><b>" + comma(p.kills) + "</b></div><div><small>딜</small><b>" + comma(p.damage) + "</b></div>" +
-      "<div><small>판</small><b>" + comma(p.games) + "</b></div></div>" +
-      '<p class="note" style="margin-top:10px;">' + (p.teamTopKills ? "팀에서 킬 1등 " + p.teamTopKills + "번 · " : "") + "봇 킬 · 딜은 빼고 셌어요" + (p.pendingGames ? " · 집계 중 " + p.pendingGames + "판" : "") + "</p></div>" +
+      '<div class="card"><h2 class="card-h">누적</h2>' +
+      (p.teamTopKills > 0 ? '<p class="topk"><b>팀 킬 1등</b> ' + comma(p.teamTopKills) + "회 · " + comma(p.games) + "판 중</p>" : "") +
+      '<div class="kv three">' +
+      '<div><small>킬</small><b data-count="' + (Number(p.kills) || 0) + '">' + comma(p.kills) + '</b></div><div><small>딜</small><b data-count="' + (Number(p.damage) || 0) + '">' + comma(p.damage) + "</b></div>" +
+      '<div><small>판</small><b data-count="' + (Number(p.games) || 0) + '">' + comma(p.games) + "</b></div></div>" +
+      '<p class="note" style="margin-top:10px;">봇 킬 · 딜은 빼고 셌어요' + (p.pendingGames ? " · 집계 중 " + p.pendingGames + "판" : "") + "</p></div>" +
       (evs ? '<div class="card"><h2 class="card-h">나간 회차</h2><p class="card-sub">누르면 그 회차 점수판이 열려요</p><div class="evs">' + evs + "</div></div>" : "");
+    playMe();
+  }
+  // 불꽃 게이지 움직임 — 탭을 열 때마다 한 번: 숫자 0 → 값(0.8초) · 게이지 · 배지는 CSS(.play). 움직임 줄이기면 최종 값만
+  var playId = 0;
+  function playMe() {
+    var v = $("v-me"), id = ++playId;
+    v.classList.remove("play"); void v.offsetWidth; v.classList.add("play");
+    var els = Array.prototype.slice.call(v.querySelectorAll("[data-count]"));
+    var fin = els.map(function (el) { return el.getAttribute("data-final") || el.textContent; });
+    els.forEach(function (el, i) { el.setAttribute("data-final", fin[i]); });
+    var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (still || !window.requestAnimationFrame) { els.forEach(function (el, i) { el.textContent = fin[i]; }); return; }
+    var t0 = null;
+    var step = function (t) {
+      if (id !== playId) return;
+      if (t0 == null) t0 = t;
+      var k = Math.min(1, (t - t0) / 800), e = 1 - Math.pow(1 - k, 3);
+      els.forEach(function (el, i) {
+        if (k >= 1) { el.textContent = fin[i]; return; }
+        var to = Number(el.getAttribute("data-count")) || 0, d = Number(el.getAttribute("data-digits")) || 0, x = to * e;
+        el.textContent = d ? x.toFixed(d) : comma(Math.round(x));
+      });
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   }
   // 킬내기 평균과 비교(10/13 오너: 「KDA 아님 · 배그 전적표처럼 평균 처치 · 평균 딜 · 킬내기 인원 평균도 하나 적어 대조」)
   //   내 값 = 서버 killsPerGame · damagePerGame 그대로 · 평균 = /career players 전체 킬 합 ÷ 판 합 · 딜 합 ÷ 판 합(사망은 안 씀)
@@ -1159,18 +1247,20 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
   }
   function cmpRow(label, mine, avg, digits, unit) {
     var top = Math.max(mine, avg) * 1.15 || 1, fmt = function (v) { return digits ? v.toFixed(digits) : comma(Math.round(v)); };
-    var r = avg > 0 ? mine / avg : 0, line;
-    if (r >= 1.05) line = "킬내기 평균의 " + r.toFixed(1) + "배";
-    else if (r > 0.95) line = "킬내기 평균과 비슷해요";
-    else { var gap = avg - mine; line = "평균까지 " + (digits ? Math.max(0.1, Math.round(gap * 10) / 10).toFixed(1) : comma(Math.max(1, Math.round(gap)))) + unit; }
-    return '<div class="cmp"><div class="cmp-h"><span>' + label + '</span><b class="num">' + fmt(mine) + "</b></div>" +
-      '<div class="cmp-bar" role="img" aria-label="' + label + " " + fmt(mine) + " · 킬내기 평균 " + fmt(avg) + '"><i style="width:' + Math.round(mine / top * 100) + '%"></i><s style="left:' + Math.round(avg / top * 100) + '%"></s></div>' +
-      '<p class="cmp-t">' + line + "<small>평균 " + fmt(avg) + "</small></p></div>";
+    var r = avg > 0 ? mine / avg : 0, line, lo = r < 0.95;
+    if (r >= 1.05) line = '<span class="fbadge">평균의 ' + r.toFixed(1) + "배</span>";
+    else if (!lo) line = "킬내기 평균과 비슷해요";
+    else { var gap = avg - mine; line = "평균까지 " + (digits ? Math.max(0.1, Math.round(gap * 10) / 10).toFixed(1) : comma(Math.max(1, Math.round(gap)))) + unit + " 남았어요"; }
+    var avgAt = Math.round(avg / top * 100);
+    return '<div class="cmp"><div class="cmp-h"><span>' + label + '</span><b class="num fnum" data-count="' + mine + '" data-digits="' + digits + '">' + fmt(mine) + "</b></div>" +
+      '<div class="cmp-bar' + (lo ? " lo" : "") + '" role="img" aria-label="' + label + " " + fmt(mine) + " · 킬내기 평균 " + fmt(avg) + '"><i style="width:' + Math.round(mine / top * 100) + '%"></i><s style="left:' + avgAt + '%"></s>' +
+      '<em aria-hidden="true" style="left:' + Math.min(86, Math.max(14, avgAt)) + '%">평균 ' + fmt(avg) + "</em></div>" +
+      '<p class="cmp-t">' + line + "</p></div>";
   }
   function compareCard(p, c) {
     var a = careerAvg(c);
     if (!a || !p.games) return "";
-    return '<div class="card"><h2 class="card-h">킬내기 평균과 비교</h2>' +
+    return '<div class="card flame"><h2 class="card-h">킬내기 평균과 비교</h2>' +
       cmpRow("평균 처치", Number(p.killsPerGame) || 0, a.kpg, 2, "킬") + cmpRow("평균 딜", Number(p.damagePerGame) || 0, a.dpg, 0, "딜") +
       '<p class="note" style="margin-top:12px;">킬내기 전체 ' + comma(a.games) + "판 기준 · 세로선이 평균이에요</p></div>";
   }
