@@ -73,8 +73,12 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
 .toast .n{font-family:var(--display);font-size:34px;line-height:1;}
 .toast.down{background:var(--down);color:#fff;}
 @media (prefers-reduced-motion:no-preference){ .toast{transition:opacity .25s ease-out,transform .25s ease-out;} }
-.bar{grid-column:2 / -1;height:8px;border-radius:999px;background:rgba(255,255,255,.08);margin-top:6px;overflow:hidden;}
+.bar{grid-column:2 / -1;height:8px;border-radius:999px;background:rgba(255,255,255,.08);margin-top:6px;overflow:hidden;display:flex;}
 .bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#FFD166,#FFB020);}
+.bar i.pend{border-radius:0 999px 999px 0;background:repeating-linear-gradient(90deg,rgba(255,209,102,.85) 0 6px,transparent 6px 10px);}
+.bar i.pend:first-child{border-radius:999px;}
+.pts small{display:block;font-family:var(--body);font-size:13px;font-weight:800;color:var(--sun);margin-top:3px;}
+.wb{display:inline-block;margin-right:6px;padding:1px 7px 2px;border-radius:999px;border:1.5px dashed var(--up);color:var(--up);font-size:12.5px;font-weight:800;line-height:1.3;vertical-align:1px;}
 .row.won{outline:3px solid var(--up);outline-offset:-3px;}
 .win{margin-top:8px;background:linear-gradient(135deg,#3DDC97,#1FAF73);color:#06210F;border-radius:14px;padding:14px 18px;font-weight:900;font-size:30px;text-align:center;}
 .win small{display:block;font-size:16px;font-weight:800;opacity:.8;margin-top:2px;}
@@ -131,17 +135,39 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
     rows.forEach(function(r){ cum += rowRace(r); if (hitAt === null && cum >= TARGET) hitAt = r.startedAt || 0; });
     return { race: cum, hitAt: hitAt };
   }
+  // 캡처 잠정(서버 x.shot · killrace-shot.cjs decorateBoard) — 봇이 결과 캡처를 읽는 순간 총점 · 막대에 「잠정」으로 더한다.
+  // 판 매칭(이중 합산 막기)은 서버가 한다: 캡처를 올린 뒤 그 팀에 새로 확정된 판 중 ① 순위가 같은 판(순위를 못 읽었거나 무효 판이면 순위 없이)
+  //   ② 캡처보다 뒤에 시작한 판 이 생기면, 또는 올린 지 60분이 지나면 그 캡처는 x.shot 에서 빠진다(isSettled).
+  //   그래서 여기서는 「rows 합 + 아직 남아 있는 x.shot」만 더하면 같은 판이 두 번 들어가지 않는다 — 판 식별자는 서버 응답에 없다.
+  // 캡처 판 점수 = 킬 + 딜 100당 1 + 치킨 8(사망 감점 없음) · 버닝 배수는 rows 와 같은 반올림.
+  //   x.shot 은 미확정 캡처 n장의 합이다 — 한 장이면 킬 · 딜 · 순위로 바로 센다. 여러 장이면 서버 잠정 점수(score)에 감점(penalty)을 되돌린 값,
+  //   서버가 다 못 셌으면(basis "kills") 킬 + 딜만(치킨은 마지막 장 순위만 안다 → 더하지 않는다).
+  function shotRace(s){
+    if (!s || !(s.n > 0)) return 0;
+    var raw = (Number(s.kills) || 0) + Math.floor((Number(s.damage) || 0) / 100 + 1e-9);
+    var m = typeof s.boost === "number" ? s.boost : 1;
+    if (s.n === 1) { raw += s.rank === 1 ? 8 : 0; return m === 1 ? raw : Math.round(raw * m); }
+    if (s.basis === "full" && s.score != null) return (Number(s.score) || 0) + (Number(s.penalty) || 0);
+    return raw;
+  }
   var prevRace = null;
   function decorate(){
-    B.teams.forEach(function(x){ var o = raceOf(x); x.race = o.race; x.hitAt = o.hitAt; });
+    // race = 확정 rows 합(선착 판정은 이것만) · pend = 캡처 잠정 · shown = 화면 큰 숫자(둘을 더한 것)
+    B.teams.forEach(function(x){ var o = raceOf(x); x.race = o.race; x.hitAt = o.hitAt; x.pend = shotRace(x.shot); x.shown = x.race + x.pend; });
     B.teams.sort(function(a, b){
       if (a.hitAt != null || b.hitAt != null) { if (a.hitAt == null) return 1; if (b.hitAt == null) return -1; if (a.hitAt !== b.hitAt) return a.hitAt - b.hitAt; }
-      return b.race - a.race || b.kills - a.kills;
+      return b.shown - a.shown || b.race - a.race || b.kills - a.kills;
     });
     B.teams.forEach(function(x, i){ x.rank = i + 1; });
     var now = {};
-    B.teams.forEach(function(x){ now[x.name] = x.race; if (prevRace && prevRace[x.name] != null && x.race > prevRace[x.name]) queue.push({ team: x.name, delta: x.race - prevRace[x.name] }); });
+    B.teams.forEach(function(x){ now[x.name] = x.shown; if (prevRace && prevRace[x.name] != null && x.shown > prevRace[x.name]) queue.push({ team: x.name, delta: x.shown - prevRace[x.name] }); });
     prevRace = now;
+  }
+  // 막대 — 확정분은 꽉 찬 노랑 · 잠정분은 그 뒤에 점선(합이 목표를 넘으면 100%에서 자른다)
+  function barHtml(x){
+    var pct = function(v){ return Math.min(100, Math.max(0, v / TARGET * 100)); };
+    var a = pct(x.race), b = Math.max(0, pct(x.race + Math.max(0, x.pend)) - a);
+    return (a ? '<i style="width:' + a.toFixed(1) + '%"></i>' : "") + (b ? '<i class="pend" style="width:' + b.toFixed(1) + '%" title="잠정"></i>' : "");
   }
   function render(){
     if (!B) return;
@@ -163,15 +189,16 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
       var move = showMove && x.prevRank && x.prevRank !== x.rank
         ? '<span class="move ' + (x.prevRank > x.rank ? "up" : "down") + '">' + (x.prevRank > x.rank ? "▲" : "▼") + Math.abs(x.prevRank - x.rank) + "</span>" : "";
       var prov = [];
-      if (x.provisional) prov.push("잠정 +" + x.provisional);
-      if (x.shot) prov.push("스샷 +" + x.shot.kills);
+      if (x.provisional) prov.push("킬 버튼 +" + x.provisional);     // 캡처 잠정은 점수 칸 「잠정 +N」으로 옮겼다
+      // 잠정까지 더하면 목표를 넘었지만 확정 점수로는 아직 — 선착은 확정 기준
+      var wait = x.hitAt == null && x.shown >= TARGET ? '<span class="wb">확정 대기</span>' : "";
       return '<div class="row' + (x.hitAt != null && x.rank === 1 ? " won" : x.rank === 1 ? " first" : "") + '"><div class="rk">' + x.rank + "</div>" +
-        '<div class="who"><div class="name">' + esc(x.name) + move + '</div><div class="meta">' + nextBoost(x, t) + x.games + "판 · 치킨 " + x.chickens +
+        '<div class="who"><div class="name">' + esc(x.name) + move + '</div><div class="meta">' + wait + nextBoost(x, t) + x.games + "판 · 치킨 " + x.chickens +
           prov.map(function(p){ return '<span class="pv">' + p + "</span>"; }).join("") + "</div></div>" +
         '<div class="num k">' + x.kills + "</div>" +
         '<div class="num d">' + n(x.damage) + "</div>" +
-        '<div class="num pts">' + x.race + "</div>" +
-        '<div class="bar"><i style="width:' + Math.min(100, Math.max(0, x.race / TARGET * 100)).toFixed(1) + '%"></i></div></div>';
+        '<div class="num pts">' + x.shown + (x.pend ? "<small>잠정 " + (x.pend > 0 ? "+" : "") + x.pend + "</small>" : "") + "</div>" +
+        '<div class="bar">' + barHtml(x) + "</div></div>";
     }).join("");
     var last = B.run && B.run.ok && B.run.at ? B.run.at : B.updatedAt ? Date.parse(B.updatedAt) : null;
     // 버닝 안내 — 판 순번 회차(5회부터 · 서버 boostMode "seq")는 「5 · 7번째 판 1.5배」, 시각 회차(2 · 3 · 4회)는 종전 그대로
