@@ -98,6 +98,9 @@ a{color:var(--link);}
 .cta{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:52px;margin-top:14px;border-radius:var(--r-btn);background:var(--acc);color:var(--band);
   font-weight:700;font-size:16.5px;text-decoration:none;border:0;cursor:pointer;}
 .cta.off{background:var(--band-cell);border:1px solid var(--band-line);color:var(--band-label);}
+.idle{margin-top:14px;background:var(--band-cell);border:1px solid var(--band-line);border-radius:14px;padding:14px 14px 13px;}
+.idle b{display:block;font-size:17px;font-weight:800;color:#fff;}
+.idle span{display:block;margin-top:3px;font-size:13.5px;color:var(--band-label);}
 .tier-sq{flex:0 0 auto;width:58px;height:58px;border-radius:14px;background:var(--acc);color:var(--band);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;}
 .tier-sq b{font-family:var(--display);font-weight:800;font-size:28px;}
 .tier-sq small{font-size:11px;font-weight:700;margin-top:2px;}
@@ -482,12 +485,13 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
             <g class="lv" fill="#C6E266" opacity=".85"><path d="M18 136c10-12 22-18 36-18-10 8-22 14-36 18z"/></g></svg>
         </div>
       </div>
-      <div class="cells">
+      <div class="cells" id="nextCells">
         <div class="cell"><small>신청</small><b id="cSeat"></b></div>
         <div class="cell"><small>신청 마감</small><b id="cClose"></b></div>
         <div class="cell"><small>드래프트</small><b class="txt">마감 직후</b></div>
       </div>
       <a class="cta" id="applyBtn" href="killnaegi.html">솔로로 신청하기 →</a>
+      <div class="idle" id="nextIdle" hidden><b>다음 회차 준비 중이에요</b><span>공지 채널에서 알려 드릴게요</span></div>
     </div>
     <div class="fail" id="nextFail" hidden><span>다음 회차를 불러오지 못했어요 · <a href="killnaegi.html">신청 페이지</a></span><button type="button" class="retry" data-retry="next">다시 시도</button></div>
   </div></div>
@@ -899,7 +903,17 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
     $("nextRound").textContent = label || "킬내기";
     var close = toMs(a.closeAt);
     // 점수판의 지금 회차가 이 신청 회차일 때만 시작 시각을 쓴다(마감 뒤 12시간 안에 시작) — 끝난 회차 시각이 다음 회차에 붙지 않게
-    var upcoming = ev && isFinite(ev.start) && isFinite(ev.end) && now < ev.end + 60000 && (close == null || (ev.start >= close && ev.start - close < 12 * 3600000));
+    var mine = ev && isFinite(ev.start) && isFinite(ev.end) && (close == null || (ev.start >= close && ev.start - close < 12 * 3600000));
+    var upcoming = mine && now < ev.end + 60000;
+    // 신청 회차가 이미 끝났고 다음 회차 신청이 아직 안 열렸으면(신청 설정이 옛 회차 그대로) 빈 상태 — 「다음 회차」로 끝난 회차를 보여 주지 않는다(10/17 오너)
+    //   끝남 = 마감됐고 · 점수판의 그 회차 끝 시각이 지났거나, 점수판이 없을 때 마감 뒤 12시간이 지났을 때
+    var over = !!a.closed && close != null && (mine ? now >= ev.end + 60000 : now - close > 12 * 3600000);
+    $("nextCells").hidden = over; $("applyBtn").hidden = over; $("nextIdle").hidden = !over;
+    if (over) {
+      document.title = "GmI 킬내기";
+      $("nextLabel").textContent = "다음 회차"; $("nextRound").textContent = "준비 중"; $("nextWhen").textContent = ""; $("nextD").hidden = true;
+      return;
+    }
     var at = upcoming ? ev.start : close;
     $("nextWhen").textContent = at != null ? mdw(at) + " " + hm(at) + (upcoming ? "" : " 마감") : "";
     var dd = at != null ? dayNo(at) - dayNo(now) : null;
@@ -942,7 +956,13 @@ details p{font-size:14px;color:var(--body);padding:0 0 12px;}
       return getJSON("/api/killrace/board?event=" + done.id).then(function (b) {
         var teams = (b && b.teams || []).slice(0, 3);
         $("lastTitle").textContent = "지난 회차 결과 · " + roundOf(done.name, done.id);
-        $("lastList").innerHTML = teams.length ? teams.map(function (t) { return rowLi(t.rank, t.name, "치킨 " + t.chickens + " · 킬 " + t.kills, t.total, "점", t.rank === 1); }).join("")
+        // 레이스 회차(§1.38.1 scoring "race")면 total 이 레이스 값 · 도착은 서버 reachedAt(판이 끝나 점수가 확정된 시각) 그대로
+        var race = b && b.scoring === "race";
+        var sub = function (t) {
+          if (!race) return "치킨 " + t.chickens + " · 킬 " + t.kills;
+          return t.reachedAt != null ? hm(Number(t.reachedAt)) + " 도착" : "미도달 " + Math.round((Number(t.progress) || 0) * 100) + "%";
+        };
+        $("lastList").innerHTML = teams.length ? teams.map(function (t) { return rowLi(t.rank, t.name, sub(t), t.total, "점", t.rank === 1); }).join("")
           : '<li><span></span><span class="nm"><small>이 회차는 기록된 팀이 없어요</small></span><span></span></li>';
         $("lastMore").onclick = function () { evWant = isDef(done.id) ? null : done.id; };
         cardState("last", "done"); $("lastList").hidden = false; $("lastMore").hidden = !teams.length; loaded.last = true;
