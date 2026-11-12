@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F2B1C">
+<meta name="gmi-api-base" content="https://worker-production-06b8.up.railway.app">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>GmI 투표소</title>
+<meta name="description" content="GmI 클랜 익명 투표소예요. 디스코드 카드에서 받은 입장권으로만 들어올 수 있어요">
+<link rel="icon" href="icons/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@800&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="brain.css?v=1">
+<link rel="stylesheet" href="vote.css?v=1">
+</head>
+<body>
+<div class="band"><div class="wrap">
+  <div class="b-top">
+    <span class="logo">GmI <span>투표소</span></span>
+    <button class="snd" id="snd" type="button" aria-pressed="false" aria-label="소리 켜기">소리 꺼짐</button>
+  </div>
+  <p class="b-sub">누가 무엇을 골랐는지는 운영진도 볼 수 없어요</p>
+</div></div>
+
+<main class="wrap">
+  <section class="card stage" id="stLoad" aria-live="polite">
+    <p class="msg">투표소 문을 여는 중이에요</p>
+  </section>
+
+  <section class="card stage" id="stErr" hidden>
+    <h1 class="card-h">입장할 수 없어요</h1>
+    <p class="card-sub" id="errMsg"></p>
+    <p class="note step">디스코드 🗳️│클랜투표 카드에서 「투표소에서 투표하기」를 다시 누르면 새 입장권이 나와요</p>
+  </section>
+
+  <!-- 1. 맞이 -->
+  <section class="card stage" id="stGreet" hidden>
+    <div class="host" id="hostGreet" data-pose="greet" aria-hidden="true"></div>
+    <p class="bubble" id="greetLine">어서 오세요, GmI 투표소예요</p>
+    <h1 class="agenda" id="agTitle"></h1>
+    <p class="agenda-desc" id="agDesc"></p>
+    <dl class="facts">
+      <div><dt>마감</dt><dd id="agClose"></dd></div>
+      <div><dt>참여</dt><dd id="agTurn"></dd></div>
+    </dl>
+    <div class="turnbar" aria-hidden="true"><i id="agBar"></i></div>
+    <button class="btn lime wide" id="toBallot" type="button">투표용지 받기</button>
+    <p class="note step">한 사람 한 표예요. 투표함에 넣은 표는 바꿀 수 없어요</p>
+  </section>
+
+  <!-- 2. 투표용지 · 도장 -->
+  <section class="stage" id="stBallot" hidden>
+    <form class="paper" id="paper" onsubmit="return false">
+      <p class="paper-k">GmI 클랜 투표용지</p>
+      <h2 class="paper-t" id="ppTitle"></h2>
+      <fieldset class="opts" id="opts">
+        <legend class="sr">하나를 골라 주세요</legend>
+      </fieldset>
+    </form>
+    <div class="desk">
+      <p class="hint" id="hint">한 칸을 고른 뒤 도장을 꾸욱 눌러 주세요</p>
+      <button class="stamp" id="stamp" type="button" aria-describedby="hint">
+        <svg class="ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="54"/></svg>
+        <span class="stamp-face" aria-hidden="true">
+          <svg viewBox="0 0 64 64"><rect x="22" y="4" width="20" height="26" rx="8"/><rect x="12" y="28" width="40" height="10" rx="3"/><rect x="8" y="40" width="48" height="16" rx="4"/></svg>
+        </span>
+        <span class="stamp-lb">꾸욱 눌러서 찍기</span>
+      </button>
+      <button class="btn dark wide" id="drop" type="button" hidden>투표함에 넣기</button>
+      <p class="err" id="ballotErr" role="status"></p>
+    </div>
+  </section>
+
+  <!-- 3. 투표함 -->
+  <section class="card stage" id="stDone" hidden>
+    <div class="box" aria-hidden="true">
+      <div class="box-back"></div>
+      <div class="slip" id="slip"></div>
+      <div class="box-front"><span>GmI</span></div>
+    </div>
+    <div class="host small" id="hostDone" data-pose="cheer" aria-hidden="true"></div>
+    <p class="bubble" id="doneLine">한 표 잘 받았어요</p>
+    <dl class="facts">
+      <div><dt>참여</dt><dd id="dnTurn"></dd></div>
+      <div><dt>마감</dt><dd id="dnClose"></dd></div>
+    </dl>
+    <div class="turnbar" aria-hidden="true"><i id="dnBar"></i></div>
+    <p class="note step">결과는 마감되면 디스코드 카드 아래에 올라가요</p>
+
+    <form class="opin" id="opin" onsubmit="return false">
+      <label class="opin-l" for="opText">반대 이유 · 더 나은 방안</label>
+      <p class="note">이름 없이 올라가요. 한 사람 한 줄이고 다시 쓰면 바뀌어요</p>
+      <textarea id="opText" maxlength="300" rows="3" placeholder="반대한다면 이유나 이렇게 하면 더 좋겠다는 방향을 적어 주세요"></textarea>
+      <div class="opin-row"><span class="note" id="opCount">0 / 300</span><button class="btn line" id="opSend" type="submit">의견 남기기</button></div>
+      <p class="err" id="opMsg" role="status"></p>
+    </form>
+  </section>
+
+  <p class="foot">GmI 투표소 · 입장권은 10분 동안 한 번만 쓸 수 있어요</p>
+</main>
+
+<audio id="bgm" loop preload="none">
+  <source src="assets/vote/bgm.ogg" type="audio/ogg">
+  <source src="assets/vote/bgm.mp3" type="audio/mpeg">
+</audio>
+<script src="vote.js?v=1"></script>
+</body>
+</html>
